@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Time App">
+<meta name="theme-color" content="#0C0C12">
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Time%20App%20%C2%B7%20Ditzel%22%2C%22short_name%22%3A%22Time%20App%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230C0C12%22%2C%22theme_color%22%3A%22%230C0C12%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%2527http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%3D%25270%25200%2520100%2520100%2527%253E%253Crect%2520width%3D%2527100%2527%2520height%3D%2527100%2527%2520rx%3D%252722%2527%2520fill%3D%2527%25230C0C12%2527%2F%253E%253Ctext%2520y%3D%252768%2527%2520x%3D%252750%2527%2520text-anchor%3D%2527middle%2527%2520font-size%3D%252752%2527%253E%25E2%258F%25B1%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+<title>Time App · Ditzel</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0C0C12; --surf:#14141E; --card:#1C1C2A; --card2:#222232;
+  --brd:#2E2E42; --txt:#EEEEF5; --mut:#666680;
+  --grn:#34D399; --red:#F87171; --yel:#FBBF24; --pnk:#F472B6;
+  --acc:#818CF8; --pur:#A78BFA;
+  --grn-d:rgba(52,211,153,.12); --red-d:rgba(248,113,113,.12);
+  --yel-d:rgba(251,191,36,.12); --pnk-d:rgba(244,114,182,.12);
+  --acc-d:rgba(129,140,248,.15); --pur-d:rgba(167,139,250,.1);
+  --r:14px; --rs:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.logo em{color:var(--acc);font-style:normal}
+.tabs{display:flex;background:var(--surf);border-radius:50px;padding:3px;gap:2px}
+.tab{padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s}
+.tab.on{background:var(--acc);color:#fff}
+
+.view{display:none;padding:16px 16px 110px}
+.view.on{display:block}
+
+/* ── DAG ── */
+.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.dag-nav{display:flex;gap:8px;margin-top:4px}
+.nbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.nbtn:active{transform:scale(.88)}
+.dag-navn{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1}
+.dag-dato{font-family:'DM Mono',monospace;font-size:12px;color:var(--mut);margin-top:5px}
+
+/* ── TID PICKER ── */
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.tf{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:14px 14px 10px;transition:border-color .2s}
+.tf.focus{border-color:var(--acc)}
+.tf-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:6px}
+.tf-display{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;color:var(--txt);cursor:pointer;letter-spacing:1px}
+.tf-display.tom{color:var(--mut)}
+
+/* Tid-modal */
+.tmodal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.tmodal-bg.skjult{display:none}
+.tmodal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:430px;padding:20px 20px 40px}
+.tmodal-ttl{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;text-align:center;margin-bottom:20px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.tmodal-vis{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;text-align:center;letter-spacing:2px;margin-bottom:24px}
+.tmodal-sep{color:var(--mut)}
+
+/* Timer scroll */
+.tscroll-row{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.tscroll{flex:1;max-width:150px}
+.tscroll-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);text-align:center;margin-bottom:8px}
+.tscroll-inner{display:flex;flex-direction:column;gap:2px;max-height:200px;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tscroll-inner::-webkit-scrollbar{display:none}
+.tscroll-item{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;text-align:center;padding:12px 0;border-radius:8px;cursor:pointer;color:var(--mut);scroll-snap-align:start;transition:all .15s;flex-shrink:0}
+.tscroll-item.sel{background:var(--acc);color:#fff;font-weight:700}
+.tscroll-item:active{opacity:.7}
+
+.tmodal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tmodal-btn{padding:15px;border-radius:var(--rs);border:none;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer}
+.tmodal-btn.annul{background:var(--surf);color:var(--mut)}
+.tmodal-btn.ok{background:var(--acc);color:#fff}
+
+/* ── RESULTAT ── */
+.res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.res-t{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1}
+.res-t small{font-size:18px;font-weight:500;color:var(--mut);letter-spacing:0}
+.res-sub{font-size:11px;color:var(--mut);margin-top:4px;font-family:'DM Mono',monospace}
+.res-pay-amt{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--grn)}
+.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+
+/* ── OT BREAKDOWN ── */
+.ot-boks{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:14px;display:none}
+.ot-boks.vis{display:block}
+.ot-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd)}
+.ot-row:last-child{border-bottom:none}
+.ot-lbl{font-size:12px;color:var(--mut)}
+.ot-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+.ot-val.g{color:var(--grn)}.ot-val.y{color:var(--yel)}.ot-val.p{color:var(--pur)}
+
+/* ── KNAPPER ── */
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.oe{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--acc-d);color:var(--acc);text-transform:uppercase;letter-spacing:.5px}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.xb{padding:13px 10px;border-radius:var(--rs);border:1.5px solid var(--brd);background:var(--card);color:var(--mut);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.3;text-align:center}
+.xb .xi{font-size:18px}
+.xb:active{transform:scale(.94)}
+.xb.von{border-color:var(--grn)!important;background:var(--grn-d)!important;color:var(--grn)!important}
+.xb.uon{border-color:var(--red)!important;background:var(--red-d)!important;color:var(--red)!important}
+.xb.fon{border-color:var(--yel)!important;background:var(--yel-d)!important;color:var(--yel)!important}
+.xb.pon{border-color:var(--pnk)!important;background:var(--pnk-d)!important;color:var(--pnk)!important}
+.xb.hon{border-color:var(--pur)!important;background:var(--pur-d)!important;color:var(--pur)!important}
+.xb.ron{border-color:var(--acc)!important;background:var(--acc-d)!important;color:var(--acc)!important}
+
+/* ── SÆRTID BADGE ── */
+.saertid-badge{display:none;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:var(--pur);text-align:center}
+.saertid-badge.vis{display:block}
+
+.note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:12px;margin-bottom:16px}
+textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;line-height:1.5}
+textarea::placeholder{color:var(--mut)}
+.gem-btn{width:100%;padding:17px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.gem-btn:active{transform:scale(.98);opacity:.9}
+.gem-btn.ok{background:var(--grn)}
+
+/* ── UGE ── */
+.uge-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.uge-ttl{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-1px}
+.uge-yr{font-size:12px;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace}
+.uge-sum{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:18px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.us-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+.us-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.dk{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.dk::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.dk.c0::before{background:#818CF8}.dk.c1::before{background:#34D399}.dk.c2::before{background:#60A5FA}
+.dk.c3::before{background:#FBBF24}.dk.c4::before{background:#F472B6}.dk.c5::before{background:#A78BFA}.dk.c6::before{background:#A78BFA}
+.dk:active{transform:scale(.98)}.dk.tom{opacity:.35}
+.dk-dag{width:42px;text-align:center}
+.dk-navn{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.dk-dato{font-family:'DM Mono',monospace;font-size:11px;color:var(--mut);margin-top:2px}
+.dk-info{flex:1;min-width:0}
+.dk-tider{font-family:'DM Mono',monospace;font-size:13px}
+.dk-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px}
+.bv{background:var(--grn-d);color:var(--grn)}.bu{background:var(--red-d);color:var(--red)}
+.bf{background:var(--yel-d);color:var(--yel)}.bp{background:var(--pnk-d);color:var(--pnk)}
+.bh{background:var(--pur-d);color:var(--pur)}
+.dk-note{font-size:10px;color:var(--mut);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.dk-timer{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;text-align:right;min-width:50px}
+.dk-timer small{font-size:11px;font-weight:400;color:var(--mut)}
+.send-row{display:flex;gap:8px;margin-top:8px}
+.sbtn{flex:1;padding:15px;border-radius:var(--r);border:1.5px solid var(--brd);background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif}
+.sbtn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.sbtn:active{transform:scale(.97)}
+
+/* ── INDSTILLINGER ── */
+.s-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.s-hd{padding:12px 16px;background:var(--card2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut)}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--brd)}
+.s-row:last-child{border-bottom:none}
+.s-lbl{font-size:14px;font-weight:500}
+.s-desc{font-size:11px;color:var(--mut);margin-top:2px}
+.s-inp{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:var(--txt);font-family:'DM Mono',monospace;font-size:14px;outline:none}
+.s-inp:focus{border-color:var(--acc)}
+.sw{width:46px;height:26px;background:var(--brd);border-radius:50px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.sw.on{background:var(--acc)}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.sw.on::after{left:23px}
+.info-boks{background:var(--card2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:14px;font-size:12px;line-height:1.8;color:var(--mut)}
+.info-boks strong{color:var(--txt)}
+
+/* ── BOTTOMBAR ── */
+.botbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,18,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--brd);display:flex;padding:10px 16px;padding-bottom:max(10px, env(safe-area-inset-bottom));gap:2px}
+.bb{flex:1;padding:9px 4px;border:none;background:transparent;color:var(--mut);font-size:9px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:var(--rs);transition:all .15s;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Sans',sans-serif}
+.bb .bi{font-size:20px;line-height:1}
+.bb.on{color:var(--acc)}
+.bb:active{transform:scale(.9)}
+
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-12px);background:var(--grn);color:#0C0C12;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── PDF PRINT ── */
+#pdf-frame{display:none}
+@media print {
+  body > *:not(#pdf-frame){display:none!important}
+  #pdf-frame{display:block!important;position:fixed;inset:0;background:#fff;z-index:9999;padding:0;margin:0}
+  @page{size:A4 portrait;margin:18mm 16mm}
+}
+.pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;max-width:175mm;margin:0 auto}
+.pdf-h1{font-size:20pt;font-weight:900;letter-spacing:-0.5px;margin-bottom:2px}
+.pdf-h2{font-size:11pt;color:#555;margin-bottom:12px}
+.pdf-meta{display:flex;gap:24px;font-size:9pt;color:#333;padding:8px 0;border-top:2px solid #111;border-bottom:1px solid #ccc;margin-bottom:14px}
+.pdf-meta span{display:flex;flex-direction:column;gap:1px}
+.pdf-meta strong{font-size:10pt;color:#111}
+.pdf-tbl{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:9pt}
+.pdf-tbl th{background:#111;color:#fff;padding:6px 8px;text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.5px}
+.pdf-tbl td{padding:6px 8px;border-bottom:1px solid #eee;vertical-align:top}
+.pdf-tbl tr:nth-child(even) td{background:#f9f9f9}
+.pdf-tbl .num{text-align:right;font-family:'Courier New',monospace}
+.pdf-tbl .fri td{color:#999;font-style:italic}
+.pdf-sect{font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#555;margin:14px 0 6px;border-bottom:1px solid #ddd;padding-bottom:3px}
+.pdf-tillæg{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:9pt}
+.pdf-tillæg td{padding:5px 8px;border-bottom:1px solid #f0f0f0}
+.pdf-tillæg .num{text-align:right;font-family:'Courier New',monospace;min-width:80px}
+.pdf-tillæg tr.total td{border-top:2px solid #111;font-weight:700;font-size:10pt;padding-top:8px}
+.pdf-tillæg tr.sub td{color:#555;font-size:8.5pt}
+.pdf-tillæg .lbl{color:#333}
+.pdf-footer{font-size:7.5pt;color:#888;border-top:1px solid #ccc;padding-top:8px;margin-top:16px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">TIME<em>·</em>APP</div>
+  <div class="tabs">
+    <button class="tab on" onclick="visView('dag')">Dag</button>
+    <button class="tab" onclick="visView('uge')">Uge</button>
+    <button class="tab" onclick="visView('inst')">⚙</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="pdf-frame"></div>
+
+<!-- TID MODAL -->
+<div class="tmodal-bg skjult" id="tmodal-bg" onclick="lukkModal(event)">
+  <div class="tmodal" onclick="event.stopPropagation()">
+    <div class="tmodal-ttl" id="tmodal-ttl">Vælg tidspunkt</div>
+    <div class="tmodal-vis">
+      <span id="mv-h">--</span><span class="tmodal-sep">:</span><span id="mv-m">--</span>
+    </div>
+    <div class="tscroll-row">
+      <div class="tscroll">
+        <div class="tscroll-lbl">Timer</div>
+        <div class="tscroll-inner" id="ts-timer"></div>
+      </div>
+      <div class="tscroll">
+        <div class="tscroll-lbl">Kvarter</div>
+        <div class="tscroll-inner" id="ts-min"></div>
+      </div>
+    </div>
+    <div class="tmodal-btns">
+      <button class="tmodal-btn annul" onclick="lukkModal(null)">Annuller</button>
+      <button class="tmodal-btn ok" onclick="bekræftTid()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAG VIEW -->
+<div class="view on" id="view-dag">
+  <div class="dag-hd">
+    <div>
+      <div class="dag-navn" id="dag-navn"></div>
+      <div class="dag-dato" id="dag-dato"></div>
+    </div>
+    <div class="dag-nav">
+      <button class="nbtn" onclick="skiftDag(-1)">‹</button>
+      <button class="nbtn" onclick="skiftDag(1)">›</button>
+    </div>
+  </div>
+
+  <div class="time-row">
+    <div class="tf" id="tf-start" onclick="åbnModal('start')">
+      <div class="tf-lbl">Start</div>
+      <div class="tf-display tom" id="disp-start">––:––</div>
+    </div>
+    <div class="tf" id="tf-slut" onclick="åbnModal('slut')">
+      <div class="tf-lbl">Slut</div>
+      <div class="tf-display tom" id="disp-slut">––:––</div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div>
+      <div class="res-t" id="res-t">– –<small> t</small></div>
+      <div class="res-sub" id="res-sub"></div>
+    </div>
+    <div style="text-align:right">
+      <div class="res-pay-amt" id="res-pay">0 kr.</div>
+      <div class="res-pay-lbl">Dagsløn</div>
+    </div>
+  </div>
+
+  <div class="ot-boks" id="ot-boks">
+    <div id="ot-advarsel" style="display:none;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:11px;color:#FBBF24;line-height:1.5">
+      ⚠️ OT er sket men ingen type er valgt — beregnet som <strong>uvarslet</strong> per §6e. Vælg Varslet eller Uvarslet OT ovenfor.
+    </div>
+    <div class="ot-row"><span class="ot-lbl">Normal arbejdstid</span><span class="ot-val g" id="o-normal">–</span></div>
+    <div class="ot-row" id="o-ot1-row"><span class="ot-lbl" id="o-ot1-lbl">OT 1. time</span><span class="ot-val y" id="o-ot1">–</span></div>
+    <div class="ot-row" id="o-ot2-row"><span class="ot-lbl" id="o-ot2-lbl">OT 2. time</span><span class="ot-val y" id="o-ot2">–</span></div>
+    <div class="ot-row" id="o-ot3-row"><span class="ot-lbl">OT 3.+ time (+135%)</span><span class="ot-val y" id="o-ot3">–</span></div>
+    <div class="ot-row" id="o-fsk-row" style="display:none"><span class="ot-lbl">Forskudt tid +110 kr/t §7</span><span class="ot-val p" id="o-fsk">–</span></div>
+    <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl">Weekend/helligdag §8</span><span class="ot-val p" id="o-wk">–</span></div>
+    <div class="ot-row" id="o-ext-row" style="display:none"><span class="ot-lbl" id="o-ext-lbl">Tillæg</span><span class="ot-val g" id="o-ext">–</span></div>
+  </div>
+
+  <div class="saertid-badge" id="saertid-badge">🟣 Forskudt særtid aktiv — OT starter efter 10 timer</div>
+
+  <div class="slbl">Overarbejde <span class="oe">§6</span></div>
+  <div class="bgrid">
+    <button class="xb" id="bn-v" onclick="tog('v')">
+      <span class="xi">🟢</span>Varslet OT
+      <span style="font-size:10px;opacity:.65">+50% · +60% · +135%</span>
+    </button>
+    <button class="xb" id="bn-u" onclick="tog('u')">
+      <span class="xi">🔴</span>Uvarslet OT
+      <span style="font-size:10px;opacity:.65">+75% · +100% · +135%</span>
+    </button>
+  </div>
+
+  <div class="slbl">Tillæg <span class="oe">§7 §8 §12</span></div>
+  <div class="bgrid">
+    <button class="xb" id="bn-f" onclick="tog('f')">
+      <span class="xi">🟡</span>For sen frokost
+      <span style="font-size:10px;opacity:.65">Diæt-kompensation</span>
+    </button>
+    <button class="xb" id="bn-p" onclick="tog('p')">
+      <span class="xi">🩷</span>Ingen 10-min pause
+      <span style="font-size:10px;opacity:.65">Betales efter 10 timer</span>
+    </button>
+    <button class="xb" id="bn-h" onclick="tog('h')">
+      <span class="xi">🟣</span>Weekend/helligdag
+      <span style="font-size:10px;opacity:.65">+75% min. 4 timer</span>
+    </button>
+    <button class="xb" id="bn-r" onclick="tog('r')">
+      <span class="xi">🚗</span>Kørsel m. udstyr
+      <span style="font-size:10px;opacity:.65">= arbejdstid §13</span>
+    </button>
+  </div>
+
+  <div class="slbl">Note</div>
+  <div class="note-wrap">
+    <textarea id="i-note" placeholder="Produktion, location, bemærkninger…" rows="3"></textarea>
+  </div>
+
+  <button class="gem-btn" id="gem-btn" onclick="gemDag()">GEM DAG →</button>
+</div>
+
+<!-- UGE VIEW -->
+<div class="view" id="view-uge">
+  <div class="uge-hd">
+    <div>
+      <div class="uge-ttl" id="uge-ttl">Uge –</div>
+      <div class="uge-yr" id="uge-yr"></div>
+    </div>
+    <div class="dag-nav">
+      <button class="nbtn" onclick="skiftUge(-1)">‹</button>
+      <button class="nbtn" onclick="skiftUge(1)">›</button>
+    </div>
+  </div>
+  <div class="uge-sum">
+    <div><div class="us-val" id="us-t">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Timer</div></div>
+    <div><div class="us-val" style="color:var(--grn)" id="us-l">0</div><div class="us-lbl">Kr.</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--red)" id="us-o">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Overtid</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--acc)" id="us-d">0</div><div class="us-lbl">Dage</div></div>
+  </div>
+  <div id="uge-liste"></div>
+  <div class="send-row" style="flex-wrap:wrap;gap:6px">
+    <button class="sbtn" style="min-width:calc(50% - 3px)" onclick="doPDF()">🖨 PDF</button>
+    <button class="sbtn" style="min-width:calc(50% - 3px)" onclick="doXLSX()">📊 Excel</button>
+    <button class="sbtn" style="min-width:calc(50% - 3px)" onclick="doKalender()">📅 Kalender</button>
+    <button class="sbtn pri" style="min-width:calc(50% - 3px)" onclick="doMail()">✉️ Mail</button>
+  </div>
+</div>
+
+<!-- INDSTILLINGER VIEW -->
+<div class="view" id="view-inst">
+  <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px">Indstillinger</div>
+  <div style="font-size:12px;color:var(--mut);margin-bottom:20px">FAF Fiktionsoverenskomst 2025–2027</div>
+
+  <div class="s-card">
+    <div class="s-hd">Personligt</div>
+    <div class="s-row">
+      <div><div class="s-lbl">Navn</div></div>
+      <input class="s-inp" type="text" id="s-navn" placeholder="Thomas" style="width:140px;text-align:left">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Email produktion</div><div class="s-desc">Send ugeseddel til</div></div>
+      <input class="s-inp" type="email" id="s-email" placeholder="prod@film.dk" style="width:160px;text-align:left;font-size:12px">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Aktuel produktion</div></div>
+      <input class="s-inp" type="text" id="s-prod" placeholder="Film titel" style="width:140px;text-align:left">
+    </div>
+  </div>
+
+  <div class="s-card">
+    <div class="s-hd">Løn §3</div>
+    <div class="s-row">
+      <div><div class="s-lbl">Ugeløn</div><div class="s-desc">Kr. pr. uge (40 timer)</div></div>
+      <input class="s-inp" type="number" id="s-ugelon" value="10380" style="width:110px;text-align:right">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">10% enkeltdagstillæg</div><div class="s-desc">Ansættelse under 1 uge §3.10</div></div>
+      <div class="sw" id="sw-tillæg" onclick="swTog('tillæg')"></div>
+    </div>
+  </div>
+
+  <div class="s-card">
+    <div class="s-hd">Arbejdstidsmodel §4 / §5</div>
+    <div class="s-row">
+      <div>
+        <div class="s-lbl">Normal 5-dages uge</div>
+        <div class="s-desc">8t/dag · OT efter 8t</div>
+      </div>
+      <div class="sw" id="sw-5dag" onclick="vælgModel('5dag')"></div>
+    </div>
+    <div class="s-row">
+      <div>
+        <div class="s-lbl">Forskudt særtid §5</div>
+        <div class="s-desc">4-dages uge · 10t/dag · OT efter 10t</div>
+      </div>
+      <div class="sw" id="sw-saertid" onclick="vælgModel('saertid')"></div>
+    </div>
+    <div class="s-row" id="fridag-row" style="display:none">
+      <div><div class="s-lbl">Fridag placering</div><div class="s-desc">§5 stk. 3 / stk. 4</div></div>
+      <select class="s-inp" id="s-fridag" style="width:120px;text-align:left" onchange="gemInst()">
+        <option value="fre">Fredag</option>
+        <option value="man">Mandag</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="info-boks">
+    <strong>Tillægsoversigt:</strong><br>
+    Varslet OT: <strong>+50%</strong> (1.t) · <strong>+60%</strong> (2.t) · <strong>+135%</strong> (3.t+)<br>
+    Uvarslet OT: <strong>+75%</strong> (1.t) · <strong>+100%</strong> (2.t) · <strong>+135%</strong> (3.t+)<br>
+    Forskudt tid kl. 19–06 (hverdage): <strong>+110 kr/t</strong><br>
+    Weekend fre 20:00 – man 06:00: <strong>+75%</strong> (min. 4t)<br>
+    Pension: <strong>9,5%</strong> af normalløn
+  </div>
+
+  <button class="gem-btn" onclick="gemInst()">GEM INDSTILLINGER</button>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="botbar">
+  <button class="bb on" id="bb-dag" onclick="visView('dag')"><span class="bi">📅</span>Dag</button>
+  <button class="bb" id="bb-uge" onclick="visView('uge')"><span class="bi">📊</span>Uge</button>
+  <button class="bb" id="bb-inst" onclick="visView('inst')"><span class="bi">⚙️</span>Indstil</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// KONSTANTER
+// ═══════════════════════════════════════════════════
+const DAGE   = ["Søndag","Mandag","Tirsdag","Onsdag","Torsdag","Fredag","Lørdag"];
+const DAGE_S = ["søn","man","tir","ons","tor","fre","lør"];
+const MND    = ["jan","feb","mar","apr","maj","jun","jul","aug","sep","okt","nov","dec"];
+const DIÆT   = 94;
+const KVARTER = [0, 15, 30, 45];
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let aktivDag  = new Date();
+let ugeOffset = 0;
+let knapper   = { v:false, u:false, f:false, p:false, h:false, r:false };
+let cfg = { navn:'', email:'', prod:'', ugelon:10380, tillæg:false, model:'5dag', fridag:'fre' };
+
+// Tidsvalg state
+let modalFelt  = null;   // 'start' eller 'slut'
+let valgtH     = 8;
+let valgtM     = 0;
+let tidStart   = null;   // { h, m } eller null
+let tidSlut    = null;
+
+// ═══════════════════════════════════════════════════
+// TIDSPICKER MODAL
+// ═══════════════════════════════════════════════════
+function byggModal() {
+  const hEl = document.getElementById('ts-timer');
+  const mEl = document.getElementById('ts-min');
+  hEl.innerHTML = '';
+  mEl.innerHTML = '';
+
+  for (let h = 0; h < 24; h++) {
+    const el = document.createElement('div');
+    el.className = 'tscroll-item' + (h === valgtH ? ' sel' : '');
+    el.textContent = String(h).padStart(2, '0');
+    el.onclick = () => { valgtH = h; opdaterModal(); };
+    hEl.appendChild(el);
+  }
+
+  KVARTER.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'tscroll-item' + (m === valgtM ? ' sel' : '');
+    el.textContent = String(m).padStart(2, '0');
+    el.onclick = () => { valgtM = m; opdaterModal(); };
+    mEl.appendChild(el);
+  });
+
+  // Scroll til valgt time
+  const selH = hEl.querySelector('.sel');
+  if (selH) selH.scrollIntoView({ block: 'center' });
+}
+
+function opdaterModal() {
+  // Opdater sel-klasser timer
+  document.querySelectorAll('#ts-timer .tscroll-item').forEach((el, i) => {
+    el.classList.toggle('sel', i === valgtH);
+  });
+  // Opdater sel-klasser kvarter
+  document.querySelectorAll('#ts-min .tscroll-item').forEach((el, i) => {
+    el.classList.toggle('sel', KVARTER[i] === valgtM);
+  });
+  document.getElementById('mv-h').textContent = String(valgtH).padStart(2,'0');
+  document.getElementById('mv-m').textContent = String(valgtM).padStart(2,'0');
+}
+
+function åbnModal(felt) {
+  modalFelt = felt;
+  const ekst = felt === 'start' ? tidStart : tidSlut;
+  valgtH = ekst ? ekst.h : (felt === 'start' ? 8 : 16);
+  valgtM = ekst ? ekst.m : 0;
+  document.getElementById('tmodal-ttl').textContent = felt === 'start' ? 'Vælg starttid' : 'Vælg sluttid';
+  document.getElementById('mv-h').textContent = String(valgtH).padStart(2,'0');
+  document.getElementById('mv-m').textContent = String(valgtM).padStart(2,'0');
+  document.getElementById('tmodal-bg').classList.remove('skjult');
+  byggModal();
+}
+
+function lukkModal(e) {
+  if (e === null || e.target === document.getElementById('tmodal-bg')) {
+    document.getElementById('tmodal-bg').classList.add('skjult');
+  }
+}
+
+function bekræftTid() {
+  if (modalFelt === 'start') {
+    tidStart = { h: valgtH, m: valgtM };
+  } else {
+    tidSlut = { h: valgtH, m: valgtM };
+  }
+  opdaterTidDisplay();
+  document.getElementById('tmodal-bg').classList.add('skjult');
+  beregn();
+}
+
+function opdaterTidDisplay() {
+  const dS = document.getElementById('disp-start');
+  const dE = document.getElementById('disp-slut');
+  if (tidStart) {
+    dS.textContent = `${String(tidStart.h).padStart(2,'0')}:${String(tidStart.m).padStart(2,'0')}`;
+    dS.classList.remove('tom');
+  } else {
+    dS.textContent = '––:––'; dS.classList.add('tom');
+  }
+  if (tidSlut) {
+    dE.textContent = `${String(tidSlut.h).padStart(2,'0')}:${String(tidSlut.m).padStart(2,'0')}`;
+    dE.classList.remove('tom');
+  } else {
+    dE.textContent = '––:––'; dE.classList.add('tom');
+  }
+}
+
+function tidTilH(t) {
+  if (!t) return null;
+  return t.h + t.m / 60;
+}
+
+function tidStreng(t) {
+  if (!t) return '';
+  return `${String(t.h).padStart(2,'0')}:${String(t.m).padStart(2,'0')}`;
+}
+
+// ═══════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════
+function nøgle(d) {
+  return `faf-${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+}
+function p2(n) { return String(n).padStart(2,'0'); }
+function hentDag(d) {
+  try { return JSON.parse(localStorage.getItem(nøgle(d))) || null; } catch { return null; }
+}
+function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); }
+
+function hentCfg() {
+  try {
+    const c = JSON.parse(localStorage.getItem('faf-cfg'));
+    if (c) cfg = { ...cfg, ...c };
+  } catch {}
+  document.getElementById('s-navn').value   = cfg.navn;
+  document.getElementById('s-email').value  = cfg.email;
+  document.getElementById('s-prod').value   = cfg.prod;
+  document.getElementById('s-ugelon').value = cfg.ugelon;
+  setSw('tillæg', cfg.tillæg);
+  opdaterModelUI();
+}
+
+function gemInst() {
+  cfg.navn   = document.getElementById('s-navn').value.trim();
+  cfg.email  = document.getElementById('s-email').value.trim();
+  cfg.prod   = document.getElementById('s-prod').value.trim();
+  cfg.ugelon = parseFloat(document.getElementById('s-ugelon').value) || 10380;
+  cfg.fridag = document.getElementById('s-fridag').value;
+  localStorage.setItem('faf-cfg', JSON.stringify(cfg));
+  toast('Gemt ✓');
+  opdaterSaertidBadge();
+  beregn();
+}
+
+function swTog(k) {
+  cfg[k] = !cfg[k];
+  setSw(k, cfg[k]);
+  beregn();
+}
+function setSw(k, v) {
+  document.getElementById('sw-'+k)?.classList.toggle('on', v);
+}
+
+// Arbejdstidsmodel: kun én kan være aktiv
+function vælgModel(m) {
+  cfg.model = m;
+  opdaterModelUI();
+  gemInst();
+}
+function opdaterModelUI() {
+  setSw('5dag',   cfg.model === '5dag');
+  setSw('saertid', cfg.model === 'saertid');
+  const fridagRow = document.getElementById('fridag-row');
+  fridagRow.style.display = cfg.model === 'saertid' ? 'flex' : 'none';
+  if (cfg.model === 'saertid') {
+    document.getElementById('s-fridag').value = cfg.fridag || 'fre';
+  }
+  opdaterSaertidBadge();
+}
+function opdaterSaertidBadge() {
+  const b = document.getElementById('saertid-badge');
+  if (cfg.model === 'saertid') {
+    const friTxt = cfg.fridag === 'fre' ? 'Fridag: fredag' : 'Fridag: mandag';
+    b.textContent = `🟣 Forskudt særtid — OT efter 10t — ${friTxt}`;
+    b.classList.add('vis');
+  } else {
+    b.classList.remove('vis');
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// OVERENSKOMST BEREGNINGER
+// ═══════════════════════════════════════════════════
+function timesats() {
+  return (cfg.ugelon / 40) * (cfg.tillæg ? 1.1 : 1.0);
+}
+
+// §6.a: OT beregnes i hele, halve og kvarte timer
+// Kvarter-afrunding sker allerede ved input
+function calcTimer(start, slut) {
+  const s = tidTilH(start), e = tidTilH(slut);
+  if (s === null || e === null) return null;
+  const h = (e >= s) ? e - s : e - s + 24;
+  return Math.max(0, h - 0.5); // minus 30 min upaid pause
+}
+
+// §7: Forskudt tid = timer uden for 06-19 på hverdage (man-fre)
+// §7.4: Weekend giver IKKE forskudt tillæg
+function calcForskudt(start, slut, dagIdx) {
+  if (dagIdx === 0 || dagIdx === 6) return 0;
+  const s = tidTilH(start), e = tidTilH(slut);
+  if (s === null || e === null) return 0;
+  let fsk = 0;
+  const seg = (e >= s) ? [[s, e]] : [[s, 24], [0, e]];
+  seg.forEach(([a, b]) => {
+    if (a < 6) fsk += Math.min(b, 6) - a;
+    if (b > 19) fsk += b - Math.max(a, 19);
+  });
+  return Math.max(0, fsk);
+}
+
+// §5 Forskudt særtid:
+// - 4 hverdage × 10 normaltimer = 40 timer
+// - OT starter EFTER 10 timer (ikke 8)
+// - Fridag på fredag (§5.3): uge slutter fre kl.03:00 (herefter +100% tillæg)
+// - Fridag på mandag (§5.4): uge starter tir kl.06:00 (herefter +100% tillæg)
+// - §5.6: Weekendtillæg og forskudttillæg gælder stadig
+function dagMax() {
+  return cfg.model === 'saertid' ? 10 : 8;
+}
+
+function calcLon(h, opt) {
+  if (!h || h <= 0) return { total:0, normal:0, ot1:0, ot2:0, ot3:0, wk:0, ext:0 };
+  const ts = timesats();
+  const { varslet, uvarslet, helligdag, frokost, pause10 } = opt;
+  const dMax = dagMax();
+
+  const normalH = Math.min(dMax, h);
+  const otH     = Math.max(0, h - dMax);
+  const ot1H    = Math.min(1, otH);
+  const ot2H    = Math.min(1, Math.max(0, otH - 1));
+  const ot3H    = Math.max(0, otH - 2);
+
+  let normal = 0, ot1 = 0, ot2 = 0, ot3 = 0, wk = 0;
+
+  if (helligdag) {
+    // §8.2: +75% på normaltimer, min 4 timer
+    const betaltH = Math.max(4, normalH);
+    wk     = ts * 0.75 * betaltH;
+    normal = ts * normalH;
+    // §8.3: OT på weekend: +50/+60/+135 oven på weekend-sats
+    ot1 = ts * (1.75 + 0.50) * ot1H;
+    ot2 = ts * (1.75 + 0.60) * ot2H;
+    ot3 = ts * (1.75 + 1.35) * ot3H;
+  } else {
+    normal = ts * normalH;
+    if (varslet) {
+      ot1 = ts * 1.50 * ot1H;
+      ot2 = ts * 1.60 * ot2H;
+      ot3 = ts * 2.35 * ot3H;
+    } else {
+      // §6e: OT skal ALTID kompenseres — ingen situation giver OT uden betaling.
+      // Ingen type valgt = uvarslet sats er juridisk korrekt default.
+      // (Uvarslet kræver blot talsperson er indforstået, §6b)
+      ot1 = ts * 1.75 * ot1H;
+      ot2 = ts * 2.00 * ot2H;
+      ot3 = ts * 2.35 * ot3H;
+    }
+  }
+
+  let ext = 0;
+  if (frokost)              ext += DIÆT;
+  if (pause10 && h > 10)   ext += ts * (15/60);
+
+  return {
+    total: Math.round(normal + ot1 + ot2 + ot3 + wk + ext),
+    normal: Math.round(normal), ot1: Math.round(ot1),
+    ot2: Math.round(ot2), ot3: Math.round(ot3),
+    wk: Math.round(wk), ext: Math.round(ext)
+  };
+}
+
+// ═══════════════════════════════════════════════════
+// BEREGN UI
+// ═══════════════════════════════════════════════════
+function beregn() {
+  const h   = calcTimer(tidStart, tidSlut);
+  const idx = aktivDag.getDay();
+  const fsk = (h !== null) ? calcForskudt(tidStart, tidSlut, idx) : 0;
+  const fskKr = Math.round(fsk * 110);
+
+  if (h === null) {
+    document.getElementById('res-t').innerHTML    = '– –<small> t</small>';
+    document.getElementById('res-pay').textContent = '0 kr.';
+    document.getElementById('res-sub').textContent = '';
+    document.getElementById('ot-boks').classList.remove('vis');
+    return;
+  }
+
+  const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p };
+  const l   = calcLon(h, opt);
+  const tot = l.total + fskKr;
+
+  document.getElementById('res-t').innerHTML    = `${h.toFixed(2)}<small> t</small>`;
+  document.getElementById('res-pay').textContent = `${tot.toLocaleString('da-DK')} kr.`;
+
+  const dMax = dagMax();
+  let sub = [];
+  if (h > dMax) sub.push(`${(h - dMax).toFixed(2)}t OT`);
+  if (fsk > 0)  sub.push(`${fsk.toFixed(2)}t forskudt`);
+  document.getElementById('res-sub').textContent = sub.join('  ·  ');
+
+  // OT breakdown
+  document.getElementById('ot-boks').classList.add('vis');
+  document.getElementById('o-normal').textContent = kr(l.normal);
+
+  const harOT = h > dMax;
+  const ingenType = harOT && !knapper.v && !knapper.u;
+
+  // Labels afhænger af valgt type
+  let ot1lbl, ot2lbl;
+  if (knapper.v) {
+    ot1lbl = 'OT 1. time (varslet +50%)';
+    ot2lbl = 'OT 2. time (varslet +60%)';
+  } else if (knapper.u || ingenType) {
+    ot1lbl = ingenType ? 'OT 1. time (uvarslet +75% §6e)' : 'OT 1. time (uvarslet +75%)';
+    ot2lbl = ingenType ? 'OT 2. time (uvarslet +100% §6e)' : 'OT 2. time (uvarslet +100%)';
+  } else {
+    ot1lbl = 'OT 1. time'; ot2lbl = 'OT 2. time';
+  }
+  document.getElementById('o-ot1-lbl').textContent = ot1lbl;
+  document.getElementById('o-ot2-lbl').textContent = ot2lbl;
+  document.getElementById('o-ot1').textContent = l.ot1 ? kr(l.ot1) : '–';
+  document.getElementById('o-ot2').textContent = l.ot2 ? kr(l.ot2) : '–';
+  document.getElementById('o-ot3').textContent = l.ot3 ? kr(l.ot3) : '–';
+
+  // Advarsel: OT sket men ingen type valgt
+  const advEl = document.getElementById('ot-advarsel');
+  if (ingenType) {
+    advEl.style.display = 'block';
+  } else {
+    advEl.style.display = 'none';
+  }
+  vis2('o-fsk-row', fsk > 0);
+  if (fsk > 0) document.getElementById('o-fsk').textContent = `${fskKr.toLocaleString('da-DK')} kr. (${fsk.toFixed(2)}t)`;
+  vis2('o-wk-row', l.wk > 0);
+  if (l.wk > 0) document.getElementById('o-wk').textContent = kr(l.wk);
+  vis2('o-ext-row', l.ext > 0);
+  if (l.ext > 0) {
+    const lbns = [];
+    if (knapper.f) lbns.push('For sen frokost');
+    if (knapper.p) lbns.push('10-min pause');
+    document.getElementById('o-ext-lbl').textContent = lbns.join(' + ');
+    document.getElementById('o-ext').textContent = kr(l.ext);
+  }
+}
+
+function vis2(id, show) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = show ? 'flex' : 'none';
+}
+function kr(n) { return `${Math.round(n).toLocaleString('da-DK')} kr.`; }
+
+// ═══════════════════════════════════════════════════
+// KNAP TOGGLE
+// ═══════════════════════════════════════════════════
+function tog(k) {
+  knapper[k] = !knapper[k];
+  if (k === 'v' && knapper.v) knapper.u = false;
+  if (k === 'u' && knapper.u) knapper.v = false;
+  opdaterKnapper();
+  beregn();
+}
+function opdaterKnapper() {
+  const kl = { v:'von', u:'uon', f:'fon', p:'pon', h:'hon', r:'ron' };
+  Object.keys(knapper).forEach(k => {
+    const el = document.getElementById('bn-' + k);
+    if (el) el.className = 'xb' + (knapper[k] ? ' ' + kl[k] : '');
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// GEM DAG
+// ═══════════════════════════════════════════════════
+function gemDag() {
+  const h     = calcTimer(tidStart, tidSlut);
+  const fsk   = calcForskudt(tidStart, tidSlut, aktivDag.getDay());
+  const fskKr = Math.round(fsk * 110);
+  const opt   = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p };
+  const l     = calcLon(h, opt);
+  const note  = document.getElementById('i-note').value;
+
+  gemDagData(aktivDag, {
+    start: tidStreng(tidStart),
+    slut:  tidStreng(tidSlut),
+    tidStart, tidSlut, note,
+    knapper: { ...knapper },
+    h, lon: l.total + fskKr, fsk, fskKr
+  });
+
+  const btn = document.getElementById('gem-btn');
+  btn.textContent = '✓ GEMT!'; btn.classList.add('ok');
+  setTimeout(() => { btn.textContent = 'GEM DAG →'; btn.classList.remove('ok'); }, 2000);
+  toast('Dag gemt ✓');
+}
+
+// ═══════════════════════════════════════════════════
+// DAG NAVIGATION
+// ═══════════════════════════════════════════════════
+function skiftDag(dir) {
+  aktivDag = new Date(aktivDag);
+  aktivDag.setDate(aktivDag.getDate() + dir);
+  rendDag();
+}
+function rendDag() {
+  const d = aktivDag;
+  document.getElementById('dag-navn').textContent = DAGE[d.getDay()];
+  document.getElementById('dag-dato').textContent =
+    `${d.getDate()} ${MND[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
+  const s = hentDag(d);
+  knapper  = s?.knapper || { v:false, u:false, f:false, p:false, h:false, r:false };
+  tidStart = s?.tidStart || null;
+  tidSlut  = s?.tidSlut  || null;
+  // Bagudkompatibilitet: parse gammel streng-format
+  if (!tidStart && s?.start) {
+    const [h, m] = s.start.split(':').map(Number);
+    tidStart = { h, m };
+  }
+  if (!tidSlut && s?.slut) {
+    const [h, m] = s.slut.split(':').map(Number);
+    tidSlut = { h, m };
+  }
+  document.getElementById('i-note').value = s?.note || '';
+  opdaterTidDisplay();
+  opdaterKnapper();
+  opdaterSaertidBadge();
+  beregn();
+}
+
+// ═══════════════════════════════════════════════════
+// UGE VIEW
+// ═══════════════════════════════════════════════════
+function ugeDatoer(off) {
+  const now = new Date(), dow = now.getDay();
+  const diff = (dow === 0 ? -6 : 1) - dow;
+  const man = new Date(now);
+  man.setDate(now.getDate() + diff + off * 7);
+  return Array.from({ length:7 }, (_, i) => {
+    const d = new Date(man); d.setDate(man.getDate() + i); return d;
+  });
+}
+function ugeNr(d) {
+  const dt = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dn = dt.getUTCDay() || 7;
+  dt.setUTCDate(dt.getUTCDate() + 4 - dn);
+  const ys = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
+  return Math.ceil((((dt - ys) / 86400000) + 1) / 7);
+}
+function skiftUge(dir) { ugeOffset += dir; rendUge(); }
+function rendUge() {
+  const datoer = ugeDatoer(ugeOffset);
+  document.getElementById('uge-ttl').textContent = `Uge ${ugeNr(datoer[0])}`;
+  document.getElementById('uge-yr').textContent  = datoer[0].getFullYear();
+  let totH = 0, totL = 0, totOt = 0, totD = 0;
+  const liste = document.getElementById('uge-liste');
+  liste.innerHTML = '';
+  datoer.forEach((d, i) => {
+    const s   = hentDag(d);
+    const h   = s?.h ?? null;
+    const lon = s?.lon ?? 0;
+    const dMax = dagMax();
+    if (h) { totH += h; totL += lon; totOt += Math.max(0, h - dMax); totD++; }
+    const el = document.createElement('div');
+    el.className = `dk c${i}${(!s || !s.start) ? ' tom' : ''}`;
+    el.onclick = () => { aktivDag = new Date(d); visView('dag'); };
+    const badges = [
+      s?.knapper?.v ? '<span class="badge bv">Varslet</span>'  : '',
+      s?.knapper?.u ? '<span class="badge bu">Uvarslet</span>' : '',
+      s?.knapper?.f ? '<span class="badge bf">Frokost</span>'  : '',
+      s?.knapper?.p ? '<span class="badge bp">Pause</span>'    : '',
+      s?.knapper?.h ? '<span class="badge bh">Weekend</span>'  : '',
+    ].join('');
+    el.innerHTML = `
+      <div class="dk-dag">
+        <div class="dk-navn">${DAGE_S[d.getDay()]}</div>
+        <div class="dk-dato">${d.getDate()}/${d.getMonth()+1}</div>
+      </div>
+      <div class="dk-info">
+        <div class="dk-tider">${s?.start ? `${s.start} → ${s.slut || '?'}` : '— fri —'}</div>
+        ${badges ? `<div class="dk-badges">${badges}</div>` : ''}
+        ${s?.note ? `<div class="dk-note">${s.note}</div>` : ''}
+      </div>
+      <div class="dk-timer">${h !== null ? h.toFixed(1) : '—'}<small>t</small></div>`;
+    liste.appendChild(el);
+  });
+  document.getElementById('us-t').innerHTML = `${totH.toFixed(1)}<small style="font-size:14px;color:var(--mut)">t</small>`;
+  document.getElementById('us-l').textContent = totL.toLocaleString('da-DK');
+  document.getElementById('us-o').innerHTML = `${totOt.toFixed(1)}<small style="font-size:14px;color:var(--mut)">t</small>`;
+  document.getElementById('us-d').textContent = totD;
+}
+
+// ═══════════════════════════════════════════════════
+// HJÆLPEFUNKTIONER EKSPORT
+// ═══════════════════════════════════════════════════
+function ugeData() {
+  const datoer = ugeDatoer(ugeOffset);
+  const uge    = ugeNr(datoer[0]);
+  const ts     = (cfg.ugelon / 40) * (cfg.tillæg ? 1.1 : 1.0);
+  const dMax   = dagMax();
+  const dage   = datoer.map(d => {
+    const s = hentDag(d);
+    if (!s || !s.start) return { dato: d, fri: true };
+    const h = s.h ?? 0;
+    const l = calcLon(tidStrTilObj(s.start), tidStrTilObj(s.slut),
+                      s.knapper?.v, s.knapper?.u, s.knapper?.h,
+                      s.knapper?.f, s.knapper?.p);
+    return {
+      dato: d, fri: false,
+      start: s.start, slut: s.slut,
+      h, lon: s.lon ?? 0,
+      normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3,
+      wk: l.wk, ext: l.ext,
+      fsk: s.fsk ?? 0, fskKr: s.fskKr ?? 0,
+      knapper: s.knapper ?? {}, note: s.note ?? ''
+    };
+  });
+  const totH   = dage.reduce((a, d) => a + (d.fri ? 0 : d.h), 0);
+  const totL   = dage.reduce((a, d) => a + (d.fri ? 0 : d.lon), 0);
+  const pension= Math.round(totL * 0.095);
+  return { datoer, uge, ts, dMax, dage, totH, totL, pension };
+}
+
+function tidStrTilObj(s) {
+  if (!s) return null;
+  const [h, m] = s.split(':').map(Number);
+  return { h, m };
+}
+
+function krFmt(n) {
+  return n.toLocaleString('da-DK') + ' kr.';
+}
+
+function dagNavn(d) {
+  return DAGE[d.getDay()];
+}
+
+function dateFmt(d) {
+  return `${d.getDate()}. ${['jan','feb','mar','apr','maj','jun','jul','aug','sep','okt','nov','dec'][d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function isoDate(d) {
+  return d.toISOString().slice(0,10).replace(/-/g,'');
+}
+
+// ═══════════════════════════════════════════════════
+// PDF
+// ═══════════════════════════════════════════════════
+function doPDF() {
+  const { datoer, uge, ts, dage, totH, totL, pension } = ugeData();
+  const år = datoer[0].getFullYear();
+  const fra = dateFmt(datoer[0]);
+  const til = dateFmt(datoer[6]);
+
+  // Saml tillæg på tværs af ugen
+  let sumNormal=0, sumOt1=0, sumOt2=0, sumOt3=0, sumWk=0, sumExt=0, sumFsk=0, sumFskKr=0;
+  dage.forEach(d => {
+    if (d.fri) return;
+    sumNormal += d.normal; sumOt1 += d.ot1; sumOt2 += d.ot2;
+    sumOt3 += d.ot3; sumWk += d.wk; sumExt += d.ext;
+    sumFsk += d.fsk; sumFskKr += d.fskKr;
+  });
+
+  const otType = dage.some(d => !d.fri && d.knapper?.v) ? 'Varslet' :
+                 dage.some(d => !d.fri && d.knapper?.u) ? 'Uvarslet' : '—';
+
+  let dagRk = dage.map(d => {
+    if (d.fri) return `<tr class="fri"><td>${dagNavn(d.dato)} ${d.dato.getDate()}/${d.dato.getMonth()+1}</td><td colspan="4" style="color:#bbb">— fri —</td></tr>`;
+    const badges = [
+      d.knapper?.v ? 'Varslet OT' : '',
+      d.knapper?.u ? 'Uvarslet OT' : '',
+      d.knapper?.h ? 'Weekend' : '',
+      d.knapper?.f ? 'Sen frokost' : '',
+    ].filter(Boolean).join(' · ');
+    return `<tr>
+      <td>${dagNavn(d.dato)} ${d.dato.getDate()}/${d.dato.getMonth()+1}</td>
+      <td style="font-family:'Courier New',monospace">${d.start} → ${d.slut}</td>
+      <td class="num">${d.h.toFixed(2)} t</td>
+      <td style="font-size:8pt;color:#555">${badges}</td>
+      <td class="num" style="font-weight:600">${krFmt(d.lon)}</td>
+    </tr>`;
+  }).join('');
+
+  function tillRow(lbl, kr, note='', grå=false) {
+    if (!kr) return '';
+    return `<tr${grå ? ' class="sub"':''}>
+      <td class="lbl">${lbl}</td>
+      <td class="num">${krFmt(kr)}</td>
+      <td style="font-size:8pt;color:#888">${note}</td>
+    </tr>`;
+  }
+
+  const html = `<div class="pdf-body">
+    <div class="pdf-h1">Time App — Uge ${uge}/${år}</div>
+    <div class="pdf-h2">${fra} – ${til}</div>
+    <div class="pdf-meta">
+      <span><div style="font-size:8pt;color:#888">Navn</div><strong>${cfg.navn || '—'}</strong></span>
+      <span><div style="font-size:8pt;color:#888">Produktion</div><strong>${cfg.prod || '—'}</strong></span>
+      <span><div style="font-size:8pt;color:#888">Ugeløn</div><strong>${krFmt(cfg.ugelon)}</strong></span>
+      <span><div style="font-size:8pt;color:#888">Timesats</div><strong>${ts.toFixed(2)} kr/t</strong></span>
+      <span><div style="font-size:8pt;color:#888">Arbejdstid</div><strong>${cfg.model === 'saertid' ? `Særtid §5 (${cfg.fridag === 'fre' ? 'fri fre' : 'fri man'})` : 'Normal §4'}</strong></span>
+    </div>
+
+    <div class="pdf-sect">Dagsoversigt</div>
+    <table class="pdf-tbl">
+      <thead><tr>
+        <th>Dag</th><th>Tidsrum</th><th style="text-align:right">Timer</th><th>Tillæg</th><th style="text-align:right">Løn</th>
+      </tr></thead>
+      <tbody>${dagRk}</tbody>
+      <tfoot><tr style="font-weight:700;background:#f0f0f0">
+        <td colspan="2"><strong>Total</strong></td>
+        <td class="num"><strong>${totH.toFixed(2)} t</strong></td>
+        <td></td>
+        <td class="num"><strong>${krFmt(totL)}</strong></td>
+      </tr></tfoot>
+    </table>
+
+    <div class="pdf-sect">Lønspecifikation</div>
+    <table class="pdf-tillæg">
+      <colgroup><col style="width:55%"><col style="width:22%"><col style="width:23%"></colgroup>
+      ${tillRow('Normaltime', sumNormal, `${ts.toFixed(2)} kr/t`)}
+      ${tillRow('Varslet OT 1. time (+50%)', sumOt1, otType === 'Varslet' ? `${(ts*1.5).toFixed(2)} kr/t` : '')}
+      ${tillRow('Varslet OT 2. time (+60%)', sumOt2, otType === 'Varslet' ? `${(ts*1.6).toFixed(2)} kr/t` : '')}
+      ${tillRow('Uvarslet OT 1. time (+75%)', sumOt1, otType === 'Uvarslet' ? `${(ts*1.75).toFixed(2)} kr/t` : '')}
+      ${tillRow('Uvarslet OT 2. time (+100%)', sumOt2, otType === 'Uvarslet' ? `${(ts*2.0).toFixed(2)} kr/t` : '')}
+      ${tillRow('OT 3.+ time (+135%)', sumOt3, `${(ts*2.35).toFixed(2)} kr/t`)}
+      ${tillRow('Weekend/helligdagstillæg §8 (+75%)', sumWk, 'Minimum 4 timer')}
+      ${tillRow('Forskudt tid §7 (+110 kr/t)', sumFskKr, `${sumFsk.toFixed(2)} t × 110 kr`)}
+      ${tillRow('Frokost/pausetillæg §12', sumExt, `${DIÆT} kr/tillæg`)}
+      <tr class="total">
+        <td><strong>Bruttoløn</strong></td>
+        <td class="num"><strong>${krFmt(totL)}</strong></td>
+        <td></td>
+      </tr>
+      <tr class="sub">
+        <td class="lbl">Pension 9,5% §3</td>
+        <td class="num">${krFmt(pension)}</td>
+        <td style="font-size:8pt;color:#888">Arbejdsgiverbetalt</td>
+      </tr>
+      <tr class="sub">
+        <td class="lbl"><strong>Samlet inkl. pension</strong></td>
+        <td class="num"><strong>${krFmt(totL + pension)}</strong></td>
+        <td></td>
+      </tr>
+    </table>
+
+    <div class="pdf-footer">
+      Beregnet iht. FAF Fiktionsoverenskomst 2025–2027 §3–§13 · Time App by Ditzel ·
+      Udskrevet ${new Date().toLocaleDateString('da-DK')}
+    </div>
+  </div>`;
+
+  const frame = document.getElementById('pdf-frame');
+  frame.innerHTML = html;
+  frame.style.display = 'block';
+  setTimeout(() => {
+    window.print();
+    setTimeout(() => { frame.style.display = 'none'; frame.innerHTML = ''; }, 1000);
+  }, 100);
+}
+
+// ═══════════════════════════════════════════════════
+// XLSX — Time App layout via SheetJS
+// ═══════════════════════════════════════════════════
+function doXLSX() {
+  // Indlæs SheetJS dynamisk
+  if (!window.XLSX) {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = () => _genXLSX();
+    document.head.appendChild(s);
+    toast('Indlæser Excel-bibliotek…');
+  } else {
+    _genXLSX();
+  }
+}
+
+function _genXLSX() {
+  const { datoer, uge, ts, dMax, dage, totH, totL, pension } = ugeData();
+  const år = datoer[0].getFullYear();
+  const wb = XLSX.utils.book_new();
+
+  // ── SHEET 1: UGESEDDEL ──
+  const aoa = []; // array of arrays
+  const S = (v, t='s', s=null) => ({ v, t, s }); // celle-helper
+
+  const hBold = { font:{ bold:true } };
+  const hHdr  = { font:{ bold:true, color:{rgb:'FFFFFF'} }, fill:{ patternType:'solid', fgColor:{rgb:'1C1C2A'} } };
+  const hGrn  = { font:{ bold:true, color:{rgb:'006400'} } };
+  const hMut  = { font:{ color:{rgb:'666666'}, italic:true } };
+  const hNum  = { numFmt:'#,##0' };
+  const hDec  = { numFmt:'#,##0.00' };
+  const hTime = { numFmt:'hh:mm' };
+
+  // Titel
+  aoa.push([`Time App · Ditzel — FAF Fiktionsoverenskomst 2025–2027`,'','','','','','','','','','']);
+  aoa.push([`Navn: ${cfg.navn || '—'}`, '', '', `Uge: ${uge}`, '', `År: ${år}`,'','','','','']);
+  aoa.push([`Produktion: ${cfg.prod || '—'}`, '', '', `Ugeløn: ${cfg.ugelon} kr.`, '', `Timesats: ${ts.toFixed(2)} kr/t`,'','','','','']);
+  aoa.push([`Arbejdstid: ${cfg.model === 'saertid' ? 'Forskudt særtid §5 (OT efter 10t)' : 'Normal §4 (OT efter 8t)'}`,
+    '','',`10% tillæg: ${cfg.tillæg ? 'Ja' : 'Nej'}`,'','','','','','','']);
+  aoa.push(['']);
+
+  // Kolonneoverskrifter
+  aoa.push(['Dag','Dato','Start','Slut','Timer (netto)','Normal t','OT type','OT 1.t','OT 2.t','OT 3.t+','Weekend t','Forskudt t','Dagløn kr.','Note']);
+
+  // Dagdata
+  dage.forEach(d => {
+    if (d.fri) {
+      aoa.push([dagNavn(d.dato), `${d.dato.getDate()}/${d.dato.getMonth()+1}/${d.dato.getFullYear()}`,
+        '—','—', 0, 0, '— fri —', 0, 0, 0, 0, 0, 0, '']);
+    } else {
+      const ot = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : d.knapper?.h ? 'Weekend' : '—';
+      aoa.push([
+        dagNavn(d.dato),
+        `${d.dato.getDate()}/${d.dato.getMonth()+1}/${d.dato.getFullYear()}`,
+        d.start, d.slut,
+        +d.h.toFixed(2),
+        +(d.normal / ts).toFixed(2),
+        ot,
+        +((d.ot1) / (ts * (d.knapper?.v ? 1.5 : 1.75)) || 0).toFixed(2),
+        +((d.ot2) / (ts * (d.knapper?.v ? 1.6 : 2.0)) || 0).toFixed(2),
+        +((d.ot3) / (ts * 2.35) || 0).toFixed(2),
+        +(d.wk / (ts * 0.75) || 0).toFixed(2),
+        +d.fsk.toFixed(2),
+        d.lon,
+        d.note
+      ]);
+    }
+  });
+
+  // Total
+  aoa.push(['']);
+  aoa.push(['TOTAL','','','', +totH.toFixed(2),'','','','','','','', totL, '']);
+  aoa.push(['']);
+
+  // Lønspecifikation
+  aoa.push(['LØNSPECIFIKATION','','','','','','Timesats kr.','Timer','Beløb kr.','','','','','']);
+  const specRk = (lbl, kr, rate, timer) => [lbl,'','','','','', +rate.toFixed(2), +timer.toFixed(2), Math.round(kr),'','','','',''];
+  let sumNormal=0,sumOt1h=0,sumOt2h=0,sumOt3h=0,sumWkh=0,sumFsk=0,sumFskKr=0,sumExt=0;
+  let harVarslet=false, harUvarslet=false;
+  dage.forEach(d => {
+    if (d.fri) return;
+    sumNormal += d.normal; sumFsk += d.fsk; sumFskKr += d.fskKr; sumExt += d.ext;
+    if (d.knapper?.v) { harVarslet=true; sumOt1h+=d.ot1/(ts*1.5); sumOt2h+=d.ot2/(ts*1.6); sumOt3h+=d.ot3/(ts*2.35); }
+    else if (d.knapper?.u || (!d.knapper?.v && !d.knapper?.u && (d.ot1||d.ot2||d.ot3))) {
+      harUvarslet=true; sumOt1h+=d.ot1/(ts*1.75)||0; sumOt2h+=d.ot2/(ts*2.0)||0; sumOt3h+=d.ot3/(ts*2.35)||0;
+    }
+    sumWkh += d.wk/(ts*0.75)||0;
+  });
+  aoa.push(specRk('Normaltime §3', sumNormal, ts, sumNormal/ts));
+  if (harVarslet) {
+    aoa.push(specRk('Varslet OT 1. time +50% §6c', dage.reduce((a,d)=>a+(d.knapper?.v?d.ot1:0),0), ts*1.5, sumOt1h));
+    aoa.push(specRk('Varslet OT 2. time +60% §6c', dage.reduce((a,d)=>a+(d.knapper?.v?d.ot2:0),0), ts*1.6, sumOt2h));
+  }
+  if (harUvarslet) {
+    aoa.push(specRk('Uvarslet OT 1. time +75% §6d', dage.reduce((a,d)=>a+(!d.knapper?.v?d.ot1:0),0), ts*1.75, sumOt1h));
+    aoa.push(specRk('Uvarslet OT 2. time +100% §6d', dage.reduce((a,d)=>a+(!d.knapper?.v?d.ot2:0),0), ts*2.0, sumOt2h));
+  }
+  if (sumOt3h > 0) aoa.push(specRk('OT 3.+ time +135% §6', dage.reduce((a,d)=>a+d.ot3,0), ts*2.35, sumOt3h));
+  if (sumWkh > 0)  aoa.push(specRk('Weekend/helligdag +75% §8', dage.reduce((a,d)=>a+d.wk,0), ts*0.75, sumWkh));
+  if (sumFsk > 0)  aoa.push(specRk('Forskudt tid +110 kr/t §7', sumFskKr, 110, sumFsk));
+  if (sumExt > 0)  aoa.push([`Frokost/pausetillæg §12`,'','','','','','',dage.filter(d=>!d.fri&&d.ext>0).length, sumExt,'','','','','']);
+  aoa.push(['']);
+  aoa.push(['BRUTTOLØN','','','','','','','', totL,'','','','','']);
+  aoa.push(['Pension 9,5% §3','','','','','','','', pension,'','','','','']);
+  aoa.push(['SAMLET INKL. PENSION','','','','','','','', totL+pension,'','','','','']);
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+  // Kolonnebredder
+  ws['!cols'] = [
+    {wch:12},{wch:14},{wch:8},{wch:8},{wch:13},{wch:10},{wch:12},
+    {wch:8},{wch:8},{wch:8},{wch:11},{wch:11},{wch:12},{wch:25}
+  ];
+
+  // ── SHEET 2: UDREGNINGSGRUNDLAG ──
+  const aoa2 = [
+    ['Udregningsgrundlag — FAF Fiktionsoverenskomst 2025–2027'],
+    [''],
+    ['Sats','Procent','Multiplikator'],
+    ['Varslet OT 9. time', '50%', 1.5],
+    ['Varslet OT 10. time','60%', 1.6],
+    ['Uvarslet OT 9. time','75%', 1.75],
+    ['Uvarslet OT 10. time','100%',2.0],
+    ['OT efter 10. time','135%',2.35],
+    ['Weekend/helligdag','75%', 0.75],
+    ['Forskudt tid (fast)','110 kr/t','—'],
+    ['Pension','9,5%',0.095],
+    [''],
+    ['Indstillinger denne uge'],
+    ['Ugeløn', cfg.ugelon],
+    ['Timesats', +ts.toFixed(4)],
+    ['10% tillæg', cfg.tillæg ? 'Ja' : 'Nej'],
+    ['Arbejdstidsmodel', cfg.model === 'saertid' ? 'Forskudt særtid §5' : 'Normal §4'],
+    ['OT grænse (timer/dag)', dagMax()],
+  ];
+  const ws2 = XLSX.utils.aoa_to_sheet(aoa2);
+  ws2['!cols'] = [{wch:24},{wch:12},{wch:14}];
+
+  XLSX.utils.book_append_sheet(wb, ws,  'Ugeseddel');
+  XLSX.utils.book_append_sheet(wb, ws2, 'Udregningsgrundlag');
+
+  const filename = `TimeApp-Uge${uge}-${år}.xlsx`;
+  XLSX.writeFile(wb, filename);
+  toast(`Excel gemt: ${filename}`);
+}
+
+// ═══════════════════════════════════════════════════
+// KALENDER — .ics til Apple + Google Calendar
+// ═══════════════════════════════════════════════════
+function doKalender() {
+  const { dage, uge } = ugeData();
+  const prod = cfg.prod || 'Produktion';
+  const navn = cfg.navn || '';
+
+  let ics = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//TimeApp·Ditzel//DA\r\nCALSCALE:GREGORIAN\r\nX-WR-CALNAME:Time App Uge ${uge}\r\nX-WR-TIMEZONE:Europe/Copenhagen\r\n`;
+
+  dage.forEach(d => {
+    if (d.fri || !d.start) return;
+
+    const dato = d.dato;
+    const [sh, sm] = d.start.split(':').map(Number);
+    const [eh, em] = d.slut.split(':').map(Number);
+
+    // Byg datetime strings i lokal tid (Copenhagen = UTC+1/+2)
+    function dt(date, h, m) {
+      const D = new Date(date);
+      D.setHours(h, m, 0, 0);
+      // Konverter til UTC for ICS
+      const y = D.getUTCFullYear();
+      const mo= String(D.getUTCMonth()+1).padStart(2,'0');
+      const dy= String(D.getUTCDate()).padStart(2,'0');
+      const hr= String(D.getUTCHours()).padStart(2,'0');
+      const mn= String(D.getUTCMinutes()).padStart(2,'0');
+      return `${y}${mo}${dy}T${hr}${mn}00Z`;
+    }
+
+    // Hvis sluttid er før starttid = overnight, tilføj en dag
+    const slutDato = new Date(dato);
+    if (eh < sh || (eh === sh && em < sm)) slutDato.setDate(slutDato.getDate() + 1);
+
+    const uid   = `timeapp-uge${uge}-${isoDate(dato)}-${sh}${sm}@ditzel`;
+    const now   = new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+    const title = `${prod}${navn ? ' · ' + navn : ''}`;
+    const notes = [
+      `Time App — ${dagNavn(dato)} uge ${uge}`,
+      `Arbejdstid: ${d.start} → ${d.slut} (${d.h.toFixed(2)} t)`,
+      `Dagløn: ${krFmt(d.lon)}`,
+      d.knapper?.v ? 'Varslet OT' : d.knapper?.u ? 'Uvarslet OT' : '',
+      d.knapper?.h ? 'Weekend/helligdag §8' : '',
+      d.note ? `Note: ${d.note}` : ''
+    ].filter(Boolean).join('\\n');
+
+    ics += `BEGIN:VEVENT\r\n`;
+    ics += `UID:${uid}\r\n`;
+    ics += `DTSTAMP:${now}\r\n`;
+    ics += `DTSTART:${dt(dato, sh, sm)}\r\n`;
+    ics += `DTEND:${dt(slutDato, eh, em)}\r\n`;
+    ics += `SUMMARY:${title}\r\n`;
+    ics += `DESCRIPTION:${notes}\r\n`;
+    ics += `CATEGORIES:TimeApp,Film,Arbejde\r\n`;
+    ics += `END:VEVENT\r\n`;
+  });
+
+  ics += `END:VCALENDAR\r\n`;
+
+  // Download filen — åbner i Apple Calendar / Google Calendar
+  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `TimeApp-Uge${ugeData().uge}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Kalender downloadet — åbn filen ✓');
+}
+function doMail() {
+  const { dage, uge, totH, totL, pension } = ugeData();
+  let lines = '';
+  dage.forEach(d => {
+    if (!d.fri) lines += `${dagNavn(d.dato)}: ${d.start}–${d.slut} (${d.h.toFixed(2)}t)%0D%0A`;
+  });
+  const subj = encodeURIComponent(`Time App uge ${uge} — ${cfg.navn || ''}${cfg.prod ? ' · ' + cfg.prod : ''}`);
+  const body = `Time App uge ${uge}%0D%0A${cfg.prod ? 'Produktion: ' + cfg.prod + '%0D%0A' : ''}%0D%0A${lines}%0D%0ATotal: ${totH.toFixed(2)}t / ${totL.toLocaleString('da-DK')} kr.%0D%0APension 9,5%25: ${pension.toLocaleString('da-DK')} kr.`;
+  window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${body}`;
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function visView(navn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.bb').forEach(b => b.classList.remove('on'));
+  document.getElementById('view-' + navn).classList.add('on');
+  document.getElementById('bb-' + navn)?.classList.add('on');
+  ['dag','uge','inst'].forEach((n, i) => {
+    if (n === navn) document.querySelectorAll('.tab')[i]?.classList.add('on');
+  });
+  if (navn === 'uge') rendUge();
+  if (navn === 'dag') rendDag();
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 2500);
+}
+
+// INIT
+hentCfg();
+rendDag();
+</script>
+
+<!-- INSTALL BANNER (Android/Chrome) -->
+<div id="install-banner" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:398px;background:var(--card);border:1px solid var(--acc);border-radius:var(--r);padding:14px 16px;z-index:500;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.4)">
+  <div style="flex:1">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px">Tilføj til hjemmeskærm</div>
+    <div style="font-size:11px;color:var(--mut);margin-top:2px">Installer Time App som en rigtig app</div>
+  </div>
+  <button onclick="installApp()" style="background:var(--acc);color:#fff;border:none;border-radius:var(--rs);padding:10px 16px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap">Installer</button>
+  <button onclick="document.getElementById('install-banner').style.display='none'" style="background:none;border:none;color:var(--mut);font-size:18px;cursor:pointer;padding:4px">×</button>
+</div>
+
+<!-- IOS HINT -->
+<div id="ios-hint" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:398px;background:var(--card);border:1px solid var(--acc);border-radius:var(--r);padding:14px 16px;z-index:500;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.4)">
+  <div style="font-size:22px">⬆️</div>
+  <div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px">Tilføj til hjemmeskærm</div>
+    <div style="font-size:11px;color:var(--mut);margin-top:2px">Tryk <strong>Del</strong> → <strong>Føj til hjemmeskærm</strong></div>
+  </div>
+</div>
+
+<script>
+// ── SERVICE WORKER (PWA offline) ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // Inline SW via blob URL
+    const swCode = `
+const CACHE = 'timeapp-v1';
+const ASSETS = [location.href];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request))
+  );
+});`;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl).catch(()=>{});
+  });
+}
+
+// ── INSTALL PROMPT ──
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.style.display = 'flex';
+});
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      const banner = document.getElementById('install-banner');
+      if (banner) banner.style.display = 'none';
+    });
+  }
+}
+// iOS: vis install-instruktion hvis ikke allerede installeret
+window.addEventListener('load', () => {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true;
+  if (isIOS && !isStandalone) {
+    setTimeout(() => {
+      const b = document.getElementById('ios-hint');
+      if (b) { b.style.display = 'flex'; setTimeout(()=>b.style.display='none', 8000); }
+    }, 2000);
+  }
+});
+</script>
+</body>
+</html>
