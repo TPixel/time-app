@@ -174,9 +174,10 @@ textarea::placeholder{color:var(--mut)}
 /* ── PDF PRINT ── */
 #pdf-frame{display:none}
 @media print {
-  body > *:not(#pdf-frame){display:none!important}
-  #pdf-frame{display:block!important;position:fixed;inset:0;background:#fff;z-index:9999;padding:0;margin:0}
   @page{size:A4 portrait;margin:18mm 16mm}
+  html,body{background:#fff!important;max-width:none!important;margin:0!important;padding:0!important}
+  body>*{display:none!important}
+  #pdf-frame{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important}
 }
 .pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;max-width:175mm;margin:0 auto}
 .pdf-h1{font-size:20pt;font-weight:900;letter-spacing:-0.5px;margin-bottom:2px}
@@ -379,8 +380,16 @@ textarea::placeholder{color:var(--mut)}
   <div class="s-card">
     <div class="s-hd">Løn §3</div>
     <div class="s-row">
-      <div><div class="s-lbl">Ugeløn</div><div class="s-desc">Kr. pr. uge (40 timer)</div></div>
-      <input class="s-inp" type="number" id="s-ugelon" value="10380" style="width:110px;text-align:right">
+      <div><div class="s-lbl">Mindsteløn</div><div class="s-desc">Kr. pr. uge (40 timer)</div></div>
+      <input class="s-inp" type="number" id="s-ugelon" value="10380" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Personligt tillæg</div><div class="s-desc">Erfaring, kørekort, DMX mm. kr/uge</div></div>
+      <input class="s-inp" type="number" id="s-pers" value="0" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
+    </div>
+    <div class="s-row" id="lon-total-row">
+      <div><div class="s-lbl">Samlet ugeløn</div><div class="s-desc" id="lon-total-desc">OT beregnes på mindsteløn §3</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--grn)" id="lon-total">10.380 kr.</div>
     </div>
     <div class="s-row">
       <div><div class="s-lbl">10% enkeltdagstillæg</div><div class="s-desc">Ansættelse under 1 uge §3.10</div></div>
@@ -448,7 +457,7 @@ const KVARTER = [0, 15, 30, 45];
 let aktivDag  = new Date();
 let ugeOffset = 0;
 let knapper   = { v:false, u:false, f:false, p:false, h:false, r:false };
-let cfg = { navn:'', email:'', prod:'', ugelon:10380, tillæg:false, model:'5dag', fridag:'fre' };
+let cfg = { navn:'', email:'', prod:'', ugelon:10380, pers:0, tillæg:false, model:'5dag', fridag:'fre' };
 
 // Tidsvalg state
 let modalFelt  = null;   // 'start' eller 'slut'
@@ -577,8 +586,24 @@ function hentCfg() {
   document.getElementById('s-email').value  = cfg.email;
   document.getElementById('s-prod').value   = cfg.prod;
   document.getElementById('s-ugelon').value = cfg.ugelon;
+  document.getElementById('s-pers').value   = cfg.pers || 0;
   setSw('tillæg', cfg.tillæg);
   opdaterModelUI();
+  opdaterLonTotal();
+}
+
+function opdaterLonTotal() {
+  const base = parseFloat(document.getElementById('s-ugelon').value) || 10380;
+  const pers = parseFloat(document.getElementById('s-pers').value) || 0;
+  const total = base + pers;
+  const tillæg = cfg.tillæg;
+  const vis = total * (tillæg ? 1.1 : 1.0);
+  document.getElementById('lon-total').textContent = `${vis.toLocaleString('da-DK')} kr.`;
+  const persDagly = (pers / 40 * 8).toLocaleString('da-DK', {maximumFractionDigits:0});
+  document.getElementById('lon-total-desc').textContent =
+    pers > 0
+      ? `OT på mindsteløn §3 · Pers. tillæg +${persDagly} kr/dag`
+      : 'OT beregnes på mindsteløn §3';
 }
 
 function gemInst() {
@@ -586,8 +611,10 @@ function gemInst() {
   cfg.email  = document.getElementById('s-email').value.trim();
   cfg.prod   = document.getElementById('s-prod').value.trim();
   cfg.ugelon = parseFloat(document.getElementById('s-ugelon').value) || 10380;
+  cfg.pers   = parseFloat(document.getElementById('s-pers').value) || 0;
   cfg.fridag = document.getElementById('s-fridag').value;
   localStorage.setItem('faf-cfg', JSON.stringify(cfg));
+  opdaterLonTotal();
   toast('Gemt ✓');
   opdaterSaertidBadge();
   beregn();
@@ -633,7 +660,13 @@ function opdaterSaertidBadge() {
 // OVERENSKOMST BEREGNINGER
 // ═══════════════════════════════════════════════════
 function timesats() {
-  return (cfg.ugelon / 40) * (cfg.tillæg ? 1.1 : 1.0);
+  // §3: OT-grundlag = mindsteløn / 40 — personligt tillæg indgår IKKE i OT-sats
+  return cfg.ugelon / 40;
+}
+function timesatsMedTillæg() {
+  // Normaltimer betales med mindsteløn + personligt tillæg + evt. 10% enkeltdag
+  const samlet = (cfg.ugelon + (cfg.pers || 0)) / 40;
+  return samlet * (cfg.tillæg ? 1.1 : 1.0);
 }
 
 // §6.a: OT beregnes i hele, halve og kvarte timer
@@ -682,30 +715,32 @@ function calcLon(h, opt) {
   const ot2H    = Math.min(1, Math.max(0, otH - 1));
   const ot3H    = Math.max(0, otH - 2);
 
+  const tsGrund = ts;                              // OT-grundlag: UDEN personligt tillæg §3
+  const tsNorm  = timesatsMedTillæg();             // Normaltimer: MED personligt tillæg
   let normal = 0, ot1 = 0, ot2 = 0, ot3 = 0, wk = 0;
 
   if (helligdag) {
-    // §8.2: +75% på normaltimer, min 4 timer
+    // §8.2: +75% på normaltimer (weekend-tillæg beregnes på grundsats, ikke med pers.tillæg)
     const betaltH = Math.max(4, normalH);
-    wk     = ts * 0.75 * betaltH;
-    normal = ts * normalH;
-    // §8.3: OT på weekend: +50/+60/+135 oven på weekend-sats
-    ot1 = ts * (1.75 + 0.50) * ot1H;
-    ot2 = ts * (1.75 + 0.60) * ot2H;
-    ot3 = ts * (1.75 + 1.35) * ot3H;
+    wk     = tsGrund * 0.75 * betaltH;
+    normal = tsNorm  * normalH;
+    // §8.3: OT på weekend: +50/+60/+135 oven på weekend-sats — begge på grundsats
+    ot1 = tsGrund * (1.75 + 0.50) * ot1H;
+    ot2 = tsGrund * (1.75 + 0.60) * ot2H;
+    ot3 = tsGrund * (1.75 + 1.35) * ot3H;
   } else {
-    normal = ts * normalH;
+    normal = tsNorm * normalH;
     if (varslet) {
-      ot1 = ts * 1.50 * ot1H;
-      ot2 = ts * 1.60 * ot2H;
-      ot3 = ts * 2.35 * ot3H;
+      ot1 = tsGrund * 1.50 * ot1H;
+      ot2 = tsGrund * 1.60 * ot2H;
+      ot3 = tsGrund * 2.35 * ot3H;
     } else {
       // §6e: OT skal ALTID kompenseres — ingen situation giver OT uden betaling.
       // Ingen type valgt = uvarslet sats er juridisk korrekt default.
       // (Uvarslet kræver blot talsperson er indforstået, §6b)
-      ot1 = ts * 1.75 * ot1H;
-      ot2 = ts * 2.00 * ot2H;
-      ot3 = ts * 2.35 * ot3H;
+      ot1 = tsGrund * 1.75 * ot1H;
+      ot2 = tsGrund * 2.00 * ot2H;
+      ot3 = tsGrund * 2.35 * ot3H;
     }
   }
 
@@ -946,7 +981,8 @@ function rendUge() {
 function ugeData() {
   const datoer = ugeDatoer(ugeOffset);
   const uge    = ugeNr(datoer[0]);
-  const ts     = (cfg.ugelon / 40) * (cfg.tillæg ? 1.1 : 1.0);
+  const ts     = cfg.ugelon / 40;               // OT-grundlag: mindsteløn uden pers.tillæg
+  const tsMed   = ts * (cfg.tillæg ? 1.1 : 1.0); // Normaltimer med pers.tillæg
   const dMax   = dagMax();
   const dage   = datoer.map(d => {
     const s = hentDag(d);
@@ -1046,8 +1082,9 @@ function doPDF() {
     <div class="pdf-meta">
       <span><div style="font-size:8pt;color:#888">Navn</div><strong>${cfg.navn || '—'}</strong></span>
       <span><div style="font-size:8pt;color:#888">Produktion</div><strong>${cfg.prod || '—'}</strong></span>
-      <span><div style="font-size:8pt;color:#888">Ugeløn</div><strong>${krFmt(cfg.ugelon)}</strong></span>
-      <span><div style="font-size:8pt;color:#888">Timesats</div><strong>${ts.toFixed(2)} kr/t</strong></span>
+      <span><div style="font-size:8pt;color:#888">Mindsteløn</div><strong>${krFmt(cfg.ugelon)}</strong></span>
+      ${cfg.pers ? `<span><div style="font-size:8pt;color:#888">Pers. tillæg</div><strong>${krFmt(cfg.pers)}</strong></span>` : ''}
+      <span><div style="font-size:8pt;color:#888">OT-sats</div><strong>${ts.toFixed(2)} kr/t</strong></span>
       <span><div style="font-size:8pt;color:#888">Arbejdstid</div><strong>${cfg.model === 'saertid' ? `Særtid §5 (${cfg.fridag === 'fre' ? 'fri fre' : 'fri man'})` : 'Normal §4'}</strong></span>
     </div>
 
