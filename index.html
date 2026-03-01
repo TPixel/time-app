@@ -161,6 +161,11 @@ textarea::placeholder{color:var(--mut)}
 .gem-btn{width:100%;padding:18px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
 .gem-btn:active{transform:scale(.98);opacity:.9}
 .gem-btn.ok{background:var(--grn)}
+.dag-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.dag-act-btn{padding:14px;border-radius:var(--r);border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.dag-act-btn:active{transform:scale(.96)}
+.act-send{background:var(--card);border:1.5px solid var(--acc);color:var(--acc)}
+.act-slet{background:var(--card);border:1.5px solid var(--red);color:var(--red)}
 
 /* ── UGE ── */
 .uge-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
@@ -378,6 +383,11 @@ textarea::placeholder{color:var(--mut)}
   </div>
 
   <button class="gem-btn" id="gem-btn" onclick="gemDag()">GEM DAG →</button>
+
+  <div class="dag-actions" id="dag-actions" style="display:none">
+    <button class="dag-act-btn act-send" onclick="sendEnkeltDag()">✉️ Send dag</button>
+    <button class="dag-act-btn act-slet" onclick="sletDag()">🗑 Slet dag</button>
+  </div>
 </div>
 
 <!-- UGE VIEW -->
@@ -928,13 +938,81 @@ function gemDag() {
     slut:  tidStreng(tidSlut),
     tidStart, tidSlut, note,
     knapper: { ...knapper },
-    h, lon: l.total + fskKr, fsk, fskKr
+    h, lon: l.total + fskKr, fsk, fskKr,
+    normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3, wk: l.wk
   });
 
   const btn = document.getElementById('gem-btn');
   btn.textContent = '✓ GEMT!'; btn.classList.add('ok');
   setTimeout(() => { btn.textContent = 'GEM DAG →'; btn.classList.remove('ok'); }, 2000);
   toast('Dag gemt ✓');
+
+  // Vis slet/send knapper
+  document.getElementById('dag-actions').style.display = 'grid';
+}
+
+// ═══════════════════════════════════════════════════
+// SLET DAG
+// ═══════════════════════════════════════════════════
+function sletDag() {
+  if (!confirm(`Slet ${DAGE[aktivDag.getDay()]} ${aktivDag.getDate()}/${aktivDag.getMonth()+1}?`)) return;
+  localStorage.removeItem(nøgle(aktivDag));
+  tidStart = null; tidSlut = null;
+  knapper  = { v:false, u:false, f:false, p:false, h:false, r:false };
+  document.getElementById('i-note').value = '';
+  document.getElementById('dag-actions').style.display = 'none';
+  opdaterTidDisplay();
+  opdaterKnapper();
+  beregn();
+  toast('Dag slettet');
+}
+
+// ═══════════════════════════════════════════════════
+// SEND ENKELT DAG
+// ═══════════════════════════════════════════════════
+function sendEnkeltDag() {
+  const d = hentDag(aktivDag);
+  if (!d) { toast('Gem dagen først'); return; }
+
+  const dagStr = `${DAGE[aktivDag.getDay()]} ${aktivDag.getDate()}. ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
+  const n = '%0D%0A';
+
+  // OT type
+  const otType = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : null;
+  let lonspec = '';
+  if (d.normal)  lonspec += `  Normal arbejdstid:    ${d.normal.toLocaleString('da-DK')} kr.${n}`;
+  if (d.ot1)     lonspec += `  OT 1. time (${otType==='Varslet'?'+50%':'+75%'}):    ${d.ot1.toLocaleString('da-DK')} kr.${n}`;
+  if (d.ot2)     lonspec += `  OT 2. time (${otType==='Varslet'?'+60%':'+100%'}):   ${d.ot2.toLocaleString('da-DK')} kr.${n}`;
+  if (d.ot3)     lonspec += `  OT 3.+ time (+135%):  ${d.ot3.toLocaleString('da-DK')} kr.${n}`;
+  if (d.wk)      lonspec += `  Weekend §8:           ${d.wk.toLocaleString('da-DK')} kr.${n}`;
+  if (d.fskKr)   lonspec += `  Forskudt §7:          ${d.fskKr.toLocaleString('da-DK')} kr.${n}`;
+  const extras = [
+    d.knapper?.v ? 'Varslet OT' : '',
+    d.knapper?.u ? 'Uvarslet OT' : '',
+    d.knapper?.h ? 'Weekend/helligdag' : '',
+    d.knapper?.f ? 'Sen frokost' : '',
+    d.knapper?.r ? 'Kørsel m. udstyr' : '',
+  ].filter(Boolean).join(', ');
+
+  const subj = encodeURIComponent(`Time App — ${dagStr}${cfg.prod ? ' · ' + cfg.prod : ''}`);
+  const body =
+    `${cfg.prod ? 'Produktion: ' + cfg.prod + n : ''}` +
+    `${cfg.navn ? 'Navn: ' + cfg.navn + n : ''}` +
+    `${n}` +
+    `${dagStr}${n}` +
+    `${d.start}–${d.slut}  (${hFmt(d.h)})${n}` +
+    `${extras ? extras + n : ''}` +
+    `${d.note ? 'Note: ' + d.note + n : ''}` +
+    `${n}` +
+    `LØNSPECIFIKATION${n}` +
+    `${lonspec}` +
+    `${n}` +
+    `Dagsløn: ${d.lon.toLocaleString('da-DK')} kr.${n}` +
+    `${n}` +
+    `Time App · Ditzel${n}` +
+    `Beregnet iht. FAF Fiktionsoverenskomst 2025–2027`;
+
+  window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${body}`;
 }
 
 // ═══════════════════════════════════════════════════
@@ -966,6 +1044,7 @@ function rendDag() {
     tidSlut = { h, m };
   }
   document.getElementById('i-note').value = s?.note || '';
+  document.getElementById('dag-actions').style.display = s ? 'grid' : 'none';
   opdaterTidDisplay();
   opdaterKnapper();
   opdaterSaertidBadge();
