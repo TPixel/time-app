@@ -220,11 +220,12 @@ textarea::placeholder{color:var(--mut)}
 
 /* ── PDF PRINT ── */
 #pdf-frame{display:none}
+#pdf-frame.vis{display:block}
 @media print {
   @page{size:A4 portrait;margin:18mm 16mm}
   html,body{background:#fff!important;max-width:none!important;margin:0!important;padding:0!important}
   body>*{display:none!important}
-  #pdf-frame{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important}
+  #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important}
 }
 .pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;max-width:175mm;margin:0 auto}
 .pdf-h1{font-size:20pt;font-weight:900;letter-spacing:-0.5px;margin-bottom:2px}
@@ -1197,11 +1198,11 @@ function doPDF() {
 
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = html;
-  frame.style.display = 'block';
+  frame.classList.add('vis');
   setTimeout(() => {
     window.print();
-    setTimeout(() => { frame.style.display = 'none'; frame.innerHTML = ''; }, 1000);
-  }, 100);
+    setTimeout(() => { frame.classList.remove('vis'); frame.innerHTML = ''; }, 1000);
+  }, 150);
 }
 
 // ═══════════════════════════════════════════════════
@@ -1422,13 +1423,68 @@ function doKalender() {
   toast('Kalender downloadet — åbn filen ✓');
 }
 function doMail() {
-  const { dage, uge, totH, totL, pension } = ugeData();
-  let lines = '';
+  const { dage, uge, ts, totH, totL, pension } = ugeData();
+  const år = new Date().getFullYear();
+
+  // Saml ugensummer
+  let sumNormal=0, sumOt1=0, sumOt2=0, sumOt3=0, sumWk=0, sumFskKr=0;
   dage.forEach(d => {
-    if (!d.fri) lines += `${dagNavn(d.dato)}: ${d.start}–${d.slut} (${d.h.toFixed(2)}t)%0D%0A`;
+    if (d.fri) return;
+    sumNormal += d.normal; sumOt1 += d.ot1; sumOt2 += d.ot2;
+    sumOt3 += d.ot3; sumWk += d.wk; sumFskKr += d.fskKr;
   });
-  const subj = encodeURIComponent(`Time App uge ${uge} — ${cfg.navn || ''}${cfg.prod ? ' · ' + cfg.prod : ''}`);
-  const body = `Time App uge ${uge}%0D%0A${cfg.prod ? 'Produktion: ' + cfg.prod + '%0D%0A' : ''}%0D%0A${lines}%0D%0ATotal: ${totH.toFixed(2)}t / ${totL.toLocaleString('da-DK')} kr.%0D%0APension 9,5%25: ${pension.toLocaleString('da-DK')} kr.`;
+
+  const n  = '%0D%0A';  // linjeskift i mailto
+  const sp = '          ';
+
+  // Daglinjer
+  let dagLinjer = '';
+  dage.forEach(d => {
+    if (d.fri) return;
+    const otType = d.knapper?.v ? 'Varslet OT' : d.knapper?.u ? 'Uvarslet OT' : '';
+    const extras = [
+      d.knapper?.h ? 'Weekend' : '',
+      d.knapper?.f ? 'Sen frokost' : '',
+      d.knapper?.r ? 'Kørsel m. udstyr' : '',
+      otType,
+    ].filter(Boolean).join(', ');
+    dagLinjer += `${dagNavn(d.dato)} ${d.dato.getDate()}/${d.dato.getMonth()+1}${n}`;
+    dagLinjer += `  ${d.start}–${d.slut}  (${hFmt(d.h)})${n}`;
+    if (extras) dagLinjer += `  ${extras}${n}`;
+    dagLinjer += `  Dagsløn: ${d.lon.toLocaleString('da-DK')} kr.${n}`;
+    dagLinjer += `${n}`;
+  });
+
+  // Lønspec
+  const otType = dage.some(d => !d.fri && d.knapper?.v) ? 'Varslet' :
+                 dage.some(d => !d.fri && d.knapper?.u) ? 'Uvarslet' : 'Uvarslet';
+  let lonspec = '';
+  if (sumNormal)  lonspec += `  Normal arbejdstid:${sp}${sumNormal.toLocaleString('da-DK')} kr.${n}`;
+  if (sumOt1)     lonspec += `  OT 1. time (${otType === 'Varslet' ? '+50%' : '+75%'}):${sp}${sumOt1.toLocaleString('da-DK')} kr.${n}`;
+  if (sumOt2)     lonspec += `  OT 2. time (${otType === 'Varslet' ? '+60%' : '+100%'}):${sp}${sumOt2.toLocaleString('da-DK')} kr.${n}`;
+  if (sumOt3)     lonspec += `  OT 3.+ time (+135%):${sp}${sumOt3.toLocaleString('da-DK')} kr.${n}`;
+  if (sumWk)      lonspec += `  Weekend §8:${sp}${sumWk.toLocaleString('da-DK')} kr.${n}`;
+  if (sumFskKr)   lonspec += `  Forskudt §7:${sp}${sumFskKr.toLocaleString('da-DK')} kr.${n}`;
+
+  const subj = encodeURIComponent(`Time App uge ${uge}/${år} — ${cfg.navn || ''}${cfg.prod ? ' · ' + cfg.prod : ''}`);
+  const body =
+    `Produktion: ${cfg.prod || '—'}${n}` +
+    `Navn: ${cfg.navn || '—'}${n}` +
+    `Uge: ${uge}/${år}${n}` +
+    `${n}` +
+    `━━━━━━━━━━━━━━━━━━━━━${n}` +
+    `${dagLinjer}` +
+    `━━━━━━━━━━━━━━━━━━━━━${n}` +
+    `${n}` +
+    `LØNSPECIFIKATION${n}` +
+    `${lonspec}` +
+    `${n}` +
+    `Total: ${hFmt(totH)} / ${totL.toLocaleString('da-DK')} kr.${n}` +
+    `Pension 9,5%25: ${pension.toLocaleString('da-DK')} kr.${n}` +
+    `${n}` +
+    `Time App · Ditzel${n}` +
+    `Beregnet iht. FAF Fiktionsoverenskomst 2025–2027`;
+
   window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${body}`;
 }
 
