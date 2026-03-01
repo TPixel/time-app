@@ -19,28 +19,41 @@
   --grn-d:rgba(52,211,153,.12); --red-d:rgba(248,113,113,.12);
   --yel-d:rgba(251,191,36,.12); --pnk-d:rgba(244,114,182,.12);
   --acc-d:rgba(129,140,248,.15); --pur-d:rgba(167,139,250,.1);
-  --r:14px; --rs:10px;
+  --r:14px; --rs:12px;
+
+  /* Knap-farver — fyldte */
+  --btn-v:#E8630A;   /* Varslet — orange */
+  --btn-u:#E02020;   /* Uvarslet — rød */
+  --btn-f:#D4A017;   /* Frokost — gul */
+  --btn-p:#E8784A;   /* Pause — laks */
+  --btn-h:#1AACDD;   /* Weekend — cyan */
+  --btn-r:#1DB954;   /* Kørsel — grøn */
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto}
 
 .topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
-.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
 .logo em{color:var(--acc);font-style:normal}
+.logo-flag{font-size:20px;line-height:1}
 .tabs{display:flex;background:var(--surf);border-radius:50px;padding:3px;gap:2px}
 .tab{padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s}
 .tab.on{background:var(--acc);color:#fff}
+.gear-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;line-height:1;padding:0}
+.gear-btn:active{transform:scale(.88)}
+.gear-btn.on{border-color:var(--acc);background:var(--acc-d)}
 
-.view{display:none;padding:16px 16px 110px}
+.view{display:none;padding:16px 16px 40px}
 .view.on{display:block}
 
 /* ── DAG ── */
-.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
-.dag-nav{display:flex;gap:8px;margin-top:4px}
-.nbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.dag-nav{display:flex;gap:8px;margin-top:6px}
+.nbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .nbtn:active{transform:scale(.88)}
-.dag-navn{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1}
-.dag-dato{font-family:'DM Mono',monospace;font-size:12px;color:var(--mut);margin-top:5px}
+.dag-navn{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;letter-spacing:-2px;line-height:1}
+.dag-dato{font-family:'DM Mono',monospace;font-size:14px;color:var(--txt);margin-top:6px;opacity:.7}
+.dag-uge{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
 
 /* ── TID PICKER ── */
 .time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
@@ -74,12 +87,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .tmodal-btn.ok{background:var(--acc);color:#fff}
 
 /* ── RESULTAT ── */
-.res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
-.res-t{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1}
-.res-t small{font-size:18px;font-weight:500;color:var(--mut);letter-spacing:0}
-.res-sub{font-size:11px;color:var(--mut);margin-top:4px;font-family:'DM Mono',monospace}
-.res-pay-amt{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--grn)}
-.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.res-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.res-t{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;letter-spacing:-1px;line-height:1;white-space:nowrap}
+.res-sub{font-size:12px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:6px}
+.res-pay-amt{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
+.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:right;margin-top:3px}
+.res-bottom{display:none}
 
 /* ── OT BREAKDOWN ── */
 .ot-boks{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:14px;display:none}
@@ -90,19 +104,52 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .ot-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
 .ot-val.g{color:var(--grn)}.ot-val.y{color:var(--yel)}.ot-val.p{color:var(--pur)}
 
-/* ── KNAPPER ── */
-.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+/* ── KNAPPER — FYLDTE FARVER ── */
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .oe{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--acc-d);color:var(--acc);text-transform:uppercase;letter-spacing:.5px}
-.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.xb{padding:13px 10px;border-radius:var(--rs);border:1.5px solid var(--brd);background:var(--card);color:var(--mut);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.3;text-align:center}
-.xb .xi{font-size:18px}
-.xb:active{transform:scale(.94)}
-.xb.von{border-color:var(--grn)!important;background:var(--grn-d)!important;color:var(--grn)!important}
-.xb.uon{border-color:var(--red)!important;background:var(--red-d)!important;color:var(--red)!important}
-.xb.fon{border-color:var(--yel)!important;background:var(--yel-d)!important;color:var(--yel)!important}
-.xb.pon{border-color:var(--pnk)!important;background:var(--pnk-d)!important;color:var(--pnk)!important}
-.xb.hon{border-color:var(--pur)!important;background:var(--pur-d)!important;color:var(--pur)!important}
-.xb.ron{border-color:var(--acc)!important;background:var(--acc-d)!important;color:var(--acc)!important}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+
+.xb{
+  padding:16px 10px;
+  border-radius:var(--rs);
+  border:none;
+  background:var(--card);
+  color:rgba(255,255,255,.6);
+  font-family:'Syne',sans-serif;
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.3px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .18s;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  line-height:1.25;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.xb .xi{font-size:0;display:none} /* skjul emoji — farven siger det hele */
+.xb-sub{font-family:'DM Mono',monospace;font-size:10px;font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;line-height:1.2}
+.xb:active{transform:scale(.94);opacity:.85}
+
+/* Inaktiv — subtil farvenuance */
+.xb[id="bn-v"]{border:2px solid rgba(232,99,10,.3)}
+.xb[id="bn-u"]{border:2px solid rgba(224,32,32,.3)}
+.xb[id="bn-f"]{border:2px solid rgba(212,160,23,.3)}
+.xb[id="bn-p"]{border:2px solid rgba(232,120,74,.3)}
+.xb[id="bn-h"]{border:2px solid rgba(26,172,221,.3)}
+.xb[id="bn-r"]{border:2px solid rgba(29,185,84,.3)}
+
+/* Aktiv — fyldt farve */
+.xb.von{background:var(--btn-v)!important;border-color:var(--btn-v)!important;color:#fff!important}
+.xb.uon{background:var(--btn-u)!important;border-color:var(--btn-u)!important;color:#fff!important}
+.xb.fon{background:var(--btn-f)!important;border-color:var(--btn-f)!important;color:#fff!important}
+.xb.pon{background:var(--btn-p)!important;border-color:var(--btn-p)!important;color:#fff!important}
+.xb.hon{background:var(--btn-h)!important;border-color:var(--btn-h)!important;color:#fff!important}
+.xb.ron{background:var(--btn-r)!important;border-color:var(--btn-r)!important;color:#fff!important}
 
 /* ── SÆRTID BADGE ── */
 .saertid-badge{display:none;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:var(--pur);text-align:center}
@@ -111,7 +158,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:12px;margin-bottom:16px}
 textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;line-height:1.5}
 textarea::placeholder{color:var(--mut)}
-.gem-btn{width:100%;padding:17px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.gem-btn{width:100%;padding:18px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
 .gem-btn:active{transform:scale(.98);opacity:.9}
 .gem-btn.ok{background:var(--grn)}
 
@@ -134,14 +181,14 @@ textarea::placeholder{color:var(--mut)}
 .dk-tider{font-family:'DM Mono',monospace;font-size:13px}
 .dk-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
 .badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px}
-.bv{background:var(--grn-d);color:var(--grn)}.bu{background:var(--red-d);color:var(--red)}
-.bf{background:var(--yel-d);color:var(--yel)}.bp{background:var(--pnk-d);color:var(--pnk)}
-.bh{background:var(--pur-d);color:var(--pur)}
+.bv{background:rgba(232,99,10,.2);color:var(--btn-v)}.bu{background:rgba(224,32,32,.2);color:var(--btn-u)}
+.bf{background:rgba(212,160,23,.2);color:var(--btn-f)}.bp{background:rgba(232,120,74,.2);color:var(--btn-p)}
+.bh{background:rgba(26,172,221,.2);color:var(--btn-h)}
 .dk-note{font-size:10px;color:var(--mut);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
 .dk-timer{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;text-align:right;min-width:50px}
 .dk-timer small{font-size:11px;font-weight:400;color:var(--mut)}
-.send-row{display:flex;gap:8px;margin-top:8px}
-.sbtn{flex:1;padding:15px;border-radius:var(--r);border:1.5px solid var(--brd);background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif}
+.send-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.sbtn{flex:1;min-width:calc(50% - 4px);padding:15px;border-radius:var(--r);border:1.5px solid var(--brd);background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif}
 .sbtn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
 .sbtn:active{transform:scale(.97)}
 
@@ -204,11 +251,13 @@ textarea::placeholder{color:var(--mut)}
 <body>
 
 <div class="topbar">
-  <div class="logo">TIME<em>·</em>APP</div>
-  <div class="tabs">
-    <button class="tab on" onclick="visView('dag')">Dag</button>
-    <button class="tab" onclick="visView('uge')">Uge</button>
-    <button class="tab" onclick="visView('inst')">⚙</button>
+  <div class="logo"><span class="logo-flag">🇩🇰</span> TIME<em>·</em>APP</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="tabs">
+      <button class="tab on" id="tab-dag" onclick="visView('dag')">Dag</button>
+      <button class="tab" id="tab-uge" onclick="visView('uge')">Uge</button>
+    </div>
+    <button class="gear-btn" id="gear-btn" onclick="visView('inst')" title="Indstillinger">⚙️</button>
   </div>
 </div>
 
@@ -245,6 +294,7 @@ textarea::placeholder{color:var(--mut)}
     <div>
       <div class="dag-navn" id="dag-navn"></div>
       <div class="dag-dato" id="dag-dato"></div>
+      <div class="dag-uge" id="dag-uge"></div>
     </div>
     <div class="dag-nav">
       <button class="nbtn" onclick="skiftDag(-1)">‹</button>
@@ -264,24 +314,24 @@ textarea::placeholder{color:var(--mut)}
   </div>
 
   <div class="res">
-    <div>
-      <div class="res-t" id="res-t">– –<small> t</small></div>
-      <div class="res-sub" id="res-sub"></div>
+    <div class="res-top">
+      <div class="res-t" id="res-t">– –</div>
+      <div style="text-align:right">
+        <div class="res-pay-amt" id="res-pay">0 kr.</div>
+        <div class="res-pay-lbl">Dagsløn</div>
+      </div>
     </div>
-    <div style="text-align:right">
-      <div class="res-pay-amt" id="res-pay">0 kr.</div>
-      <div class="res-pay-lbl">Dagsløn</div>
-    </div>
+    <div class="res-sub" id="res-sub"></div>
   </div>
 
   <div class="ot-boks" id="ot-boks">
     <div id="ot-advarsel" style="display:none;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:11px;color:#FBBF24;line-height:1.5">
       ⚠️ OT er sket men ingen type er valgt — beregnet som <strong>uvarslet</strong> per §6e. Vælg Varslet eller Uvarslet OT ovenfor.
     </div>
-    <div class="ot-row"><span class="ot-lbl">Normal arbejdstid</span><span class="ot-val g" id="o-normal">–</span></div>
+    <div class="ot-row"><span class="ot-lbl" id="o-normal-lbl">Normal arbejdstid</span><span class="ot-val g" id="o-normal">–</span></div>
     <div class="ot-row" id="o-ot1-row"><span class="ot-lbl" id="o-ot1-lbl">OT 1. time</span><span class="ot-val y" id="o-ot1">–</span></div>
     <div class="ot-row" id="o-ot2-row"><span class="ot-lbl" id="o-ot2-lbl">OT 2. time</span><span class="ot-val y" id="o-ot2">–</span></div>
-    <div class="ot-row" id="o-ot3-row"><span class="ot-lbl">OT 3.+ time (+135%)</span><span class="ot-val y" id="o-ot3">–</span></div>
+    <div class="ot-row" id="o-ot3-row"><span class="ot-lbl" id="o-ot3-lbl">OT 3.+ time (+135%)</span><span class="ot-val y" id="o-ot3">–</span></div>
     <div class="ot-row" id="o-fsk-row" style="display:none"><span class="ot-lbl">Forskudt tid +110 kr/t §7</span><span class="ot-val p" id="o-fsk">–</span></div>
     <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl">Weekend/helligdag §8</span><span class="ot-val p" id="o-wk">–</span></div>
     <div class="ot-row" id="o-ext-row" style="display:none"><span class="ot-lbl" id="o-ext-lbl">Tillæg</span><span class="ot-val g" id="o-ext">–</span></div>
@@ -292,32 +342,32 @@ textarea::placeholder{color:var(--mut)}
   <div class="slbl">Overarbejde <span class="oe">§6</span></div>
   <div class="bgrid">
     <button class="xb" id="bn-v" onclick="tog('v')">
-      <span class="xi">🟢</span>Varslet OT
-      <span style="font-size:10px;opacity:.65">+50% · +60% · +135%</span>
+      Varslet OT
+      <span class="xb-sub">+50% · +60% · +135%</span>
     </button>
     <button class="xb" id="bn-u" onclick="tog('u')">
-      <span class="xi">🔴</span>Uvarslet OT
-      <span style="font-size:10px;opacity:.65">+75% · +100% · +135%</span>
+      Uvarslet OT
+      <span class="xb-sub">+75% · +100% · +135%</span>
     </button>
   </div>
 
   <div class="slbl">Tillæg <span class="oe">§7 §8 §12</span></div>
   <div class="bgrid">
     <button class="xb" id="bn-f" onclick="tog('f')">
-      <span class="xi">🟡</span>For sen frokost
-      <span style="font-size:10px;opacity:.65">Diæt-kompensation</span>
+      For sen frokost
+      <span class="xb-sub">Diæt §12</span>
     </button>
     <button class="xb" id="bn-p" onclick="tog('p')">
-      <span class="xi">🩷</span>Ingen 10-min pause
-      <span style="font-size:10px;opacity:.65">Betales efter 10 timer</span>
+      Ingen 10m pause
+      <span class="xb-sub">Efter 10 timer</span>
     </button>
     <button class="xb" id="bn-h" onclick="tog('h')">
-      <span class="xi">🟣</span>Weekend/helligdag
-      <span style="font-size:10px;opacity:.65">+75% min. 4 timer</span>
+      Weekend
+      <span class="xb-sub">+75% min. 4t §8</span>
     </button>
     <button class="xb" id="bn-r" onclick="tog('r')">
-      <span class="xi">🚗</span>Kørsel m. udstyr
-      <span style="font-size:10px;opacity:.65">= arbejdstid §13</span>
+      Kørsel m. udstyr
+      <span class="xb-sub">= arbejdstid §13</span>
     </button>
   </div>
 
@@ -435,11 +485,6 @@ textarea::placeholder{color:var(--mut)}
 </div>
 
 <!-- BOTTOM BAR -->
-<div class="botbar">
-  <button class="bb on" id="bb-dag" onclick="visView('dag')"><span class="bi">📅</span>Dag</button>
-  <button class="bb" id="bb-uge" onclick="visView('uge')"><span class="bi">📊</span>Uge</button>
-  <button class="bb" id="bb-inst" onclick="visView('inst')"><span class="bi">⚙️</span>Indstil</button>
-</div>
 
 <script>
 // ═══════════════════════════════════════════════════
@@ -752,7 +797,8 @@ function calcLon(h, opt) {
     total: Math.round(normal + ot1 + ot2 + ot3 + wk + ext),
     normal: Math.round(normal), ot1: Math.round(ot1),
     ot2: Math.round(ot2), ot3: Math.round(ot3),
-    wk: Math.round(wk), ext: Math.round(ext)
+    wk: Math.round(wk), ext: Math.round(ext),
+    normalH, ot1H, ot2H, ot3H
   };
 }
 
@@ -766,7 +812,7 @@ function beregn() {
   const fskKr = Math.round(fsk * 110);
 
   if (h === null) {
-    document.getElementById('res-t').innerHTML    = '– –<small> t</small>';
+    document.getElementById('res-t').textContent   = '– –';
     document.getElementById('res-pay').textContent = '0 kr.';
     document.getElementById('res-sub').textContent = '';
     document.getElementById('ot-boks').classList.remove('vis');
@@ -777,35 +823,37 @@ function beregn() {
   const l   = calcLon(h, opt);
   const tot = l.total + fskKr;
 
-  document.getElementById('res-t').innerHTML    = `${h.toFixed(2)}<small> t</small>`;
+  document.getElementById('res-t').textContent   = hFmt(h);
   document.getElementById('res-pay').textContent = `${tot.toLocaleString('da-DK')} kr.`;
 
   const dMax = dagMax();
   let sub = [];
-  if (h > dMax) sub.push(`${(h - dMax).toFixed(2)}t OT`);
-  if (fsk > 0)  sub.push(`${fsk.toFixed(2)}t forskudt`);
+  if (h > dMax) sub.push(`${hFmt(h - dMax)} OT`);
+  if (fsk > 0)  sub.push(`${hFmt(fsk)} forskudt`);
   document.getElementById('res-sub').textContent = sub.join('  ·  ');
 
   // OT breakdown
   document.getElementById('ot-boks').classList.add('vis');
   document.getElementById('o-normal').textContent = kr(l.normal);
+  document.getElementById('o-normal-lbl').textContent = `Normal arbejdstid · ${hFmt(l.normalH)}`;
 
   const harOT = h > dMax;
   const ingenType = harOT && !knapper.v && !knapper.u;
 
-  // Labels afhænger af valgt type
+  // Labels med timer-antal
   let ot1lbl, ot2lbl;
   if (knapper.v) {
-    ot1lbl = 'OT 1. time (varslet +50%)';
-    ot2lbl = 'OT 2. time (varslet +60%)';
+    ot1lbl = `OT 1. time (varslet +50%) · ${hFmt(l.ot1H)}`;
+    ot2lbl = `OT 2. time (varslet +60%) · ${hFmt(l.ot2H)}`;
   } else if (knapper.u || ingenType) {
-    ot1lbl = ingenType ? 'OT 1. time (uvarslet +75% §6e)' : 'OT 1. time (uvarslet +75%)';
-    ot2lbl = ingenType ? 'OT 2. time (uvarslet +100% §6e)' : 'OT 2. time (uvarslet +100%)';
+    ot1lbl = `OT 1. time (uvarslet +75%${ingenType?' §6e':''}) · ${hFmt(l.ot1H)}`;
+    ot2lbl = `OT 2. time (uvarslet +100%${ingenType?' §6e':''}) · ${hFmt(l.ot2H)}`;
   } else {
-    ot1lbl = 'OT 1. time'; ot2lbl = 'OT 2. time';
+    ot1lbl = `OT 1. time · ${hFmt(l.ot1H)}`; ot2lbl = `OT 2. time · ${hFmt(l.ot2H)}`;
   }
   document.getElementById('o-ot1-lbl').textContent = ot1lbl;
   document.getElementById('o-ot2-lbl').textContent = ot2lbl;
+  document.getElementById('o-ot3-lbl').textContent = `OT 3.+ time (+135%) · ${hFmt(l.ot3H)}`;
   document.getElementById('o-ot1').textContent = l.ot1 ? kr(l.ot1) : '–';
   document.getElementById('o-ot2').textContent = l.ot2 ? kr(l.ot2) : '–';
   document.getElementById('o-ot3').textContent = l.ot3 ? kr(l.ot3) : '–';
@@ -818,7 +866,7 @@ function beregn() {
     advEl.style.display = 'none';
   }
   vis2('o-fsk-row', fsk > 0);
-  if (fsk > 0) document.getElementById('o-fsk').textContent = `${fskKr.toLocaleString('da-DK')} kr. (${fsk.toFixed(2)}t)`;
+  if (fsk > 0) document.getElementById('o-fsk').textContent = `${fskKr.toLocaleString('da-DK')} kr. (${hFmt(fsk)})`;
   vis2('o-wk-row', l.wk > 0);
   if (l.wk > 0) document.getElementById('o-wk').textContent = kr(l.wk);
   vis2('o-ext-row', l.ext > 0);
@@ -836,6 +884,14 @@ function vis2(id, show) {
   if (el) el.style.display = show ? 'flex' : 'none';
 }
 function kr(n) { return `${Math.round(n).toLocaleString('da-DK')} kr.`; }
+function hFmt(h) {
+  // Konverter decimal timer til "8t 30m" format
+  if (h === null || h === undefined) return '–';
+  const t = Math.floor(h);
+  const m = Math.round((h - t) * 60);
+  if (m === 0) return `${t}t`;
+  return `${t}t ${m}m`;
+}
 
 // ═══════════════════════════════════════════════════
 // KNAP TOGGLE
@@ -893,6 +949,8 @@ function rendDag() {
   document.getElementById('dag-navn').textContent = DAGE[d.getDay()];
   document.getElementById('dag-dato').textContent =
     `${d.getDate()} ${MND[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
+  const uge = ugeNr(d);
+  document.getElementById('dag-uge').textContent = `UGE ${uge}`;
   const s = hentDag(d);
   knapper  = s?.knapper || { v:false, u:false, f:false, p:false, h:false, r:false };
   tidStart = s?.tidStart || null;
@@ -966,12 +1024,12 @@ function rendUge() {
         ${badges ? `<div class="dk-badges">${badges}</div>` : ''}
         ${s?.note ? `<div class="dk-note">${s.note}</div>` : ''}
       </div>
-      <div class="dk-timer">${h !== null ? h.toFixed(1) : '—'}<small>t</small></div>`;
+      <div class="dk-timer">${h !== null ? hFmt(h) : '—'}</div>`;
     liste.appendChild(el);
   });
-  document.getElementById('us-t').innerHTML = `${totH.toFixed(1)}<small style="font-size:14px;color:var(--mut)">t</small>`;
+  document.getElementById('us-t').innerHTML = `${hFmt(totH)}`;
   document.getElementById('us-l').textContent = totL.toLocaleString('da-DK');
-  document.getElementById('us-o').innerHTML = `${totOt.toFixed(1)}<small style="font-size:14px;color:var(--mut)">t</small>`;
+  document.getElementById('us-o').innerHTML = `${hFmt(totOt)}`;
   document.getElementById('us-d').textContent = totD;
 }
 
@@ -1379,13 +1437,12 @@ function doMail() {
 // ═══════════════════════════════════════════════════
 function visView(navn) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  document.querySelectorAll('.bb').forEach(b => b.classList.remove('on'));
-  document.getElementById('view-' + navn).classList.add('on');
-  document.getElementById('bb-' + navn)?.classList.add('on');
-  ['dag','uge','inst'].forEach((n, i) => {
-    if (n === navn) document.querySelectorAll('.tab')[i]?.classList.add('on');
-  });
+  document.getElementById('view-' + navn)?.classList.add('on');
+  // Tabs: dag og uge
+  document.getElementById('tab-dag')?.classList.toggle('on', navn === 'dag');
+  document.getElementById('tab-uge')?.classList.toggle('on', navn === 'uge');
+  // Gear: aktiv når inst
+  document.getElementById('gear-btn')?.classList.toggle('on', navn === 'inst');
   if (navn === 'uge') rendUge();
   if (navn === 'dag') rendDag();
 }
