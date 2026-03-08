@@ -47,20 +47,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .view.on{display:block}
 
 /* ── DAG ── */
-.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
 .dag-nav{display:flex;gap:8px;margin-top:6px}
-.nbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.nbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .nbtn:active{transform:scale(.88)}
-.dag-navn{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;letter-spacing:-2px;line-height:1}
-.dag-dato{font-family:'DM Mono',monospace;font-size:14px;color:var(--txt);margin-top:6px;opacity:.7}
-.dag-uge{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.dag-navn{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-2px;line-height:1}
+.dag-dato{font-family:'DM Mono',monospace;font-size:13px;color:var(--txt);margin-top:4px;opacity:.7}
+.dag-uge{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);margin-top:1px;text-transform:uppercase;letter-spacing:1px}
+.dag-prod{font-size:11px;color:var(--mut);margin-top:2px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
 
 /* ── TID PICKER ── */
-.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.tf{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:14px 14px 10px;transition:border-color .2s}
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.tf{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:10px 14px 8px;transition:border-color .2s}
 .tf.focus{border-color:var(--acc)}
-.tf-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:6px}
-.tf-display{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;color:var(--txt);cursor:pointer;letter-spacing:1px}
+.tf-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:4px}
+.tf-display{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--txt);cursor:pointer;letter-spacing:1px}
 .tf-display.tom{color:var(--mut)}
 
 /* Tid-modal */
@@ -87,16 +88,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .tmodal-btn.ok{background:var(--acc);color:#fff}
 
 /* ── RESULTAT ── */
-.res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;user-select:none;position:relative}
 .res-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.res-t{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;letter-spacing:-1px;line-height:1;white-space:nowrap}
-.res-sub{font-size:12px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:6px}
-.res-pay-amt{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
-.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:right;margin-top:3px}
+.res-t{font-family:'DM Mono',monospace;font-size:38px;font-weight:500;letter-spacing:-1px;line-height:1;white-space:nowrap}
+.res-sub{font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:4px}
+.res-pay-amt{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
+.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:right;margin-top:2px}
+.res-expand{font-size:10px;color:var(--mut);text-align:center;margin-top:6px;letter-spacing:1px;opacity:.6}
 .res-bottom{display:none}
 
 /* ── OT BREAKDOWN ── */
-.ot-boks{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:14px;display:none}
+.ot-boks{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;display:none}
 .ot-boks.vis{display:block}
 .ot-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd)}
 .ot-row:last-child{border-bottom:none}
@@ -105,34 +107,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .ot-val.g{color:var(--grn)}.ot-val.y{color:var(--yel)}.ot-val.p{color:var(--pur)}
 
 /* ── KNAPPER — FYLDTE FARVER ── */
-.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:7px;display:flex;align-items:center;gap:6px}
 .oe{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--acc-d);color:var(--acc);text-transform:uppercase;letter-spacing:.5px}
-.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.bgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
 
 .xb{
-  padding:16px 10px;
+  padding:10px 6px;
   border-radius:var(--rs);
   border:none;
   background:var(--card);
   color:rgba(255,255,255,.6);
   font-family:'Syne',sans-serif;
-  font-size:13px;
+  font-size:11px;
   font-weight:800;
-  letter-spacing:.3px;
+  letter-spacing:.2px;
   text-transform:uppercase;
   cursor:pointer;
   transition:all .18s;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:6px;
-  line-height:1.25;
+  gap:3px;
+  line-height:1.2;
   text-align:center;
   position:relative;
   overflow:hidden;
 }
 .xb .xi{font-size:0;display:none} /* skjul emoji — farven siger det hele */
-.xb-sub{font-family:'DM Mono',monospace;font-size:10px;font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;line-height:1.2}
+.xb-sub{font-family:'DM Mono',monospace;font-size:9px;font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;line-height:1.2}
 .xb:active{transform:scale(.94);opacity:.85}
 
 /* Inaktiv — subtil farvenuance */
@@ -152,25 +154,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .xb.ron{background:var(--btn-r)!important;border-color:var(--btn-r)!important;color:#fff!important}
 
 /* ── SÆRTID BADGE ── */
-.saertid-badge{display:none;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:var(--pur);text-align:center}
+.saertid-badge{display:none;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:var(--pur);text-align:center}
 .saertid-badge.vis{display:block}
 
-.note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:12px;margin-bottom:16px}
-textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;line-height:1.5}
+.note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px}
+textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;line-height:1.5}
 textarea::placeholder{color:var(--mut)}
-.gem-btn{width:100%;padding:18px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.gem-btn{width:100%;padding:15px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
 .gem-btn:active{transform:scale(.98);opacity:.9}
 .gem-btn.ok{background:var(--grn)}
-.dag-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.dag-act-btn{padding:14px;border-radius:var(--r);border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.dag-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.dag-act-btn{padding:12px;border-radius:var(--r);border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
 .dag-act-btn:active{transform:scale(.96)}
 .act-send{background:var(--card);border:1.5px solid var(--acc);color:var(--acc)}
 .act-slet{background:var(--card);border:1.5px solid var(--red);color:var(--red)}
 
 /* ── UGE ── */
-.uge-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.uge-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .uge-ttl{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-1px}
 .uge-yr{font-size:12px;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace}
+.uge-prod{font-size:11px;color:var(--mut);margin-top:1px;font-style:italic}
 .uge-sum{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:18px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .us-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
 .us-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
@@ -314,6 +317,7 @@ textarea::placeholder{color:var(--mut)}
       <div class="dag-navn" id="dag-navn"></div>
       <div class="dag-dato" id="dag-dato"></div>
       <div class="dag-uge" id="dag-uge"></div>
+      <div class="dag-prod" id="dag-prod"></div>
     </div>
     <div class="dag-nav">
       <button class="nbtn" onclick="skiftDag(-1)">‹</button>
@@ -332,7 +336,7 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
 
-  <div class="res">
+  <div class="res" onclick="togOT()" id="res-boks">
     <div class="res-top">
       <div class="res-t" id="res-t">– –</div>
       <div style="text-align:right">
@@ -341,6 +345,7 @@ textarea::placeholder{color:var(--mut)}
       </div>
     </div>
     <div class="res-sub" id="res-sub"></div>
+    <div class="res-expand" id="res-expand"></div>
   </div>
 
   <div class="ot-boks" id="ot-boks">
@@ -356,43 +361,39 @@ textarea::placeholder{color:var(--mut)}
     <div class="ot-row" id="o-ext-row" style="display:none"><span class="ot-lbl" id="o-ext-lbl">Tillæg</span><span class="ot-val g" id="o-ext">–</span></div>
   </div>
 
-  <div class="saertid-badge" id="saertid-badge">🟣 Forskudt særtid aktiv — OT starter efter 10 timer</div>
+  <div class="saertid-badge" id="saertid-badge">🟣 4-dages uge aktiv — OT starter efter 10 timer</div>
 
-  <div class="slbl">Overarbejde <span class="oe">§6</span></div>
+  <div class="slbl">Overarbejde + Tillæg <span class="oe">§6 §7 §8 §12</span></div>
   <div class="bgrid">
     <button class="xb" id="bn-v" onclick="tog('v')">
       Varslet OT
-      <span class="xb-sub">+50% · +60% · +135%</span>
+      <span class="xb-sub">+50% +60% +135%</span>
     </button>
     <button class="xb" id="bn-u" onclick="tog('u')">
       Uvarslet OT
-      <span class="xb-sub">+75% · +100% · +135%</span>
-    </button>
-  </div>
-
-  <div class="slbl">Tillæg <span class="oe">§7 §8 §12</span></div>
-  <div class="bgrid">
-    <button class="xb" id="bn-f" onclick="tog('f')">
-      For sen frokost
-      <span class="xb-sub">Diæt §12</span>
-    </button>
-    <button class="xb" id="bn-p" onclick="tog('p')">
-      Ingen 10m pause
-      <span class="xb-sub">Efter 10 timer</span>
+      <span class="xb-sub">+75% +100% +135%</span>
     </button>
     <button class="xb" id="bn-h" onclick="tog('h')">
       Weekend
-      <span class="xb-sub">+75% min. 4t §8</span>
+      <span class="xb-sub">+75% min 4t §8</span>
+    </button>
+    <button class="xb" id="bn-f" onclick="tog('f')">
+      Sen frokost
+      <span class="xb-sub">Diæt §12</span>
+    </button>
+    <button class="xb" id="bn-p" onclick="tog('p')">
+      Ingen pause
+      <span class="xb-sub">Efter 10t §7</span>
     </button>
     <button class="xb" id="bn-r" onclick="tog('r')">
-      Kørsel m. udstyr
+      Kørsel
       <span class="xb-sub">= arbejdstid §13</span>
     </button>
   </div>
 
   <div class="slbl">Note</div>
   <div class="note-wrap">
-    <textarea id="i-note" placeholder="Produktion, location, bemærkninger…" rows="3"></textarea>
+    <textarea id="i-note" placeholder="Location, bemærkninger…" rows="2"></textarea>
   </div>
 
   <button class="gem-btn" id="gem-btn" onclick="gemDag()">GEM DAG →</button>
@@ -409,6 +410,7 @@ textarea::placeholder{color:var(--mut)}
     <div>
       <div class="uge-ttl" id="uge-ttl">Uge –</div>
       <div class="uge-yr" id="uge-yr"></div>
+      <div class="uge-prod" id="uge-prod"></div>
     </div>
     <div class="dag-nav">
       <button class="nbtn" onclick="skiftUge(-1)">‹</button>
@@ -494,8 +496,8 @@ textarea::placeholder{color:var(--mut)}
     </div>
     <div class="s-row">
       <div>
-        <div class="s-lbl">Forskudt særtid §5</div>
-        <div class="s-desc">4-dages uge · 10t/dag · OT efter 10t</div>
+        <div class="s-lbl">4-dages uge §5</div>
+        <div class="s-desc">10t/dag · OT efter 10t · særtid</div>
       </div>
       <div class="sw" id="sw-saertid" onclick="vælgModel('saertid')"></div>
     </div>
@@ -541,6 +543,7 @@ let knapper     = { v:false, u:false, f:false, p:false, h:false, r:false };
 let cfg         = { navn:'', email:'', prod:'', ugelon:10380, pers:0, tillæg:false, model:'5dag', fridag:'fre' };
 let produktioner  = [];   // Array af cfg-objekter
 let aktivProdId   = null; // ID for aktiv produktion
+let otVis         = false; // OT breakdown åben/lukket
 
 // Tidsvalg state
 let modalFelt  = null;   // 'start' eller 'slut'
@@ -686,6 +689,7 @@ function skiftProduktion(id) {
   if (p) cfg = { ...cfg, ...p };
   indlæsCfgIForm();
   rendProdListe();
+  opdaterProdLabel();
   beregn();
 }
 
@@ -841,11 +845,28 @@ function opdaterSaertidBadge() {
   const b = document.getElementById('saertid-badge');
   if (cfg.model === 'saertid') {
     const friTxt = cfg.fridag === 'fre' ? 'Fridag: fredag' : 'Fridag: mandag';
-    b.textContent = `🟣 Forskudt særtid — OT efter 10t — ${friTxt}`;
+    b.textContent = `🟣 4-dages uge — OT efter 10t — ${friTxt}`;
     b.classList.add('vis');
   } else {
     b.classList.remove('vis');
   }
+}
+
+function opdaterProdLabel() {
+  const navn = cfg.prod || '';
+  const dp = document.getElementById('dag-prod');
+  const up = document.getElementById('uge-prod');
+  if (dp) dp.textContent = navn;
+  if (up) up.textContent = navn;
+}
+
+function togOT() {
+  const boks = document.getElementById('ot-boks');
+  if (!boks || boks.style.display === 'none' && !boks.classList.contains('vis')) return;
+  otVis = !otVis;
+  boks.classList.toggle('vis', otVis);
+  const exp = document.getElementById('res-expand');
+  if (exp) exp.textContent = otVis ? '▴ Luk specifikation' : '▾ Vis specifikation';
 }
 
 // ═══════════════════════════════════════════════════
@@ -958,11 +979,14 @@ function beregn() {
   const fsk = (h !== null) ? calcForskudt(tidStart, tidSlut, idx) : 0;
   const fskKr = Math.round(fsk * 110);
 
+  const exp = document.getElementById('res-expand');
   if (h === null) {
     document.getElementById('res-t').textContent   = '– –';
     document.getElementById('res-pay').textContent = '0 kr.';
     document.getElementById('res-sub').textContent = '';
     document.getElementById('ot-boks').classList.remove('vis');
+    if (exp) exp.textContent = '';
+    otVis = false;
     return;
   }
 
@@ -979,8 +1003,9 @@ function beregn() {
   if (fsk > 0)  sub.push(`${hFmt(fsk)} forskudt`);
   document.getElementById('res-sub').textContent = sub.join('  ·  ');
 
-  // OT breakdown
-  document.getElementById('ot-boks').classList.add('vis');
+  // OT breakdown — vis kun hvis otVis er true (brugeren har tappet)
+  if (exp) exp.textContent = otVis ? '▴ Luk specifikation' : '▾ Vis specifikation';
+  document.getElementById('ot-boks').classList.toggle('vis', otVis);
   document.getElementById('o-normal').textContent = kr(l.normal);
   document.getElementById('o-normal-lbl').textContent = `Normal arbejdstid · ${hFmt(l.normalH)}`;
 
@@ -1166,10 +1191,12 @@ function rendDag() {
     `${d.getDate()} ${MND[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
   const uge = ugeNr(d);
   document.getElementById('dag-uge').textContent = `UGE ${uge}`;
+  opdaterProdLabel();
   const s = hentDag(d);
   knapper  = s?.knapper || { v:false, u:false, f:false, p:false, h:false, r:false };
   tidStart = s?.tidStart || null;
   tidSlut  = s?.tidSlut  || null;
+  otVis    = false; // nulstil OT-visning ved dagskift
   // Bagudkompatibilitet: parse gammel streng-format
   if (!tidStart && s?.start) {
     const [h, m] = s.start.split(':').map(Number);
@@ -1211,6 +1238,7 @@ function rendUge() {
   const datoer = ugeDatoer(ugeOffset);
   document.getElementById('uge-ttl').textContent = `Uge ${ugeNr(datoer[0])}`;
   document.getElementById('uge-yr').textContent  = datoer[0].getFullYear();
+  opdaterProdLabel();
   let totH = 0, totL = 0, totOt = 0, totD = 0;
   const liste = document.getElementById('uge-liste');
   liste.innerHTML = '';
