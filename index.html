@@ -213,6 +213,19 @@ textarea::placeholder{color:var(--mut)}
 .info-boks{background:var(--card2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:14px;font-size:12px;line-height:1.8;color:var(--mut)}
 .info-boks strong{color:var(--txt)}
 
+/* ── PRODUKTIONER ── */
+.prod-liste{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.prod-item{display:flex;align-items:center;gap:10px;background:var(--surf);border:1.5px solid var(--brd);border-radius:var(--rs);padding:12px 14px;cursor:pointer;transition:all .18s}
+.prod-item.aktiv{border-color:var(--acc);background:var(--acc-d)}
+.prod-item-info{flex:1;min-width:0}
+.prod-item-navn{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-item-sub{font-size:11px;color:var(--mut);margin-top:1px}
+.prod-item-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:50px;background:var(--acc);color:#fff;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
+.prod-del{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--red);background:transparent;color:var(--red);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
+.prod-del:active{background:var(--red-d)}
+.ny-prod-btn{width:100%;padding:13px;border-radius:var(--rs);border:1.5px dashed var(--brd);background:transparent;color:var(--mut);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px}
+.ny-prod-btn:active{border-color:var(--acc);color:var(--acc)}
+
 /* ── BOTTOMBAR ── */
 .botbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,18,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--brd);display:flex;padding:10px 16px;padding-bottom:max(10px, env(safe-area-inset-bottom));gap:2px}
 .bb{flex:1;padding:9px 4px;border:none;background:transparent;color:var(--mut);font-size:9px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:var(--rs);transition:all .15s;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Sans',sans-serif}
@@ -423,6 +436,14 @@ textarea::placeholder{color:var(--mut)}
   <div style="font-size:12px;color:var(--mut);margin-bottom:20px">FAF Fiktionsoverenskomst 2025–2027</div>
 
   <div class="s-card">
+    <div class="s-hd">Produktioner</div>
+    <div style="padding:14px 16px">
+      <div class="prod-liste" id="prod-liste"></div>
+      <button class="ny-prod-btn" onclick="nyProduktion()">＋ Ny produktion</button>
+    </div>
+  </div>
+
+  <div class="s-card">
     <div class="s-hd">Personligt</div>
     <div class="s-row">
       <div><div class="s-lbl">Navn</div></div>
@@ -451,6 +472,10 @@ textarea::placeholder{color:var(--mut)}
     <div class="s-row" id="lon-total-row">
       <div><div class="s-lbl">Samlet ugeløn</div><div class="s-desc" id="lon-total-desc">OT beregnes på mindsteløn §3</div></div>
       <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--grn)" id="lon-total">10.380 kr.</div>
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Normaldagsløn</div><div class="s-desc" id="daglon-desc">8t/dag (normal uge §4)</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--acc)" id="daglon-vis">—</div>
     </div>
     <div class="s-row">
       <div><div class="s-lbl">10% enkeltdagstillæg</div><div class="s-desc">Ansættelse under 1 uge §3.10</div></div>
@@ -510,10 +535,12 @@ const KVARTER = [0, 15, 30, 45];
 // ═══════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════
-let aktivDag  = new Date();
-let ugeOffset = 0;
-let knapper   = { v:false, u:false, f:false, p:false, h:false, r:false };
-let cfg = { navn:'', email:'', prod:'', ugelon:10380, pers:0, tillæg:false, model:'5dag', fridag:'fre' };
+let aktivDag    = new Date();
+let ugeOffset   = 0;
+let knapper     = { v:false, u:false, f:false, p:false, h:false, r:false };
+let cfg         = { navn:'', email:'', prod:'', ugelon:10380, pers:0, tillæg:false, model:'5dag', fridag:'fre' };
+let produktioner  = [];   // Array af cfg-objekter
+let aktivProdId   = null; // ID for aktiv produktion
 
 // Tidsvalg state
 let modalFelt  = null;   // 'start' eller 'slut'
@@ -633,33 +660,131 @@ function hentDag(d) {
 }
 function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); }
 
-function hentCfg() {
-  try {
-    const c = JSON.parse(localStorage.getItem('faf-cfg'));
-    if (c) cfg = { ...cfg, ...c };
-  } catch {}
-  document.getElementById('s-navn').value   = cfg.navn;
-  document.getElementById('s-email').value  = cfg.email;
-  document.getElementById('s-prod').value   = cfg.prod;
-  document.getElementById('s-ugelon').value = cfg.ugelon;
-  document.getElementById('s-pers').value   = cfg.pers || 0;
+// ═══════════════════════════════════════════════════
+// PRODUKTIONER
+// ═══════════════════════════════════════════════════
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function hentProduktioner() {
+  try { return JSON.parse(localStorage.getItem('faf-produktioner')) || []; } catch { return []; }
+}
+function gemProduktionerStore() {
+  localStorage.setItem('faf-produktioner', JSON.stringify(produktioner));
+}
+
+function nyProduktion() {
+  const nyt = { id: genId(), navn: '', email: '', prod: 'Ny produktion', ugelon: 10380, pers: 0, tillæg: false, model: '5dag', fridag: 'fre' };
+  produktioner.push(nyt);
+  gemProduktionerStore();
+  skiftProduktion(nyt.id);
+}
+
+function skiftProduktion(id) {
+  aktivProdId = id;
+  localStorage.setItem('faf-aktiv-prod', id);
+  const p = produktioner.find(p => p.id === id);
+  if (p) cfg = { ...cfg, ...p };
+  indlæsCfgIForm();
+  rendProdListe();
+  beregn();
+}
+
+function sletProduktion(id) {
+  if (produktioner.length <= 1) { toast('Mindst én produktion kræves'); return; }
+  if (!confirm('Slet denne produktion?')) return;
+  produktioner = produktioner.filter(p => p.id !== id);
+  gemProduktionerStore();
+  if (aktivProdId === id) {
+    skiftProduktion(produktioner[0].id);
+  } else {
+    rendProdListe();
+  }
+}
+
+function rendProdListe() {
+  const liste = document.getElementById('prod-liste');
+  if (!liste) return;
+  liste.innerHTML = '';
+  produktioner.forEach(p => {
+    const erAktiv = p.id === aktivProdId;
+    const dage = p.model === 'saertid' ? 4 : 5;
+    const dTimer = p.model === 'saertid' ? 10 : 8;
+    const dagLon = Math.round((p.ugelon + (p.pers||0)) * (p.tillæg?1.1:1) / dage);
+    const div = document.createElement('div');
+    div.className = 'prod-item' + (erAktiv ? ' aktiv' : '');
+    div.innerHTML = `
+      <div class="prod-item-info" onclick="skiftProduktion('${p.id}')">
+        <div class="prod-item-navn">${p.prod || '(ingen titel)'}</div>
+        <div class="prod-item-sub">${dagLon.toLocaleString('da-DK')} kr/dag · ${dTimer}t · ${p.model === 'saertid' ? 'Særtid §5' : 'Normal §4'}</div>
+      </div>
+      ${erAktiv ? '<span class="prod-item-badge">Aktiv</span>' : `<button class="prod-del" onclick="event.stopPropagation();sletProduktion('${p.id}')" title="Slet">×</button>`}
+    `;
+    liste.appendChild(div);
+  });
+}
+
+function indlæsCfgIForm() {
+  document.getElementById('s-navn').value   = cfg.navn  || '';
+  document.getElementById('s-email').value  = cfg.email || '';
+  document.getElementById('s-prod').value   = cfg.prod  || '';
+  document.getElementById('s-ugelon').value = cfg.ugelon || 10380;
+  document.getElementById('s-pers').value   = cfg.pers   || 0;
   setSw('tillæg', cfg.tillæg);
   opdaterModelUI();
   opdaterLonTotal();
 }
 
+function hentCfg() {
+  // Indlæs produktioner
+  produktioner = hentProduktioner();
+
+  // Migration: hvis ingen produktioner endnu, flyt gammel faf-cfg til første produktion
+  if (produktioner.length === 0) {
+    try {
+      const gammel = JSON.parse(localStorage.getItem('faf-cfg'));
+      const første = { id: genId(), navn: gammel?.navn||'', email: gammel?.email||'', prod: gammel?.prod||'Min første produktion',
+        ugelon: gammel?.ugelon||10380, pers: gammel?.pers||0, tillæg: gammel?.tillæg||false,
+        model: gammel?.model||'5dag', fridag: gammel?.fridag||'fre' };
+      produktioner.push(første);
+      gemProduktionerStore();
+    } catch {
+      const første = { id: genId(), navn: '', email: '', prod: 'Min første produktion', ugelon: 10380, pers: 0, tillæg: false, model: '5dag', fridag: 'fre' };
+      produktioner.push(første);
+      gemProduktionerStore();
+    }
+  }
+
+  // Find aktiv produktion
+  const gemt = localStorage.getItem('faf-aktiv-prod');
+  const p    = produktioner.find(p => p.id === gemt) || produktioner[0];
+  aktivProdId = p.id;
+  cfg = { ...cfg, ...p };
+  indlæsCfgIForm();
+  rendProdListe();
+}
+
 function opdaterLonTotal() {
-  const base = parseFloat(document.getElementById('s-ugelon').value) || 10380;
-  const pers = parseFloat(document.getElementById('s-pers').value) || 0;
-  const total = base + pers;
+  const base   = parseFloat(document.getElementById('s-ugelon').value) || 10380;
+  const pers   = parseFloat(document.getElementById('s-pers').value) || 0;
+  const total  = base + pers;
   const tillæg = cfg.tillæg;
-  const vis = total * (tillæg ? 1.1 : 1.0);
+  const vis    = total * (tillæg ? 1.1 : 1.0);
   document.getElementById('lon-total').textContent = `${vis.toLocaleString('da-DK')} kr.`;
   const persDagly = (pers / 40 * 8).toLocaleString('da-DK', {maximumFractionDigits:0});
   document.getElementById('lon-total-desc').textContent =
     pers > 0
       ? `OT på mindsteløn §3 · Pers. tillæg +${persDagly} kr/dag`
       : 'OT beregnes på mindsteløn §3';
+
+  // Normaldagsløn — deles på dagMax (8t eller 10t), ikke 40
+  const model    = document.getElementById('sw-saertid')?.classList.contains('on') ? 'saertid' : '5dag';
+  const dTimer   = model === 'saertid' ? 10 : 8;
+  const dage     = model === 'saertid' ? 4 : 5;
+  const dagLon   = Math.round(vis / dage);
+  const el = document.getElementById('daglon-vis');
+  const dl = document.getElementById('daglon-desc');
+  if (el) el.textContent = `${dagLon.toLocaleString('da-DK')} kr.`;
+  if (dl) dl.textContent = `${dTimer}t/dag · ${dage}-dages uge (${model === 'saertid' ? 'særtid §5' : 'normal §4'})`;
 }
 
 function gemInst() {
@@ -669,8 +794,17 @@ function gemInst() {
   cfg.ugelon = parseFloat(document.getElementById('s-ugelon').value) || 10380;
   cfg.pers   = parseFloat(document.getElementById('s-pers').value) || 0;
   cfg.fridag = document.getElementById('s-fridag').value;
+
+  // Gem til aktiv produktion i produktioner-arrayet
+  const idx = produktioner.findIndex(p => p.id === aktivProdId);
+  if (idx !== -1) produktioner[idx] = { ...cfg, id: aktivProdId };
+  else produktioner.push({ ...cfg, id: aktivProdId });
+  gemProduktionerStore();
+
+  // Baglæns kompatibilitet
   localStorage.setItem('faf-cfg', JSON.stringify(cfg));
   opdaterLonTotal();
+  rendProdListe();
   toast('Gemt ✓');
   opdaterSaertidBadge();
   beregn();
@@ -679,6 +813,7 @@ function gemInst() {
 function swTog(k) {
   cfg[k] = !cfg[k];
   setSw(k, cfg[k]);
+  opdaterLonTotal();
   beregn();
 }
 function setSw(k, v) {
@@ -689,6 +824,7 @@ function setSw(k, v) {
 function vælgModel(m) {
   cfg.model = m;
   opdaterModelUI();
+  opdaterLonTotal();
   gemInst();
 }
 function opdaterModelUI() {
