@@ -193,6 +193,7 @@ textarea::placeholder{color:var(--mut)}
 .bf{background:rgba(212,160,23,.2);color:var(--btn-f)}.bp{background:rgba(232,120,74,.2);color:var(--btn-p)}
 .bh{background:rgba(26,172,221,.2);color:var(--btn-h)}
 .dk-note{font-size:10px;color:var(--mut);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.dk-prod{font-size:9px;color:var(--acc);margin-top:2px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;opacity:.8}
 .dk-timer{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;text-align:right;min-width:50px}
 .dk-timer small{font-size:11px;font-weight:400;color:var(--mut)}
 .send-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
@@ -228,6 +229,15 @@ textarea::placeholder{color:var(--mut)}
 .prod-del:active{background:var(--red-d)}
 .ny-prod-btn{width:100%;padding:13px;border-radius:var(--rs);border:1.5px dashed var(--brd);background:transparent;color:var(--mut);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px}
 .ny-prod-btn:active{border-color:var(--acc);color:var(--acc)}
+
+/* ── MODEL SEGMENTED CONTROL ── */
+.model-seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 16px 12px}
+.model-opt{padding:10px 8px;border-radius:var(--rs);border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .18s;font-family:'DM Sans',sans-serif;line-height:1.2}
+.model-opt.on{border-color:var(--acc);background:var(--acc-d);color:var(--txt)}
+.model-opt:active{transform:scale(.96)}
+.model-opt-ttl{font-weight:700;font-size:13px}
+.model-opt-sub{font-size:10px;color:var(--mut)}
+.model-opt.on .model-opt-sub{color:var(--acc);opacity:.8}
 
 /* ── BOTTOMBAR ── */
 .botbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,18,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--brd);display:flex;padding:10px 16px;padding-bottom:max(10px, env(safe-area-inset-bottom));gap:2px}
@@ -410,7 +420,6 @@ textarea::placeholder{color:var(--mut)}
     <div>
       <div class="uge-ttl" id="uge-ttl">Uge –</div>
       <div class="uge-yr" id="uge-yr"></div>
-      <div class="uge-prod" id="uge-prod"></div>
     </div>
     <div class="dag-nav">
       <button class="nbtn" onclick="skiftUge(-1)">‹</button>
@@ -487,19 +496,15 @@ textarea::placeholder{color:var(--mut)}
 
   <div class="s-card">
     <div class="s-hd">Arbejdstidsmodel §4 / §5</div>
-    <div class="s-row">
-      <div>
-        <div class="s-lbl">Normal 5-dages uge</div>
-        <div class="s-desc">8t/dag · OT efter 8t</div>
-      </div>
-      <div class="sw" id="sw-5dag" onclick="vælgModel('5dag')"></div>
-    </div>
-    <div class="s-row">
-      <div>
-        <div class="s-lbl">4-dages uge §5</div>
-        <div class="s-desc">10t/dag · OT efter 10t · særtid</div>
-      </div>
-      <div class="sw" id="sw-saertid" onclick="vælgModel('saertid')"></div>
+    <div class="model-seg">
+      <button class="model-opt" id="mseg-5dag" onclick="vælgModel('5dag')">
+        <span class="model-opt-ttl">5-dages</span>
+        <span class="model-opt-sub">8t/dag · OT efter 8t</span>
+      </button>
+      <button class="model-opt" id="mseg-saertid" onclick="vælgModel('saertid')">
+        <span class="model-opt-ttl">4-dages §5</span>
+        <span class="model-opt-sub">10t/dag · OT efter 10t</span>
+      </button>
     </div>
     <div class="s-row" id="fridag-row" style="display:none">
       <div><div class="s-lbl">Fridag placering</div><div class="s-desc">§5 stk. 3 / stk. 4</div></div>
@@ -510,13 +515,17 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
 
-  <div class="info-boks">
-    <strong>Tillægsoversigt:</strong><br>
-    Varslet OT: <strong>+50%</strong> (1.t) · <strong>+60%</strong> (2.t) · <strong>+135%</strong> (3.t+)<br>
-    Uvarslet OT: <strong>+75%</strong> (1.t) · <strong>+100%</strong> (2.t) · <strong>+135%</strong> (3.t+)<br>
-    Forskudt tid kl. 19–06 (hverdage): <strong>+110 kr/t</strong><br>
-    Weekend fre 20:00 – man 06:00: <strong>+75%</strong> (min. 4t)<br>
-    Pension: <strong>9,5%</strong> af normalløn
+  <div class="s-card">
+    <div class="s-hd" id="tillæg-hd" onclick="togTillæg()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      Tillægsoversigt <span id="tillæg-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+    </div>
+    <div id="tillæg-body" style="display:none;padding:14px 16px;font-size:12px;line-height:2;color:var(--mut)">
+      Varslet OT: <strong style="color:var(--txt)">+50%</strong> (1.t) · <strong style="color:var(--txt)">+60%</strong> (2.t) · <strong style="color:var(--txt)">+135%</strong> (3.t+)<br>
+      Uvarslet OT: <strong style="color:var(--txt)">+75%</strong> (1.t) · <strong style="color:var(--txt)">+100%</strong> (2.t) · <strong style="color:var(--txt)">+135%</strong> (3.t+)<br>
+      Forskudt kl. 19–06 (hverdage): <strong style="color:var(--txt)">+110 kr/t</strong><br>
+      Weekend fre 20:00 – man 06:00: <strong style="color:var(--txt)">+75%</strong> (min. 4t)<br>
+      Pension: <strong style="color:var(--txt)">9,5%</strong> af normalløn
+    </div>
   </div>
 
   <button class="gem-btn" onclick="gemInst()">GEM INDSTILLINGER</button>
@@ -781,7 +790,7 @@ function opdaterLonTotal() {
       : 'OT beregnes på mindsteløn §3';
 
   // Normaldagsløn — deles på dagMax (8t eller 10t), ikke 40
-  const model    = document.getElementById('sw-saertid')?.classList.contains('on') ? 'saertid' : '5dag';
+  const model    = cfg.model || '5dag';
   const dTimer   = model === 'saertid' ? 10 : 8;
   const dage     = model === 'saertid' ? 4 : 5;
   const dagLon   = Math.round(vis / dage);
@@ -832,8 +841,8 @@ function vælgModel(m) {
   gemInst();
 }
 function opdaterModelUI() {
-  setSw('5dag',   cfg.model === '5dag');
-  setSw('saertid', cfg.model === 'saertid');
+  document.getElementById('mseg-5dag')?.classList.toggle('on', cfg.model === '5dag');
+  document.getElementById('mseg-saertid')?.classList.toggle('on', cfg.model === 'saertid');
   const fridagRow = document.getElementById('fridag-row');
   fridagRow.style.display = cfg.model === 'saertid' ? 'flex' : 'none';
   if (cfg.model === 'saertid') {
@@ -855,9 +864,25 @@ function opdaterSaertidBadge() {
 function opdaterProdLabel() {
   const navn = cfg.prod || '';
   const dp = document.getElementById('dag-prod');
-  const up = document.getElementById('uge-prod');
   if (dp) dp.textContent = navn;
-  if (up) up.textContent = navn;
+}
+
+function togTillæg() {
+  const body = document.getElementById('tillæg-body');
+  const ch   = document.getElementById('tillæg-ch');
+  if (!body) return;
+  const vis = body.style.display === 'none';
+  body.style.display = vis ? 'block' : 'none';
+  ch.textContent = vis ? '▴ Luk' : '▾ Vis';
+  localStorage.setItem('faf-tillæg-vis', vis ? '1' : '0');
+}
+function initTillæg() {
+  const vis = localStorage.getItem('faf-tillæg-vis') === '1';
+  const body = document.getElementById('tillæg-body');
+  const ch   = document.getElementById('tillæg-ch');
+  if (!body || !ch) return;
+  body.style.display = vis ? 'block' : 'none';
+  ch.textContent = vis ? '▴ Luk' : '▾ Vis';
 }
 
 function togOT() {
@@ -1100,7 +1125,8 @@ function gemDag() {
     tidStart, tidSlut, note,
     knapper: { ...knapper },
     h, lon: l.total + fskKr, fsk, fskKr,
-    normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3, wk: l.wk
+    normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3, wk: l.wk,
+    prod: cfg.prod || '', prodId: aktivProdId
   });
 
   const btn = document.getElementById('gem-btn');
@@ -1238,7 +1264,6 @@ function rendUge() {
   const datoer = ugeDatoer(ugeOffset);
   document.getElementById('uge-ttl').textContent = `Uge ${ugeNr(datoer[0])}`;
   document.getElementById('uge-yr').textContent  = datoer[0].getFullYear();
-  opdaterProdLabel();
   let totH = 0, totL = 0, totOt = 0, totD = 0;
   const liste = document.getElementById('uge-liste');
   liste.innerHTML = '';
@@ -1266,6 +1291,7 @@ function rendUge() {
       <div class="dk-info">
         <div class="dk-tider">${s?.start ? `${s.start} → ${s.slut || '?'}` : '— fri —'}</div>
         ${badges ? `<div class="dk-badges">${badges}</div>` : ''}
+        ${s?.prod ? `<div class="dk-prod">${s.prod}</div>` : ''}
         ${s?.note ? `<div class="dk-note">${s.note}</div>` : ''}
       </div>
       <div class="dk-timer">${h !== null ? hFmt(h) : '—'}</div>`;
@@ -1754,6 +1780,7 @@ function toast(msg) {
 // INIT
 hentCfg();
 rendDag();
+initTillæg();
 </script>
 
 <!-- INSTALL BANNER (Android/Chrome) -->
