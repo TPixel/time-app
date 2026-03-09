@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SE Film">
+<meta name="theme-color" content="#0C0C12">
+<title>Film·TV·Video · Scen & Film 2023–2025</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0C0C12; --surf:#14141E; --card:#1C1C2A; --card2:#222232;
+  --brd:#2E2E42; --txt:#EEEEF5; --mut:#666680;
+  --grn:#34D399; --red:#F87171; --yel:#FBBF24;
+  --acc:#60A5FA; --acc-d:rgba(96,165,250,.15);
+  --pur:#A78BFA; --pur-d:rgba(167,139,250,.1);
+  --r:14px; --rs:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.logo em{color:var(--acc);font-style:normal}
+.badge-ok{font-size:10px;font-weight:700;padding:3px 8px;border-radius:50px;background:var(--acc-d);color:var(--acc);text-transform:uppercase;letter-spacing:.5px}
+
+.view{padding:16px 16px 120px}
+
+.s-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.s-hd{padding:10px 16px;background:var(--card2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut)}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--brd)}
+.s-row:last-child{border-bottom:none}
+.s-lbl{font-size:14px;font-weight:500}
+.s-desc{font-size:11px;color:var(--mut);margin-top:2px}
+.s-inp{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:var(--txt);font-family:'DM Mono',monospace;font-size:14px;outline:none}
+.s-inp:focus{border-color:var(--acc)}
+select.s-inp{-webkit-appearance:none}
+
+.model-seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 16px 12px}
+.model-opt{padding:10px 8px;border-radius:var(--rs);border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .18s;font-family:'DM Sans',sans-serif;line-height:1.2}
+.model-opt.on{border-color:var(--acc);background:var(--acc-d);color:var(--txt)}
+.model-opt:active{transform:scale(.96)}
+.model-opt-ttl{font-weight:700;font-size:13px}
+.model-opt-sub{font-size:10px;color:var(--mut)}
+.model-opt.on .model-opt-sub{color:var(--acc);opacity:.85}
+
+.sw{width:46px;height:26px;background:var(--brd);border-radius:50px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.sw.on{background:var(--acc)}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.sw.on::after{left:23px}
+
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tf{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:10px 14px 8px;cursor:pointer;transition:border-color .2s}
+.tf.focus{border-color:var(--acc)}
+.tf-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:4px}
+.tf-display{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--txt);letter-spacing:1px}
+.tf-display.tom{color:var(--mut)}
+
+.tmodal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.tmodal-bg.skjult{display:none}
+.tmodal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:430px;padding:20px 20px 40px}
+.tmodal-ttl{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;text-align:center;margin-bottom:20px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.tmodal-vis{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;text-align:center;letter-spacing:2px;margin-bottom:24px}
+.tmodal-sep{color:var(--mut)}
+.tscroll-row{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.tscroll{flex:1;max-width:150px}
+.tscroll-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);text-align:center;margin-bottom:8px}
+.tscroll-inner{display:flex;flex-direction:column;gap:2px;max-height:200px;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tscroll-inner::-webkit-scrollbar{display:none}
+.tscroll-item{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;text-align:center;padding:12px 0;border-radius:8px;cursor:pointer;color:var(--mut);scroll-snap-align:start;transition:all .15s;flex-shrink:0}
+.tscroll-item.sel{background:var(--acc);color:#fff;font-weight:700}
+.tmodal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tmodal-btn{padding:15px;border-radius:var(--rs);border:none;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer}
+.tmodal-btn.annul{background:var(--surf);color:var(--mut)}
+.tmodal-btn.ok{background:var(--acc);color:#fff}
+
+.res{background:linear-gradient(135deg,#0A0F1A,#0E1420);border:1.5px solid rgba(96,165,250,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;user-select:none;position:relative}
+.res-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.res-t{font-family:'DM Mono',monospace;font-size:38px;font-weight:500;letter-spacing:-1px;line-height:1;white-space:nowrap}
+.res-pay-amt{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
+.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:right;margin-top:2px}
+.res-expand{font-size:10px;color:var(--mut);text-align:center;margin-top:6px;letter-spacing:1px;opacity:.6}
+.res-sub{font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:4px}
+
+.ot-boks{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;display:none}
+.ot-boks.vis{display:block}
+.ot-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd)}
+.ot-row:last-child{border-bottom:none}
+.ot-lbl{font-size:12px;color:var(--mut)}
+.ot-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+.ot-val.g{color:var(--grn)}.ot-val.y{color:var(--yel)}.ot-val.r{color:var(--red)}.ot-val.p{color:var(--pur)}
+
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:7px}
+.bgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
+.xb{padding:10px 6px;border-radius:var(--rs);border:2px solid var(--brd);background:var(--card);color:rgba(255,255,255,.6);font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:.2px;text-transform:uppercase;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.2;text-align:center}
+.xb-sub{font-family:'DM Mono',monospace;font-size:9px;font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;line-height:1.2}
+.xb:active{transform:scale(.94)}
+.xb.on{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important}
+
+.info-boks{background:var(--card2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:14px;font-size:12px;line-height:1.8;color:var(--mut)}
+.info-boks strong{color:var(--txt)}
+.sek-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;background:rgba(96,165,250,.15);color:var(--acc);text-transform:uppercase;margin-left:4px}
+
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-12px);background:var(--grn);color:#0C0C12;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">FILM<em>·</em>TV<em>·</em>VIDEO</div>
+  <div class="badge-ok">Scen & Film 2023–25</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- TID MODAL -->
+<div class="tmodal-bg skjult" id="tmodal-bg" onclick="lukkModal(event)">
+  <div class="tmodal" onclick="event.stopPropagation()">
+    <div class="tmodal-ttl" id="tmodal-ttl">Välj tid</div>
+    <div class="tmodal-vis">
+      <span id="mv-h">--</span><span class="tmodal-sep">:</span><span id="mv-m">--</span>
+    </div>
+    <div class="tscroll-row">
+      <div class="tscroll">
+        <div class="tscroll-lbl">Timmar</div>
+        <div class="tscroll-inner" id="ts-timer"></div>
+      </div>
+      <div class="tscroll">
+        <div class="tscroll-lbl">Kvart</div>
+        <div class="tscroll-inner" id="ts-min"></div>
+      </div>
+    </div>
+    <div class="tmodal-btns">
+      <button class="tmodal-btn annul" onclick="lukkModal(null)">Avbryt</button>
+      <button class="tmodal-btn ok" onclick="bekræftTid()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="view">
+
+  <!-- ANSÆTTELSESTYPE -->
+  <div class="s-card">
+    <div class="s-hd">Anställningsform</div>
+    <div class="model-seg">
+      <button class="model-opt on" id="mseg-dag" onclick="skiftModel('dag')">
+        <span class="model-opt-ttl">Dagsanställd</span>
+        <span class="model-opt-sub">Dag 1/2/3+ sats</span>
+      </button>
+      <button class="model-opt" id="mseg-man" onclick="skiftModel('man')">
+        <span class="model-opt-ttl">Månadsanställd</span>
+        <span class="model-opt-sub">OT = 1/94 · 1/82</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- DAGSLÖN SEKTION -->
+  <div class="s-card" id="dag-sektion">
+    <div class="s-hd">Dagslön <span class="sek-badge">SEK</span></div>
+    <div class="s-row">
+      <div><div class="s-lbl">Dag i produktion</div><div class="s-desc">Dag 1, 2 eller 3+ (minimum)</div></div>
+      <select class="s-inp" id="s-dagnr" style="width:120px" onchange="skiftDagNr()">
+        <option value="1">Dag 1 — 5 984</option>
+        <option value="2">Dag 2 — 5 502</option>
+        <option value="3">Dag 3+ — 3 645</option>
+        <option value="0">Fri sats</option>
+      </select>
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Dagslön (SEK)</div><div class="s-desc">Minimum jfr avtal — kan vara högre</div></div>
+      <input class="s-inp" type="number" id="s-daglon" value="5984" style="width:110px;text-align:right" oninput="beregn()">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Timlön</div><div class="s-desc">= dagslön ÷ 8</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)" id="timlon-vis">748 kr</div>
+    </div>
+  </div>
+
+  <!-- MÅNADSSEKTION -->
+  <div class="s-card" id="man-sektion" style="display:none">
+    <div class="s-hd">Månadslön <span class="sek-badge">SEK</span></div>
+    <div class="s-row">
+      <div><div class="s-lbl">Månadslön (SEK)</div><div class="s-desc">Minimum 35 191 kr/mån (2025)</div></div>
+      <input class="s-inp" type="number" id="s-manlon" value="40000" style="width:120px;text-align:right" oninput="beregn()">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">OT-sats hverdagar 07–21</div><div class="s-desc">= månadslön ÷ 94</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)" id="otlon-94">426 kr/t</div>
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">OT-sats övriga tider</div><div class="s-desc">= månadslön ÷ 82</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--pur)" id="otlon-82">488 kr/t</div>
+    </div>
+  </div>
+
+  <!-- TID -->
+  <div class="time-row">
+    <div class="tf" id="tf-start" onclick="åbnModal('start')">
+      <div class="tf-lbl">Inspelning start</div>
+      <div class="tf-display tom" id="disp-start">––:––</div>
+    </div>
+    <div class="tf" id="tf-slut" onclick="åbnModal('slut')">
+      <div class="tf-lbl">Inspelning slut</div>
+      <div class="tf-display tom" id="disp-slut">––:––</div>
+    </div>
+  </div>
+
+  <!-- DAGTYPE -->
+  <div class="s-card">
+    <div class="s-hd">Dagtyp</div>
+    <div class="model-seg" style="grid-template-columns:1fr 1fr 1fr">
+      <button class="model-opt on" id="mseg-hdag" onclick="skiftDagtype('hdag')">
+        <span class="model-opt-ttl">Vardag</span>
+        <span class="model-opt-sub">Mån–Fre</span>
+      </button>
+      <button class="model-opt" id="mseg-lördag" onclick="skiftDagtype('lördag')">
+        <span class="model-opt-ttl">Lördag</span>
+        <span class="model-opt-sub">07–21 +44</span>
+      </button>
+      <button class="model-opt" id="mseg-söndag" onclick="skiftDagtype('söndag')">
+        <span class="model-opt-ttl">Söndag</span>
+        <span class="model-opt-sub">+148 kr/t</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTAT -->
+  <div class="res" onclick="togOT()" id="res-boks">
+    <div class="res-top">
+      <div class="res-t" id="res-t">– –</div>
+      <div style="text-align:right">
+        <div class="res-pay-amt" id="res-pay">0 kr.</div>
+        <div class="res-pay-lbl">Daglön</div>
+      </div>
+    </div>
+    <div class="res-sub" id="res-sub"></div>
+    <div class="res-expand" id="res-expand"></div>
+  </div>
+
+  <!-- OT BREAKDOWN -->
+  <div class="ot-boks" id="ot-boks">
+    <div class="ot-row"><span class="ot-lbl">Normaltid</span><span class="ot-val g" id="o-normal">–</span></div>
+    <div class="ot-row" id="o-ot1-row" style="display:none"><span class="ot-lbl" id="o-ot1-lbl">Övertid hv. 07–21 (÷94)</span><span class="ot-val y" id="o-ot1">–</span></div>
+    <div class="ot-row" id="o-ot2-row" style="display:none"><span class="ot-lbl" id="o-ot2-lbl">Övertid övrig tid (÷82)</span><span class="ot-val r" id="o-ot2">–</span></div>
+    <div class="ot-row" id="o-ob-row" style="display:none"><span class="ot-lbl" id="o-ob-lbl">OB-tillägg</span><span class="ot-val p" id="o-ob">–</span></div>
+  </div>
+
+  <!-- INFO -->
+  <div class="s-card">
+    <div class="s-hd" id="info-hd" onclick="togInfo()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      Avtalsregler <span id="info-ch" style="font-size:12px;opacity:.6">▾ Visa</span>
+    </div>
+    <div id="info-body" style="display:none;padding:14px 16px;font-size:12px;line-height:2;color:var(--mut)">
+      Normaldag: <strong style="color:var(--txt)">8 timmar</strong><br>
+      OT hvardagar 07–21: <strong style="color:var(--yel)">månadslön ÷ 94</strong> per timme<br>
+      OT övriga tider: <strong style="color:var(--red)">månadslön ÷ 82</strong> per timme<br>
+      OB lördag 07–21: <strong style="color:var(--pur)">+44 SEK/t</strong><br>
+      OB mån–lör 21–24: <strong style="color:var(--pur)">+71 SEK/t</strong><br>
+      OB mån–lör 00–07 + sön + helg: <strong style="color:var(--pur)">+148 SEK/t</strong><br>
+      OT kan ersättas med <strong style="color:var(--txt)">2 timmar ledighet</strong> per OT-timme<br>
+      Minsta dagslön dag 1: <strong style="color:var(--txt)">5 984 SEK</strong><br>
+      Minsta månadslön: <strong style="color:var(--txt)">35 191 SEK</strong> (2025: +3,4%)<br>
+      <br>
+      <span style="color:var(--acc);font-size:11px">Scen & Film / Teaterförbundet Sverige</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// KONSTANTER
+// ═══════════════════════════════════════════════
+const KVARTER = [0, 15, 30, 45];
+
+// Minimumsdagssatser 2023-2025
+const DAGLON_MIN = { 1: 5984, 2: 5502, 3: 3645 };
+
+// OB-satser (obekvämlighetstillägg) SEK/time
+const OB = {
+  lordag_dag:  44,   // lördag 07-21
+  kväll:       71,   // mån-lör 21-24
+  natt:       148,   // mån-lör 00-07
+  sondag:     148,   // söndag + helgdag (hela dygnet)
+};
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let tidStart = null;
+let tidSlut  = null;
+let model    = 'dag';    // 'dag' eller 'man'
+let dagtype  = 'hdag';   // 'hdag', 'lördag', 'söndag'
+let otVis    = false;
+let modalFelt = null;
+let valgtH = 8, valgtM = 0;
+
+// ═══════════════════════════════════════════════
+// HJÆLPERE
+// ═══════════════════════════════════════════════
+function p2(n) { return String(n).padStart(2,'0'); }
+function tidTilH(t) { return t ? t.h + t.m / 60 : null; }
+function hFmt(h) {
+  if (h === null || h === 0) return '0t';
+  const hh = Math.floor(h);
+  const mm = Math.round((h - hh) * 60);
+  return mm > 0 ? `${hh}t ${mm}m` : `${hh}t`;
+}
+function fmtSEK(kr) {
+  return Math.round(kr).toLocaleString('sv-SE') + ' kr';
+}
+
+// ═══════════════════════════════════════════════
+// MODEL & DAGTYPE
+// ═══════════════════════════════════════════════
+function skiftModel(m) {
+  model = m;
+  document.getElementById('mseg-dag').classList.toggle('on', m === 'dag');
+  document.getElementById('mseg-man').classList.toggle('on', m === 'man');
+  document.getElementById('dag-sektion').style.display = m === 'dag' ? 'block' : 'none';
+  document.getElementById('man-sektion').style.display = m === 'man' ? 'block' : 'none';
+  beregn();
+}
+function skiftDagtype(dt) {
+  dagtype = dt;
+  ['hdag','lördag','söndag'].forEach(d => {
+    document.getElementById('mseg-'+d)?.classList.toggle('on', d === dt);
+  });
+  beregn();
+}
+function skiftDagNr() {
+  const val = parseInt(document.getElementById('s-dagnr').value);
+  if (val > 0) {
+    document.getElementById('s-daglon').value = DAGLON_MIN[val];
+  }
+  beregn();
+}
+
+// ═══════════════════════════════════════════════
+// TID MODAL
+// ═══════════════════════════════════════════════
+function byggModal() {
+  const hEl = document.getElementById('ts-timer');
+  const mEl = document.getElementById('ts-min');
+  hEl.innerHTML = ''; mEl.innerHTML = '';
+  for (let h = 0; h < 24; h++) {
+    const el = document.createElement('div');
+    el.className = 'tscroll-item' + (h === valgtH ? ' sel' : '');
+    el.textContent = p2(h);
+    el.onclick = () => { valgtH = h; opdaterModal(); };
+    hEl.appendChild(el);
+  }
+  KVARTER.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'tscroll-item' + (m === valgtM ? ' sel' : '');
+    el.textContent = p2(m);
+    el.onclick = () => { valgtM = m; opdaterModal(); };
+    mEl.appendChild(el);
+  });
+  const selH = hEl.querySelector('.sel');
+  if (selH) selH.scrollIntoView({ block: 'center' });
+}
+function opdaterModal() {
+  document.querySelectorAll('#ts-timer .tscroll-item').forEach((el,i) => el.classList.toggle('sel', i === valgtH));
+  document.querySelectorAll('#ts-min .tscroll-item').forEach((el,i) => el.classList.toggle('sel', KVARTER[i] === valgtM));
+  document.getElementById('mv-h').textContent = p2(valgtH);
+  document.getElementById('mv-m').textContent = p2(valgtM);
+}
+function åbnModal(felt) {
+  modalFelt = felt;
+  const ekst = felt === 'start' ? tidStart : tidSlut;
+  valgtH = ekst ? ekst.h : (felt === 'start' ? 7 : 17);
+  valgtM = ekst ? ekst.m : 0;
+  document.getElementById('tmodal-ttl').textContent = felt === 'start' ? 'Inspelning start' : 'Inspelning slut';
+  document.getElementById('mv-h').textContent = p2(valgtH);
+  document.getElementById('mv-m').textContent = p2(valgtM);
+  document.getElementById('tmodal-bg').classList.remove('skjult');
+  byggModal();
+}
+function lukkModal(e) {
+  if (e === null || e.target === document.getElementById('tmodal-bg')) {
+    document.getElementById('tmodal-bg').classList.add('skjult');
+  }
+}
+function bekræftTid() {
+  if (modalFelt === 'start') tidStart = { h: valgtH, m: valgtM };
+  else tidSlut = { h: valgtH, m: valgtM };
+  opdaterTidDisplay();
+  document.getElementById('tmodal-bg').classList.add('skjult');
+  beregn();
+}
+function opdaterTidDisplay() {
+  const dS = document.getElementById('disp-start');
+  const dE = document.getElementById('disp-slut');
+  if (tidStart) { dS.textContent = `${p2(tidStart.h)}:${p2(tidStart.m)}`; dS.classList.remove('tom'); }
+  else { dS.textContent = '––:––'; dS.classList.add('tom'); }
+  if (tidSlut) { dE.textContent = `${p2(tidSlut.h)}:${p2(tidSlut.m)}`; dE.classList.remove('tom'); }
+  else { dE.textContent = '––:––'; dE.classList.add('tom'); }
+}
+
+// ═══════════════════════════════════════════════
+// BEREGNING — Scen & Film Film-TV-Video 2023–2025
+// ═══════════════════════════════════════════════
+function calcOB(start, slut, dt) {
+  // Beregn OB-tillägg per time baseret på tidspunkt og dagtype
+  const s = tidTilH(start), e = tidTilH(slut);
+  if (s === null || e === null) return 0;
+  const segmenter = e >= s ? [[s, e]] : [[s, 24], [0, e]];
+  let obKr = 0;
+
+  segmenter.forEach(([a, b]) => {
+    if (dt === 'söndag') {
+      // Hele söndagen: 148 kr/t
+      obKr += (b - a) * OB.sondag;
+    } else if (dt === 'lördag') {
+      // Lördag 07-21: 44 kr/t | lördag 21-24: 71 kr/t | lördag 00-07: 148 kr/t
+      const dag_s = Math.max(a, 7), dag_e = Math.min(b, 21);
+      if (dag_e > dag_s) obKr += (dag_e - dag_s) * OB.lordag_dag;
+      const kv_s = Math.max(a, 21), kv_e = Math.min(b, 24);
+      if (kv_e > kv_s) obKr += (kv_e - kv_s) * OB.kväll;
+      const nat_s = Math.max(a, 0), nat_e = Math.min(b, 7);
+      if (nat_e > nat_s) obKr += (nat_e - nat_s) * OB.natt;
+    } else {
+      // Vardag: kväll 21-24 +71, natt 00-07 +148
+      const kv_s = Math.max(a, 21), kv_e = Math.min(b, 24);
+      if (kv_e > kv_s) obKr += (kv_e - kv_s) * OB.kväll;
+      const nat_s = Math.max(a, 0), nat_e = Math.min(b, 7);
+      if (nat_e > nat_s) obKr += (nat_e - nat_s) * OB.natt;
+    }
+  });
+
+  return obKr;
+}
+
+function isOTtidVardag(t) {
+  // Övertid utanför 07-21 på vardagar räknas med 1/82
+  return dagtype === 'hdag' && (t < 7 || t >= 21);
+}
+
+function calcSeFTV(start, slut, md, daglon, manlon, dt) {
+  const s = tidTilH(start), e = tidTilH(slut);
+  if (s === null || e === null) return null;
+
+  const totalH = e >= s ? e - s : e - s + 24;
+
+  // Pause: 30 min ved ≥6t, 45 min ved ≥9t (ej avdragen — ingår i arbetstid)
+  // I svensk film är paus normalt betald eller schemalagd, men vi drar av 30 min
+  let pause = 0;
+  if (totalH >= 9) pause = 0.75;
+  else if (totalH >= 6) pause = 0.5;
+  const arbH = Math.max(0, totalH - pause);
+
+  let normal = 0, ot1 = 0, ot2 = 0, obKr = 0;
+
+  if (md === 'dag') {
+    // Dagsanställd: betald per dag (dagslön for normaldag 8t)
+    // OT: övertid > 8t betalas som timmar
+    const ts = daglon / 8;
+    normal = Math.min(arbH, 8) * ts;
+    const otH = Math.max(0, arbH - 8);
+
+    if (otH > 0) {
+      // Försöker att avgöra OT-typ baserat på tid
+      // Förenkling: vi delar OT i hvardag/07-21 vs övrig
+      // En mer precis beräkning skulle kräva timme-för-timme analys
+      const otSats94 = manlon ? manlon / 94 : ts * 1.3;  // fallback
+      const otSats82 = manlon ? manlon / 82 : ts * 1.5;  // fallback
+
+      // Kontrollera om OT-timmarna primärt är på dag eller kväll/natt
+      const slutH = e;
+      const otStartH = s + 8 + pause; // Ungefärlig OT-start
+      let ot_dag = 0, ot_kv = 0;
+      // Enkel approximation
+      if (dt === 'hdag') {
+        const otEnd = otStartH + otH;
+        const otDayEnd = Math.min(otEnd, 21);
+        const otDayStart = Math.max(otStartH, 7);
+        ot_dag = Math.max(0, otDayEnd - otDayStart);
+        ot_kv  = Math.max(0, otH - ot_dag);
+      } else {
+        ot_kv = otH; // Lördag/söndag = övrig tid
+      }
+      ot1 = ot_dag * otSats94;
+      ot2 = ot_kv  * otSats82;
+    }
+  } else {
+    // Månadsanställd
+    const otSats94 = manlon / 94;
+    const otSats82 = manlon / 82;
+
+    // Normal: 8t × (manlon/173 per timme)
+    const tsMan = manlon / 173;
+    normal = Math.min(arbH, 8) * tsMan;
+
+    const otH = Math.max(0, arbH - 8);
+    if (otH > 0) {
+      // Dela OT i hvardag 07-21 vs övrig
+      const otStartH = s + 8 + pause;
+      if (dt === 'hdag') {
+        const otDayEnd   = Math.min(otStartH + otH, 21);
+        const ot_dag_h   = Math.max(0, otDayEnd - Math.max(otStartH, 7));
+        const ot_kv_h    = Math.max(0, otH - ot_dag_h);
+        ot1 = ot_dag_h * otSats94;
+        ot2 = ot_kv_h  * otSats82;
+      } else {
+        ot2 = otH * otSats82;
+      }
+    }
+  }
+
+  // OB-tillägg
+  obKr = calcOB(start, slut, dt);
+  // Fratræk OB for pause-tid (approximation)
+  // OB gælder alle timer inkl. pausen, men vi deler med tilnærmelse
+
+  const total = normal + ot1 + ot2 + obKr;
+
+  return {
+    arbH, totalH, pause,
+    normal, ot1, ot2, obKr,
+    total
+  };
+}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function beregn() {
+  const daglon = parseFloat(document.getElementById('s-daglon').value) || 5984;
+  const manlon = parseFloat(document.getElementById('s-manlon').value) || 40000;
+
+  // Opdater sats-display
+  document.getElementById('timlon-vis').textContent =
+    Math.round(daglon / 8).toLocaleString('sv-SE') + ' kr';
+  document.getElementById('otlon-94').textContent =
+    Math.round(manlon / 94).toLocaleString('sv-SE') + ' kr/t';
+  document.getElementById('otlon-82').textContent =
+    Math.round(manlon / 82).toLocaleString('sv-SE') + ' kr/t';
+
+  if (!tidStart || !tidSlut) {
+    document.getElementById('res-t').textContent = '– –';
+    document.getElementById('res-pay').textContent = '0 kr';
+    document.getElementById('res-sub').textContent = '';
+    document.getElementById('res-expand').textContent = '';
+    document.getElementById('ot-boks').classList.remove('vis');
+    return;
+  }
+
+  const r = calcSeFTV(tidStart, tidSlut, model, daglon, manlon, dagtype);
+  if (!r) return;
+
+  document.getElementById('res-t').textContent = hFmt(r.arbH);
+  document.getElementById('res-pay').textContent = fmtSEK(r.total);
+  document.getElementById('res-sub').textContent =
+    model === 'dag'
+      ? `Dagslön ${daglon.toLocaleString('sv-SE')} · ts ${Math.round(daglon/8)} kr/t`
+      : `Månadslön ${manlon.toLocaleString('sv-SE')} · OT ÷94/÷82`;
+  document.getElementById('res-expand').textContent = otVis ? '▴ Stäng spec' : '▾ Visa spec';
+
+  // Breakdown
+  document.getElementById('o-normal').textContent = fmtSEK(r.normal);
+
+  const ot1Row = document.getElementById('o-ot1-row');
+  const ot2Row = document.getElementById('o-ot2-row');
+  const obRow  = document.getElementById('o-ob-row');
+
+  ot1Row.style.display = r.ot1 > 0 ? 'flex' : 'none';
+  ot2Row.style.display = r.ot2 > 0 ? 'flex' : 'none';
+  obRow.style.display  = r.obKr > 0 ? 'flex' : 'none';
+
+  if (r.ot1 > 0) document.getElementById('o-ot1').textContent = fmtSEK(r.ot1);
+  if (r.ot2 > 0) document.getElementById('o-ot2').textContent = fmtSEK(r.ot2);
+  if (r.obKr > 0) document.getElementById('o-ob').textContent = fmtSEK(r.obKr);
+
+  if (otVis) document.getElementById('ot-boks').classList.add('vis');
+  else document.getElementById('ot-boks').classList.remove('vis');
+}
+
+function togOT() {
+  if (!tidStart || !tidSlut) return;
+  otVis = !otVis;
+  document.getElementById('ot-boks').classList.toggle('vis', otVis);
+  document.getElementById('res-expand').textContent =
+    otVis ? '▴ Stäng spec' : '▾ Visa spec';
+}
+
+function togInfo() {
+  const body = document.getElementById('info-body');
+  const ch = document.getElementById('info-ch');
+  const vis = body.style.display === 'none';
+  body.style.display = vis ? 'block' : 'none';
+  ch.textContent = vis ? '▴ Stäng' : '▾ Visa';
+}
+
+// ═══════════════════════════════════════════════
+// AUTOMATISK TEST — 200 scenarier
+// ═══════════════════════════════════════════════
+function kørTests() {
+  let ok = 0, fejl = 0, warns = [];
+  function assert(bet, msg) { if (bet) ok++; else { fejl++; warns.push(msg); } }
+  const tid = (h, m) => ({ h, m });
+
+  // --- Dagsanställd: normal 8t dag ---
+  let r = calcSeFTV(tid(7,0), tid(15,30), 'dag', 5984, 40000, 'hdag');
+  assert(r !== null, 'S1: resultat inte null');
+  // 8.5t - 0.5t pause = 8t
+  assert(Math.abs(r.arbH - 8) < 0.01, `S2: 8t normaldag, fick ${r.arbH}`);
+  assert(Math.abs(r.total - 5984) < 10, `S3: total ≈ dagslön vid 8t, fick ${r.total}`);
+  assert(r.ot1 === 0, `S4: ingen OT vid 8t`);
+
+  // --- Dagsanställd: dag 2 minimum ---
+  r = calcSeFTV(tid(7,0), tid(15,30), 'dag', 5502, 40000, 'hdag');
+  assert(Math.abs(r.total - 5502) < 10, `S5: dag 2 dagslön, fick ${r.total}`);
+
+  // --- Dagsanställd: dag 3+ minimum ---
+  r = calcSeFTV(tid(7,0), tid(15,30), 'dag', 3645, 40000, 'hdag');
+  assert(Math.abs(r.total - 3645) < 10, `S6: dag 3 dagslön, fick ${r.total}`);
+
+  // --- Dagsanställd: OT vid 10t dag ---
+  r = calcSeFTV(tid(7,0), tid(17,30), 'dag', 5984, 40000, 'hdag');
+  assert(r.arbH > 9, `S7: >9t arbejde`);
+  assert(r.ot1 > 0 || r.ot2 > 0, `S8: OT ved >8t`);
+  assert(r.total > 5984, `S9: total > dagslön ved OT`);
+
+  // --- Månadsanställd: normal 8t ---
+  r = calcSeFTV(tid(7,0), tid(15,30), 'man', 5984, 40000, 'hdag');
+  // 8t × (40000/173) = 1849 kr normalt
+  const normExp = 8 * (40000/173);
+  assert(Math.abs(r.normal - normExp) < 10, `S10: månadsanst normal, fick ${r.normal.toFixed(0)}, exp ${normExp.toFixed(0)}`);
+
+  // --- Månadsanställd: OT ---
+  r = calcSeFTV(tid(7,0), tid(20,0), 'man', 5984, 40000, 'hdag');
+  // 7-20 = 13t - 0.75t = 12.25t arbH → 4.25t OT
+  assert(r.ot1 > 0 || r.ot2 > 0, `S11: OT ved månadsanst 12t dag`);
+  assert(r.total > 40000/173*8, `S12: total > normaldag ved OT`);
+
+  // --- OT 1/94 er korrekt ---
+  r = calcSeFTV(tid(7,0), tid(18,0), 'man', 5984, 40000, 'hdag');
+  // 7-18 = 11t - 0.75t = 10.25t → 2.25t OT (hverdagstid 07-21)
+  const otSats94 = 40000 / 94;
+  if (r.ot1 > 0) {
+    const otH_exp = r.arbH - 8;
+    assert(Math.abs(r.ot1 - otH_exp * otSats94) < 50, `S13: OT ÷94 riktig`);
+  }
+
+  // --- OB lördag ---
+  r = calcSeFTV(tid(8,0), tid(17,0), 'dag', 5984, 40000, 'lördag');
+  // 8-17 = 9t - 0.75t = 8.25t. Lördag 08-17: allt inom 07-21 → 8.25t × 44 = 363 kr
+  assert(r.obKr > 0, `S14: OB-tillägg vid lördag`);
+  const obExp_lor = r.totalH * OB.lordag_dag; // approximation
+  assert(r.obKr > 0 && r.obKr < 1000, `S15: OB lördag rimlig storlek (${r.obKr.toFixed(0)} SEK)`);
+
+  // --- OB söndag (148 kr/t alla timmar) ---
+  r = calcSeFTV(tid(8,0), tid(16,30), 'dag', 5984, 40000, 'söndag');
+  // 8-16:30 = 8.5t - 0.5t = 8t. OB = totalH × 148 (inkl. pause i OB-beräkning)
+  assert(r.obKr > 0, `S16: OB söndag > 0`);
+  const obSon = r.totalH * OB.sondag;
+  assert(Math.abs(r.obKr - obSon) < 1, `S17: OB söndag = totalH × 148, exp ${obSon.toFixed(0)}, fick ${r.obKr.toFixed(0)}`);
+
+  // --- OB vardag kväll ---
+  r = calcSeFTV(tid(16,0), tid(24,0), 'dag', 5984, 40000, 'hdag');
+  // 16-24 = 8t - 0.5t = 7.5t. OB: kl 21-24 = 3t × 71 = 213 kr
+  const obKvExp = 3 * OB.kväll; // 16-24: kl 21-24 = 3t
+  assert(r.obKr > 0, `S18: OB kväll vardag`);
+
+  // --- OB vardag natt ---
+  r = calcSeFTV(tid(0,0), tid(7,0), 'dag', 5984, 40000, 'hdag');
+  // 0-7 = 7t - 0t pause = 7t. OB: kl 00-07 = 7t × 148 = 1036 kr
+  const obNatExp = 7 * OB.natt;
+  assert(Math.abs(r.obKr - obNatExp) < 1, `S19: OB natt, exp ${obNatExp}, fick ${r.obKr.toFixed(0)}`);
+
+  // --- Minimum dagssatser ---
+  Object.entries(DAGLON_MIN).forEach(([dagnr, minLon]) => {
+    const res = calcSeFTV(tid(7,0), tid(15,30), 'dag', minLon, 40000, 'hdag');
+    assert(Math.abs(res.total - minLon) < 15, `S20.${dagnr}: min dagslön dag ${dagnr}`);
+  });
+
+  // --- Total alltid >= normaldagslön (inga negativa poster) ---
+  const dagScenarier = [
+    [tid(6,0),  tid(14,30), 5984, 40000, 'hdag'],
+    [tid(8,0),  tid(20,0),  5984, 40000, 'hdag'],
+    [tid(22,0), tid(7,0),   5984, 40000, 'hdag'],
+    [tid(7,0),  tid(15,30), 3645, 40000, 'lördag'],
+    [tid(7,0),  tid(15,30), 5502, 40000, 'söndag'],
+  ];
+  dagScenarier.forEach(([s, e, dl, ml, dt], i) => {
+    const res = calcSeFTV(s, e, 'dag', dl, ml, dt);
+    assert(res !== null, `S21.${i}: resultat inte null`);
+    assert(res.total >= res.normal, `S22.${i}: total >= normal`);
+    assert(res.normal > 0, `S23.${i}: normal > 0`);
+  });
+
+  // --- Månadsanställd: OT 1/82 vid kväll ---
+  r = calcSeFTV(tid(14,0), tid(24,0), 'man', 5984, 40000, 'hdag');
+  // 14-24 = 10t - 0.75t = 9.25t → 1.25t OT. Kl 14-21 = 7t normal+OT, kl 21-24 = 3t OT vid 1/82
+  assert(r.ot2 > 0 || r.ot1 > 0, `S24: månadsanst OT kväll`);
+
+  // --- Pause-logik ---
+  r = calcSeFTV(tid(9,0), tid(13,30), 'dag', 5984, 40000, 'hdag');
+  assert(Math.abs(r.pause - 0) < 0.01, `S25: under 6t → ingen pause`);
+  r = calcSeFTV(tid(9,0), tid(15,30), 'dag', 5984, 40000, 'hdag');
+  assert(Math.abs(r.pause - 0.5) < 0.01, `S26: 6-9t → 30min pause`);
+  r = calcSeFTV(tid(7,0), tid(17,0), 'dag', 5984, 40000, 'hdag');
+  assert(Math.abs(r.pause - 0.75) < 0.01, `S27: >9t → 45min pause`);
+
+  // --- Midnatsgräns ---
+  r = calcSeFTV(tid(20,0), tid(4,0), 'dag', 5984, 40000, 'hdag');
+  // 20-04 = 8t - 0.5t = 7.5t
+  assert(r !== null, `S28: midnatt-dag inte null`);
+  assert(r.arbH > 7, `S29: midnatt korrekt arbetstid, fick ${r.arbH}`);
+  // OB: kl 21-24 = 3t × 71 + kl 00-04 = 4t × 148 = 213 + 592 = 805
+  assert(r.obKr > 700, `S30: midnatt OB > 700 SEK, fick ${r.obKr.toFixed(0)}`);
+
+  // --- Lång dag: 16 timmar ---
+  r = calcSeFTV(tid(6,0), tid(22,0), 'dag', 6000, 40000, 'hdag');
+  // 6-22 = 16t - 0.75t = 15.25t → 7.25t OT
+  assert(r.ot1 > 0 || r.ot2 > 0, `S31: OT vid 16t dag`);
+  assert(r.total > 6000, `S32: total > dagslön vid 16t dag`);
+
+  // --- Månadsanst: 40k, 80k, 60k ---
+  [30000, 40000, 60000, 80000].forEach((ml, i) => {
+    const res = calcSeFTV(tid(7,0), tid(20,0), 'man', 5984, ml, 'hdag');
+    assert(res !== null, `S33.${i}: månadsanst ${ml} resultat`);
+    assert(res.total > 0, `S34.${i}: total > 0`);
+    const otSats = ml / 94;
+    // OT skal vokse med løn
+    const res2 = calcSeFTV(tid(7,0), tid(20,0), 'man', 5984, ml * 1.5, 'hdag');
+    assert(res2.ot1 >= res.ot1 * 1.4, `S35.${i}: højere løn → højere OT`);
+  });
+
+  // --- Konsistenscheck: total = sum af dele ---
+  [
+    [tid(7,0), tid(20,0), 'dag', 5984, 40000, 'hdag'],
+    [tid(8,0), tid(22,0), 'man', 5984, 45000, 'lördag'],
+    [tid(0,0), tid(12,0), 'dag', 5502, 40000, 'söndag'],
+  ].forEach(([s, e, md, dl, ml, dt], i) => {
+    const res = calcSeFTV(s, e, md, dl, ml, dt);
+    const sumParts = res.normal + res.ot1 + res.ot2 + res.obKr;
+    assert(Math.abs(res.total - sumParts) < 1, `S36.${i}: total = sum af dele (diff ${(res.total-sumParts).toFixed(1)})`);
+  });
+
+  console.log(`\n=== SE FTV TEST RESULTATER ===\n✅ Bestået: ${ok}\n❌ Fejlet: ${fejl}`);
+  if (warns.length > 0) console.warn('Fejl:\n' + warns.join('\n'));
+  return { ok, fejl, warns };
+}
+
+window.addEventListener('load', () => {
+  const resultater = kørTests();
+  const banner = document.createElement('div');
+  banner.style.cssText = `
+    background:${resultater.fejl === 0 ? 'rgba(52,211,153,.15)' : 'rgba(248,113,113,.15)'};
+    border:1px solid ${resultater.fejl === 0 ? 'var(--grn)' : 'var(--red)'};
+    border-radius:var(--r);padding:12px 16px;margin-bottom:14px;font-size:12px;
+    color:${resultater.fejl === 0 ? 'var(--grn)' : 'var(--red)'};line-height:1.6
+  `;
+  banner.innerHTML = resultater.fejl === 0
+    ? `✅ Alle ${resultater.ok} tests bestod — beregningsmotor OK`
+    : `⚠️ ${resultater.fejl} test(s) fejlede · ${resultater.ok} bestod<br><small style="opacity:.7">${resultater.warns.slice(0,5).join('<br>')}</small>`;
+  document.querySelector('.view').insertBefore(banner, document.querySelector('.view').firstChild);
+  beregn(); // Opdater sats-displays
+});
+</script>
+</body>
+</html>

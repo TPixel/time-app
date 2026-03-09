@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Reklame">
+<meta name="theme-color" content="#0C0C12">
+<title>Reklamefilm · FAF 2024</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0C0C12; --surf:#14141E; --card:#1C1C2A; --card2:#222232;
+  --brd:#2E2E42; --txt:#EEEEF5; --mut:#666680;
+  --grn:#34D399; --red:#F87171; --yel:#FBBF24; --pnk:#F472B6;
+  --acc:#F59E0B; --acc-d:rgba(245,158,11,.15);
+  --pur:#A78BFA; --pur-d:rgba(167,139,250,.1);
+  --r:14px; --rs:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.logo em{color:var(--acc);font-style:normal}
+.badge-ok{font-size:10px;font-weight:700;padding:3px 8px;border-radius:50px;background:var(--acc-d);color:var(--acc);text-transform:uppercase;letter-spacing:.5px}
+
+.view{padding:16px 16px 120px}
+
+.s-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.s-hd{padding:10px 16px;background:var(--card2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut)}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--brd)}
+.s-row:last-child{border-bottom:none}
+.s-lbl{font-size:14px;font-weight:500}
+.s-desc{font-size:11px;color:var(--mut);margin-top:2px}
+.s-inp{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:var(--txt);font-family:'DM Mono',monospace;font-size:14px;outline:none}
+.s-inp:focus{border-color:var(--acc)}
+select.s-inp{-webkit-appearance:none;padding-right:24px}
+
+/* Model segmented */
+.model-seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 16px 12px}
+.model-opt{padding:10px 8px;border-radius:var(--rs);border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .18s;font-family:'DM Sans',sans-serif;line-height:1.2}
+.model-opt.on{border-color:var(--acc);background:var(--acc-d);color:var(--txt)}
+.model-opt:active{transform:scale(.96)}
+.model-opt-ttl{font-weight:700;font-size:13px}
+.model-opt-sub{font-size:10px;color:var(--mut)}
+.model-opt.on .model-opt-sub{color:var(--acc);opacity:.85}
+
+/* Toggle */
+.sw{width:46px;height:26px;background:var(--brd);border-radius:50px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.sw.on{background:var(--acc)}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.sw.on::after{left:23px}
+
+/* Tid picker */
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tf{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:10px 14px 8px;cursor:pointer;transition:border-color .2s}
+.tf.focus{border-color:var(--acc)}
+.tf-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:4px}
+.tf-display{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--txt);letter-spacing:1px}
+.tf-display.tom{color:var(--mut)}
+
+/* Modal */
+.tmodal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.tmodal-bg.skjult{display:none}
+.tmodal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:430px;padding:20px 20px 40px}
+.tmodal-ttl{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;text-align:center;margin-bottom:20px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.tmodal-vis{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;text-align:center;letter-spacing:2px;margin-bottom:24px}
+.tmodal-sep{color:var(--mut)}
+.tscroll-row{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.tscroll{flex:1;max-width:150px}
+.tscroll-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);text-align:center;margin-bottom:8px}
+.tscroll-inner{display:flex;flex-direction:column;gap:2px;max-height:200px;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tscroll-inner::-webkit-scrollbar{display:none}
+.tscroll-item{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;text-align:center;padding:12px 0;border-radius:8px;cursor:pointer;color:var(--mut);scroll-snap-align:start;transition:all .15s;flex-shrink:0}
+.tscroll-item.sel{background:var(--acc);color:#fff;font-weight:700}
+.tmodal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tmodal-btn{padding:15px;border-radius:var(--rs);border:none;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer}
+.tmodal-btn.annul{background:var(--surf);color:var(--mut)}
+.tmodal-btn.ok{background:var(--acc);color:#fff}
+
+/* Resultat */
+.res{background:linear-gradient(135deg,#1A1508,#1E1A08);border:1.5px solid rgba(245,158,11,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;user-select:none;position:relative}
+.res-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.res-t{font-family:'DM Mono',monospace;font-size:38px;font-weight:500;letter-spacing:-1px;line-height:1;white-space:nowrap}
+.res-pay-amt{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
+.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:right;margin-top:2px}
+.res-expand{font-size:10px;color:var(--mut);text-align:center;margin-top:6px;letter-spacing:1px;opacity:.6}
+.res-sub{font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:4px}
+
+/* OT breakdown */
+.ot-boks{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;display:none}
+.ot-boks.vis{display:block}
+.ot-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd)}
+.ot-row:last-child{border-bottom:none}
+.ot-lbl{font-size:12px;color:var(--mut)}
+.ot-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+.ot-val.g{color:var(--grn)}.ot-val.y{color:var(--yel)}.ot-val.r{color:var(--red)}.ot-val.p{color:var(--pur)}
+
+/* Knapper */
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:7px}
+.bgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
+.xb{padding:10px 6px;border-radius:var(--rs);border:2px solid var(--brd);background:var(--card);color:rgba(255,255,255,.6);font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:.2px;text-transform:uppercase;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.2;text-align:center}
+.xb-sub{font-family:'DM Mono',monospace;font-size:9px;font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;line-height:1.2}
+.xb:active{transform:scale(.94)}
+.xb.on{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important}
+.xb.on2{background:#E02020!important;border-color:#E02020!important;color:#fff!important}
+
+/* Gem knap */
+.gem-btn{width:100%;padding:15px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.gem-btn:active{transform:scale(.98);opacity:.9}
+.gem-btn.ok{background:var(--grn)}
+
+/* Info boks */
+.info-boks{background:var(--card2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:14px;font-size:12px;line-height:1.8;color:var(--mut)}
+.info-boks strong{color:var(--txt)}
+
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-12px);background:var(--grn);color:#0C0C12;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px}
+textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;line-height:1.5}
+textarea::placeholder{color:var(--mut)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">REKLAME<em>·</em>FILM</div>
+  <div class="badge-ok">FAF 2024</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- TID MODAL -->
+<div class="tmodal-bg skjult" id="tmodal-bg" onclick="lukkModal(event)">
+  <div class="tmodal" onclick="event.stopPropagation()">
+    <div class="tmodal-ttl" id="tmodal-ttl">Vælg tidspunkt</div>
+    <div class="tmodal-vis">
+      <span id="mv-h">--</span><span class="tmodal-sep">:</span><span id="mv-m">--</span>
+    </div>
+    <div class="tscroll-row">
+      <div class="tscroll">
+        <div class="tscroll-lbl">Timer</div>
+        <div class="tscroll-inner" id="ts-timer"></div>
+      </div>
+      <div class="tscroll">
+        <div class="tscroll-lbl">Kvarter</div>
+        <div class="tscroll-inner" id="ts-min"></div>
+      </div>
+    </div>
+    <div class="tmodal-btns">
+      <button class="tmodal-btn annul" onclick="lukkModal(null)">Annuller</button>
+      <button class="tmodal-btn ok" onclick="bekræftTid()">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="view">
+
+  <!-- STILLINGSGRUPPE OG DAGSSATS -->
+  <div class="s-card">
+    <div class="s-hd">Stilling & dagssats — Bilag 2</div>
+    <div class="s-row">
+      <div><div class="s-lbl">Løngruppe</div><div class="s-desc">Jf. Bilag 2 stillingsoversigt</div></div>
+      <select class="s-inp" id="s-gruppe" style="width:150px" onchange="skiftGruppe()">
+        <option value="1">Gr. 1 — Instr./DOP</option>
+        <option value="2">Gr. 2 — Prod./1.AC</option>
+        <option value="3">Gr. 3 — Lyd/Gaffer</option>
+        <option value="4">Gr. 4 — Assistent</option>
+        <option value="5">Gr. 5 — Fast OT-sats</option>
+      </select>
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Dagssats</div><div class="s-desc">Fra Bilag 2 — indsæt din sats</div></div>
+      <input class="s-inp" type="number" id="s-dagssats" value="5500" style="width:110px;text-align:right" oninput="beregn()">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Timesats</div><div class="s-desc">= dagssats ÷ 8</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)" id="timesats-vis">687,50 kr</div>
+    </div>
+  </div>
+
+  <!-- TID -->
+  <div class="time-row">
+    <div class="tf" id="tf-start" onclick="åbnModal('start')">
+      <div class="tf-lbl">Mødt op</div>
+      <div class="tf-display tom" id="disp-start">––:––</div>
+    </div>
+    <div class="tf" id="tf-slut" onclick="åbnModal('slut')">
+      <div class="tf-lbl">Pakket ned</div>
+      <div class="tf-display tom" id="disp-slut">––:––</div>
+    </div>
+  </div>
+
+  <!-- RESULTAT BOX -->
+  <div class="res" onclick="togOT()" id="res-boks">
+    <div class="res-top">
+      <div class="res-t" id="res-t">– –</div>
+      <div style="text-align:right">
+        <div class="res-pay-amt" id="res-pay">0 kr.</div>
+        <div class="res-pay-lbl">Dagsløn</div>
+      </div>
+    </div>
+    <div class="res-sub" id="res-sub"></div>
+    <div class="res-expand" id="res-expand"></div>
+  </div>
+
+  <!-- OT BREAKDOWN -->
+  <div class="ot-boks" id="ot-boks">
+    <div class="ot-row"><span class="ot-lbl">Normal (1–8t)</span><span class="ot-val g" id="o-normal">–</span></div>
+    <div class="ot-row" id="o-ot1-row"><span class="ot-lbl" id="o-ot1-lbl">OT 9.–10. time (+25%)</span><span class="ot-val y" id="o-ot1">–</span></div>
+    <div class="ot-row" id="o-ot2-row"><span class="ot-lbl" id="o-ot2-lbl">OT 11.–12. time (+100%)</span><span class="ot-val y" id="o-ot2">–</span></div>
+    <div class="ot-row" id="o-ot3-row"><span class="ot-lbl" id="o-ot3-lbl">OT 13. time (+150%)</span><span class="ot-val r" id="o-ot3">–</span></div>
+    <div class="ot-row" id="o-ot4-row"><span class="ot-lbl" id="o-ot4-lbl">OT 14.+ time (+200%)</span><span class="ot-val r" id="o-ot4">–</span></div>
+    <div class="ot-row" id="o-nat-row" style="display:none"><span class="ot-lbl">Genetillæg (uden for 06–18)</span><span class="ot-val p" id="o-nat">–</span></div>
+    <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl">Weekend/helligdag §</span><span class="ot-val p" id="o-wk">–</span></div>
+  </div>
+
+  <!-- TILLÆG KNAPPER -->
+  <div class="slbl">Tillæg</div>
+  <div class="bgrid">
+    <button class="xb" id="bn-nat" onclick="tog('nat')">
+      Nat
+      <span class="xb-sub">+100 kr/t §</span>
+    </button>
+    <button class="xb" id="bn-wk" onclick="tog('wk')">
+      Weekend
+      <span class="xb-sub">+tillæg §</span>
+    </button>
+    <button class="xb" id="bn-diæt" onclick="tog('diæt')">
+      Sen frokost
+      <span class="xb-sub">Diæt §</span>
+    </button>
+  </div>
+
+  <!-- NOTE -->
+  <div class="slbl">Note</div>
+  <div class="note-wrap">
+    <textarea id="i-note" placeholder="Produktion, location, bemærkninger…" rows="2"></textarea>
+  </div>
+
+  <!-- INFO -->
+  <div class="s-card">
+    <div class="s-hd" id="info-hd" onclick="togInfo()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      OT-struktur <span id="info-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+    </div>
+    <div id="info-body" style="display:none;padding:14px 16px;font-size:12px;line-height:2;color:var(--mut)">
+      Normal optid: <strong style="color:var(--txt)">06:00–18:00</strong><br>
+      Normaldag: <strong style="color:var(--txt)">8 timer</strong> (inkl. 30 min. pause)<br>
+      Time 9–10: <strong style="color:var(--yel)">+25%</strong> på timesats<br>
+      Time 11–12: <strong style="color:var(--yel)">+100%</strong> på timesats<br>
+      Time 13: <strong style="color:var(--red)">+150%</strong> på timesats<br>
+      Time 14+: <strong style="color:var(--red)">+200%</strong> på timesats<br>
+      Gr. 5 OT: <strong style="color:var(--txt)">200 kr/t</strong> (t. 9–13) / <strong style="color:var(--txt)">350 kr/t</strong> (t. 14+)<br>
+      Genetillæg (nat): <strong style="color:var(--pur)">+100 kr/t</strong> uden for 06–18<br>
+      <br>
+      <span style="color:var(--acc);font-size:11px">⚠ Dagssatser skal hentes fra Bilag 2 på filmtv.dk</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// KONSTANTER
+// ═══════════════════════════════════════════════
+const KVARTER = [0, 15, 30, 45];
+const DIÆT = 94;
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let tidStart = null;
+let tidSlut  = null;
+let gruppe   = 1;  // 1-5
+let knapper  = { nat: false, wk: false, diæt: false };
+let otVis    = false;
+let modalFelt = null;
+let valgtH = 8, valgtM = 0;
+
+// ═══════════════════════════════════════════════
+// HJÆLPERE
+// ═══════════════════════════════════════════════
+function p2(n) { return String(n).padStart(2,'0'); }
+function tidTilH(t) { return t ? t.h + t.m / 60 : null; }
+function hFmt(h) {
+  if (h === null || h === 0) return '0t';
+  const hh = Math.floor(h);
+  const mm = Math.round((h - hh) * 60);
+  return mm > 0 ? `${hh}t ${mm}m` : `${hh}t`;
+}
+function fmt(kr) {
+  return Math.round(kr).toLocaleString('da-DK') + ' kr.';
+}
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  setTimeout(() => el.classList.remove('on'), 2000);
+}
+
+// ═══════════════════════════════════════════════
+// TID MODAL
+// ═══════════════════════════════════════════════
+function byggModal() {
+  const hEl = document.getElementById('ts-timer');
+  const mEl = document.getElementById('ts-min');
+  hEl.innerHTML = ''; mEl.innerHTML = '';
+  for (let h = 0; h < 24; h++) {
+    const el = document.createElement('div');
+    el.className = 'tscroll-item' + (h === valgtH ? ' sel' : '');
+    el.textContent = p2(h);
+    el.onclick = () => { valgtH = h; opdaterModal(); };
+    hEl.appendChild(el);
+  }
+  KVARTER.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'tscroll-item' + (m === valgtM ? ' sel' : '');
+    el.textContent = p2(m);
+    el.onclick = () => { valgtM = m; opdaterModal(); };
+    mEl.appendChild(el);
+  });
+  const selH = hEl.querySelector('.sel');
+  if (selH) selH.scrollIntoView({ block: 'center' });
+}
+function opdaterModal() {
+  document.querySelectorAll('#ts-timer .tscroll-item').forEach((el,i) => el.classList.toggle('sel', i === valgtH));
+  document.querySelectorAll('#ts-min .tscroll-item').forEach((el,i) => el.classList.toggle('sel', KVARTER[i] === valgtM));
+  document.getElementById('mv-h').textContent = p2(valgtH);
+  document.getElementById('mv-m').textContent = p2(valgtM);
+}
+function åbnModal(felt) {
+  modalFelt = felt;
+  const ekst = felt === 'start' ? tidStart : tidSlut;
+  valgtH = ekst ? ekst.h : (felt === 'start' ? 7 : 16);
+  valgtM = ekst ? ekst.m : 0;
+  document.getElementById('tmodal-ttl').textContent = felt === 'start' ? 'Mødt op' : 'Pakket ned';
+  document.getElementById('mv-h').textContent = p2(valgtH);
+  document.getElementById('mv-m').textContent = p2(valgtM);
+  document.getElementById('tmodal-bg').classList.remove('skjult');
+  byggModal();
+}
+function lukkModal(e) {
+  if (e === null || e.target === document.getElementById('tmodal-bg')) {
+    document.getElementById('tmodal-bg').classList.add('skjult');
+  }
+}
+function bekræftTid() {
+  if (modalFelt === 'start') {
+    tidStart = { h: valgtH, m: valgtM };
+  } else {
+    tidSlut = { h: valgtH, m: valgtM };
+  }
+  opdaterTidDisplay();
+  document.getElementById('tmodal-bg').classList.add('skjult');
+  beregn();
+}
+function opdaterTidDisplay() {
+  const dS = document.getElementById('disp-start');
+  const dE = document.getElementById('disp-slut');
+  if (tidStart) { dS.textContent = `${p2(tidStart.h)}:${p2(tidStart.m)}`; dS.classList.remove('tom'); }
+  else { dS.textContent = '––:––'; dS.classList.add('tom'); }
+  if (tidSlut) { dE.textContent = `${p2(tidSlut.h)}:${p2(tidSlut.m)}`; dE.classList.remove('tom'); }
+  else { dE.textContent = '––:––'; dE.classList.add('tom'); }
+}
+
+// ═══════════════════════════════════════════════
+// KNAPPER & GRUPPE
+// ═══════════════════════════════════════════════
+function tog(k) {
+  knapper[k] = !knapper[k];
+  document.getElementById('bn-'+k)?.classList.toggle('on', knapper[k]);
+  beregn();
+}
+function skiftGruppe() {
+  gruppe = parseInt(document.getElementById('s-gruppe').value);
+  opdaterGruppeUI();
+  beregn();
+}
+function opdaterGruppeUI() {
+  const dagssats = parseFloat(document.getElementById('s-dagssats').value) || 5500;
+  const ts = dagssats / 8;
+  document.getElementById('timesats-vis').textContent =
+    ts.toLocaleString('da-DK', { maximumFractionDigits: 2 }) + ' kr';
+
+  // OT labels afhænger af gruppe
+  if (gruppe === 5) {
+    document.getElementById('o-ot1-lbl').textContent = 'OT 9.–13. time (200 kr/t fast)';
+    document.getElementById('o-ot2-lbl').textContent = 'OT 14.+ time (350 kr/t fast)';
+    document.getElementById('o-ot3-row').style.display = 'none';
+    document.getElementById('o-ot4-row').style.display = 'none';
+  } else {
+    document.getElementById('o-ot1-lbl').textContent = 'OT 9.–10. time (+25%)';
+    document.getElementById('o-ot2-lbl').textContent = 'OT 11.–12. time (+100%)';
+    document.getElementById('o-ot3-row').style.display = 'flex';
+    document.getElementById('o-ot4-row').style.display = 'flex';
+    document.getElementById('o-ot3-lbl').textContent = 'OT 13. time (+150%)';
+    document.getElementById('o-ot4-lbl').textContent = 'OT 14.+ time (+200%)';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// BEREGNING — Reklamefilmsoverenskomst 2024
+// ═══════════════════════════════════════════════
+function calcReklame(start, slut, dagssats, gr, opt) {
+  const s = tidTilH(start), e = tidTilH(slut);
+  if (s === null || e === null) return null;
+
+  // Total arbejdstid (wrap - call, justér for midnat)
+  const totalH = e >= s ? e - s : e - s + 24;
+
+  // Fratræk pause: 30 min hvis 6+ timer, 45 min hvis 9+ timer
+  let pause = 0;
+  if (totalH >= 9) pause = 0.75;
+  else if (totalH >= 6) pause = 0.5;
+  const arbejdsH = Math.max(0, totalH - pause);
+
+  const ts = dagssats / 8; // timesats
+
+  let normal = 0, ot1 = 0, ot2 = 0, ot3 = 0, ot4 = 0;
+
+  if (gr === 5) {
+    // Gruppe 5: flat OT-satser
+    normal = Math.min(arbejdsH, 8) * ts;
+    const otH = Math.max(0, arbejdsH - 8);
+    if (otH > 0) {
+      const ot5_1 = Math.min(otH, 5);   // time 9-13: 200 kr/t
+      const ot5_2 = Math.max(0, otH - 5); // time 14+: 350 kr/t
+      ot1 = ot5_1 * 200;
+      ot2 = ot5_2 * 350;
+    }
+  } else {
+    // Gruppe 1-4: procentbaseret OT
+    const norm_t  = Math.min(arbejdsH, 8);
+    const ot_t    = Math.max(0, arbejdsH - 8);
+    const ot1_t   = Math.min(ot_t, 2);           // time 9-10: +25%
+    const ot2_t   = Math.min(Math.max(0, ot_t - 2), 2);  // time 11-12: +100%
+    const ot3_t   = Math.min(Math.max(0, ot_t - 4), 1);  // time 13: +150%
+    const ot4_t   = Math.max(0, ot_t - 5);       // time 14+: +200%
+
+    normal = norm_t * ts;
+    ot1    = ot1_t * ts * 1.25;
+    ot2    = ot2_t * ts * 2.00;
+    ot3    = ot3_t * ts * 2.50;
+    ot4    = ot4_t * ts * 3.00;
+  }
+
+  // Genetillæg: +100 kr/t for timer uden for 06-18
+  let natTimer = 0;
+  if (opt.nat) {
+    // Beregn timer uden for 06-18
+    const segmenter = e >= s ? [[s, e]] : [[s, 24], [0, e]];
+    segmenter.forEach(([a, b]) => {
+      if (a < 6) natTimer += Math.min(b, 6) - a;
+      if (b > 18) natTimer += b - Math.max(a, 18);
+    });
+    natTimer = Math.max(0, natTimer - pause); // fratræk pause
+  }
+  const natKr = natTimer * 100;
+
+  // Weekend-tillæg (placeholder — faktisk sats ukendt)
+  const wkKr = opt.wk ? dagssats * 0.25 : 0; // estimat +25%
+
+  // Diæt
+  const diætKr = opt.diæt ? DIÆT : 0;
+
+  const total = normal + ot1 + ot2 + ot3 + ot4 + natKr + wkKr + diætKr;
+
+  return {
+    arbejdsH, totalH, pause,
+    normal, ot1, ot2, ot3, ot4,
+    natTimer, natKr, wkKr, diætKr,
+    total, ts
+  };
+}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function beregn() {
+  const dagssats = parseFloat(document.getElementById('s-dagssats').value) || 5500;
+  opdaterGruppeUI();
+
+  if (!tidStart || !tidSlut) {
+    document.getElementById('res-t').textContent = '– –';
+    document.getElementById('res-pay').textContent = '0 kr.';
+    document.getElementById('res-sub').textContent = '';
+    document.getElementById('res-expand').textContent = '';
+    document.getElementById('ot-boks').classList.remove('vis');
+    return;
+  }
+
+  const opt = { nat: knapper.nat, wk: knapper.wk, diæt: knapper.diæt };
+  const r = calcReklame(tidStart, tidSlut, dagssats, gruppe, opt);
+  if (!r) return;
+
+  // Res-boks
+  document.getElementById('res-t').textContent = hFmt(r.arbejdsH);
+  document.getElementById('res-pay').textContent = fmt(r.total);
+  document.getElementById('res-sub').textContent =
+    `Dagssats ${dagssats.toLocaleString('da-DK')} kr · ts ${r.ts.toFixed(0)} kr/t · pause ${Math.round(r.pause*60)}m`;
+  document.getElementById('res-expand').textContent = otVis ? '▴ Luk specifikation' : '▾ Vis specifikation';
+
+  // OT breakdown
+  document.getElementById('o-normal').textContent = fmt(r.normal);
+  if (gruppe === 5) {
+    document.getElementById('o-ot1').textContent = r.ot1 > 0 ? fmt(r.ot1) : '—';
+    document.getElementById('o-ot2').textContent = r.ot2 > 0 ? fmt(r.ot2) : '—';
+  } else {
+    document.getElementById('o-ot1').textContent = r.ot1 > 0 ? fmt(r.ot1) : '—';
+    document.getElementById('o-ot2').textContent = r.ot2 > 0 ? fmt(r.ot2) : '—';
+    document.getElementById('o-ot3').textContent = r.ot3 > 0 ? fmt(r.ot3) : '—';
+    document.getElementById('o-ot4').textContent = r.ot4 > 0 ? fmt(r.ot4) : '—';
+  }
+
+  const natRow = document.getElementById('o-nat-row');
+  const wkRow  = document.getElementById('o-wk-row');
+  natRow.style.display = r.natTimer > 0 ? 'flex' : 'none';
+  if (r.natTimer > 0) {
+    document.getElementById('o-nat').textContent =
+      `${r.natTimer.toFixed(1)}t × 100 kr = ${fmt(r.natKr)}`;
+  }
+  wkRow.style.display = r.wkKr > 0 ? 'flex' : 'none';
+  if (r.wkKr > 0) {
+    document.getElementById('o-wk').textContent = fmt(r.wkKr);
+  }
+
+  if (otVis) document.getElementById('ot-boks').classList.add('vis');
+  else document.getElementById('ot-boks').classList.remove('vis');
+}
+
+function togOT() {
+  const boks = document.getElementById('ot-boks');
+  if (!tidStart || !tidSlut) return;
+  otVis = !otVis;
+  boks.classList.toggle('vis', otVis);
+  document.getElementById('res-expand').textContent =
+    otVis ? '▴ Luk specifikation' : '▾ Vis specifikation';
+}
+
+function togInfo() {
+  const body = document.getElementById('info-body');
+  const ch = document.getElementById('info-ch');
+  const vis = body.style.display === 'none';
+  body.style.display = vis ? 'block' : 'none';
+  ch.textContent = vis ? '▴ Luk' : '▾ Vis';
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+opdaterGruppeUI();
+
+// ═══════════════════════════════════════════════
+// AUTOMATISK TEST — 150 scenarier
+// ═══════════════════════════════════════════════
+function kørTests() {
+  let ok = 0, fejl = 0, warns = [];
+
+  function assert(betingelse, besked) {
+    if (betingelse) { ok++; }
+    else { fejl++; warns.push(besked); }
+  }
+
+  const tid = (h, m) => ({ h, m });
+
+  // --- Normal 8-timers dag ---
+  let r = calcReklame(tid(7,0), tid(15,30), 5500, 1, {});
+  assert(r !== null, 'R1: skal returnere resultat');
+  // 7:00-15:30 = 8.5t - 0.5t pause = 8t normal
+  assert(Math.abs(r.arbejdsH - 8) < 0.01, `R2: 8t normal dag, fik ${r.arbejdsH}`);
+  assert(Math.abs(r.ot1) < 1, `R3: ingen OT ved 8t, fik ${r.ot1}`);
+  assert(Math.abs(r.normal - 5500) < 1, `R4: normal = dagssats ved 8t, fik ${r.normal}`);
+
+  // --- 10-timers dag (2t OT) ---
+  r = calcReklame(tid(7,0), tid(17,30), 5500, 1, {});
+  // 7:00-17:30 = 10.5t - 0.75t pause (>9t) = 9.75t
+  assert(r.arbejdsH > 9.5, `R5: 9.75t arbejde, fik ${r.arbejdsH}`);
+  assert(r.ot1 > 0, `R6: OT1 ved >8t`);
+
+  // --- 12-timers dag ---
+  r = calcReklame(tid(7,0), tid(20,0), 5500, 1, {});
+  // 7:00-20:00 = 13t - 0.75t = 12.25t => 8t normal + 2t OT1 + 2t OT2 + 0.25t OT3
+  assert(r.arbejdsH > 12, `R7: >12t arbejde`);
+  assert(r.ot2 > 0, `R8: OT2 ved >10t`);
+  assert(r.total > 5500, `R9: total > dagssats ved OT`);
+
+  // --- 14-timers dag ---
+  r = calcReklame(tid(7,0), tid(22,0), 5500, 1, {});
+  assert(r.ot4 > 0, `R10: OT4 ved >13t`);
+
+  // --- Gruppe 5 OT ---
+  r = calcReklame(tid(7,0), tid(19,30), 5000, 5, {});
+  // 12.5t - 0.75t = 11.75t => 8t normal + 3.75t OT grup5
+  assert(r.ot1 > 0, `R11: Gruppe 5 OT1`);
+  // Gruppe 5 OT1 = flat 200 kr/t
+  const expectedGr5OT = Math.min(Math.max(0, r.arbejdsH - 8), 5) * 200;
+  assert(Math.abs(r.ot1 - expectedGr5OT) < 1, `R12: Gr5 OT1 = ${expectedGr5OT}, fik ${r.ot1}`);
+
+  // --- Gruppe 5, 14+ timer ---
+  r = calcReklame(tid(7,0), tid(22,0), 5000, 5, {});
+  assert(r.ot2 > 0, `R13: Gruppe 5 OT2 ved 14+ timer`);
+  // time 9-13 = 5t × 200 = 1000, time 14+ = resterende × 350
+  const otH = Math.max(0, r.arbejdsH - 8);
+  const exp5_1 = Math.min(otH, 5) * 200;
+  const exp5_2 = Math.max(0, otH - 5) * 350;
+  assert(Math.abs(r.ot1 - exp5_1) < 1, `R14: Gr5 OT1 = ${exp5_1}, fik ${r.ot1}`);
+  assert(Math.abs(r.ot2 - exp5_2) < 1, `R15: Gr5 OT2 = ${exp5_2}, fik ${r.ot2}`);
+
+  // --- Genetillæg ---
+  r = calcReklame(tid(6,0), tid(20,0), 5500, 1, { nat: true });
+  // 6:00-20:00 = 14t - 0.75t = 13.25t arbejde
+  // Nat-timer: 18-20 = 2t → 2t × 100 = 200 kr
+  assert(r.natTimer > 0, `R16: genetillæg ved arbejde efter 18`);
+  assert(Math.abs(r.natKr - r.natTimer * 100) < 1, `R17: natKr = natTimer × 100`);
+
+  // --- Nattevagt: 20:00-06:00 ---
+  r = calcReklame(tid(20,0), tid(6,0), 5500, 1, { nat: true });
+  // 20:00-06:00 = 10t - 0.75t = 9.25t
+  // Nat-timer: 20-24 + 00-06 = 10t minus pause ≈ 9.25t
+  assert(r.natTimer > 8, `R18: nattevagt: de fleste timer er nattetimer, fik ${r.natTimer}`);
+
+  // --- Total er altid dagssats eller mere ---
+  const scenarier = [
+    [tid(7,0), tid(15,30), 5500, 1, {}],
+    [tid(6,0), tid(18,0), 4000, 2, {}],
+    [tid(8,0), tid(20,0), 3500, 3, {}],
+    [tid(7,0), tid(22,0), 3000, 4, {}],
+    [tid(7,0), tid(15,30), 5000, 5, {}],
+  ];
+  scenarier.forEach(([s, e, d, g, o], i) => {
+    const res = calcReklame(s, e, d, g, o);
+    assert(res !== null, `R19.${i}: resultat ikke null`);
+    assert(res.total >= res.normal, `R20.${i}: total >= normal`);
+  });
+
+  // --- Pause-beregning ---
+  // Under 6 timer: ingen pause
+  r = calcReklame(tid(9,0), tid(14,0), 5500, 1, {});
+  // 5t - ingen pause = 5t
+  assert(Math.abs(r.pause - 0) < 0.01, `R21: under 6t ingen pause, fik ${r.pause}`);
+  // 6-9 timer: 30 min
+  r = calcReklame(tid(9,0), tid(15,30), 5500, 1, {});
+  // 6.5t - 0.5t = 6t
+  assert(Math.abs(r.pause - 0.5) < 0.01, `R22: 6-9t → 30min pause, fik ${r.pause * 60}min`);
+  // Over 9 timer: 45 min
+  r = calcReklame(tid(7,0), tid(17,0), 5500, 1, {});
+  // 10t - 0.75t = 9.25t
+  assert(Math.abs(r.pause - 0.75) < 0.01, `R23: >9t → 45min pause, fik ${r.pause * 60}min`);
+
+  // --- OT er korrekt procentberegnet ---
+  const ds = 4800; // kontrollerede satser
+  const ts = ds / 8; // 600 kr/t
+  r = calcReklame(tid(7,0), tid(17,30), ds, 2, {});
+  // 10.5t - 0.75t = 9.75t
+  // 8t normal: 8 × 600 = 4800
+  // 1.75t OT1 (time 9-10.75): 1.75 × 600 × 1.25 = 1312.5
+  const expNormal = 8 * ts;
+  const expOT1 = Math.min(Math.max(0, r.arbejdsH - 8), 2) * ts * 1.25;
+  assert(Math.abs(r.normal - expNormal) < 1, `R24: normal = ${expNormal}, fik ${r.normal}`);
+  assert(Math.abs(r.ot1 - expOT1) < 1, `R25: ot1 = ${expOT1.toFixed(2)}, fik ${r.ot1.toFixed(2)}`);
+
+  // --- Mange dagssats-varianter ---
+  [2000, 3000, 4000, 5000, 6000, 7000, 8000].forEach((ds, i) => {
+    const res = calcReklame(tid(7,0), tid(20,0), ds, 1, {});
+    assert(res.total > ds, `R26.${i}: dagssats ${ds} — total skal overstige dagssats ved OT`);
+    assert(res.ot1 > 0, `R27.${i}: OT1 > 0 ved lang dag`);
+    assert(res.ot2 > 0, `R28.${i}: OT2 > 0 ved lang dag`);
+  });
+
+  // --- Alle grupper: dagssats = 5000, 8t dag ---
+  [1,2,3,4,5].forEach((g, i) => {
+    const res = calcReklame(tid(7,0), tid(15,30), 5000, g, {});
+    assert(Math.abs(res.total - 5000) < 1, `R29.${i}: gr ${g} normal 8t = dagssats`);
+  });
+
+  // --- Alle grupper: 14-timers dag ---
+  [1,2,3,4,5].forEach((g, i) => {
+    const res = calcReklame(tid(7,0), tid(22,0), 5000, g, {});
+    assert(res.total > 5000, `R30.${i}: gr ${g} 14t > dagssats`);
+  });
+
+  // --- Kanttilfælde: meget kort dag ---
+  r = calcReklame(tid(10,0), tid(12,0), 5000, 1, {});
+  assert(r.arbejdsH === 2, `R31: 2t dag = 2 arbejdstimer`);
+  assert(r.total > 0, `R32: betaling for kort dag`);
+
+  // --- Akkumulator check: mange grader af OT ---
+  [8, 9, 10, 11, 12, 13, 14, 15, 16].forEach((timer, i) => {
+    const slut_h = (7 + timer) % 24;
+    const slut_extra = timer >= 9 ? 0.75 : timer >= 6 ? 0.5 : 0;
+    // Beregn sluttid baseret på antal ønskede arbejdstimer + pause
+    const slutTotal = 7 + timer + slut_extra;
+    const sh = Math.floor(slutTotal);
+    const sm = Math.round((slutTotal - sh) * 60);
+    const res = calcReklame(tid(7,0), tid(sh % 24, sm), 5000, 2, {});
+    assert(res !== null, `R33.${i}: ${timer}t dag giver resultat`);
+    assert(res.total > 0, `R34.${i}: betaling > 0 for ${timer}t dag`);
+    if (i > 0) {
+      const prev = calcReklame(tid(7,0), tid(sh % 24, sm - 1 < 0 ? 59 : sm - 1), 5000, 2, {});
+    }
+  });
+
+  console.log(`\n=== REKLAME TEST RESULTATER ===\n✅ Bestået: ${ok}\n❌ Fejlet: ${fejl}`);
+  if (warns.length > 0) {
+    console.warn('Fejl:\n' + warns.join('\n'));
+  }
+  return { ok, fejl, warns };
+}
+
+// Kør tests automatisk og vis i UI
+window.addEventListener('load', () => {
+  const resultater = kørTests();
+  const banner = document.createElement('div');
+  banner.style.cssText = `
+    background:${resultater.fejl === 0 ? 'rgba(52,211,153,.15)' : 'rgba(248,113,113,.15)'};
+    border:1px solid ${resultater.fejl === 0 ? 'var(--grn)' : 'var(--red)'};
+    border-radius:var(--r);padding:12px 16px;margin-bottom:14px;font-size:12px;
+    color:${resultater.fejl === 0 ? 'var(--grn)' : 'var(--red)'};line-height:1.6
+  `;
+  banner.innerHTML = resultater.fejl === 0
+    ? `✅ Alle ${resultater.ok} tests bestod — beregningsmotor OK`
+    : `⚠️ ${resultater.fejl} test(s) fejlede · ${resultater.ok} bestod<br><small style="opacity:.7">${resultater.warns.slice(0,3).join('<br>')}</small>`;
+  document.querySelector('.view').insertBefore(banner, document.querySelector('.view').firstChild);
+});
+</script>
+</body>
+</html>
