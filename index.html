@@ -156,6 +156,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 /* ── SÆRTID BADGE ── */
 .saertid-badge{display:none;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:var(--pur);text-align:center}
 .saertid-badge.vis{display:block}
+.wk-auto-badge{display:none;background:rgba(26,172,221,.1);border:1px solid rgba(26,172,221,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:#1AACDD;text-align:center}
+.wk-auto-badge.vis{display:block}
 
 .note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px}
 textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;line-height:1.5}
@@ -367,11 +369,12 @@ textarea::placeholder{color:var(--mut)}
     <div class="ot-row" id="o-ot2-row"><span class="ot-lbl" id="o-ot2-lbl">OT 2. time</span><span class="ot-val y" id="o-ot2">–</span></div>
     <div class="ot-row" id="o-ot3-row"><span class="ot-lbl" id="o-ot3-lbl">OT 3.+ time (+135%)</span><span class="ot-val y" id="o-ot3">–</span></div>
     <div class="ot-row" id="o-fsk-row" style="display:none"><span class="ot-lbl">Forskudt tid +110 kr/t §7</span><span class="ot-val p" id="o-fsk">–</span></div>
-    <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl">Weekend/helligdag §8</span><span class="ot-val p" id="o-wk">–</span></div>
+    <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl" id="o-wk-lbl">Weekend/helligdag §8</span><span class="ot-val p" id="o-wk">–</span></div>
     <div class="ot-row" id="o-ext-row" style="display:none"><span class="ot-lbl" id="o-ext-lbl">Tillæg</span><span class="ot-val g" id="o-ext">–</span></div>
   </div>
 
   <div class="saertid-badge" id="saertid-badge">🟣 4-dages uge aktiv — OT starter efter 10 timer</div>
+  <div class="wk-auto-badge" id="wk-auto-badge">🔵 Weekend-periode §8 auto-beregnet — fre 20:00 – man 06:00</div>
 
   <div class="slbl">Overarbejde + Tillæg <span class="oe">§6 §7 §8 §12</span></div>
   <div class="bgrid">
@@ -917,18 +920,44 @@ function calcTimer(start, slut) {
 }
 
 // §7: Forskudt tid = timer uden for 06-19 på hverdage (man-fre)
-// §7.4: Weekend giver IKKE forskudt tillæg
+// §7.4: Timer i weekend-perioden (fre 20:00–man 06:00) giver IKKE §7 — det er §8
 function calcForskudt(start, slut, dagIdx) {
-  if (dagIdx === 0 || dagIdx === 6) return 0;
+  if (dagIdx === 0 || dagIdx === 6) return 0; // Lørdag/søndag: ingen §7 (alt er §8 weekend)
   const s = tidTilH(start), e = tidTilH(slut);
   if (s === null || e === null) return 0;
   let fsk = 0;
   const seg = (e >= s) ? [[s, e]] : [[s, 24], [0, e]];
   seg.forEach(([a, b]) => {
-    if (a < 6) fsk += Math.min(b, 6) - a;
-    if (b > 19) fsk += b - Math.max(a, 19);
+    // Mandag: 00:00–06:00 er weekend-periode → §8, ikke §7
+    const aFsk = (dagIdx === 1) ? Math.max(a, 6) : a;
+    // Fredag: 20:00–24:00 er weekend-periode → §8, ikke §7
+    const bFsk = (dagIdx === 5) ? Math.min(b, 20) : b;
+    if (aFsk >= bFsk) return;
+    if (aFsk < 6) fsk += Math.min(bFsk, 6) - aFsk;
+    if (bFsk > 19) fsk += bFsk - Math.max(aFsk, 19);
   });
   return Math.max(0, fsk);
+}
+
+// §8: Weekend-periode fre 20:00 → man 06:00
+// Returnerer timer der overlapper med weekend-perioden
+function calcWeekendTimer(start, slut, dagIdx) {
+  const s = tidTilH(start), e = tidTilH(slut);
+  if (s === null || e === null) return 0;
+  const eAdj = (e > s) ? e : e + 24; // håndter nat-skift
+  let wkH = 0;
+  if (dagIdx === 6 || dagIdx === 0) {
+    // Lørdag / søndag: hele vagten er i weekend-perioden
+    wkH = eAdj - s;
+  } else if (dagIdx === 5) {
+    // Fredag: fra kl. 20:00 og frem
+    if (s >= 20)        wkH = eAdj - s;
+    else if (eAdj > 20) wkH = eAdj - 20;
+  } else if (dagIdx === 1) {
+    // Mandag: til kl. 06:00
+    if (s < 6) wkH = Math.min(eAdj, 6) - s;
+  }
+  return Math.max(0, wkH);
 }
 
 // §5 Forskudt særtid:
@@ -941,7 +970,7 @@ function dagMax() {
   return cfg.model === 'saertid' ? 10 : 8;
 }
 
-function calcLon(h, opt) {
+function calcLon(h, opt, wkAutoH = 0) {
   if (!h || h <= 0) return { total:0, normal:0, ot1:0, ot2:0, ot3:0, wk:0, ext:0 };
   const ts = timesats();
   const { varslet, uvarslet, helligdag, frokost, pause10 } = opt;
@@ -955,19 +984,23 @@ function calcLon(h, opt) {
 
   const tsGrund = ts;                              // OT-grundlag: UDEN personligt tillæg §3
   const tsNorm  = timesatsMedTillæg();             // Normaltimer: MED personligt tillæg
+  // §8 sats: grundsats × enkeltdag-faktor (§3 enkeltdag gælder også for §8 weekendtillæg)
+  const tsWk    = tsGrund * (cfg.tillæg ? 1.1 : 1.0);
   let normal = 0, ot1 = 0, ot2 = 0, ot3 = 0, wk = 0;
 
   if (helligdag) {
-    // §8.2: +75% på normaltimer (weekend-tillæg beregnes på grundsats, ikke med pers.tillæg)
+    // §8.2: +75% på normaltimer, min. 4 timer (hel weekendvagt)
     const betaltH = Math.max(4, normalH);
-    wk     = tsGrund * 0.75 * betaltH;
-    normal = tsNorm  * normalH;
+    wk     = tsWk * 0.75 * betaltH;
+    normal = tsNorm * normalH;
     // §8.3: OT på weekend: +50/+60/+135 oven på weekend-sats — begge på grundsats
     ot1 = tsGrund * (1.75 + 0.50) * ot1H;
     ot2 = tsGrund * (1.75 + 0.60) * ot2H;
     ot3 = tsGrund * (1.75 + 1.35) * ot3H;
   } else {
     normal = tsNorm * normalH;
+    // §8 auto-detekteret overlap med weekend-periode (kun overlap-timer, ingen min. 4t)
+    if (wkAutoH > 0) wk = tsWk * 0.75 * wkAutoH;
     if (varslet) {
       ot1 = tsGrund * 1.50 * ot1H;
       ot2 = tsGrund * 1.60 * ot2H;
@@ -1015,8 +1048,9 @@ function beregn() {
     return;
   }
 
+  const wkAutoH = (!knapper.h) ? calcWeekendTimer(tidStart, tidSlut, idx) : 0;
   const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p };
-  const l   = calcLon(h, opt);
+  const l   = calcLon(h, opt, wkAutoH);
   const tot = l.total + fskKr;
 
   document.getElementById('res-t').textContent   = hFmt(h);
@@ -1065,7 +1099,14 @@ function beregn() {
   vis2('o-fsk-row', fsk > 0);
   if (fsk > 0) document.getElementById('o-fsk').textContent = `${fskKr.toLocaleString('da-DK')} kr. (${hFmt(fsk)})`;
   vis2('o-wk-row', l.wk > 0);
-  if (l.wk > 0) document.getElementById('o-wk').textContent = kr(l.wk);
+  if (l.wk > 0) {
+    document.getElementById('o-wk').textContent = kr(l.wk);
+    const wkLbl = document.getElementById('o-wk-lbl');
+    if (wkLbl) wkLbl.textContent = knapper.h ? 'Weekend/helligdag §8' : `Weekend §8 auto (${hFmt(wkAutoH)})`;
+  }
+  // Weekend auto-badge
+  const wkBadge = document.getElementById('wk-auto-badge');
+  if (wkBadge) wkBadge.classList.toggle('vis', wkAutoH > 0 && !knapper.h);
   vis2('o-ext-row', l.ext > 0);
   if (l.ext > 0) {
     const lbns = [];
@@ -1112,11 +1153,13 @@ function opdaterKnapper() {
 // GEM DAG
 // ═══════════════════════════════════════════════════
 function gemDag() {
-  const h     = calcTimer(tidStart, tidSlut);
-  const fsk   = calcForskudt(tidStart, tidSlut, aktivDag.getDay());
-  const fskKr = Math.round(fsk * 110);
-  const opt   = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p };
-  const l     = calcLon(h, opt);
+  const h      = calcTimer(tidStart, tidSlut);
+  const idx    = aktivDag.getDay();
+  const fsk    = calcForskudt(tidStart, tidSlut, idx);
+  const fskKr  = Math.round(fsk * 110);
+  const wkAutoH = (!knapper.h && h !== null) ? calcWeekendTimer(tidStart, tidSlut, idx) : 0;
+  const opt    = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p };
+  const l      = calcLon(h, opt, wkAutoH);
   const note  = document.getElementById('i-note').value;
 
   gemDagData(aktivDag, {
