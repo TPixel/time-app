@@ -928,6 +928,8 @@ function calcForskudt(start, slut, dagIdx) {
   let fsk = 0;
   const seg = (e >= s) ? [[s, e]] : [[s, 24], [0, e]];
   seg.forEach(([a, b]) => {
+    // Fredag natvagt der krydser midnat: [0,e]-segmentet er lørdag = §8 weekend, ikke §7
+    if (dagIdx === 5 && a === 0) return;
     // Mandag: 00:00–06:00 er weekend-periode → §8, ikke §7
     const aFsk = (dagIdx === 1) ? Math.max(a, 6) : a;
     // Fredag: 20:00–24:00 er weekend-periode → §8, ikke §7
