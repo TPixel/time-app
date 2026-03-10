@@ -105,7 +105,7 @@ select.s-inp{-webkit-appearance:none;padding-right:24px}
 .xb-sub{font-family:'DM Mono',monospace;font-size:9px;font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;line-height:1.2}
 .xb:active{transform:scale(.94)}
 .xb.on{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important}
-.xb.on2{background:#E02020!important;border-color:#E02020!important;color:#fff!important}
+.xb.on2{background:#7C3AED!important;border-color:#7C3AED!important;color:#fff!important}
 
 /* Gem knap */
 .gem-btn{width:100%;padding:15px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
@@ -165,10 +165,10 @@ textarea::placeholder{color:var(--mut)}
     <div class="s-row">
       <div><div class="s-lbl">Løngruppe</div><div class="s-desc">Jf. Bilag 2 stillingsoversigt</div></div>
       <select class="s-inp" id="s-gruppe" style="width:150px" onchange="skiftGruppe()">
-        <option value="1">Gr. 1 — Instr./DOP</option>
-        <option value="2">Gr. 2 — Prod./1.AC</option>
-        <option value="3">Gr. 3 — Lyd/Gaffer</option>
-        <option value="4">Gr. 4 — Assistent</option>
+        <option value="1">Gr. 1 — Fri forhandling</option>
+        <option value="2">Gr. 2 — min 4.100 kr/dag</option>
+        <option value="3">Gr. 3 — min 3.300 kr/dag</option>
+        <option value="4">Gr. 4 — min 2.750 kr/dag</option>
         <option value="5">Gr. 5 — Fast OT-sats</option>
       </select>
     </div>
@@ -179,6 +179,9 @@ textarea::placeholder{color:var(--mut)}
     <div class="s-row">
       <div><div class="s-lbl">Timesats</div><div class="s-desc">= dagssats ÷ 8</div></div>
       <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)" id="timesats-vis">687,50 kr</div>
+    </div>
+    <div id="gr1-note" style="display:none;padding:10px 16px;font-size:11px;color:var(--yel);background:rgba(251,191,36,.08);border-top:1px solid var(--brd)">
+      ⚠ Gruppe 1 har <strong>fri forhandling</strong> — minimumssats og OT-satser aftales individuelt. Kun normalt timeantal vises.
     </div>
   </div>
 
@@ -214,8 +217,9 @@ textarea::placeholder{color:var(--mut)}
     <div class="ot-row" id="o-ot2-row"><span class="ot-lbl" id="o-ot2-lbl">OT 11.–12. time (+100%)</span><span class="ot-val y" id="o-ot2">–</span></div>
     <div class="ot-row" id="o-ot3-row"><span class="ot-lbl" id="o-ot3-lbl">OT 13. time (+150%)</span><span class="ot-val r" id="o-ot3">–</span></div>
     <div class="ot-row" id="o-ot4-row"><span class="ot-lbl" id="o-ot4-lbl">OT 14.+ time (+200%)</span><span class="ot-val r" id="o-ot4">–</span></div>
-    <div class="ot-row" id="o-nat-row" style="display:none"><span class="ot-lbl">Genetillæg (uden for 06–18)</span><span class="ot-val p" id="o-nat">–</span></div>
-    <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl">Weekend/helligdag §</span><span class="ot-val p" id="o-wk">–</span></div>
+    <div class="ot-row" id="o-nat-row" style="display:none"><span class="ot-lbl" id="o-nat-lbl">Genetillæg (nat)</span><span class="ot-val p" id="o-nat">–</span></div>
+    <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl" id="o-wk-lbl">Weekend-tillæg</span><span class="ot-val p" id="o-wk">–</span></div>
+    <div class="ot-row" id="o-diæt-row" style="display:none"><span class="ot-lbl">Sen frokost (diæt)</span><span class="ot-val g" id="o-diæt">–</span></div>
   </div>
 
   <!-- TILLÆG KNAPPER -->
@@ -223,15 +227,15 @@ textarea::placeholder{color:var(--mut)}
   <div class="bgrid">
     <button class="xb" id="bn-nat" onclick="tog('nat')">
       Nat
-      <span class="xb-sub">+100 kr/t §</span>
+      <span class="xb-sub" id="bn-nat-sub">18–24: 100 kr/t<br>00–06: 200 kr/t</span>
     </button>
-    <button class="xb" id="bn-wk" onclick="tog('wk')">
+    <button class="xb" id="bn-wk" onclick="togWk()">
       Weekend
-      <span class="xb-sub">+tillæg §</span>
+      <span class="xb-sub" id="bn-wk-sub">Lør–Man: +75/100%</span>
     </button>
     <button class="xb" id="bn-diæt" onclick="tog('diæt')">
       Sen frokost
-      <span class="xb-sub">Diæt §</span>
+      <span class="xb-sub">Diæt 94 kr</span>
     </button>
   </div>
 
@@ -244,19 +248,23 @@ textarea::placeholder{color:var(--mut)}
   <!-- INFO -->
   <div class="s-card">
     <div class="s-hd" id="info-hd" onclick="togInfo()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-      OT-struktur <span id="info-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+      OT-struktur & regler <span id="info-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
     </div>
     <div id="info-body" style="display:none;padding:14px 16px;font-size:12px;line-height:2;color:var(--mut)">
-      Normal optid: <strong style="color:var(--txt)">06:00–18:00</strong><br>
-      Normaldag: <strong style="color:var(--txt)">8 timer</strong> (inkl. 30 min. pause)<br>
-      Time 9–10: <strong style="color:var(--yel)">+25%</strong> på timesats<br>
-      Time 11–12: <strong style="color:var(--yel)">+100%</strong> på timesats<br>
-      Time 13: <strong style="color:var(--red)">+150%</strong> på timesats<br>
-      Time 14+: <strong style="color:var(--red)">+200%</strong> på timesats<br>
-      Gr. 5 OT: <strong style="color:var(--txt)">200 kr/t</strong> (t. 9–13) / <strong style="color:var(--txt)">350 kr/t</strong> (t. 14+)<br>
-      Genetillæg (nat): <strong style="color:var(--pur)">+100 kr/t</strong> uden for 06–18<br>
+      <strong style="color:var(--txt)">Normaldag:</strong> 8 timer <em>inkl.</em> 45 min. betalt pause (§4)<br>
+      <strong style="color:var(--txt)">OT-satser (gr. 2–4):</strong><br>
+      &nbsp;&nbsp;Time 9–10: <strong style="color:var(--yel)">+25%</strong> på timesats<br>
+      &nbsp;&nbsp;Time 11–12: <strong style="color:var(--yel)">+100%</strong> på timesats<br>
+      &nbsp;&nbsp;Time 13: <strong style="color:var(--red)">+150%</strong> på timesats<br>
+      &nbsp;&nbsp;Time 14+: <strong style="color:var(--red)">+200%</strong> på timesats<br>
+      <strong style="color:var(--txt)">Gr. 5 OT:</strong> 200 kr/t (t. 9–13) / 350 kr/t (t. 14+)<br>
+      <strong style="color:var(--txt)">Gr. 1:</strong> Fri forhandling — ingen definerede OT-satser<br>
+      <strong style="color:var(--txt)">Genetillæg (§5):</strong> 18–24: <strong style="color:var(--pur)">+100 kr/t</strong> · 00–06: <strong style="color:var(--pur)">+200 kr/t</strong><br>
+      <strong style="color:var(--txt)">Weekend (§6):</strong> Lør 00:00–Man 06:00<br>
+      &nbsp;&nbsp;1 dag: <strong style="color:var(--acc)">+75%</strong> af dagssats<br>
+      &nbsp;&nbsp;2 sammenhængende dage: <strong style="color:var(--pur)">+100%</strong> af dagssats<br>
       <br>
-      <span style="color:var(--acc);font-size:11px">⚠ Dagssatser skal hentes fra Bilag 2 på filmtv.dk</span>
+      <span style="color:var(--acc);font-size:11px">⚠ Dagssatser hentes fra Bilag 2 på filmtv.dk</span>
     </div>
   </div>
 
@@ -275,7 +283,7 @@ const DIÆT = 94;
 let tidStart = null;
 let tidSlut  = null;
 let gruppe   = 1;  // 1-5
-let knapper  = { nat: false, wk: false, diæt: false };
+let knapper  = { nat: false, wk: 0, diæt: false }; // wk: 0=off, 1=+75%, 2=+100%
 let otVis    = false;
 let modalFelt = null;
 let valgtH = 8, valgtM = 0;
@@ -373,6 +381,25 @@ function tog(k) {
   document.getElementById('bn-'+k)?.classList.toggle('on', knapper[k]);
   beregn();
 }
+
+// Weekend-knap: 0 → 1 (1 dag +75%) → 2 (2 dage +100%) → 0
+function togWk() {
+  knapper.wk = (knapper.wk + 1) % 3;
+  const bn = document.getElementById('bn-wk');
+  const sub = document.getElementById('bn-wk-sub');
+  bn.classList.remove('on', 'on2');
+  if (knapper.wk === 0) {
+    sub.textContent = 'Lør–Man: +75/100%';
+  } else if (knapper.wk === 1) {
+    bn.classList.add('on');
+    sub.textContent = '1 dag: +75%';
+  } else {
+    bn.classList.add('on2');
+    sub.textContent = '2 dage: +100%';
+  }
+  beregn();
+}
+
 function skiftGruppe() {
   gruppe = parseInt(document.getElementById('s-gruppe').value);
   opdaterGruppeUI();
@@ -384,10 +411,18 @@ function opdaterGruppeUI() {
   document.getElementById('timesats-vis').textContent =
     ts.toLocaleString('da-DK', { maximumFractionDigits: 2 }) + ' kr';
 
+  // Vis/skjul gruppe 1 note
+  document.getElementById('gr1-note').style.display = gruppe === 1 ? 'block' : 'none';
+
   // OT labels afhænger af gruppe
   if (gruppe === 5) {
     document.getElementById('o-ot1-lbl').textContent = 'OT 9.–13. time (200 kr/t fast)';
     document.getElementById('o-ot2-lbl').textContent = 'OT 14.+ time (350 kr/t fast)';
+    document.getElementById('o-ot3-row').style.display = 'none';
+    document.getElementById('o-ot4-row').style.display = 'none';
+  } else if (gruppe === 1) {
+    document.getElementById('o-ot1-lbl').textContent = 'OT (fri forhandling)';
+    document.getElementById('o-ot2-lbl').textContent = '—';
     document.getElementById('o-ot3-row').style.display = 'none';
     document.getElementById('o-ot4-row').style.display = 'none';
   } else {
@@ -403,41 +438,53 @@ function opdaterGruppeUI() {
 // ═══════════════════════════════════════════════
 // BEREGNING — Reklamefilmsoverenskomst 2024
 // ═══════════════════════════════════════════════
+//
+// Regler jf. overenskomst:
+//   §4 stk.1: Normaldag = 8 timer INKL. 45 min. arbejdsgiverbetalt pause
+//             → INGEN pausefradrag. totalH = arbejdsH.
+//   §5:       Genetillæg: 18:00–24:00 = +100 kr/t, 00:00–06:00 = +200 kr/t
+//   §6 stk.1: Weekend = Fredag 24:00 (= Lørdag 00:00) → Mandag 06:00
+//             1 dag = +75% af dagssats, 2 sammenhæng. dage = +100% af dagssats
+//   OT gr.2–4: +25%/+100%/+150%/+200% for time 9–10/11–12/13/14+
+//   OT gr.5:   200 kr/t (time 9–13), 350 kr/t (time 14+)
+//   Gr.1:      Fri forhandling — ingen definerede minimumssatser eller OT-satser
+//
 function calcReklame(start, slut, dagssats, gr, opt) {
   const s = tidTilH(start), e = tidTilH(slut);
   if (s === null || e === null) return null;
 
-  // Total arbejdstid (wrap - call, justér for midnat)
+  // Total arbejdstid — INGEN pausefradrag (45 min pause er betalt og inkluderet i normaldag)
   const totalH = e >= s ? e - s : e - s + 24;
-
-  // Fratræk pause: 30 min hvis 6+ timer, 45 min hvis 9+ timer
-  let pause = 0;
-  if (totalH >= 9) pause = 0.75;
-  else if (totalH >= 6) pause = 0.5;
-  const arbejdsH = Math.max(0, totalH - pause);
+  const arbejdsH = totalH;
 
   const ts = dagssats / 8; // timesats
 
   let normal = 0, ot1 = 0, ot2 = 0, ot3 = 0, ot4 = 0;
+  let otNote = '';
 
   if (gr === 5) {
     // Gruppe 5: flat OT-satser
     normal = Math.min(arbejdsH, 8) * ts;
     const otH = Math.max(0, arbejdsH - 8);
     if (otH > 0) {
-      const ot5_1 = Math.min(otH, 5);   // time 9-13: 200 kr/t
+      const ot5_1 = Math.min(otH, 5);     // time 9–13: 200 kr/t
       const ot5_2 = Math.max(0, otH - 5); // time 14+: 350 kr/t
       ot1 = ot5_1 * 200;
       ot2 = ot5_2 * 350;
     }
+  } else if (gr === 1) {
+    // Gruppe 1: fri forhandling — kun normal tidberegning, ingen definerede OT-satser
+    normal = Math.min(arbejdsH, 8) * ts;
+    otNote = 'OT-satser aftales individuelt';
+    ot1 = ot2 = ot3 = ot4 = 0;
   } else {
-    // Gruppe 1-4: procentbaseret OT
-    const norm_t  = Math.min(arbejdsH, 8);
-    const ot_t    = Math.max(0, arbejdsH - 8);
-    const ot1_t   = Math.min(ot_t, 2);           // time 9-10: +25%
-    const ot2_t   = Math.min(Math.max(0, ot_t - 2), 2);  // time 11-12: +100%
-    const ot3_t   = Math.min(Math.max(0, ot_t - 4), 1);  // time 13: +150%
-    const ot4_t   = Math.max(0, ot_t - 5);       // time 14+: +200%
+    // Gruppe 2–4: procentbaseret OT
+    const norm_t = Math.min(arbejdsH, 8);
+    const ot_t   = Math.max(0, arbejdsH - 8);
+    const ot1_t  = Math.min(ot_t, 2);                       // time 9–10: +25%
+    const ot2_t  = Math.min(Math.max(0, ot_t - 2), 2);     // time 11–12: +100%
+    const ot3_t  = Math.min(Math.max(0, ot_t - 4), 1);     // time 13: +150%
+    const ot4_t  = Math.max(0, ot_t - 5);                   // time 14+: +200%
 
     normal = norm_t * ts;
     ot1    = ot1_t * ts * 1.25;
@@ -446,21 +493,32 @@ function calcReklame(start, slut, dagssats, gr, opt) {
     ot4    = ot4_t * ts * 3.00;
   }
 
-  // Genetillæg: +100 kr/t for timer uden for 06-18
-  let natTimer = 0;
+  // Genetillæg (§5): 18:00–24:00 = +100 kr/t, 00:00–06:00 = +200 kr/t
+  let natKr = 0;
+  let nat100t = 0, nat200t = 0;
   if (opt.nat) {
-    // Beregn timer uden for 06-18
     const segmenter = e >= s ? [[s, e]] : [[s, 24], [0, e]];
     segmenter.forEach(([a, b]) => {
-      if (a < 6) natTimer += Math.min(b, 6) - a;
-      if (b > 18) natTimer += b - Math.max(a, 18);
+      // 18–24: 100 kr/t
+      if (b > 18) {
+        const t = b - Math.max(a, 18);
+        nat100t += t;
+        natKr += t * 100;
+      }
+      // 00–06: 200 kr/t
+      if (a < 6) {
+        const t = Math.min(b, 6) - a;
+        nat200t += t;
+        natKr += t * 200;
+      }
     });
-    natTimer = Math.max(0, natTimer - pause); // fratræk pause
+    natKr = Math.max(0, natKr);
   }
-  const natKr = natTimer * 100;
 
-  // Weekend-tillæg (placeholder — faktisk sats ukendt)
-  const wkKr = opt.wk ? dagssats * 0.25 : 0; // estimat +25%
+  // Weekend-tillæg (§6): opt.wk = 0 (ingen) / 1 (+75% = 1 dag) / 2 (+100% = 2 dage)
+  // Weekend regnes fra Fredag 24:00 (= Lørdag 00:00) til Mandag 06:00
+  const wkRate = opt.wk === 2 ? 1.0 : opt.wk === 1 ? 0.75 : 0;
+  const wkKr = dagssats * wkRate;
 
   // Diæt
   const diætKr = opt.diæt ? DIÆT : 0;
@@ -468,9 +526,11 @@ function calcReklame(start, slut, dagssats, gr, opt) {
   const total = normal + ot1 + ot2 + ot3 + ot4 + natKr + wkKr + diætKr;
 
   return {
-    arbejdsH, totalH, pause,
-    normal, ot1, ot2, ot3, ot4,
-    natTimer, natKr, wkKr, diætKr,
+    arbejdsH, totalH,
+    normal, ot1, ot2, ot3, ot4, otNote,
+    nat100t, nat200t, natKr,
+    wkKr, wkRate,
+    diætKr,
     total, ts
   };
 }
@@ -499,31 +559,58 @@ function beregn() {
   document.getElementById('res-t').textContent = hFmt(r.arbejdsH);
   document.getElementById('res-pay').textContent = fmt(r.total);
   document.getElementById('res-sub').textContent =
-    `Dagssats ${dagssats.toLocaleString('da-DK')} kr · ts ${r.ts.toFixed(0)} kr/t · pause ${Math.round(r.pause*60)}m`;
+    `Dagssats ${dagssats.toLocaleString('da-DK')} kr · ts ${r.ts.toFixed(0)} kr/t · 8t inkl. 45m betalt pause`;
   document.getElementById('res-expand').textContent = otVis ? '▴ Luk specifikation' : '▾ Vis specifikation';
 
   // OT breakdown
   document.getElementById('o-normal').textContent = fmt(r.normal);
+
   if (gruppe === 5) {
     document.getElementById('o-ot1').textContent = r.ot1 > 0 ? fmt(r.ot1) : '—';
     document.getElementById('o-ot2').textContent = r.ot2 > 0 ? fmt(r.ot2) : '—';
+    document.getElementById('o-ot1-row').style.display = 'flex';
+    document.getElementById('o-ot2-row').style.display = 'flex';
+  } else if (gruppe === 1) {
+    document.getElementById('o-ot1').textContent = r.otNote;
+    document.getElementById('o-ot2').textContent = '';
+    document.getElementById('o-ot1-row').style.display = 'flex';
+    document.getElementById('o-ot2-row').style.display = 'none';
   } else {
     document.getElementById('o-ot1').textContent = r.ot1 > 0 ? fmt(r.ot1) : '—';
     document.getElementById('o-ot2').textContent = r.ot2 > 0 ? fmt(r.ot2) : '—';
     document.getElementById('o-ot3').textContent = r.ot3 > 0 ? fmt(r.ot3) : '—';
     document.getElementById('o-ot4').textContent = r.ot4 > 0 ? fmt(r.ot4) : '—';
+    document.getElementById('o-ot1-row').style.display = 'flex';
+    document.getElementById('o-ot2-row').style.display = 'flex';
   }
 
+  // Genetillæg
   const natRow = document.getElementById('o-nat-row');
-  const wkRow  = document.getElementById('o-wk-row');
-  natRow.style.display = r.natTimer > 0 ? 'flex' : 'none';
-  if (r.natTimer > 0) {
-    document.getElementById('o-nat').textContent =
-      `${r.natTimer.toFixed(1)}t × 100 kr = ${fmt(r.natKr)}`;
+  natRow.style.display = r.natKr > 0 ? 'flex' : 'none';
+  if (r.natKr > 0) {
+    let natTxt = '';
+    if (r.nat100t > 0) natTxt += `${r.nat100t.toFixed(1)}t×100`;
+    if (r.nat200t > 0) natTxt += (natTxt ? ' + ' : '') + `${r.nat200t.toFixed(1)}t×200`;
+    document.getElementById('o-nat').textContent = `${natTxt} = ${fmt(r.natKr)}`;
   }
+
+  // Weekend
+  const wkRow = document.getElementById('o-wk-row');
   wkRow.style.display = r.wkKr > 0 ? 'flex' : 'none';
   if (r.wkKr > 0) {
-    document.getElementById('o-wk').textContent = fmt(r.wkKr);
+    const dagssats = parseFloat(document.getElementById('s-dagssats').value) || 5500;
+    const pct = r.wkRate === 1.0 ? '100%' : '75%';
+    document.getElementById('o-wk').textContent =
+      `${dagssats.toLocaleString('da-DK')} × ${pct} = ${fmt(r.wkKr)}`;
+    document.getElementById('o-wk-lbl').textContent =
+      r.wkRate === 1.0 ? 'Weekend-till. (2 dage)' : 'Weekend-till. (1 dag)';
+  }
+
+  // Diæt
+  const diætRow = document.getElementById('o-diæt-row');
+  diætRow.style.display = r.diætKr > 0 ? 'flex' : 'none';
+  if (r.diætKr > 0) {
+    document.getElementById('o-diæt').textContent = fmt(r.diætKr);
   }
 
   if (otVis) document.getElementById('ot-boks').classList.add('vis');
@@ -553,153 +640,276 @@ function togInfo() {
 opdaterGruppeUI();
 
 // ═══════════════════════════════════════════════
-// AUTOMATISK TEST — 150 scenarier
+// AUTOMATISK TEST — Reklamefilmsoverenskomst 2024
 // ═══════════════════════════════════════════════
 function kørTests() {
   let ok = 0, fejl = 0, warns = [];
 
   function assert(betingelse, besked) {
     if (betingelse) { ok++; }
-    else { fejl++; warns.push(besked); }
+    else { fejl++; warns.push('❌ ' + besked); }
   }
 
   const tid = (h, m) => ({ h, m });
 
-  // --- Normal 8-timers dag ---
-  let r = calcReklame(tid(7,0), tid(15,30), 5500, 1, {});
-  assert(r !== null, 'R1: skal returnere resultat');
-  // 7:00-15:30 = 8.5t - 0.5t pause = 8t normal
-  assert(Math.abs(r.arbejdsH - 8) < 0.01, `R2: 8t normal dag, fik ${r.arbejdsH}`);
-  assert(Math.abs(r.ot1) < 1, `R3: ingen OT ved 8t, fik ${r.ot1}`);
-  assert(Math.abs(r.normal - 5500) < 1, `R4: normal = dagssats ved 8t, fik ${r.normal}`);
+  // ────────────────────────────────────────────
+  // §4: INGEN PAUSEFRADRAG — 45 min er betalt og inkluderet i normaldag
+  // ────────────────────────────────────────────
 
-  // --- 10-timers dag (2t OT) ---
-  r = calcReklame(tid(7,0), tid(17,30), 5500, 1, {});
-  // 7:00-17:30 = 10.5t - 0.75t pause (>9t) = 9.75t
-  assert(r.arbejdsH > 9.5, `R5: 9.75t arbejde, fik ${r.arbejdsH}`);
-  assert(r.ot1 > 0, `R6: OT1 ved >8t`);
+  // Præcis 8-timers dag = normaldag = dagssats
+  let r = calcReklame(tid(7,0), tid(15,0), 5500, 2, {});
+  assert(r !== null, 'R01: 8t dag giver resultat');
+  assert(Math.abs(r.arbejdsH - 8) < 0.01, `R02: 7:00–15:00 = 8t, fik ${r.arbejdsH}`);
+  assert(Math.abs(r.normal - 5500) < 1, `R03: normal = dagssats ved præcis 8t, fik ${r.normal}`);
+  assert(r.ot1 === 0, `R04: ingen OT ved præcis 8t, fik ${r.ot1}`);
+  assert(Math.abs(r.total - 5500) < 1, `R05: total = dagssats ved 8t, fik ${r.total}`);
 
-  // --- 12-timers dag ---
-  r = calcReklame(tid(7,0), tid(20,0), 5500, 1, {});
-  // 7:00-20:00 = 13t - 0.75t = 12.25t => 8t normal + 2t OT1 + 2t OT2 + 0.25t OT3
-  assert(r.arbejdsH > 12, `R7: >12t arbejde`);
-  assert(r.ot2 > 0, `R8: OT2 ved >10t`);
-  assert(r.total > 5500, `R9: total > dagssats ved OT`);
+  // 8.5t dag → 8t normal + 0.5t OT1 (ingen pausefradrag!)
+  r = calcReklame(tid(7,0), tid(15,30), 5500, 2, {});
+  assert(Math.abs(r.arbejdsH - 8.5) < 0.01, `R06: 7:00–15:30 = 8.5t (ingen pause), fik ${r.arbejdsH}`);
+  assert(r.ot1 > 0, `R07: OT1 ved 8.5t (0.5t OT)`);
+  const ts55 = 5500 / 8;
+  assert(Math.abs(r.ot1 - 0.5 * ts55 * 1.25) < 0.5, `R08: OT1 = 0.5t×ts×1.25, fik ${r.ot1.toFixed(2)}`);
 
-  // --- 14-timers dag ---
-  r = calcReklame(tid(7,0), tid(22,0), 5500, 1, {});
-  assert(r.ot4 > 0, `R10: OT4 ved >13t`);
+  // 10-timers dag → 8t normal + 2t OT1
+  r = calcReklame(tid(7,0), tid(17,0), 5500, 2, {});
+  assert(Math.abs(r.arbejdsH - 10) < 0.01, `R09: 7:00–17:00 = 10t, fik ${r.arbejdsH}`);
+  assert(Math.abs(r.ot1 - 2 * ts55 * 1.25) < 0.5, `R10: OT1 = 2t×ts×1.25, fik ${r.ot1.toFixed(2)}`);
+  assert(r.ot2 === 0, `R11: ingen OT2 ved 10t, fik ${r.ot2}`);
 
-  // --- Gruppe 5 OT ---
-  r = calcReklame(tid(7,0), tid(19,30), 5000, 5, {});
-  // 12.5t - 0.75t = 11.75t => 8t normal + 3.75t OT grup5
-  assert(r.ot1 > 0, `R11: Gruppe 5 OT1`);
-  // Gruppe 5 OT1 = flat 200 kr/t
-  const expectedGr5OT = Math.min(Math.max(0, r.arbejdsH - 8), 5) * 200;
-  assert(Math.abs(r.ot1 - expectedGr5OT) < 1, `R12: Gr5 OT1 = ${expectedGr5OT}, fik ${r.ot1}`);
+  // 12-timers dag → 8 normal + 2 OT1 + 2 OT2
+  r = calcReklame(tid(7,0), tid(19,0), 5500, 2, {});
+  assert(Math.abs(r.arbejdsH - 12) < 0.01, `R12: 7:00–19:00 = 12t, fik ${r.arbejdsH}`);
+  assert(Math.abs(r.ot1 - 2 * ts55 * 1.25) < 0.5, `R13: OT1 korrekt ved 12t`);
+  assert(Math.abs(r.ot2 - 2 * ts55 * 2.00) < 0.5, `R14: OT2 korrekt ved 12t, fik ${r.ot2.toFixed(2)}`);
+  assert(r.ot3 === 0, `R15: ingen OT3 ved 12t`);
 
-  // --- Gruppe 5, 14+ timer ---
-  r = calcReklame(tid(7,0), tid(22,0), 5000, 5, {});
-  assert(r.ot2 > 0, `R13: Gruppe 5 OT2 ved 14+ timer`);
-  // time 9-13 = 5t × 200 = 1000, time 14+ = resterende × 350
-  const otH = Math.max(0, r.arbejdsH - 8);
-  const exp5_1 = Math.min(otH, 5) * 200;
-  const exp5_2 = Math.max(0, otH - 5) * 350;
-  assert(Math.abs(r.ot1 - exp5_1) < 1, `R14: Gr5 OT1 = ${exp5_1}, fik ${r.ot1}`);
-  assert(Math.abs(r.ot2 - exp5_2) < 1, `R15: Gr5 OT2 = ${exp5_2}, fik ${r.ot2}`);
+  // 13-timers dag → 2+2+1 OT
+  r = calcReklame(tid(7,0), tid(20,0), 5500, 2, {});
+  assert(Math.abs(r.arbejdsH - 13) < 0.01, `R16: 7:00–20:00 = 13t`);
+  assert(r.ot3 > 0, `R17: OT3 ved 13t`);
+  assert(Math.abs(r.ot3 - 1 * ts55 * 2.50) < 0.5, `R18: OT3 = 1t×ts×2.5, fik ${r.ot3.toFixed(2)}`);
+  assert(r.ot4 === 0, `R19: ingen OT4 ved 13t`);
 
-  // --- Genetillæg ---
-  r = calcReklame(tid(6,0), tid(20,0), 5500, 1, { nat: true });
-  // 6:00-20:00 = 14t - 0.75t = 13.25t arbejde
-  // Nat-timer: 18-20 = 2t → 2t × 100 = 200 kr
-  assert(r.natTimer > 0, `R16: genetillæg ved arbejde efter 18`);
-  assert(Math.abs(r.natKr - r.natTimer * 100) < 1, `R17: natKr = natTimer × 100`);
+  // 14-timers dag → OT4
+  r = calcReklame(tid(7,0), tid(21,0), 5500, 2, {});
+  assert(Math.abs(r.arbejdsH - 14) < 0.01, `R20: 7:00–21:00 = 14t`);
+  assert(r.ot4 > 0, `R21: OT4 ved 14t`);
+  assert(Math.abs(r.ot4 - 1 * ts55 * 3.00) < 0.5, `R22: OT4 = 1t×ts×3.0, fik ${r.ot4.toFixed(2)}`);
 
-  // --- Nattevagt: 20:00-06:00 ---
-  r = calcReklame(tid(20,0), tid(6,0), 5500, 1, { nat: true });
-  // 20:00-06:00 = 10t - 0.75t = 9.25t
-  // Nat-timer: 20-24 + 00-06 = 10t minus pause ≈ 9.25t
-  assert(r.natTimer > 8, `R18: nattevagt: de fleste timer er nattetimer, fik ${r.natTimer}`);
-
-  // --- Total er altid dagssats eller mere ---
-  const scenarier = [
-    [tid(7,0), tid(15,30), 5500, 1, {}],
-    [tid(6,0), tid(18,0), 4000, 2, {}],
-    [tid(8,0), tid(20,0), 3500, 3, {}],
-    [tid(7,0), tid(22,0), 3000, 4, {}],
-    [tid(7,0), tid(15,30), 5000, 5, {}],
-  ];
-  scenarier.forEach(([s, e, d, g, o], i) => {
-    const res = calcReklame(s, e, d, g, o);
-    assert(res !== null, `R19.${i}: resultat ikke null`);
-    assert(res.total >= res.normal, `R20.${i}: total >= normal`);
-  });
-
-  // --- Pause-beregning ---
-  // Under 6 timer: ingen pause
-  r = calcReklame(tid(9,0), tid(14,0), 5500, 1, {});
-  // 5t - ingen pause = 5t
-  assert(Math.abs(r.pause - 0) < 0.01, `R21: under 6t ingen pause, fik ${r.pause}`);
-  // 6-9 timer: 30 min
-  r = calcReklame(tid(9,0), tid(15,30), 5500, 1, {});
-  // 6.5t - 0.5t = 6t
-  assert(Math.abs(r.pause - 0.5) < 0.01, `R22: 6-9t → 30min pause, fik ${r.pause * 60}min`);
-  // Over 9 timer: 45 min
-  r = calcReklame(tid(7,0), tid(17,0), 5500, 1, {});
-  // 10t - 0.75t = 9.25t
-  assert(Math.abs(r.pause - 0.75) < 0.01, `R23: >9t → 45min pause, fik ${r.pause * 60}min`);
-
-  // --- OT er korrekt procentberegnet ---
-  const ds = 4800; // kontrollerede satser
+  // ────────────────────────────────────────────
+  // OT PRÆCISION — kontrollerede satser ds=4800, ts=600
+  // ────────────────────────────────────────────
+  const ds = 4800;
   const ts = ds / 8; // 600 kr/t
-  r = calcReklame(tid(7,0), tid(17,30), ds, 2, {});
-  // 10.5t - 0.75t = 9.75t
-  // 8t normal: 8 × 600 = 4800
-  // 1.75t OT1 (time 9-10.75): 1.75 × 600 × 1.25 = 1312.5
-  const expNormal = 8 * ts;
-  const expOT1 = Math.min(Math.max(0, r.arbejdsH - 8), 2) * ts * 1.25;
-  assert(Math.abs(r.normal - expNormal) < 1, `R24: normal = ${expNormal}, fik ${r.normal}`);
-  assert(Math.abs(r.ot1 - expOT1) < 1, `R25: ot1 = ${expOT1.toFixed(2)}, fik ${r.ot1.toFixed(2)}`);
 
-  // --- Mange dagssats-varianter ---
-  [2000, 3000, 4000, 5000, 6000, 7000, 8000].forEach((ds, i) => {
-    const res = calcReklame(tid(7,0), tid(20,0), ds, 1, {});
-    assert(res.total > ds, `R26.${i}: dagssats ${ds} — total skal overstige dagssats ved OT`);
-    assert(res.ot1 > 0, `R27.${i}: OT1 > 0 ved lang dag`);
-    assert(res.ot2 > 0, `R28.${i}: OT2 > 0 ved lang dag`);
+  r = calcReklame(tid(7,0), tid(17,0), ds, 2, {}); // 10t
+  assert(Math.abs(r.normal - 8 * ts) < 1, `R23: normal 8t×600=4800, fik ${r.normal}`);
+  assert(Math.abs(r.ot1 - 2 * ts * 1.25) < 1, `R24: OT1 2t×600×1.25=1500, fik ${r.ot1}`);
+  assert(r.ot2 === 0, `R25: ingen OT2 ved 10t`);
+
+  r = calcReklame(tid(7,0), tid(19,0), ds, 2, {}); // 12t
+  assert(Math.abs(r.ot1 - 2 * ts * 1.25) < 1, `R26: OT1 korrekt 12t`);
+  assert(Math.abs(r.ot2 - 2 * ts * 2.00) < 1, `R27: OT2 2t×600×2=2400, fik ${r.ot2}`);
+  assert(r.ot3 === 0, `R28: ingen OT3 ved 12t`);
+
+  r = calcReklame(tid(7,0), tid(20,0), ds, 2, {}); // 13t
+  assert(Math.abs(r.ot3 - 1 * ts * 2.50) < 1, `R29: OT3 1t×600×2.5=1500, fik ${r.ot3}`);
+
+  r = calcReklame(tid(7,0), tid(21,0), ds, 2, {}); // 14t
+  assert(Math.abs(r.ot4 - 1 * ts * 3.00) < 1, `R30: OT4 1t×600×3=1800, fik ${r.ot4}`);
+
+  r = calcReklame(tid(7,0), tid(22,0), ds, 2, {}); // 15t
+  assert(Math.abs(r.ot4 - 2 * ts * 3.00) < 1, `R31: OT4 2t ved 15t, fik ${r.ot4}`);
+
+  // ────────────────────────────────────────────
+  // GRUPPE 5 — flat OT-satser
+  // ────────────────────────────────────────────
+  r = calcReklame(tid(7,0), tid(15,0), 5000, 5, {}); // 8t
+  assert(Math.abs(r.total - 5000) < 1, `R32: gr5 8t = dagssats, fik ${r.total}`);
+
+  r = calcReklame(tid(7,0), tid(19,0), 5000, 5, {}); // 12t
+  assert(Math.abs(r.arbejdsH - 12) < 0.01, `R33: gr5 12t dag`);
+  assert(Math.abs(r.ot1 - 4 * 200) < 1, `R34: gr5 4t×200=800, fik ${r.ot1}`);
+  assert(r.ot2 === 0, `R35: gr5 ingen 350-rate ved 12t`);
+
+  r = calcReklame(tid(7,0), tid(22,0), 5000, 5, {}); // 15t
+  assert(Math.abs(r.ot1 - 5 * 200) < 1, `R36: gr5 5t×200=1000 (time 9-13), fik ${r.ot1}`);
+  assert(Math.abs(r.ot2 - 2 * 350) < 1, `R37: gr5 2t×350=700 (time 14+), fik ${r.ot2}`);
+
+  // 16-timers dag gr5: 5×200 + 8×350
+  r = calcReklame(tid(6,0), tid(22,0), 5000, 5, {}); // 16t
+  const otH16 = 16 - 8;
+  const exp5a = Math.min(otH16, 5) * 200;
+  const exp5b = Math.max(0, otH16 - 5) * 350;
+  assert(Math.abs(r.ot1 - exp5a) < 1, `R38: gr5 16t OT1=${exp5a}, fik ${r.ot1}`);
+  assert(Math.abs(r.ot2 - exp5b) < 1, `R39: gr5 16t OT2=${exp5b}, fik ${r.ot2}`);
+
+  // ────────────────────────────────────────────
+  // GRUPPE 1 — fri forhandling
+  // ────────────────────────────────────────────
+  r = calcReklame(tid(7,0), tid(15,0), 8000, 1, {}); // 8t
+  assert(Math.abs(r.normal - 8000) < 1, `R40: gr1 normal 8t = dagssats, fik ${r.normal}`);
+  assert(r.ot1 === 0, `R41: gr1 ingen OT1 (fri forhandling)`);
+  assert(r.ot2 === 0, `R42: gr1 ingen OT2`);
+  assert(r.ot3 === 0, `R43: gr1 ingen OT3`);
+  assert(r.ot4 === 0, `R44: gr1 ingen OT4`);
+
+  r = calcReklame(tid(7,0), tid(21,0), 8000, 1, {}); // 14t
+  assert(Math.abs(r.normal - 8000) < 1, `R45: gr1 14t normal stadig kun 8t = dagssats, fik ${r.normal}`);
+  assert(r.ot1 === 0 && r.ot2 === 0, `R46: gr1 ingen OT-beløb ved 14t`);
+
+  // ────────────────────────────────────────────
+  // §5: GENETILLÆG — 18–24 = 100 kr/t, 00–06 = 200 kr/t
+  // ────────────────────────────────────────────
+
+  // 18:00–22:00: 4t × 100 = 400 kr
+  r = calcReklame(tid(18,0), tid(22,0), 5500, 2, { nat: true });
+  assert(Math.abs(r.natKr - 400) < 1, `R47: 18–22 = 4t×100=400, fik ${r.natKr}`);
+  assert(Math.abs(r.nat100t - 4) < 0.01, `R48: nat100t = 4, fik ${r.nat100t}`);
+  assert(r.nat200t === 0, `R49: ingen 200-rate timer 18–22, fik ${r.nat200t}`);
+
+  // 02:00–05:00: 3t × 200 = 600 kr
+  r = calcReklame(tid(2,0), tid(5,0), 5500, 2, { nat: true });
+  assert(Math.abs(r.natKr - 600) < 1, `R50: 02–05 = 3t×200=600, fik ${r.natKr}`);
+  assert(Math.abs(r.nat200t - 3) < 0.01, `R51: nat200t = 3, fik ${r.nat200t}`);
+
+  // 22:00–04:00: 22–24 = 2t×100 + 00–04 = 4t×200 = 200+800 = 1000 kr
+  r = calcReklame(tid(22,0), tid(4,0), 5500, 2, { nat: true });
+  assert(Math.abs(r.natKr - 1000) < 1, `R52: 22–04 nat = 200+800=1000, fik ${r.natKr}`);
+
+  // 20:00–06:00: 20–24 = 4t×100=400, 00–06 = 6t×200=1200 → i alt 1600
+  r = calcReklame(tid(20,0), tid(6,0), 5500, 2, { nat: true });
+  assert(Math.abs(r.natKr - 1600) < 1, `R53: 20–06 = 400+1200=1600, fik ${r.natKr}`);
+
+  // Dag-vagt 07–15: ingen genetillæg
+  r = calcReklame(tid(7,0), tid(15,0), 5500, 2, { nat: true });
+  assert(r.natKr === 0, `R54: 07–15 ingen genetillæg, fik ${r.natKr}`);
+
+  // ────────────────────────────────────────────
+  // §6: WEEKEND-TILLÆG — +75% (1 dag) / +100% (2 dage)
+  // Weekend = Lørdag 00:00–Mandag 06:00
+  // ────────────────────────────────────────────
+
+  // 1 dag: dagssats × 0.75
+  r = calcReklame(tid(7,0), tid(15,0), 5000, 2, { wk: 1 });
+  assert(Math.abs(r.wkKr - 5000 * 0.75) < 1, `R55: wk1 +75% = 3750, fik ${r.wkKr}`);
+  assert(Math.abs(r.total - 5000 - 3750) < 1, `R56: total wk1 = 5000+3750=8750, fik ${r.total}`);
+
+  // 2 dage: dagssats × 1.00
+  r = calcReklame(tid(7,0), tid(15,0), 5000, 2, { wk: 2 });
+  assert(Math.abs(r.wkKr - 5000 * 1.0) < 1, `R57: wk2 +100% = 5000, fik ${r.wkKr}`);
+  assert(Math.abs(r.total - 5000 * 2) < 1, `R58: total wk2 = 10000, fik ${r.total}`);
+
+  // Ingen weekend
+  r = calcReklame(tid(7,0), tid(15,0), 5000, 2, { wk: 0 });
+  assert(r.wkKr === 0, `R59: wk=0 ingen tillæg, fik ${r.wkKr}`);
+
+  // Weekend + OT stacker korrekt (gr2)
+  r = calcReklame(tid(7,0), tid(21,0), 5000, 2, { wk: 1 }); // 14t + wk
+  const ts5k = 5000 / 8;
+  const expNorm = 8 * ts5k;
+  const expOT = 2 * ts5k * 1.25 + 2 * ts5k * 2.00 + 1 * ts5k * 2.50 + 1 * ts5k * 3.00;
+  const expWk = 5000 * 0.75;
+  assert(Math.abs(r.total - expNorm - expOT - expWk) < 2, `R60: 14t+wk total korrekt, fik ${r.total.toFixed(2)}`);
+
+  // ────────────────────────────────────────────
+  // DIÆT
+  // ────────────────────────────────────────────
+  r = calcReklame(tid(7,0), tid(15,0), 5000, 2, { diæt: true });
+  assert(Math.abs(r.diætKr - 94) < 1, `R61: diæt = 94 kr, fik ${r.diætKr}`);
+  assert(Math.abs(r.total - 5094) < 1, `R62: total med diæt = 5094, fik ${r.total}`);
+
+  // ────────────────────────────────────────────
+  // MIDNAT OG WRAP
+  // ────────────────────────────────────────────
+
+  // Midnatvagt: 22:00–06:00 = 8t (wrap) = normaldag
+  r = calcReklame(tid(22,0), tid(6,0), 5000, 2, {});
+  assert(Math.abs(r.arbejdsH - 8) < 0.01, `R63: 22:00–06:00 = 8t, fik ${r.arbejdsH}`);
+  assert(Math.abs(r.total - 5000) < 1, `R64: midnatvagt 8t = dagssats, fik ${r.total}`);
+
+  // 23:00–09:00 = 10t wrap
+  r = calcReklame(tid(23,0), tid(9,0), 5000, 2, {});
+  assert(Math.abs(r.arbejdsH - 10) < 0.01, `R65: 23:00–09:00 = 10t, fik ${r.arbejdsH}`);
+  assert(r.ot1 > 0, `R66: OT1 ved 10t wrap`);
+
+  // ────────────────────────────────────────────
+  // ALLE GRUPPER — 8t = dagssats (undtagen gr1 som kan have fri forhandling)
+  // ────────────────────────────────────────────
+  [2, 3, 4, 5].forEach((g) => {
+    const res = calcReklame(tid(7,0), tid(15,0), 5000, g, {});
+    assert(Math.abs(res.total - 5000) < 1, `R67.${g}: gr ${g} 8t = dagssats, fik ${res.total}`);
   });
 
-  // --- Alle grupper: dagssats = 5000, 8t dag ---
-  [1,2,3,4,5].forEach((g, i) => {
-    const res = calcReklame(tid(7,0), tid(15,30), 5000, g, {});
-    assert(Math.abs(res.total - 5000) < 1, `R29.${i}: gr ${g} normal 8t = dagssats`);
+  // Gr1 8t = normal = dagssats
+  r = calcReklame(tid(7,0), tid(15,0), 6000, 1, {});
+  assert(Math.abs(r.total - 6000) < 1, `R68: gr1 8t = dagssats 6000, fik ${r.total}`);
+
+  // ────────────────────────────────────────────
+  // ALLE GRUPPER — lang dag (14t) > dagssats (undtagen gr1)
+  // ────────────────────────────────────────────
+  [2, 3, 4, 5].forEach((g) => {
+    const res = calcReklame(tid(7,0), tid(21,0), 5000, g, {});
+    assert(res.total > 5000, `R69.${g}: gr ${g} 14t > dagssats, fik ${res.total}`);
   });
 
-  // --- Alle grupper: 14-timers dag ---
-  [1,2,3,4,5].forEach((g, i) => {
-    const res = calcReklame(tid(7,0), tid(22,0), 5000, g, {});
-    assert(res.total > 5000, `R30.${i}: gr ${g} 14t > dagssats`);
-  });
+  // Gr1: 14t = kun normaldag (fri forhandling, ingen OT)
+  r = calcReklame(tid(7,0), tid(21,0), 5000, 1, {});
+  assert(Math.abs(r.total - 5000) < 1, `R70: gr1 14t = dagssats (fri forhandling), fik ${r.total}`);
 
-  // --- Kanttilfælde: meget kort dag ---
-  r = calcReklame(tid(10,0), tid(12,0), 5000, 1, {});
-  assert(r.arbejdsH === 2, `R31: 2t dag = 2 arbejdstimer`);
-  assert(r.total > 0, `R32: betaling for kort dag`);
-
-  // --- Akkumulator check: mange grader af OT ---
+  // ────────────────────────────────────────────
+  // MONOTON STIGNING — total stiger med antal timer
+  // ────────────────────────────────────────────
+  let prevTotal = 0;
   [8, 9, 10, 11, 12, 13, 14, 15, 16].forEach((timer, i) => {
-    const slut_h = (7 + timer) % 24;
-    const slut_extra = timer >= 9 ? 0.75 : timer >= 6 ? 0.5 : 0;
-    // Beregn sluttid baseret på antal ønskede arbejdstimer + pause
-    const slutTotal = 7 + timer + slut_extra;
-    const sh = Math.floor(slutTotal);
-    const sm = Math.round((slutTotal - sh) * 60);
-    const res = calcReklame(tid(7,0), tid(sh % 24, sm), 5000, 2, {});
-    assert(res !== null, `R33.${i}: ${timer}t dag giver resultat`);
-    assert(res.total > 0, `R34.${i}: betaling > 0 for ${timer}t dag`);
-    if (i > 0) {
-      const prev = calcReklame(tid(7,0), tid(sh % 24, sm - 1 < 0 ? 59 : sm - 1), 5000, 2, {});
-    }
+    const slutH = (7 + timer) % 24;
+    const res = calcReklame(tid(7,0), tid(slutH, 0), 5000, 2, {});
+    assert(res !== null, `R71.${timer}: resultat ikke null`);
+    assert(res.total >= prevTotal - 0.01, `R72.${timer}: total stiger monotont ved ${timer}t (forrige: ${prevTotal.toFixed(0)}, nu: ${res.total.toFixed(0)})`);
+    prevTotal = res.total;
+  });
+
+  // ────────────────────────────────────────────
+  // EDGE CASES
+  // ────────────────────────────────────────────
+
+  // Meget kort dag (1 time)
+  r = calcReklame(tid(10,0), tid(11,0), 5000, 2, {});
+  assert(Math.abs(r.arbejdsH - 1) < 0.01, `R73: 1t dag, fik ${r.arbejdsH}`);
+  assert(r.total > 0, `R74: betaling > 0 for 1t dag`);
+
+  // Mangler start/slut returnerer null
+  r = calcReklame(null, tid(15,0), 5000, 2, {});
+  assert(r === null, `R75: null start → null resultat`);
+  r = calcReklame(tid(7,0), null, 5000, 2, {});
+  assert(r === null, `R76: null slut → null resultat`);
+
+  // Total >= normal (altid)
+  const blandede = [
+    [tid(7,0), tid(15,0), 5500, 1, {}],
+    [tid(6,0), tid(18,0), 4100, 2, {}],
+    [tid(8,0), tid(20,0), 3300, 3, {}],
+    [tid(7,0), tid(22,0), 2750, 4, {}],
+    [tid(7,0), tid(15,0), 1540, 5, {}],
+    [tid(20,0), tid(4,0), 5000, 2, { nat: true }],
+    [tid(7,0), tid(15,0), 5000, 2, { wk: 1 }],
+    [tid(7,0), tid(15,0), 5000, 2, { wk: 2 }],
+    [tid(7,0), tid(20,0), 5000, 3, { nat: true, wk: 1, diæt: true }],
+  ];
+  blandede.forEach(([s, e, d, g, o], i) => {
+    const res = calcReklame(s, e, d, g, o);
+    assert(res !== null, `R77.${i}: resultat ikke null`);
+    assert(res.total >= res.normal - 0.01, `R78.${i}: total >= normal`);
+    assert(res.total > 0, `R79.${i}: total > 0`);
+  });
+
+  // Mange dagssatser — OT stiger proportionalt
+  [2750, 3300, 4100, 5500, 7000, 10000].forEach((dss, i) => {
+    const res12 = calcReklame(tid(7,0), tid(19,0), dss, 2, {}); // 12t
+    const ts_i = dss / 8;
+    const expOT = 2 * ts_i * 1.25 + 2 * ts_i * 2.00;
+    assert(Math.abs(res12.total - dss - expOT) < 2, `R80.${i}: ds=${dss} 12t total korrekt, fik ${res12.total.toFixed(2)}`);
   });
 
   console.log(`\n=== REKLAME TEST RESULTATER ===\n✅ Bestået: ${ok}\n❌ Fejlet: ${fejl}`);
@@ -721,7 +931,7 @@ window.addEventListener('load', () => {
   `;
   banner.innerHTML = resultater.fejl === 0
     ? `✅ Alle ${resultater.ok} tests bestod — beregningsmotor OK`
-    : `⚠️ ${resultater.fejl} test(s) fejlede · ${resultater.ok} bestod<br><small style="opacity:.7">${resultater.warns.slice(0,3).join('<br>')}</small>`;
+    : `⚠️ ${resultater.fejl} test(s) fejlede · ${resultater.ok} bestod<br><small style="opacity:.7">${resultater.warns.slice(0,5).join('<br>')}</small>`;
   document.querySelector('.view').insertBefore(banner, document.querySelector('.view').firstChild);
 });
 </script>
