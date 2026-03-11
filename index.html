@@ -906,8 +906,10 @@ function timesats() {
 }
 function timesatsMedTillæg() {
   // Normaltimer betales med mindsteløn + personligt tillæg + evt. 10% enkeltdag
-  const samlet = (cfg.ugelon + (cfg.pers || 0)) / 40;
-  return samlet * (cfg.tillæg ? 1.1 : 1.0);
+  // §3.10: 10% enkeltdagstillæg gælder KUN for mindsteløn — ikke for personligt tillæg
+  const mindstelønTs = cfg.ugelon / 40 * (cfg.tillæg ? 1.1 : 1.0);
+  const persTs       = (cfg.pers || 0) / 40;
+  return mindstelønTs + persTs;
 }
 
 // §6.a: OT beregnes i hele, halve og kvarte timer
