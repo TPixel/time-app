@@ -256,9 +256,9 @@ textarea::placeholder{color:var(--mut)}
 #pdf-frame.vis{display:block}
 @media print {
   @page{size:A4 portrait;margin:18mm 16mm}
-  html,body{background:#fff!important;max-width:none!important;margin:0!important;padding:0!important}
+  html,body{background:#fff!important;max-width:none!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important}
   body>*{display:none!important}
-  #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important}
+  #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important;height:auto!important;min-height:0!important}
 }
 .pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;max-width:175mm;margin:0 auto}
 .pdf-h1{font-size:20pt;font-weight:900;letter-spacing:-0.5px;margin-bottom:2px}
