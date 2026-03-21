@@ -1457,7 +1457,8 @@ function doPDF() {
     <div class="pdf-h2">${fra} – ${til}</div>
     <div class="pdf-meta">
       <span><div style="font-size:8pt;color:#888">Navn</div><strong>${cfg.navn || '—'}</strong></span>
-      <span><div style="font-size:8pt;color:#888">Ugeløn</div><strong>${krFmt(cfg.ugelon)}</strong>${cfg.pers ? `<div style="font-size:8pt;color:#555">+ ${krFmt(cfg.pers)} pers. tillæg</div>` : ''}</span>
+      <span><div style="font-size:8pt;color:#888">Ugeløn</div><strong>${krFmt(cfg.ugelon)}</strong></span>
+      ${cfg.pers ? `<span><div style="font-size:8pt;color:#888">Pers. tillæg</div><strong>${krFmt(cfg.pers)}</strong></span>` : ''}
       <span><div style="font-size:8pt;color:#888">OT-sats</div><strong>${ts.toFixed(2)} kr/t</strong></span>
       <span><div style="font-size:8pt;color:#888">Arbejdstid</div><strong>${cfg.model === 'saertid' ? '10 timer §5' : '8 timer §4'}</strong></span>
     </div>
