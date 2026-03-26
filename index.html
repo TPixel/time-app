@@ -697,13 +697,12 @@ function tidStreng(t) {
 // STORAGE
 // ═══════════════════════════════════════════════════
 function nøgle(d) {
-  return `faf-${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+  // Produktions-specifik — hver produktion har sine egne dage
+  return `faf-${aktivProdId}-${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
 }
 function p2(n) { return String(n).padStart(2,'0'); }
 function hentDag(d) {
-  try {
-    return JSON.parse(localStorage.getItem(nøgle(d))) || null;
-  } catch { return null; }
+  try { return JSON.parse(localStorage.getItem(nøgle(d))) || null; } catch { return null; }
 }
 function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); }
 
@@ -1973,7 +1972,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v14';
+const CACHE = 'timeapp-v15';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
