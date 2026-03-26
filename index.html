@@ -47,21 +47,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .view.on{display:block}
 
 /* ── DAG ── */
-.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
 .dag-nav{display:flex;gap:8px;margin-top:6px}
-.nbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.nbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .nbtn:active{transform:scale(.88)}
-.dag-navn{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-2px;line-height:1}
-.dag-dato{font-family:'DM Mono',monospace;font-size:13px;color:var(--txt);margin-top:4px;opacity:.7}
-.dag-uge{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);margin-top:1px;text-transform:uppercase;letter-spacing:1px}
-.dag-prod{font-size:11px;color:var(--mut);margin-top:2px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.dag-navn{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;letter-spacing:-2px;line-height:1}
+.dag-dato{font-family:'DM Mono',monospace;font-size:14px;color:var(--txt);margin-top:6px;opacity:.7}
+.dag-uge{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
 
 /* ── TID PICKER ── */
-.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
-.tf{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:10px 14px 8px;transition:border-color .2s}
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.tf{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:14px 14px 10px;transition:border-color .2s}
 .tf.focus{border-color:var(--acc)}
-.tf-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:4px}
-.tf-display{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--txt);cursor:pointer;letter-spacing:1px}
+.tf-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:6px}
+.tf-display{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;color:var(--txt);cursor:pointer;letter-spacing:1px}
 .tf-display.tom{color:var(--mut)}
 
 /* Tid-modal */
@@ -88,17 +87,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .tmodal-btn.ok{background:var(--acc);color:#fff}
 
 /* ── RESULTAT ── */
-.res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;user-select:none;position:relative}
+.res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:18px;margin-bottom:14px}
 .res-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.res-t{font-family:'DM Mono',monospace;font-size:38px;font-weight:500;letter-spacing:-1px;line-height:1;white-space:nowrap}
-.res-sub{font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:4px}
-.res-pay-amt{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
-.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:right;margin-top:2px}
-.res-expand{font-size:10px;color:var(--mut);text-align:center;margin-top:6px;letter-spacing:1px;opacity:.6}
+.res-t{font-family:'DM Mono',monospace;font-size:42px;font-weight:500;letter-spacing:-1px;line-height:1;white-space:nowrap}
+.res-sub{font-size:12px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:6px}
+.res-pay-amt{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
+.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:right;margin-top:3px}
 .res-bottom{display:none}
 
 /* ── OT BREAKDOWN ── */
-.ot-boks{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;display:none}
+.ot-boks{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:14px;display:none}
 .ot-boks.vis{display:block}
 .ot-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd)}
 .ot-row:last-child{border-bottom:none}
@@ -107,34 +105,34 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .ot-val.g{color:var(--grn)}.ot-val.y{color:var(--yel)}.ot-val.p{color:var(--pur)}
 
 /* ── KNAPPER — FYLDTE FARVER ── */
-.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .oe{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--acc-d);color:var(--acc);text-transform:uppercase;letter-spacing:.5px}
-.bgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
+.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
 
 .xb{
-  padding:10px 6px;
+  padding:16px 10px;
   border-radius:var(--rs);
   border:none;
   background:var(--card);
   color:rgba(255,255,255,.6);
   font-family:'Syne',sans-serif;
-  font-size:11px;
+  font-size:13px;
   font-weight:800;
-  letter-spacing:.2px;
+  letter-spacing:.3px;
   text-transform:uppercase;
   cursor:pointer;
   transition:all .18s;
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:3px;
-  line-height:1.2;
+  gap:6px;
+  line-height:1.25;
   text-align:center;
   position:relative;
   overflow:hidden;
 }
 .xb .xi{font-size:0;display:none} /* skjul emoji — farven siger det hele */
-.xb-sub{font-family:'DM Mono',monospace;font-size:9px;font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;line-height:1.2}
+.xb-sub{font-family:'DM Mono',monospace;font-size:10px;font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;line-height:1.2}
 .xb:active{transform:scale(.94);opacity:.85}
 
 /* Inaktiv — subtil farvenuance */
@@ -154,28 +152,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .xb.ron{background:var(--btn-r)!important;border-color:var(--btn-r)!important;color:#fff!important}
 
 /* ── SÆRTID BADGE ── */
-.saertid-badge{display:none;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:var(--pur);text-align:center}
+.saertid-badge{display:none;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:8px 12px;margin-bottom:14px;font-size:12px;color:var(--pur);text-align:center}
 .saertid-badge.vis{display:block}
-.wk-auto-badge{display:none;background:rgba(26,172,221,.1);border:1px solid rgba(26,172,221,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:#1AACDD;text-align:center}
-.wk-auto-badge.vis{display:block}
 
-.note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px}
-textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;line-height:1.5}
+.note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:12px;margin-bottom:16px}
+textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:14px;resize:none;line-height:1.5}
 textarea::placeholder{color:var(--mut)}
-.gem-btn{width:100%;padding:15px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.gem-btn{width:100%;padding:18px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
 .gem-btn:active{transform:scale(.98);opacity:.9}
 .gem-btn.ok{background:var(--grn)}
-.dag-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.dag-act-btn{padding:12px;border-radius:var(--r);border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.dag-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.dag-act-btn{padding:14px;border-radius:var(--r);border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
 .dag-act-btn:active{transform:scale(.96)}
 .act-send{background:var(--card);border:1.5px solid var(--acc);color:var(--acc)}
 .act-slet{background:var(--card);border:1.5px solid var(--red);color:var(--red)}
 
 /* ── UGE ── */
-.uge-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.uge-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
 .uge-ttl{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-1px}
 .uge-yr{font-size:12px;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace}
-.uge-prod{font-size:11px;color:var(--mut);margin-top:1px;font-style:italic}
 .uge-sum{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:18px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .us-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
 .us-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
@@ -195,7 +190,6 @@ textarea::placeholder{color:var(--mut)}
 .bf{background:rgba(212,160,23,.2);color:var(--btn-f)}.bp{background:rgba(232,120,74,.2);color:var(--btn-p)}
 .bh{background:rgba(26,172,221,.2);color:var(--btn-h)}
 .dk-note{font-size:10px;color:var(--mut);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
-.dk-prod{font-size:9px;color:var(--acc);margin-top:2px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;opacity:.8}
 .dk-timer{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;text-align:right;min-width:50px}
 .dk-timer small{font-size:11px;font-weight:400;color:var(--mut)}
 .send-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
@@ -232,15 +226,6 @@ textarea::placeholder{color:var(--mut)}
 .ny-prod-btn{width:100%;padding:13px;border-radius:var(--rs);border:1.5px dashed var(--brd);background:transparent;color:var(--mut);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px}
 .ny-prod-btn:active{border-color:var(--acc);color:var(--acc)}
 
-/* ── MODEL SEGMENTED CONTROL ── */
-.model-seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 16px 12px}
-.model-opt{padding:10px 8px;border-radius:var(--rs);border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .18s;font-family:'DM Sans',sans-serif;line-height:1.2}
-.model-opt.on{border-color:var(--acc);background:var(--acc-d);color:var(--txt)}
-.model-opt:active{transform:scale(.96)}
-.model-opt-ttl{font-weight:700;font-size:13px}
-.model-opt-sub{font-size:10px;color:var(--mut)}
-.model-opt.on .model-opt-sub{color:var(--acc);opacity:.8}
-
 /* ── BOTTOMBAR ── */
 .botbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,18,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--brd);display:flex;padding:10px 16px;padding-bottom:max(10px, env(safe-area-inset-bottom));gap:2px}
 .bb{flex:1;padding:9px 4px;border:none;background:transparent;color:var(--mut);font-size:9px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:var(--rs);transition:all .15s;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Sans',sans-serif}
@@ -256,9 +241,9 @@ textarea::placeholder{color:var(--mut)}
 #pdf-frame.vis{display:block}
 @media print {
   @page{size:A4 portrait;margin:18mm 16mm}
-  html,body{background:#fff!important;max-width:none!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important}
+  html,body{background:#fff!important;max-width:none!important;margin:0!important;padding:0!important}
   body>*{display:none!important}
-  #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important;height:auto!important;min-height:0!important}
+  #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important}
 }
 .pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;max-width:175mm;margin:0 auto}
 .pdf-h1{font-size:20pt;font-weight:900;letter-spacing:-0.5px;margin-bottom:2px}
@@ -329,7 +314,6 @@ textarea::placeholder{color:var(--mut)}
       <div class="dag-navn" id="dag-navn"></div>
       <div class="dag-dato" id="dag-dato"></div>
       <div class="dag-uge" id="dag-uge"></div>
-      <div class="dag-prod" id="dag-prod"></div>
     </div>
     <div class="dag-nav">
       <button class="nbtn" onclick="skiftDag(-1)">‹</button>
@@ -348,7 +332,7 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
 
-  <div class="res" onclick="togOT()" id="res-boks">
+  <div class="res">
     <div class="res-top">
       <div class="res-t" id="res-t">– –</div>
       <div style="text-align:right">
@@ -357,7 +341,6 @@ textarea::placeholder{color:var(--mut)}
       </div>
     </div>
     <div class="res-sub" id="res-sub"></div>
-    <div class="res-expand" id="res-expand"></div>
   </div>
 
   <div class="ot-boks" id="ot-boks">
@@ -369,44 +352,47 @@ textarea::placeholder{color:var(--mut)}
     <div class="ot-row" id="o-ot2-row"><span class="ot-lbl" id="o-ot2-lbl">OT 2. time</span><span class="ot-val y" id="o-ot2">–</span></div>
     <div class="ot-row" id="o-ot3-row"><span class="ot-lbl" id="o-ot3-lbl">OT 3.+ time (+135%)</span><span class="ot-val y" id="o-ot3">–</span></div>
     <div class="ot-row" id="o-fsk-row" style="display:none"><span class="ot-lbl">Forskudt tid +110 kr/t §7</span><span class="ot-val p" id="o-fsk">–</span></div>
-    <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl" id="o-wk-lbl">Weekend/helligdag §8</span><span class="ot-val p" id="o-wk">–</span></div>
+    <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl">Weekend/helligdag §8</span><span class="ot-val p" id="o-wk">–</span></div>
     <div class="ot-row" id="o-ext-row" style="display:none"><span class="ot-lbl" id="o-ext-lbl">Tillæg</span><span class="ot-val g" id="o-ext">–</span></div>
   </div>
 
-  <div class="saertid-badge" id="saertid-badge">🟣 4-dages uge aktiv — OT starter efter 10 timer</div>
-  <div class="wk-auto-badge" id="wk-auto-badge">🔵 Weekend-periode §8 auto-beregnet — fre 20:00 – man 06:00</div>
+  <div class="saertid-badge" id="saertid-badge">🟣 Forskudt særtid aktiv — OT starter efter 10 timer</div>
 
-  <div class="slbl">Overarbejde + Tillæg <span class="oe">§6 §7 §8 §12</span></div>
+  <div class="slbl">Overarbejde <span class="oe">§6</span></div>
   <div class="bgrid">
     <button class="xb" id="bn-v" onclick="tog('v')">
       Varslet OT
-      <span class="xb-sub">+50% +60% +135%</span>
+      <span class="xb-sub">+50% · +60% · +135%</span>
     </button>
     <button class="xb" id="bn-u" onclick="tog('u')">
       Uvarslet OT
-      <span class="xb-sub">+75% +100% +135%</span>
+      <span class="xb-sub">+75% · +100% · +135%</span>
     </button>
-    <button class="xb" id="bn-h" onclick="tog('h')">
-      Weekend
-      <span class="xb-sub">+75% min 4t §8</span>
-    </button>
+  </div>
+
+  <div class="slbl">Tillæg <span class="oe">§7 §8 §12</span></div>
+  <div class="bgrid">
     <button class="xb" id="bn-f" onclick="tog('f')">
-      Sen frokost
+      For sen frokost
       <span class="xb-sub">Diæt §12</span>
     </button>
     <button class="xb" id="bn-p" onclick="tog('p')">
-      Ingen pause
-      <span class="xb-sub">Efter 10t §7</span>
+      Ingen 10m pause
+      <span class="xb-sub">Efter 10 timer</span>
+    </button>
+    <button class="xb" id="bn-h" onclick="tog('h')">
+      Weekend
+      <span class="xb-sub">+75% min. 4t §8</span>
     </button>
     <button class="xb" id="bn-r" onclick="tog('r')">
-      Kørsel
+      Kørsel m. udstyr
       <span class="xb-sub">= arbejdstid §13</span>
     </button>
   </div>
 
   <div class="slbl">Note</div>
   <div class="note-wrap">
-    <textarea id="i-note" placeholder="Location, bemærkninger…" rows="2"></textarea>
+    <textarea id="i-note" placeholder="Produktion, location, bemærkninger…" rows="3"></textarea>
   </div>
 
   <button class="gem-btn" id="gem-btn" onclick="gemDag()">GEM DAG →</button>
@@ -499,15 +485,19 @@ textarea::placeholder{color:var(--mut)}
 
   <div class="s-card">
     <div class="s-hd">Arbejdstidsmodel §4 / §5</div>
-    <div class="model-seg">
-      <button class="model-opt" id="mseg-5dag" onclick="vælgModel('5dag')">
-        <span class="model-opt-ttl">5-dages</span>
-        <span class="model-opt-sub">8t/dag · OT efter 8t</span>
-      </button>
-      <button class="model-opt" id="mseg-saertid" onclick="vælgModel('saertid')">
-        <span class="model-opt-ttl">4-dages §5</span>
-        <span class="model-opt-sub">10t/dag · OT efter 10t</span>
-      </button>
+    <div class="s-row">
+      <div>
+        <div class="s-lbl">Normal 5-dages uge</div>
+        <div class="s-desc">8t/dag · OT efter 8t</div>
+      </div>
+      <div class="sw" id="sw-5dag" onclick="vælgModel('5dag')"></div>
+    </div>
+    <div class="s-row">
+      <div>
+        <div class="s-lbl">Forskudt særtid §5</div>
+        <div class="s-desc">4-dages uge · 10t/dag · OT efter 10t</div>
+      </div>
+      <div class="sw" id="sw-saertid" onclick="vælgModel('saertid')"></div>
     </div>
     <div class="s-row" id="fridag-row" style="display:none">
       <div><div class="s-lbl">Fridag placering</div><div class="s-desc">§5 stk. 3 / stk. 4</div></div>
@@ -518,17 +508,13 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
 
-  <div class="s-card">
-    <div class="s-hd" id="tillæg-hd" onclick="togTillæg()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-      Tillægsoversigt <span id="tillæg-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
-    </div>
-    <div id="tillæg-body" style="display:none;padding:14px 16px;font-size:12px;line-height:2;color:var(--mut)">
-      Varslet OT: <strong style="color:var(--txt)">+50%</strong> (1.t) · <strong style="color:var(--txt)">+60%</strong> (2.t) · <strong style="color:var(--txt)">+135%</strong> (3.t+)<br>
-      Uvarslet OT: <strong style="color:var(--txt)">+75%</strong> (1.t) · <strong style="color:var(--txt)">+100%</strong> (2.t) · <strong style="color:var(--txt)">+135%</strong> (3.t+)<br>
-      Forskudt kl. 19–06 (hverdage): <strong style="color:var(--txt)">+110 kr/t</strong><br>
-      Weekend fre 20:00 – man 06:00: <strong style="color:var(--txt)">+75%</strong> (min. 4t)<br>
-      Pension: <strong style="color:var(--txt)">9,5%</strong> af normalløn
-    </div>
+  <div class="info-boks">
+    <strong>Tillægsoversigt:</strong><br>
+    Varslet OT: <strong>+50%</strong> (1.t) · <strong>+60%</strong> (2.t) · <strong>+135%</strong> (3.t+)<br>
+    Uvarslet OT: <strong>+75%</strong> (1.t) · <strong>+100%</strong> (2.t) · <strong>+135%</strong> (3.t+)<br>
+    Forskudt tid kl. 19–06 (hverdage): <strong>+110 kr/t</strong><br>
+    Weekend fre 20:00 – man 06:00: <strong>+75%</strong> (min. 4t)<br>
+    Pension: <strong>9,5%</strong> af normalløn
   </div>
 
   <button class="gem-btn" onclick="gemInst()">GEM INDSTILLINGER</button>
@@ -555,7 +541,6 @@ let knapper     = { v:false, u:false, f:false, p:false, h:false, r:false };
 let cfg         = { navn:'', email:'', prod:'', ugelon:10380, pers:0, tillæg:false, model:'5dag', fridag:'fre' };
 let produktioner  = [];   // Array af cfg-objekter
 let aktivProdId   = null; // ID for aktiv produktion
-let otVis         = false; // OT breakdown åben/lukket
 
 // Tidsvalg state
 let modalFelt  = null;   // 'start' eller 'slut'
@@ -701,7 +686,6 @@ function skiftProduktion(id) {
   if (p) cfg = { ...cfg, ...p };
   indlæsCfgIForm();
   rendProdListe();
-  opdaterProdLabel();
   beregn();
 }
 
@@ -793,7 +777,7 @@ function opdaterLonTotal() {
       : 'OT beregnes på mindsteløn §3';
 
   // Normaldagsløn — deles på dagMax (8t eller 10t), ikke 40
-  const model    = cfg.model || '5dag';
+  const model    = document.getElementById('sw-saertid')?.classList.contains('on') ? 'saertid' : '5dag';
   const dTimer   = model === 'saertid' ? 10 : 8;
   const dage     = model === 'saertid' ? 4 : 5;
   const dagLon   = Math.round(vis / dage);
@@ -844,8 +828,8 @@ function vælgModel(m) {
   gemInst();
 }
 function opdaterModelUI() {
-  document.getElementById('mseg-5dag')?.classList.toggle('on', cfg.model === '5dag');
-  document.getElementById('mseg-saertid')?.classList.toggle('on', cfg.model === 'saertid');
+  setSw('5dag',   cfg.model === '5dag');
+  setSw('saertid', cfg.model === 'saertid');
   const fridagRow = document.getElementById('fridag-row');
   fridagRow.style.display = cfg.model === 'saertid' ? 'flex' : 'none';
   if (cfg.model === 'saertid') {
@@ -857,44 +841,11 @@ function opdaterSaertidBadge() {
   const b = document.getElementById('saertid-badge');
   if (cfg.model === 'saertid') {
     const friTxt = cfg.fridag === 'fre' ? 'Fridag: fredag' : 'Fridag: mandag';
-    b.textContent = `🟣 4-dages uge — OT efter 10t — ${friTxt}`;
+    b.textContent = `🟣 Forskudt særtid — OT efter 10t — ${friTxt}`;
     b.classList.add('vis');
   } else {
     b.classList.remove('vis');
   }
-}
-
-function opdaterProdLabel() {
-  const navn = cfg.prod || '';
-  const dp = document.getElementById('dag-prod');
-  if (dp) dp.textContent = navn;
-}
-
-function togTillæg() {
-  const body = document.getElementById('tillæg-body');
-  const ch   = document.getElementById('tillæg-ch');
-  if (!body) return;
-  const vis = body.style.display === 'none';
-  body.style.display = vis ? 'block' : 'none';
-  ch.textContent = vis ? '▴ Luk' : '▾ Vis';
-  localStorage.setItem('faf-tillæg-vis', vis ? '1' : '0');
-}
-function initTillæg() {
-  const vis = localStorage.getItem('faf-tillæg-vis') === '1';
-  const body = document.getElementById('tillæg-body');
-  const ch   = document.getElementById('tillæg-ch');
-  if (!body || !ch) return;
-  body.style.display = vis ? 'block' : 'none';
-  ch.textContent = vis ? '▴ Luk' : '▾ Vis';
-}
-
-function togOT() {
-  const boks = document.getElementById('ot-boks');
-  if (!boks || boks.style.display === 'none' && !boks.classList.contains('vis')) return;
-  otVis = !otVis;
-  boks.classList.toggle('vis', otVis);
-  const exp = document.getElementById('res-expand');
-  if (exp) exp.textContent = otVis ? '▴ Luk specifikation' : '▾ Vis specifikation';
 }
 
 // ═══════════════════════════════════════════════════
@@ -906,10 +857,8 @@ function timesats() {
 }
 function timesatsMedTillæg() {
   // Normaltimer betales med mindsteløn + personligt tillæg + evt. 10% enkeltdag
-  // §3.10: 10% enkeltdagstillæg gælder KUN for mindsteløn — ikke for personligt tillæg
-  const mindstelønTs = cfg.ugelon / 40 * (cfg.tillæg ? 1.1 : 1.0);
-  const persTs       = (cfg.pers || 0) / 40;
-  return mindstelønTs + persTs;
+  const samlet = (cfg.ugelon + (cfg.pers || 0)) / 40;
+  return samlet * (cfg.tillæg ? 1.1 : 1.0);
 }
 
 // §6.a: OT beregnes i hele, halve og kvarte timer
@@ -922,46 +871,18 @@ function calcTimer(start, slut) {
 }
 
 // §7: Forskudt tid = timer uden for 06-19 på hverdage (man-fre)
-// §7.4: Timer i weekend-perioden (fre 20:00–man 06:00) giver IKKE §7 — det er §8
+// §7.4: Weekend giver IKKE forskudt tillæg
 function calcForskudt(start, slut, dagIdx) {
-  if (dagIdx === 0 || dagIdx === 6) return 0; // Lørdag/søndag: ingen §7 (alt er §8 weekend)
+  if (dagIdx === 0 || dagIdx === 6) return 0;
   const s = tidTilH(start), e = tidTilH(slut);
   if (s === null || e === null) return 0;
   let fsk = 0;
   const seg = (e >= s) ? [[s, e]] : [[s, 24], [0, e]];
   seg.forEach(([a, b]) => {
-    // Fredag natvagt der krydser midnat: [0,e]-segmentet er lørdag = §8 weekend, ikke §7
-    if (dagIdx === 5 && a === 0) return;
-    // Mandag: 00:00–06:00 er weekend-periode → §8, ikke §7
-    const aFsk = (dagIdx === 1) ? Math.max(a, 6) : a;
-    // Fredag: 20:00–24:00 er weekend-periode → §8, ikke §7
-    const bFsk = (dagIdx === 5) ? Math.min(b, 20) : b;
-    if (aFsk >= bFsk) return;
-    if (aFsk < 6) fsk += Math.min(bFsk, 6) - aFsk;
-    if (bFsk > 19) fsk += bFsk - Math.max(aFsk, 19);
+    if (a < 6) fsk += Math.min(b, 6) - a;
+    if (b > 19) fsk += b - Math.max(a, 19);
   });
   return Math.max(0, fsk);
-}
-
-// §8: Weekend-periode fre 20:00 → man 06:00
-// Returnerer timer der overlapper med weekend-perioden
-function calcWeekendTimer(start, slut, dagIdx) {
-  const s = tidTilH(start), e = tidTilH(slut);
-  if (s === null || e === null) return 0;
-  const eAdj = (e > s) ? e : e + 24; // håndter nat-skift
-  let wkH = 0;
-  if (dagIdx === 6 || dagIdx === 0) {
-    // Lørdag / søndag: hele vagten er i weekend-perioden
-    wkH = eAdj - s;
-  } else if (dagIdx === 5) {
-    // Fredag: fra kl. 20:00 og frem
-    if (s >= 20)        wkH = eAdj - s;
-    else if (eAdj > 20) wkH = eAdj - 20;
-  } else if (dagIdx === 1) {
-    // Mandag: til kl. 06:00
-    if (s < 6) wkH = Math.min(eAdj, 6) - s;
-  }
-  return Math.max(0, wkH);
 }
 
 // §5 Forskudt særtid:
@@ -974,7 +895,7 @@ function dagMax() {
   return cfg.model === 'saertid' ? 10 : 8;
 }
 
-function calcLon(h, opt, wkAutoH = 0) {
+function calcLon(h, opt) {
   if (!h || h <= 0) return { total:0, normal:0, ot1:0, ot2:0, ot3:0, wk:0, ext:0 };
   const ts = timesats();
   const { varslet, uvarslet, helligdag, frokost, pause10 } = opt;
@@ -988,34 +909,31 @@ function calcLon(h, opt, wkAutoH = 0) {
 
   const tsGrund = ts;                              // OT-grundlag: UDEN personligt tillæg §3
   const tsNorm  = timesatsMedTillæg();             // Normaltimer: MED personligt tillæg
-  // §8 sats: grundsats × enkeltdag-faktor (§3 enkeltdag gælder også for §8 weekendtillæg)
-  const tsWk    = tsGrund * (cfg.tillæg ? 1.1 : 1.0);
   let normal = 0, ot1 = 0, ot2 = 0, ot3 = 0, wk = 0;
 
   if (helligdag) {
-    // §8.2: +75% på normaltimer, min. 4 timer (hel weekendvagt)
+    // §8.2: +75% på normaltimer (weekend-tillæg beregnes på grundsats, ikke med pers.tillæg)
     const betaltH = Math.max(4, normalH);
-    wk     = tsWk * 0.75 * betaltH;
-    normal = tsNorm * normalH;
-    // §8.3: OT på weekend: +50/+60/+135 oven på weekend-sats — begge på grundsats
-    ot1 = tsGrund * (1.75 + 0.50) * ot1H;
-    ot2 = tsGrund * (1.75 + 0.60) * ot2H;
-    ot3 = tsGrund * (1.75 + 1.35) * ot3H;
+    wk     = tsGrund * 0.75 * betaltH;
+    normal = tsNorm  * normalH;
+    // §8.3: OT på weekend: +50/+60/+135 oven på weekend-sats — inkl. §3.10 enkeltdag
+    ot1 = tsWk * (1.75 + 0.50) * ot1H;
+    ot2 = tsWk * (1.75 + 0.60) * ot2H;
+    ot3 = tsWk * (1.75 + 1.35) * ot3H;
   } else {
     normal = tsNorm * normalH;
-    // §8 auto-detekteret overlap med weekend-periode (kun overlap-timer, ingen min. 4t)
-    if (wkAutoH > 0) wk = tsWk * 0.75 * wkAutoH;
     if (varslet) {
-      ot1 = tsGrund * 1.50 * ot1H;
-      ot2 = tsGrund * 1.60 * ot2H;
-      ot3 = tsGrund * 2.35 * ot3H;
+      // §3.10: 10% enkeltdag indgår i OT-grundlaget (tsWk = tsGrund × enkeltdag)
+      ot1 = tsWk * 1.50 * ot1H;
+      ot2 = tsWk * 1.60 * ot2H;
+      ot3 = tsWk * 2.35 * ot3H;
     } else {
       // §6e: OT skal ALTID kompenseres — ingen situation giver OT uden betaling.
       // Ingen type valgt = uvarslet sats er juridisk korrekt default.
       // (Uvarslet kræver blot talsperson er indforstået, §6b)
-      ot1 = tsGrund * 1.75 * ot1H;
-      ot2 = tsGrund * 2.00 * ot2H;
-      ot3 = tsGrund * 2.35 * ot3H;
+      ot1 = tsWk * 1.75 * ot1H;
+      ot2 = tsWk * 2.00 * ot2H;
+      ot3 = tsWk * 2.35 * ot3H;
     }
   }
 
@@ -1041,20 +959,16 @@ function beregn() {
   const fsk = (h !== null) ? calcForskudt(tidStart, tidSlut, idx) : 0;
   const fskKr = Math.round(fsk * 110);
 
-  const exp = document.getElementById('res-expand');
   if (h === null) {
     document.getElementById('res-t').textContent   = '– –';
     document.getElementById('res-pay').textContent = '0 kr.';
     document.getElementById('res-sub').textContent = '';
     document.getElementById('ot-boks').classList.remove('vis');
-    if (exp) exp.textContent = '';
-    otVis = false;
     return;
   }
 
-  const wkAutoH = (!knapper.h) ? calcWeekendTimer(tidStart, tidSlut, idx) : 0;
   const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p };
-  const l   = calcLon(h, opt, wkAutoH);
+  const l   = calcLon(h, opt);
   const tot = l.total + fskKr;
 
   document.getElementById('res-t').textContent   = hFmt(h);
@@ -1066,9 +980,8 @@ function beregn() {
   if (fsk > 0)  sub.push(`${hFmt(fsk)} forskudt`);
   document.getElementById('res-sub').textContent = sub.join('  ·  ');
 
-  // OT breakdown — vis kun hvis otVis er true (brugeren har tappet)
-  if (exp) exp.textContent = otVis ? '▴ Luk specifikation' : '▾ Vis specifikation';
-  document.getElementById('ot-boks').classList.toggle('vis', otVis);
+  // OT breakdown
+  document.getElementById('ot-boks').classList.add('vis');
   document.getElementById('o-normal').textContent = kr(l.normal);
   document.getElementById('o-normal-lbl').textContent = `Normal arbejdstid · ${hFmt(l.normalH)}`;
 
@@ -1103,14 +1016,7 @@ function beregn() {
   vis2('o-fsk-row', fsk > 0);
   if (fsk > 0) document.getElementById('o-fsk').textContent = `${fskKr.toLocaleString('da-DK')} kr. (${hFmt(fsk)})`;
   vis2('o-wk-row', l.wk > 0);
-  if (l.wk > 0) {
-    document.getElementById('o-wk').textContent = kr(l.wk);
-    const wkLbl = document.getElementById('o-wk-lbl');
-    if (wkLbl) wkLbl.textContent = knapper.h ? 'Weekend/helligdag §8' : `Weekend §8 auto (${hFmt(wkAutoH)})`;
-  }
-  // Weekend auto-badge
-  const wkBadge = document.getElementById('wk-auto-badge');
-  if (wkBadge) wkBadge.classList.toggle('vis', wkAutoH > 0 && !knapper.h);
+  if (l.wk > 0) document.getElementById('o-wk').textContent = kr(l.wk);
   vis2('o-ext-row', l.ext > 0);
   if (l.ext > 0) {
     const lbns = [];
@@ -1157,13 +1063,11 @@ function opdaterKnapper() {
 // GEM DAG
 // ═══════════════════════════════════════════════════
 function gemDag() {
-  const h      = calcTimer(tidStart, tidSlut);
-  const idx    = aktivDag.getDay();
-  const fsk    = calcForskudt(tidStart, tidSlut, idx);
-  const fskKr  = Math.round(fsk * 110);
-  const wkAutoH = (!knapper.h && h !== null) ? calcWeekendTimer(tidStart, tidSlut, idx) : 0;
-  const opt    = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p };
-  const l      = calcLon(h, opt, wkAutoH);
+  const h     = calcTimer(tidStart, tidSlut);
+  const fsk   = calcForskudt(tidStart, tidSlut, aktivDag.getDay());
+  const fskKr = Math.round(fsk * 110);
+  const opt   = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p };
+  const l     = calcLon(h, opt);
   const note  = document.getElementById('i-note').value;
 
   gemDagData(aktivDag, {
@@ -1172,8 +1076,7 @@ function gemDag() {
     tidStart, tidSlut, note,
     knapper: { ...knapper },
     h, lon: l.total + fskKr, fsk, fskKr,
-    normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3, wk: l.wk,
-    prod: cfg.prod || '', prodId: aktivProdId
+    normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3, wk: l.wk
   });
 
   const btn = document.getElementById('gem-btn');
@@ -1264,12 +1167,10 @@ function rendDag() {
     `${d.getDate()} ${MND[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
   const uge = ugeNr(d);
   document.getElementById('dag-uge').textContent = `UGE ${uge}`;
-  opdaterProdLabel();
   const s = hentDag(d);
   knapper  = s?.knapper || { v:false, u:false, f:false, p:false, h:false, r:false };
   tidStart = s?.tidStart || null;
   tidSlut  = s?.tidSlut  || null;
-  otVis    = false; // nulstil OT-visning ved dagskift
   // Bagudkompatibilitet: parse gammel streng-format
   if (!tidStart && s?.start) {
     const [h, m] = s.start.split(':').map(Number);
@@ -1338,7 +1239,6 @@ function rendUge() {
       <div class="dk-info">
         <div class="dk-tider">${s?.start ? `${s.start} → ${s.slut || '?'}` : '— fri —'}</div>
         ${badges ? `<div class="dk-badges">${badges}</div>` : ''}
-        ${s?.prod ? `<div class="dk-prod">${s.prod}</div>` : ''}
         ${s?.note ? `<div class="dk-note">${s.note}</div>` : ''}
       </div>
       <div class="dk-timer">${h !== null ? hFmt(h) : '—'}</div>`;
@@ -1363,9 +1263,14 @@ function ugeData() {
     const s = hentDag(d);
     if (!s || !s.start) return { dato: d, fri: true };
     const h = s.h ?? 0;
-    const l = calcLon(tidStrTilObj(s.start), tidStrTilObj(s.slut),
-                      s.knapper?.v, s.knapper?.u, s.knapper?.h,
-                      s.knapper?.f, s.knapper?.p);
+    const idx = d.getDay();
+    const wkAutoH = (!s.knapper?.h && s.start && s.slut)
+      ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx)
+      : 0;
+    const opt = { varslet: s.knapper?.v, uvarslet: s.knapper?.u,
+                  helligdag: s.knapper?.h, frokost: s.knapper?.f,
+                  pause10: s.knapper?.p };
+    const l = calcLon(h, opt, wkAutoH);
     return {
       dato: d, fri: false,
       start: s.start, slut: s.slut,
@@ -1430,9 +1335,8 @@ function doPDF() {
     const badges = [
       d.knapper?.v ? 'Varslet OT' : '',
       d.knapper?.u ? 'Uvarslet OT' : '',
-      d.knapper?.h ? 'Weekend §8' : '',
+      d.knapper?.h ? 'Weekend' : '',
       d.knapper?.f ? 'Sen frokost' : '',
-      cfg.tillæg   ? '10% enkeltdag' : '',
     ].filter(Boolean).join(' · ');
     return `<tr>
       <td>${dagNavn(d.dato)} ${d.dato.getDate()}/${d.dato.getMonth()+1}</td>
@@ -1453,20 +1357,21 @@ function doPDF() {
   }
 
   const html = `<div class="pdf-body">
-    <div class="pdf-h1">${cfg.prod || 'Timespecifikation'} — Uge ${uge}/${år}</div>
+    <div class="pdf-h1">Time App — Uge ${uge}/${år}</div>
     <div class="pdf-h2">${fra} – ${til}</div>
     <div class="pdf-meta">
       <span><div style="font-size:8pt;color:#888">Navn</div><strong>${cfg.navn || '—'}</strong></span>
-      <span><div style="font-size:8pt;color:#888">Ugeløn</div><strong>${krFmt(cfg.ugelon)}</strong></span>
+      <span><div style="font-size:8pt;color:#888">Produktion</div><strong>${cfg.prod || '—'}</strong></span>
+      <span><div style="font-size:8pt;color:#888">Mindsteløn</div><strong>${krFmt(cfg.ugelon)}</strong></span>
       ${cfg.pers ? `<span><div style="font-size:8pt;color:#888">Pers. tillæg</div><strong>${krFmt(cfg.pers)}</strong></span>` : ''}
       <span><div style="font-size:8pt;color:#888">OT-sats</div><strong>${ts.toFixed(2)} kr/t</strong></span>
-      <span><div style="font-size:8pt;color:#888">Arbejdstid</div><strong>${cfg.model === 'saertid' ? '10 timer §5' : '8 timer §4'}</strong></span>
+      <span><div style="font-size:8pt;color:#888">Arbejdstid</div><strong>${cfg.model === 'saertid' ? `Særtid §5 (${cfg.fridag === 'fre' ? 'fri fre' : 'fri man'})` : 'Normal §4'}</strong></span>
     </div>
 
     <div class="pdf-sect">Dagsoversigt</div>
     <table class="pdf-tbl">
       <thead><tr>
-        <th>Dag</th><th>Tider</th><th style="text-align:right">Timer</th><th>Tillæg</th><th style="text-align:right">Løn</th>
+        <th>Dag</th><th>Tidsrum</th><th style="text-align:right">Timer</th><th>Tillæg</th><th style="text-align:right">Løn</th>
       </tr></thead>
       <tbody>${dagRk}</tbody>
       <tfoot><tr style="font-weight:700;background:#f0f0f0">
@@ -1507,7 +1412,8 @@ function doPDF() {
     </table>
 
     <div class="pdf-footer">
-      Beregnet iht. FAF Fiktionsoverenskomst 2025–2027 §3–§13 · Udskrevet ${new Date().toLocaleDateString('da-DK')}
+      Beregnet iht. FAF Fiktionsoverenskomst 2025–2027 §3–§13 · Time App by Ditzel ·
+      Udskrevet ${new Date().toLocaleDateString('da-DK')}
     </div>
   </div>`;
 
@@ -1826,7 +1732,6 @@ function toast(msg) {
 // INIT
 hentCfg();
 rendDag();
-initTillæg();
 </script>
 
 <!-- INSTALL BANNER (Android/Chrome) -->
