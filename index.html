@@ -682,11 +682,21 @@ function tidStreng(t) {
 // STORAGE
 // ═══════════════════════════════════════════════════
 function nøgle(d) {
+  // Produktions-specifik nøgle — sikrer at to produktioner ikke deler dagdata
+  return `faf-${aktivProdId}-${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+}
+function nøgleLegacy(d) {
+  // Gammel nøgle uden prodId — bruges til migration af eksisterende data
   return `faf-${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
 }
 function p2(n) { return String(n).padStart(2,'0'); }
 function hentDag(d) {
-  try { return JSON.parse(localStorage.getItem(nøgle(d))) || null; } catch { return null; }
+  try {
+    // Prøv ny produktions-specifik nøgle først, ellers gamle nøgle (migration)
+    const ny = localStorage.getItem(nøgle(d));
+    if (ny) return JSON.parse(ny) || null;
+    return JSON.parse(localStorage.getItem(nøgleLegacy(d))) || null;
+  } catch { return null; }
 }
 function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); }
 
@@ -764,6 +774,20 @@ function indlæsCfgIForm() {
   opdaterLonTotal();
 }
 
+function migrerLegacyDagdata() {
+  // Engangsmigration: flyt faf-YYYY-MM-DD → faf-{prodId}-YYYY-MM-DD for første produktion
+  if (localStorage.getItem('faf-dag-migreret') || produktioner.length === 0) return;
+  const firstId = produktioner[0].id;
+  const legacyKeys = Object.keys(localStorage).filter(k => /^faf-\d{4}-\d{2}-\d{2}$/.test(k));
+  legacyKeys.forEach(k => {
+    const nyKey = 'faf-' + firstId + '-' + k.slice(4); // faf-{id}-YYYY-MM-DD
+    const data = localStorage.getItem(k);
+    if (data && !localStorage.getItem(nyKey)) localStorage.setItem(nyKey, data);
+    localStorage.removeItem(k); // Slet delt nøgle så andre produktioner ikke ser den
+  });
+  localStorage.setItem('faf-dag-migreret', '1');
+}
+
 function hentCfg() {
   // Indlæs produktioner
   produktioner = hentProduktioner();
@@ -783,6 +807,9 @@ function hentCfg() {
       gemProduktionerStore();
     }
   }
+
+  // Engangsmigration af dagdata
+  migrerLegacyDagdata();
 
   // Find aktiv produktion
   const gemt = localStorage.getItem('faf-aktiv-prod');
@@ -1902,7 +1929,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v9';
+const CACHE = 'timeapp-v10';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
