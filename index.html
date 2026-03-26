@@ -1413,6 +1413,26 @@ function tidStrTilObj(s) {
   return { h, m };
 }
 
+// §8 weekend-tillæg: beregn hvor mange timer i en vagt der falder i weekenden
+// Weekend = fre 17:00 → man 06:00 (lør+søn hele dagen)
+function calcWeekendTimer(start, slut, idx) {
+  if (!start || !slut) return 0;
+  const sMin = start.h * 60 + start.m;
+  const eMin = slut.h * 60 + slut.m;
+  const totMin = eMin > sMin ? eMin - sMin : eMin + 1440 - sMin; // håndter midnat
+  if (idx === 6 || idx === 0) return totMin / 60; // lørdag/søndag: hele vagten
+  if (idx === 5) { // fredag: timer efter 17:00
+    const wkStart = 17 * 60;
+    const vagSlut = sMin + totMin;
+    return Math.max(0, vagSlut - Math.max(sMin, wkStart)) / 60;
+  }
+  if (idx === 1) { // mandag: timer før 06:00
+    const wkSlut = 6 * 60;
+    return Math.max(0, Math.min(sMin + totMin, wkSlut) - sMin) / 60;
+  }
+  return 0;
+}
+
 function krFmt(n) {
   return n.toLocaleString('da-DK') + ' kr.';
 }
@@ -1882,7 +1902,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v7';
+const CACHE = 'timeapp-v8';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
