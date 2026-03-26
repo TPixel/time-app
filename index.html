@@ -54,6 +54,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .dag-navn{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;letter-spacing:-2px;line-height:1}
 .dag-dato{font-family:'DM Mono',monospace;font-size:14px;color:var(--txt);margin-top:6px;opacity:.7}
 .dag-uge{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.prod-pill{margin-top:8px;padding:4px 10px;border-radius:50px;border:1.5px solid var(--acc);background:var(--acc-d);color:var(--acc);font-family:'DM Mono',monospace;font-size:10px;font-weight:600;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* ── TID PICKER ── */
 .time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
@@ -323,6 +324,7 @@ textarea::placeholder{color:var(--mut)}
       <div class="dag-navn" id="dag-navn"></div>
       <div class="dag-dato" id="dag-dato"></div>
       <div class="dag-uge" id="dag-uge"></div>
+      <button class="prod-pill" id="prod-pill" onclick="næsteProduktion()">···</button>
     </div>
     <div class="dag-nav">
       <button class="nbtn" onclick="skiftDag(-1)">‹</button>
@@ -548,6 +550,18 @@ textarea::placeholder{color:var(--mut)}
   </div>
 
   <button class="gem-btn" onclick="gemInst()">GEM INDSTILLINGER</button>
+
+  <div class="s-card" style="margin-top:20px">
+    <div class="s-hd">Sikkerhedskopi</div>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;color:var(--mut);margin-bottom:2px">Eksporter alle dine data som en JSON-fil. Importer for at gendanne.</div>
+      <button class="gem-btn" onclick="exporterData()" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt)">⬇ EKSPORTER DATA</button>
+      <label class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-align:center;cursor:pointer">
+        ⬆ IMPORTER DATA
+        <input type="file" accept=".json" style="display:none" onchange="importerData(event)">
+      </label>
+    </div>
+  </div>
 </div>
 
 <!-- BOTTOM BAR -->
@@ -1212,13 +1226,23 @@ function skiftDag(dir) {
   aktivDag.setDate(aktivDag.getDate() + dir);
   rendDag();
 }
+function næsteProduktion() {
+  if (produktioner.length <= 1) { toast('Kun én produktion — tilføj flere i ⚙️'); return; }
+  const idx = produktioner.findIndex(p => p.id === aktivProdId);
+  const næste = produktioner[(idx + 1) % produktioner.length];
+  skiftProduktion(næste.id);
+  visView('dag');
+  toast(`➜ ${næste.prod || 'Unavngivet'}`);
+}
 function rendDag() {
   const d = aktivDag;
   document.getElementById('dag-navn').textContent = DAGE[d.getDay()];
   document.getElementById('dag-dato').textContent =
     `${d.getDate()} ${MND[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
   const uge = ugeNr(d);
-  document.getElementById('dag-uge').textContent = `UGE ${uge}${cfg.prod ? '  ·  ' + cfg.prod.toUpperCase() : ''}`;
+  document.getElementById('dag-uge').textContent = `UGE ${uge}`;
+  const pill = document.getElementById('prod-pill');
+  if (pill) { pill.textContent = cfg.prod || 'Produktion'; pill.title = produktioner.length > 1 ? 'Tryk for at skifte' : ''; }
   const s = hentDag(d);
   knapper  = s?.knapper || { v:false, u:false, f:false, p:false, h:false, r:false };
   tidStart = s?.tidStart || null;
@@ -1870,6 +1894,39 @@ function doMail() {
 // ═══════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════
+function exporterData() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    data[k] = localStorage.getItem(k);
+  }
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const dato = new Date().toISOString().slice(0,10);
+  a.href     = url;
+  a.download = `timeapp-backup-${dato}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Data eksporteret ✓');
+}
+function importerData(evt) {
+  const fil = evt.target.files[0];
+  if (!fil) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!confirm(`Importer ${Object.keys(data).length} dataposter? Eksisterende data overskrives.`)) return;
+      Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+      toast('Data importeret ✓ — genindlæser...');
+      setTimeout(() => location.reload(), 1500);
+    } catch { toast('Fejl: ugyldig backup-fil'); }
+  };
+  reader.readAsText(fil);
+}
+
 function visView(navn) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
   document.getElementById('view-' + navn)?.classList.add('on');
@@ -1919,7 +1976,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v11';
+const CACHE = 'timeapp-v12';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
