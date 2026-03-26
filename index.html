@@ -37,7 +37,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .logo em{color:var(--acc);font-style:normal}
 .logo-flag{font-size:20px;line-height:1}
 .tabs{display:flex;background:var(--surf);border-radius:50px;padding:3px;gap:2px}
-.tab{padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s}
+.tab{padding:6px 10px;border-radius:50px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s}
 .tab.on{background:var(--acc);color:#fff}
 .gear-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;line-height:1;padding:0}
 .gear-btn:active{transform:scale(.88)}
@@ -1248,6 +1248,9 @@ let maanedOffset = 0;
 function skiftMaaned(dir) { maanedOffset += dir; rendMaaned(); }
 
 function rendMaaned() {
+  try { _rendMaaned(); } catch(e) { console.error('rendMaaned fejl:', e); toast('Fejl i måned-visning: ' + e.message); }
+}
+function _rendMaaned() {
   const MND_LANG = ['Januar','Februar','Marts','April','Maj','Juni','Juli','August','September','Oktober','November','December'];
   const base = new Date();
   base.setDate(1);
@@ -1879,7 +1882,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v6';
+const CACHE = 'timeapp-v7';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
