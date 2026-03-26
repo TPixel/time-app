@@ -1171,7 +1171,7 @@ function rendDag() {
   document.getElementById('dag-dato').textContent =
     `${d.getDate()} ${MND[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
   const uge = ugeNr(d);
-  document.getElementById('dag-uge').textContent = `UGE ${uge}`;
+  document.getElementById('dag-uge').textContent = `UGE ${uge}${cfg.prod ? '  ·  ' + cfg.prod.toUpperCase() : ''}`;
   const s = hentDag(d);
   knapper  = s?.knapper || { v:false, u:false, f:false, p:false, h:false, r:false };
   tidStart = s?.tidStart || null;
@@ -1340,8 +1340,9 @@ function doPDF() {
     const badges = [
       d.knapper?.v ? 'Varslet OT' : '',
       d.knapper?.u ? 'Uvarslet OT' : '',
-      d.knapper?.h ? 'Weekend' : '',
+      d.knapper?.h ? 'Weekend §8' : '',
       d.knapper?.f ? 'Sen frokost' : '',
+      cfg.tillæg ? '10% enkeltdag' : '',
     ].filter(Boolean).join(' · ');
     return `<tr>
       <td>${dagNavn(d.dato)} ${d.dato.getDate()}/${d.dato.getMonth()+1}</td>
@@ -1362,12 +1363,12 @@ function doPDF() {
   }
 
   const html = `<div class="pdf-body">
-    <div class="pdf-h1">Time App — Uge ${uge}/${år}</div>
+    <div class="pdf-h1">${cfg.prod || 'Timespecifikation'} — Uge ${uge}/${år}</div>
     <div class="pdf-h2">${fra} – ${til}</div>
     <div class="pdf-meta">
       <span><div style="font-size:8pt;color:#888">Navn</div><strong>${cfg.navn || '—'}</strong></span>
-      <span><div style="font-size:8pt;color:#888">Produktion</div><strong>${cfg.prod || '—'}</strong></span>
-      <span><div style="font-size:8pt;color:#888">Mindsteløn</div><strong>${krFmt(cfg.ugelon)}</strong></span>
+
+      <span><div style="font-size:8pt;color:#888">Ugeløn</div><strong>${krFmt(cfg.ugelon)}</strong></span>
       ${cfg.pers ? `<span><div style="font-size:8pt;color:#888">Pers. tillæg</div><strong>${krFmt(cfg.pers)}</strong></span>` : ''}
       <span><div style="font-size:8pt;color:#888">OT-sats</div><strong>${ts.toFixed(2)} kr/t</strong></span>
       <span><div style="font-size:8pt;color:#888">Arbejdstid</div><strong>${cfg.model === 'saertid' ? `Særtid §5 (${cfg.fridag === 'fre' ? 'fri fre' : 'fri man'})` : 'Normal §4'}</strong></span>
@@ -1376,7 +1377,7 @@ function doPDF() {
     <div class="pdf-sect">Dagsoversigt</div>
     <table class="pdf-tbl">
       <thead><tr>
-        <th>Dag</th><th>Tidsrum</th><th style="text-align:right">Timer</th><th>Tillæg</th><th style="text-align:right">Løn</th>
+        <th>Dag</th><th>Tider</th><th style="text-align:right">Timer</th><th>Tillæg</th><th style="text-align:right">Løn</th>
       </tr></thead>
       <tbody>${dagRk}</tbody>
       <tfoot><tr style="font-weight:700;background:#f0f0f0">
