@@ -193,6 +193,14 @@ textarea::placeholder{color:var(--mut)}
 .dk-timer{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;text-align:right;min-width:50px}
 .dk-timer small{font-size:11px;font-weight:400;color:var(--mut)}
 .send-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.mnd-uge{display:flex;align-items:center;background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;gap:12px;transition:background .15s}
+.mnd-uge:active{background:var(--brd)}
+.mnd-uge-nr{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);text-transform:uppercase;letter-spacing:1px;min-width:52px}
+.mnd-uge-dato{font-size:12px;color:var(--mut);flex:1}
+.mnd-uge-t{font-size:14px;font-weight:600;min-width:44px;text-align:right}
+.mnd-uge-l{font-size:14px;font-weight:700;color:var(--grn);min-width:80px;text-align:right}
+.mnd-uge-tom{opacity:.4}
+.mnd-pension{text-align:center;font-size:12px;color:var(--mut);padding:12px 0 4px;border-top:1px solid var(--brd);margin-top:4px}
 .sbtn{flex:1;min-width:calc(50% - 4px);padding:15px;border-radius:var(--r);border:1.5px solid var(--brd);background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif}
 .sbtn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
 .sbtn:active{transform:scale(.97)}
@@ -275,6 +283,7 @@ textarea::placeholder{color:var(--mut)}
     <div class="tabs">
       <button class="tab on" id="tab-dag" onclick="visView('dag')">Dag</button>
       <button class="tab" id="tab-uge" onclick="visView('uge')">Uge</button>
+      <button class="tab" id="tab-mnd" onclick="visView('mnd')">Måned</button>
     </div>
     <button class="gear-btn" id="gear-btn" onclick="visView('inst')" title="Indstillinger">⚙️</button>
   </div>
@@ -430,6 +439,27 @@ textarea::placeholder{color:var(--mut)}
   </div>
 </div>
 
+<!-- MÅNED VIEW -->
+<div class="view" id="view-mnd">
+  <div class="uge-hd">
+    <div>
+      <div class="uge-ttl" id="mnd-ttl">—</div>
+      <div class="uge-yr" id="mnd-yr"></div>
+    </div>
+    <div class="dag-nav">
+      <button class="nbtn" onclick="skiftMaaned(-1)">‹</button>
+      <button class="nbtn" onclick="skiftMaaned(1)">›</button>
+    </div>
+  </div>
+  <div class="uge-sum">
+    <div><div class="us-val" id="mnd-t">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Timer</div></div>
+    <div><div class="us-val" style="color:var(--grn)" id="mnd-l">0</div><div class="us-lbl">Kr.</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--red)" id="mnd-o">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Overtid</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--acc)" id="mnd-d">0</div><div class="us-lbl">Dage</div></div>
+  </div>
+  <div id="mnd-liste"></div>
+  <div class="mnd-pension" id="mnd-pension"></div>
+</div>
 <!-- INDSTILLINGER VIEW -->
 <div class="view" id="view-inst">
   <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px">Indstillinger</div>
@@ -1213,6 +1243,88 @@ function ugeNr(d) {
   return Math.ceil((((dt - ys) / 86400000) + 1) / 7);
 }
 function skiftUge(dir) { ugeOffset += dir; rendUge(); }
+
+let maanedOffset = 0;
+function skiftMaaned(dir) { maanedOffset += dir; rendMaaned(); }
+
+function rendMaaned() {
+  const MND_LANG = ['Januar','Februar','Marts','April','Maj','Juni','Juli','August','September','Oktober','November','December'];
+  const base = new Date();
+  base.setDate(1);
+  base.setMonth(base.getMonth() + maanedOffset);
+  const år = base.getFullYear();
+  const mnd = base.getMonth();
+
+  document.getElementById('mnd-ttl').textContent = MND_LANG[mnd];
+  document.getElementById('mnd-yr').textContent  = år;
+
+  const førsteDag = new Date(år, mnd, 1);
+  const sidsteDag = new Date(år, mnd + 1, 0);
+
+  // Find første mandag i eller før månedens start
+  const kursor = new Date(førsteDag);
+  const dow = kursor.getDay();
+  kursor.setDate(kursor.getDate() - (dow === 0 ? 6 : dow - 1));
+
+  let totH=0, totL=0, totOt=0, totD=0;
+  const uger = [];
+
+  while (kursor <= sidsteDag) {
+    const ugeStart = new Date(kursor);
+    const dage = Array.from({length:7}, (_,i) => { const d=new Date(ugeStart); d.setDate(d.getDate()+i); return d; });
+    const dageIMnd = dage.filter(d => d.getMonth() === mnd);
+
+    let ugeH=0, ugeL=0, ugeOt=0, ugeD=0;
+    dageIMnd.forEach(d => {
+      const s = hentDag(d);
+      if (!s?.h) return;
+      const idx = d.getDay();
+      const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
+      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p};
+      const l = calcLon(s.h, opt, wkAutoH);
+      ugeH += s.h; ugeL += l.total + (s.fskKr ?? 0);
+      ugeOt += Math.max(0, s.h - dagMax()); ugeD++;
+    });
+
+    totH+=ugeH; totL+=ugeL; totOt+=ugeOt; totD+=ugeD;
+
+    // ugeOffset til denne uge (for klik-navigation)
+    const now = new Date();
+    const nowDow = now.getDay();
+    const nowMan = new Date(now);
+    nowMan.setDate(now.getDate() - (nowDow===0?6:nowDow-1));
+    const diffMs = ugeStart - nowMan;
+    const ugeOff = Math.round(diffMs / (7*24*3600*1000));
+
+    uger.push({ugeStart, ugeOff, ugeNrVal: ugeNr(ugeStart), dageIMnd, ugeH, ugeL, ugeOt, ugeD});
+    kursor.setDate(kursor.getDate() + 7);
+  }
+
+  // Render uge-rækker
+  const liste = document.getElementById('mnd-liste');
+  liste.innerHTML = '';
+  uger.forEach(u => {
+    const el = document.createElement('div');
+    el.className = 'mnd-uge' + (u.ugeD === 0 ? ' mnd-uge-tom' : '');
+    const datoFra = `${u.dageIMnd[0].getDate()}/${u.dageIMnd[0].getMonth()+1}`;
+    const datoTil = `${u.dageIMnd[u.dageIMnd.length-1].getDate()}/${u.dageIMnd[u.dageIMnd.length-1].getMonth()+1}`;
+    el.innerHTML = `
+      <div class="mnd-uge-nr">UGE ${u.ugeNrVal}</div>
+      <div class="mnd-uge-dato">${datoFra} – ${datoTil}${u.ugeD ? `<br><small>${u.ugeD} dag${u.ugeD!==1?'e':''}</small>` : '<br><small>ingen data</small>'}</div>
+      <div class="mnd-uge-t">${u.ugeH ? hFmt(u.ugeH) : '—'}</div>
+      <div class="mnd-uge-l">${u.ugeL ? u.ugeL.toLocaleString('da-DK') : '—'}</div>`;
+    el.onclick = () => { ugeOffset = u.ugeOff; visView('uge'); };
+    liste.appendChild(el);
+  });
+
+  // Totaler
+  document.getElementById('mnd-t').innerHTML = `${hFmt(totH)}<small style="font-size:14px;color:var(--mut)">t</small>`;
+  document.getElementById('mnd-l').textContent = totL.toLocaleString('da-DK');
+  document.getElementById('mnd-o').innerHTML = `${hFmt(totOt)}<small style="font-size:14px;color:var(--mut)">t</small>`;
+  document.getElementById('mnd-d').textContent = totD;
+  const pension = Math.round(totL * 0.095);
+  document.getElementById('mnd-pension').textContent = totL ? `Pension 9,5%: ${pension.toLocaleString('da-DK')} kr.` : '';
+}
 function rendUge() {
   const datoer = ugeDatoer(ugeOffset);
   document.getElementById('uge-ttl').textContent = `Uge ${ugeNr(datoer[0])}`;
@@ -1721,13 +1833,15 @@ function doMail() {
 function visView(navn) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
   document.getElementById('view-' + navn)?.classList.add('on');
-  // Tabs: dag og uge
+  // Tabs: dag, uge og måned
   document.getElementById('tab-dag')?.classList.toggle('on', navn === 'dag');
   document.getElementById('tab-uge')?.classList.toggle('on', navn === 'uge');
+  document.getElementById('tab-mnd')?.classList.toggle('on', navn === 'mnd');
   // Gear: aktiv når inst
   document.getElementById('gear-btn')?.classList.toggle('on', navn === 'inst');
   if (navn === 'uge') rendUge();
   if (navn === 'dag') rendDag();
+  if (navn === 'mnd') rendMaaned();
 }
 function toast(msg) {
   const t = document.getElementById('toast');
@@ -1765,7 +1879,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v5';
+const CACHE = 'timeapp-v6';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
