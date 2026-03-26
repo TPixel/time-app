@@ -895,7 +895,7 @@ function dagMax() {
   return cfg.model === 'saertid' ? 10 : 8;
 }
 
-function calcLon(h, opt) {
+function calcLon(h, opt, wkAutoH = 0) {
   if (!h || h <= 0) return { total:0, normal:0, ot1:0, ot2:0, ot3:0, wk:0, ext:0 };
   const ts = timesats();
   const { varslet, uvarslet, helligdag, frokost, pause10 } = opt;
@@ -909,6 +909,7 @@ function calcLon(h, opt) {
 
   const tsGrund = ts;                              // OT-grundlag: UDEN personligt tillæg §3
   const tsNorm  = timesatsMedTillæg();             // Normaltimer: MED personligt tillæg
+  const tsWk    = tsGrund * (cfg.tillæg ? 1.1 : 1.0); // §3.10 enkeltdag på grundsats
   let normal = 0, ot1 = 0, ot2 = 0, ot3 = 0, wk = 0;
 
   if (helligdag) {
@@ -922,6 +923,8 @@ function calcLon(h, opt) {
     ot3 = tsWk * (1.75 + 1.35) * ot3H;
   } else {
     normal = tsNorm * normalH;
+    // §8 auto-detekteret weekend-overlap (kun overlap-timer, ingen min. 4t)
+    if (wkAutoH > 0) wk = tsWk * 0.75 * wkAutoH;
     if (varslet) {
       // §3.10: 10% enkeltdag indgår i OT-grundlaget (tsWk = tsGrund × enkeltdag)
       ot1 = tsWk * 1.50 * ot1H;
