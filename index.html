@@ -702,21 +702,7 @@ function nøgle(d) {
 function p2(n) { return String(n).padStart(2,'0'); }
 function hentDag(d) {
   try {
-    // Prøv global nøgle (normal vej)
-    const globalKey = nøgle(d);
-    const global = localStorage.getItem(globalKey);
-    if (global) return JSON.parse(global) || null;
-    // Reverse-migration: find data der fejlagtigt havnede under en produktions-specifik nøgle (v10-fejl)
-    for (const prod of (produktioner || [])) {
-      const prodKey = `faf-${prod.id}-${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
-      const prodData = localStorage.getItem(prodKey);
-      if (prodData) {
-        localStorage.setItem(globalKey, prodData); // Flyt tilbage til global nøgle
-        localStorage.removeItem(prodKey);
-        return JSON.parse(prodData) || null;
-      }
-    }
-    return null;
+    return JSON.parse(localStorage.getItem(nøgle(d))) || null;
   } catch { return null; }
 }
 function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); }
@@ -1987,17 +1973,16 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v13';
+const CACHE = 'timeapp-v14';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-  self.skipWaiting(); // tag over med det samme
 });
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim()) // overtag alle åbne faner
+    )
   );
 });
 self.addEventListener('fetch', e => {
