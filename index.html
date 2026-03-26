@@ -560,6 +560,7 @@ textarea::placeholder{color:var(--mut)}
         ⬆ IMPORTER DATA
         <input type="file" accept=".json" style="display:none" onchange="importerData(event)">
       </label>
+      <button class="gem-btn" onclick="nødscan()" style="background:var(--surf);border:1.5px solid var(--red);color:var(--red)">🔍 NØDSCAN — VIS DATA</button>
     </div>
   </div>
 </div>
@@ -1894,6 +1895,16 @@ function doMail() {
 // ═══════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════
+function nødscan() {
+  const alle = [];
+  for (let i = 0; i < localStorage.length; i++) alle.push(localStorage.key(i));
+  alle.sort();
+  const dagNøgler = alle.filter(k => k.startsWith('faf-'));
+  const rapport = dagNøgler.length === 0
+    ? 'INGEN faf-nøgler fundet i localStorage.\n\nAl data er væk.'
+    : `FUNDET ${dagNøgler.length} faf-nøgler:\n\n` + dagNøgler.join('\n');
+  alert(rapport);
+}
 function exporterData() {
   const data = {};
   for (let i = 0; i < localStorage.length; i++) {
@@ -1976,7 +1987,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v12';
+const CACHE = 'timeapp-v13';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
