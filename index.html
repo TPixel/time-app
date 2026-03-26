@@ -185,6 +185,7 @@ textarea::placeholder{color:var(--mut)}
 .dk-dato{font-family:'DM Mono',monospace;font-size:11px;color:var(--mut);margin-top:2px}
 .dk-info{flex:1;min-width:0}
 .dk-tider{font-family:'DM Mono',monospace;font-size:13px}
+.dk-lon{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--grn);margin-top:2px}
 .dk-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
 .badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px}
 .bv{background:rgba(232,99,10,.2);color:var(--btn-v)}.bu{background:rgba(224,32,32,.2);color:var(--btn-u)}
@@ -1398,10 +1399,11 @@ function rendUge() {
       </div>
       <div class="dk-info">
         <div class="dk-tider">${s?.start ? `${s.start} → ${s.slut || '?'}` : '— fri —'}</div>
+        ${lon ? `<div class="dk-lon">${lon.toLocaleString('da-DK')} kr.</div>` : ''}
         ${badges ? `<div class="dk-badges">${badges}</div>` : ''}
         ${s?.note ? `<div class="dk-note">${s.note}</div>` : ''}
       </div>
-      <div class="dk-timer">${h !== null ? hFmt(h) : '—'}<br>${lon ? '<small style="font-size:11px;color:var(--grn);font-weight:600">' + lon.toLocaleString('da-DK') + '</small>' : ''}</div>`;
+      <div class="dk-timer">${h !== null ? hFmt(h) : '—'}</div>`;
     liste.appendChild(el);
   });
   document.getElementById('us-t').innerHTML = `${hFmt(totH)}`;
@@ -1985,7 +1987,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v16';
+const CACHE = 'timeapp-v17';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
