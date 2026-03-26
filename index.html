@@ -189,7 +189,7 @@ textarea::placeholder{color:var(--mut)}
 .badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px}
 .bv{background:rgba(232,99,10,.2);color:var(--btn-v)}.bu{background:rgba(224,32,32,.2);color:var(--btn-u)}
 .bf{background:rgba(212,160,23,.2);color:var(--btn-f)}.bp{background:rgba(232,120,74,.2);color:var(--btn-p)}
-.bh{background:rgba(26,172,221,.2);color:var(--btn-h)}
+.bh{background:rgba(26,172,221,.2);color:var(--btn-h)}.be{background:rgba(139,92,246,.2);color:#a78bfa}
 .dk-note{font-size:10px;color:var(--mut);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
 .dk-timer{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;text-align:right;min-width:50px}
 .dk-timer small{font-size:11px;font-weight:400;color:var(--mut)}
@@ -398,6 +398,10 @@ textarea::placeholder{color:var(--mut)}
     <button class="xb" id="bn-r" onclick="tog('r')">
       Kørsel m. udstyr
       <span class="xb-sub">= arbejdstid §13</span>
+    </button>
+    <button class="xb" id="bn-e" onclick="tog('e')">
+      10% enkeltdag
+      <span class="xb-sub">Dagsbeskæftiget §3.10</span>
     </button>
   </div>
 
@@ -956,9 +960,11 @@ function calcLon(h, opt, wkAutoH = 0) {
   const ot2H    = Math.min(1, Math.max(0, otH - 1));
   const ot3H    = Math.max(0, otH - 2);
 
-  const tsGrund = ts;                              // OT-grundlag: UDEN personligt tillæg §3
-  const tsNorm  = timesatsMedTillæg();             // Normaltimer: MED personligt tillæg
-  const tsWk    = tsGrund * (cfg.tillæg ? 1.1 : 1.0); // §3.10 enkeltdag på grundsats
+  const harEnkeltdag = !!(opt.enkeltdag || cfg.tillæg); // per-dag OR produktionsindstilling
+  const tsGrund = ts;
+  // §3.10: 10% enkeltdag gælder kun mindsteløn, IKKE personligt tillæg
+  const tsNorm  = cfg.ugelon / 40 * (harEnkeltdag ? 1.1 : 1.0) + (cfg.pers || 0) / 40;
+  const tsWk    = tsGrund * (harEnkeltdag ? 1.1 : 1.0);
   let normal = 0, ot1 = 0, ot2 = 0, ot3 = 0, wk = 0;
 
   if (helligdag) {
@@ -1019,7 +1025,7 @@ function beregn() {
     return;
   }
 
-  const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p };
+  const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e };
   const l   = calcLon(h, opt);
   const tot = l.total + fskKr;
 
@@ -1118,7 +1124,7 @@ function gemDag() {
   const h     = calcTimer(tidStart, tidSlut);
   const fsk   = calcForskudt(tidStart, tidSlut, aktivDag.getDay());
   const fskKr = Math.round(fsk * 110);
-  const opt   = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p };
+  const opt   = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e };
   const l     = calcLon(h, opt);
   const note  = document.getElementById('i-note').value;
 
@@ -1310,7 +1316,7 @@ function _rendMaaned() {
       if (!s?.h) return;
       const idx = d.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
-      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p};
+      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
       const l = calcLon(s.h, opt, wkAutoH);
       ugeH += s.h; ugeL += l.total + (s.fskKr ?? 0);
       ugeOt += Math.max(0, s.h - dagMax()); ugeD++;
@@ -1363,10 +1369,16 @@ function rendUge() {
   const liste = document.getElementById('uge-liste');
   liste.innerHTML = '';
   datoer.forEach((d, i) => {
-    const s   = hentDag(d);
-    const h   = s?.h ?? null;
-    const lon = s?.lon ?? 0;
+    const s    = hentDag(d);
+    const h    = s?.h ?? null;
     const dMax = dagMax();
+    const idx  = d.getDay();
+    const wkAutoH = (s && !s.knapper?.h && s.start && s.slut)
+      ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
+    const opt  = { varslet:s?.knapper?.v, uvarslet:s?.knapper?.u, helligdag:s?.knapper?.h,
+                   frokost:s?.knapper?.f, pause10:s?.knapper?.p, enkeltdag:s?.knapper?.e };
+    const l    = h ? calcLon(h, opt, wkAutoH) : null;
+    const lon  = l ? l.total + (s?.fskKr ?? 0) : 0;
     if (h) { totH += h; totL += lon; totOt += Math.max(0, h - dMax); totD++; }
     const el = document.createElement('div');
     el.className = `dk c${i}${(!s || !s.start) ? ' tom' : ''}`;
@@ -1377,6 +1389,7 @@ function rendUge() {
       s?.knapper?.f ? '<span class="badge bf">Frokost</span>'  : '',
       s?.knapper?.p ? '<span class="badge bp">Pause</span>'    : '',
       s?.knapper?.h ? '<span class="badge bh">Weekend</span>'  : '',
+      s?.knapper?.e ? '<span class="badge be">10%</span>'      : '',
     ].join('');
     el.innerHTML = `
       <div class="dk-dag">
@@ -1388,7 +1401,7 @@ function rendUge() {
         ${badges ? `<div class="dk-badges">${badges}</div>` : ''}
         ${s?.note ? `<div class="dk-note">${s.note}</div>` : ''}
       </div>
-      <div class="dk-timer">${h !== null ? hFmt(h) : '—'}</div>`;
+      <div class="dk-timer">${h !== null ? hFmt(h) : '—'}<br>${lon ? '<small style="font-size:11px;color:var(--grn);font-weight:600">' + lon.toLocaleString('da-DK') + '</small>' : ''}</div>`;
     liste.appendChild(el);
   });
   document.getElementById('us-t').innerHTML = `${hFmt(totH)}`;
@@ -1416,7 +1429,7 @@ function ugeData() {
       : 0;
     const opt = { varslet: s.knapper?.v, uvarslet: s.knapper?.u,
                   helligdag: s.knapper?.h, frokost: s.knapper?.f,
-                  pause10: s.knapper?.p };
+                  pause10: s.knapper?.p, enkeltdag: s.knapper?.e };
     const l = calcLon(h, opt, wkAutoH);
     return {
       dato: d, fri: false,
@@ -1972,7 +1985,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v15';
+const CACHE = 'timeapp-v16';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
