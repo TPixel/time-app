@@ -1902,10 +1902,18 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     // Inline SW via blob URL
     const swCode = `
-const CACHE = 'timeapp-v8';
+const CACHE = 'timeapp-v9';
 const ASSETS = [location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
+  self.skipWaiting(); // tag over med det samme
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim()) // overtag alle åbne faner
+  );
 });
 self.addEventListener('fetch', e => {
   e.respondWith(
