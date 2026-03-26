@@ -857,8 +857,10 @@ function timesats() {
 }
 function timesatsMedTillæg() {
   // Normaltimer betales med mindsteløn + personligt tillæg + evt. 10% enkeltdag
-  const samlet = (cfg.ugelon + (cfg.pers || 0)) / 40;
-  return samlet * (cfg.tillæg ? 1.1 : 1.0);
+  // §3.10: 10% enkeltdag gælder kun mindsteløn, IKKE personligt tillæg
+  const mindstelønTs = cfg.ugelon / 40 * (cfg.tillæg ? 1.1 : 1.0);
+  const persTs       = (cfg.pers || 0) / 40;
+  return mindstelønTs + persTs;
 }
 
 // §6.a: OT beregnes i hele, halve og kvarte timer
@@ -1277,7 +1279,7 @@ function ugeData() {
     return {
       dato: d, fri: false,
       start: s.start, slut: s.slut,
-      h, lon: s.lon ?? 0,
+      h, lon: l.total + (s.fskKr ?? 0),
       normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3,
       wk: l.wk, ext: l.ext,
       fsk: s.fsk ?? 0, fskKr: s.fskKr ?? 0,
