@@ -59,7 +59,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .dag-prod-ttl:active{opacity:.6}
 .dag-prod-ttl.anden-prod{color:var(--yel)}
 /* Inline tidsvælgere inde i res-boks */
-.res-tider-col{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
 .res-tider-row{display:flex;align-items:flex-end;gap:6px}
 .tf-inline{cursor:pointer;padding:0}
 .tf-inline .tf-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:2px}
@@ -105,7 +104,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;user-select:none;position:relative;transition:background .25s,border-color .25s}
 @keyframes advarsel-puls{0%,100%{box-shadow:0 0 0 3px rgba(232,160,10,.3),0 0 24px rgba(232,130,10,.18)}50%{box-shadow:0 0 0 6px rgba(232,160,10,.5),0 0 32px rgba(232,130,10,.35)}}
 .res-advarsel{background:linear-gradient(135deg,#2E1A00,#381F00) !important;border-color:#F0A500 !important;border-width:2.5px !important;animation:advarsel-puls 1.8s ease-in-out infinite}
-.res-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.res-top{display:flex;flex-direction:column;gap:6px}
+.res-bottom-row{display:flex;align-items:center;justify-content:space-between}
 .res-t{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;letter-spacing:.5px;line-height:1;white-space:nowrap;color:var(--mut);margin-top:2px}
 .res-sub{display:none;font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:4px}
 .res-pay-amt{font-family:'DM Mono',monospace;font-size:25px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
@@ -394,23 +394,23 @@ textarea::placeholder{color:var(--mut)}
   <!-- Tidvælgere + resultat i ét kort -->
   <div class="res" onclick="togOT()" id="res-boks">
     <div class="res-top">
-      <div class="res-tider-col">
-        <div class="res-tider-row">
-          <div class="tf-inline" id="tf-start" onclick="event.stopPropagation();åbnModal('start')">
-            <div class="tf-lbl">Start</div>
-            <div class="tf-display tom" id="disp-start">––:––</div>
-          </div>
-          <div class="tf-sep">→</div>
-          <div class="tf-inline" id="tf-slut" onclick="event.stopPropagation();åbnModal('slut')">
-            <div class="tf-lbl">Slut</div>
-            <div class="tf-display tom" id="disp-slut">––:––</div>
-          </div>
+      <div class="res-tider-row">
+        <div class="tf-inline" id="tf-start" onclick="event.stopPropagation();åbnModal('start')">
+          <div class="tf-lbl">Start</div>
+          <div class="tf-display tom" id="disp-start">––:––</div>
         </div>
-        <div class="res-t" id="res-t">– –</div>
+        <div class="tf-sep">→</div>
+        <div class="tf-inline" id="tf-slut" onclick="event.stopPropagation();åbnModal('slut')">
+          <div class="tf-lbl">Slut</div>
+          <div class="tf-display tom" id="disp-slut">––:––</div>
+        </div>
       </div>
-      <div style="text-align:right;flex-shrink:0">
-        <div class="res-pay-amt" id="res-pay">0 kr.</div>
-        <div class="res-pay-lbl" id="res-pay-lbl">Dagsløn</div>
+      <div class="res-bottom-row">
+        <div class="res-t" id="res-t">– –</div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="res-pay-amt" id="res-pay">0 kr.</div>
+          <div class="res-pay-lbl" id="res-pay-lbl">Dagsløn</div>
+        </div>
       </div>
     </div>
     <div class="res-sub" id="res-sub"></div>
