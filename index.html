@@ -1146,7 +1146,26 @@ function dagMax() {
   return cfg.model === 'saertid' ? 10 : 8;
 }
 
-function calcLon(h, opt, wkAutoH = 0) {
+// §8 stk. 2: Returnerer 1.0 hvis dette er 2.+ weekenddag i ugen, ellers 0.75
+// "Såfremt der i en uge arbejdes i mindst 2 dage (helligdag, lørdag, søndag),
+//  udgør tillægget 100% for den anden dag og efterfølgende dage."
+function hentWkRate(dato) {
+  const dow = dato.getDay(); // 0=søn, 1=man...6=lør
+  const dageEfterMandag = (dow === 0) ? 6 : dow - 1;
+  const mandag = new Date(dato);
+  mandag.setDate(dato.getDate() - dageEfterMandag);
+  for (let i = 0; i < dageEfterMandag; i++) {
+    const d = new Date(mandag);
+    d.setDate(mandag.getDate() + i);
+    const s = hentDag(d);
+    if (!s?.h) continue;
+    const dIdx = d.getDay();
+    if (s.knapper?.h || dIdx === 0 || dIdx === 6) return 1.0; // 2.+ weekenddag
+  }
+  return 0.75;
+}
+
+function calcLon(h, opt, wkAutoH = 0, wkRate = 0.75) {
   if (!h || h <= 0) return { total:0, normal:0, ot1:0, ot2:0, ot3:0, wk:0, ext:0 };
   const ts = timesats();
   const { varslet, uvarslet, helligdag, frokost, pause10 } = opt;
@@ -1166,18 +1185,18 @@ function calcLon(h, opt, wkAutoH = 0) {
   let normal = 0, ot1 = 0, ot2 = 0, ot3 = 0, wk = 0;
 
   if (helligdag) {
-    // §8.2: +75% på normaltimer, min. 4 timer (hel weekendvagt)
+    // §8.2: +75% (eller +100% ved 2.+ weekenddag i ugen) på normaltimer, min. 4 timer
     const betaltH = Math.max(4, normalH);
-    wk     = tsWk * 0.75 * betaltH;
+    wk     = tsWk * wkRate * betaltH;
     normal = tsNorm * normalH;
     // §8.3: OT på weekend: +50/+60/+135 oven på weekend-sats — inkl. §3.10 enkeltdag
-    ot1 = tsWk * (1.75 + 0.50) * ot1H;
-    ot2 = tsWk * (1.75 + 0.60) * ot2H;
-    ot3 = tsWk * (1.75 + 1.35) * ot3H;
+    ot1 = tsWk * (1 + wkRate + 0.50) * ot1H;
+    ot2 = tsWk * (1 + wkRate + 0.60) * ot2H;
+    ot3 = tsWk * (1 + wkRate + 1.35) * ot3H;
   } else {
     normal = tsNorm * normalH;
     // §8 auto-detekteret overlap med weekend-periode (kun overlap-timer, ingen min. 4t)
-    if (wkAutoH > 0) wk = tsWk * 0.75 * wkAutoH;
+    if (wkAutoH > 0) wk = tsWk * wkRate * wkAutoH;
     if (varslet) {
       // §3.10: 10% enkeltdag indgår i OT-grundlaget (tsWk = tsGrund × enkeltdag)
       ot1 = tsWk * 1.50 * ot1H;
@@ -1235,7 +1254,8 @@ function beregn() {
 
   const wkAutoH = (!knapper.h) ? calcWeekendTimer(tidStart, tidSlut, idx) : 0;
   const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e };
-  const l   = calcLon(h, opt, wkAutoH);
+  const wkRate = (knapper.h || idx === 0 || idx === 6) ? hentWkRate(aktivDag) : 0.75;
+  const l   = calcLon(h, opt, wkAutoH, wkRate);
   const tot = l.total + fskKr;
 
   // Manuel dagløn fra indstillinger — overskriver beregnet hvis sat
@@ -1357,7 +1377,8 @@ function gemDag() {
   const fskKr  = Math.round(fsk * 110);
   const wkAutoH = (!knapper.h && h !== null) ? calcWeekendTimer(tidStart, tidSlut, idx) : 0;
   const opt    = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e };
-  const l      = calcLon(h, opt, wkAutoH);
+  const wkRate = (knapper.h || idx === 0 || idx === 6) ? hentWkRate(aktivDag) : 0.75;
+  const l      = calcLon(h, opt, wkAutoH, wkRate);
   const note   = document.getElementById('i-note').value;
   const lonGem = cfg.dagLon > 0 ? cfg.dagLon : (l.total + fskKr);
 
@@ -1549,7 +1570,8 @@ function rendAar() {
       const idx = d.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
       const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
-      const l = calcLon(s.h, opt, wkAutoH);
+      const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
+      const l = calcLon(s.h, opt, wkAutoH, wkRate);
       const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0));
       alleDage.push({d, m, s, h:s.h, lon:dagLon, ot:Math.max(0, s.h - dagMax()), prod:s.prod||''});
     }
@@ -1647,7 +1669,8 @@ function _rendMaaned() {
       const idx = d.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
       const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
-      const l = calcLon(s.h, opt, wkAutoH);
+      const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
+      const l = calcLon(s.h, opt, wkAutoH, wkRate);
       const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0));
       ugeH += s.h; ugeL += dagLon;
       ugeOt += Math.max(0, s.h - dagMax()); ugeD++;
@@ -1706,7 +1729,8 @@ function rendUge() {
       ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
     const opt  = { varslet:s?.knapper?.v, uvarslet:s?.knapper?.u, helligdag:s?.knapper?.h,
                    frokost:s?.knapper?.f, pause10:s?.knapper?.p, enkeltdag:s?.knapper?.e };
-    const l    = h ? calcLon(h, opt, wkAutoH) : null;
+    const wkRate = (s?.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
+    const l    = h ? calcLon(h, opt, wkAutoH, wkRate) : null;
     const lonBeregnet = l ? l.total + (s?.fskKr ?? 0) : 0;
     const lon  = s?.manuelLon ?? lonBeregnet;
     if (h) { totH += h; totL += lon; totOt += Math.max(0, h - dMax); totD++; }
@@ -1764,7 +1788,8 @@ function ugeData() {
     const opt = { varslet: s.knapper?.v, uvarslet: s.knapper?.u,
                   helligdag: s.knapper?.h, frokost: s.knapper?.f,
                   pause10: s.knapper?.p, enkeltdag: s.knapper?.e };
-    const l = calcLon(h, opt, wkAutoH);
+    const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
+    const l = calcLon(h, opt, wkAutoH, wkRate);
     const lonBeregnet = l.total + (s.fskKr ?? 0);
     const lon = s.manuelLon ?? lonBeregnet;
     return {
@@ -2228,7 +2253,8 @@ function _mndData() {
     const idx = d.getDay();
     const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
     const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
-    const l = calcLon(s.h, opt, wkAutoH);
+    const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
+    const l = calcLon(s.h, opt, wkAutoH, wkRate);
     const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0));
     const ot = Math.max(0, s.h - dagMax());
     totH+=s.h; totL+=dagLon; totOt+=ot; totD++;
@@ -2324,10 +2350,12 @@ function _aarData() {
       const s = hentDag(new Date(dato));
       if (!s?.h) continue;
       if (aarProdFilter && (s.prod||'') !== aarProdFilter) continue;
-      const idx = new Date(dato).getDay();
+      const dObj = new Date(dato);
+      const idx = dObj.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
       const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
-      const l = calcLon(s.h, opt, wkAutoH);
+      const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(dObj) : 0.75;
+      const l = calcLon(s.h, opt, wkAutoH, wkRate);
       const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0));
       mH+=s.h; mL+=dagLon; mOt+=Math.max(0, s.h - dagMax()); mD++;
     }
