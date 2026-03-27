@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Time App — Manual</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:   #0C0C12;
+    --card: #13131F;
+    --brd:  #1E1E30;
+    --acc:  #818CF8;
+    --grn:  #34D399;
+    --yel:  #FBBF24;
+    --red:  #F87171;
+    --pur:  #A78BFA;
+    --txt:  #E8E8F0;
+    --mut:  #7777AA;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--txt);
+    font-size: 16px;
+    line-height: 1.6;
+    padding-bottom: 60px;
+  }
+
+  /* NAV */
+  .topbar {
+    position: sticky; top: 0; z-index: 99;
+    background: rgba(12,12,18,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--brd);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-title { font-size: 16px; font-weight: 700; letter-spacing: .02em; }
+  .topbar-sub { font-size: 11px; color: var(--mut); margin-top: 1px; }
+  .back-btn {
+    font-size: 14px; color: var(--acc); text-decoration: none;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  /* INDHOLD */
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 20px; }
+
+  /* KAPITEL-HEADER */
+  .chapter {
+    margin-top: 40px; margin-bottom: 4px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: .18em; color: var(--acc);
+    text-transform: uppercase;
+  }
+  h2 {
+    font-size: 24px; font-weight: 800;
+    letter-spacing: -.5px; margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  h3 {
+    font-size: 16px; font-weight: 700;
+    margin: 22px 0 6px;
+  }
+  p { color: var(--mut); margin-bottom: 10px; font-size: 15px; }
+  p strong { color: var(--txt); }
+
+  /* KORT */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--brd);
+    border-radius: 14px;
+    padding: 16px;
+    margin: 10px 0;
+  }
+  .card-title {
+    font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .card p { margin: 0; font-size: 14px; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    font-size: 11px; font-weight: 700;
+    padding: 3px 9px; border-radius: 50px;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .badge-grn { background: rgba(52,211,153,.15); color: var(--grn); }
+  .badge-yel { background: rgba(251,191,36,.15);  color: var(--yel); }
+  .badge-red { background: rgba(248,113,113,.15); color: var(--red); }
+  .badge-acc { background: rgba(129,140,248,.15); color: var(--acc); }
+  .badge-pur { background: rgba(167,139,250,.15); color: var(--pur); }
+
+  /* PARAGRAF-KORT */
+  .para-card {
+    background: var(--card);
+    border: 1px solid var(--brd);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin: 8px 0;
+    display: flex; gap: 14px; align-items: flex-start;
+  }
+  .para-nr {
+    font-size: 13px; font-weight: 800;
+    color: var(--acc); white-space: nowrap;
+    min-width: 36px; padding-top: 2px;
+  }
+  .para-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .para-body p  { font-size: 13px; margin: 0; }
+
+  /* STEPLISTE */
+  .steps { list-style: none; margin: 12px 0; }
+  .steps li {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid var(--brd);
+    font-size: 15px;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-nr {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(129,140,248,.15); color: var(--acc);
+    font-size: 12px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* TIPS */
+  .tip {
+    background: rgba(129,140,248,.08);
+    border: 1px solid rgba(129,140,248,.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px; color: var(--txt);
+    margin: 10px 0;
+  }
+  .tip::before { content: '💡 '; }
+
+  .warn {
+    background: rgba(251,191,36,.08);
+    border: 1px solid rgba(251,191,36,.2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px; color: var(--txt);
+    margin: 10px 0;
+  }
+  .warn::before { content: '⚠️ '; }
+
+  /* DIVIDER */
+  hr { border: none; border-top: 1px solid var(--brd); margin: 32px 0; }
+
+  /* HURTIG-NAV */
+  .quicknav {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin: 16px 0 0;
+  }
+  .quicknav a {
+    background: var(--card); border: 1px solid var(--brd);
+    border-radius: 8px; padding: 7px 12px;
+    font-size: 13px; color: var(--acc); text-decoration: none;
+    white-space: nowrap;
+  }
+
+  /* FOOTER */
+  footer { text-align: center; margin-top: 48px; font-size: 12px; color: var(--mut); }
+  footer a { color: var(--acc); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-title">⏱ Time App — Manual</div>
+    <div class="topbar-sub">FAF Fiktionsoverenskomst 2025-2027</div>
+  </div>
+  <a href="https://tpixel.github.io/time-app/" class="back-btn">← Åbn app</a>
+</div>
+
+<div class="wrap">
+
+  <div class="quicknav">
+    <a href="#kom-i-gang">Kom i gang</a>
+    <a href="#dag">Dagvisning</a>
+    <a href="#uge">Ugeoversigt</a>
+    <a href="#ot-typer">OT-typer</a>
+    <a href="#paragraffer">Paragraffer</a>
+    <a href="#export">Eksport</a>
+    <a href="#tips">Tips</a>
+  </div>
+
+  <!-- ═══ KOM I GANG ═══ -->
+  <div id="kom-i-gang">
+    <div class="chapter">Introduktion</div>
+    <h2>Kom i gang</h2>
+    <p>Time App beregner din løn automatisk ud fra FAF Fiktionsoverenskomsten. Du taster start- og sluttid — alt andet regner appen ud.</p>
+
+    <ul class="steps">
+      <li><div class="step-nr">1</div><div>Åbn appen og vælg den rigtige dag med pile-knapperne øverst</div></li>
+      <li><div class="step-nr">2</div><div>Tryk på <strong>produktionsnavnet</strong> (f.eks. "Ben Hur 5") for at skifte produktion, eller gå til ⚙ Indstillinger for at oprette en ny</div></li>
+      <li><div class="step-nr">3</div><div>Tryk på <strong>START</strong> og vælg mødetidspunkt</div></li>
+      <li><div class="step-nr">4</div><div>Tryk på <strong>SLUT</strong> og vælg sluttidspunkt — lønnen beregnes straks</div></li>
+      <li><div class="step-nr">5</div><div>Vælg OT-type hvis du har arbejdet mere end 8 timer (Varslet, Uvarslet, Weekend)</div></li>
+      <li><div class="step-nr">6</div><div>Tilføj eventuelle tillæg (Sen frokost, Ingen pause, Kørsel, Enkeltdag)</div></li>
+      <li><div class="step-nr">7</div><div>Tryk <strong>GEM DAG →</strong></div></li>
+    </ul>
+
+    <div class="tip">Appen virker offline — ingen internet nødvendig. Alt gemmes lokalt på din telefon.</div>
+  </div>
+
+  <hr>
+
+  <!-- ═══ DAGVISNING ═══ -->
+  <div id="dag">
+    <div class="chapter">Dagvisning</div>
+    <h2>Sådan læser du dagskortet</h2>
+
+    <div class="card">
+      <div class="card-title">⏰ Start → Slut</div>
+      <p>Tryk på tiderne for at ændre dem. Appen beregner automatisk om du krydser midnat.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">💰 Dagsløn</div>
+      <p>Det grønne beløb øverst til højre er din samlede dagløn inkl. alle tillæg. Tryk <em>"Vis specifikation"</em> for fuld opdeling.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">🕐 Timer</div>
+      <p>Viser total arbejdstid (f.eks. <strong>12t</strong>). Pause på 30 min trækkes automatisk fra ved vagter over 5½ time.</p>
+    </div>
+
+    <h3>Overarbejde + Tillæg</h3>
+    <p>De farvede knapper aktiverer ekstra beregninger. En orange knap = aktiv. Tryk igen for at slå fra.</p>
+  </div>
+
+  <hr>
+
+  <!-- ═══ OT-TYPER ═══ -->
+  <div id="ot-typer">
+    <div class="chapter">Overarbejde</div>
+    <h2>OT-typer</h2>
+    <p>Overarbejde beregnes i <strong>hele, halve og kvarte timer</strong> (§6a).</p>
+
+    <div class="card">
+      <div class="card-title"><span class="badge badge-grn">Varslet OT</span> §6b–§6d</div>
+      <p>Arbejdsgiveren har varslet OT senest dagen før.<br>
+      <strong>1. OT-time: +50%</strong> · <strong>2. OT-time: +60%</strong> · <strong>3. time og op: +135%</strong></p>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="badge badge-red">Uvarslet OT</span> §6e</div>
+      <p>OT ikke varslet i forvejen — højere satser.<br>
+      <strong>1. OT-time: +75%</strong> · <strong>2. OT-time: +100%</strong> · <strong>3. time og op: +135%</strong></p>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="badge badge-acc">Weekend</span> §8</div>
+      <p>Arbejde i perioden <strong>fredag kl. 20:00 → mandag kl. 06:00</strong>.<br>
+      Minimum 4 timers betaling. Grundtillæg <strong>+75%</strong> på alle timer.</p>
+    </div>
+
+    <div class="warn">Glemmer du at vælge OT-type, beregner appen automatisk som <strong>Uvarslet</strong> og viser en gul advarsel.</div>
+  </div>
+
+  <hr>
+
+  <!-- ═══ PARAGRAFFER ═══ -->
+  <div id="paragraffer">
+    <div class="chapter">Overenskomst</div>
+    <h2>Paragraffer forklaret</h2>
+
+    <div class="para-card">
+      <div class="para-nr">§3</div>
+      <div class="para-body">
+        <h4>Løn & OT-grundlag</h4>
+        <p>Din mindsteløn delt med 40 giver timelønnen OT beregnes ud fra. Personligt tillæg er <em>ikke</em> en del af OT-grundlaget.</p>
+      </div>
+    </div>
+
+    <div class="para-card">
+      <div class="para-nr">§3.10</div>
+      <div class="para-body">
+        <h4>10% Enkeltdagstillæg</h4>
+        <p>Gælder dagsbeskæftigede. Tillægget lægges på mindstelønnen (ikke personligt tillæg). Slå til med knappen <strong>"10% Enkeltdag"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="para-card">
+      <div class="para-nr">§4 / §5</div>
+      <div class="para-body">
+        <h4>Normal arbejdstid</h4>
+        <p>§4: OT starter efter 8 timer. §5: Forskudt arbejdstid — OT starter efter 10 timer. Appen vælger automatisk den rigtige baseret på vagttidspunkt.</p>
+      </div>
+    </div>
+
+    <div class="para-card">
+      <div class="para-nr">§6</div>
+      <div class="para-body">
+        <h4>Overarbejde</h4>
+        <p>Se OT-typer ovenfor. Beregnes i hele, halve og kvarte timer.</p>
+      </div>
+    </div>
+
+    <div class="para-card">
+      <div class="para-nr">§7</div>
+      <div class="para-body">
+        <h4>Forskudt tid +110 kr/t</h4>
+        <p>Timer <strong>uden for 06:00–19:00</strong> på hverdage giver +110 kr/t i tillæg. Weekend-timer (fre 20:00–man 06:00) giver §8 i stedet — ikke §7.</p>
+      </div>
+    </div>
+
+    <div class="para-card">
+      <div class="para-nr">§8</div>
+      <div class="para-body">
+        <h4>Weekendtillæg +75%</h4>
+        <p>Arbejde fra <strong>fredag 20:00 til mandag 06:00</strong>. Mindst 4 timers betaling. Kombineres med §7 ved behov (§5.6).</p>
+      </div>
+    </div>
+
+    <div class="para-card">
+      <div class="para-nr">§12</div>
+      <div class="para-body">
+        <h4>Sen frokost — Diæt 94 kr.</h4>
+        <p>Hvis frokosten er forsinket (typisk over 5–6 timer inde i vagten). Slå til med knappen <strong>"Sen frokost"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="para-card">
+      <div class="para-nr">§13</div>
+      <div class="para-body">
+        <h4>Kørsel = arbejdstid</h4>
+        <p>Kørsel i produktionens bil tæller som arbejdstid og indgår i timeberegningen. Slå til med knappen <strong>"Kørsel"</strong>.</p>
+      </div>
+    </div>
+
+    <div class="para-card">
+      <div class="para-nr">§7 · "Ingen pause"</div>
+      <div class="para-body">
+        <h4>Ingen pause efter 10 timer</h4>
+        <p>Hvis du ikke har fået pause og vagten er over 10 timer, aktivér <strong>"Ingen pause"</strong> — dette giver ekstra kompensation.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══ UGE ═══ -->
+  <div id="uge">
+    <div class="chapter">Ugeoversigt</div>
+    <h2>Uge & Måned</h2>
+
+    <p>Tryk på <strong>Uge</strong> øverst i appen for at se alle dage i ugen samlet — med total løn, overtid og timer.</p>
+
+    <div class="card">
+      <div class="card-title">📊 Ugeoversigt</div>
+      <p>Viser alle 7 dage med produktion, tider og løn. Ugessummering nederst: samlet løn, OT-timer, total timer og antal arbejdsdage.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📅 Månedsoversigt</div>
+      <p>Tryk <strong>Måned</strong> øverst for månedsoverblik og årsopgørelse inkl. feriegodtgørelse og pension (9,5%).</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══ EKSPORT ═══ -->
+  <div id="export">
+    <div class="chapter">Eksport</div>
+    <h2>Send & eksporter</h2>
+    <p>Fra ugeoversigten kan du eksportere på fire måder:</p>
+
+    <div class="card">
+      <div class="card-title">✉️ Mail til produktionen</div>
+      <p>Sender en formateret ugeseddel direkte via din mail-app til producentionen.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Numbers / Excel</div>
+      <p>Eksporterer ugesedlen som .xlsx-fil der åbner i Numbers (Mac/iPhone) eller Excel.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 Apple Kalender</div>
+      <p>Synkroniser dine vagter til Kalender-appen, så de vises i din normale kalender.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">📄 PDF</div>
+      <p>Udskriv eller gem ugesedlen som PDF — klar til at sende til produktionen.</p>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ═══ TIPS ═══ -->
+  <div id="tips">
+    <div class="chapter">Tips & tricks</div>
+    <h2>Gode vaner</h2>
+
+    <div class="tip">Gem dagen mens du stadig er på settet — så glemmer du ingen tillæg.</div>
+    <div class="tip">Har du arbejdet på to produktioner samme dag? Opret begge i ⚙ Indstillinger og skift med et tryk på produktionsnavnet.</div>
+    <div class="tip">Appen husker dine indstillinger og produktioner selv om du lukker den.</div>
+    <div class="warn">Husk at vælge Varslet eller Uvarslet OT — det gør en stor forskel på beløbet.</div>
+    <div class="tip">Tryk på "Vis specifikation" i dagskortet for at se nøjagtigt hvordan lønnen er beregnet linje for linje.</div>
+  </div>
+
+  <hr>
+
+  <footer>
+    <p>Time App · FAF Fiktionsoverenskomst 2025-2027 · <a href="https://tpixel.github.io/time-app/">Åbn appen</a></p>
+    <p style="margin-top:6px">Snart: Reklamefilmoverenskomst</p>
+  </footer>
+
+</div>
+</body>
+</html>
