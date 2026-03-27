@@ -52,8 +52,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .nbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .nbtn:active{transform:scale(.88)}
 .dag-navn{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-2px;line-height:1}
-.dag-dato{font-family:'DM Mono',monospace;font-size:13px;color:var(--txt);margin-top:4px;opacity:.7}
-.dag-uge{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);margin-top:1px;text-transform:uppercase;letter-spacing:1px}
+.dag-dato{font-family:'DM Mono',monospace;font-size:15px;display:inline-block;color:var(--txt);margin-top:4px;opacity:.7}
+.dag-uge{font-family:'DM Mono',monospace;font-size:15px;color:var(--acc);margin-top:0;display:inline-block;margin-left:10px;text-transform:uppercase;letter-spacing:1px}
 /* Stor produktionstitel under dag-headeren */
 .dag-prod-ttl{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--txt);background:none;border:none;padding:2px 0 14px;margin:0;cursor:pointer;display:block;width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;transition:opacity .15s}
 .dag-prod-ttl:active{opacity:.6}
@@ -63,7 +63,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .res-tider-row{display:flex;align-items:flex-end;gap:6px}
 .tf-inline{cursor:pointer;padding:0}
 .tf-inline .tf-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:2px}
-.tf-inline .tf-display{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--txt);letter-spacing:.5px;line-height:1}
+.tf-inline .tf-display{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:var(--txt);letter-spacing:.5px;line-height:1}
 .tf-inline .tf-display.tom{color:var(--mut)}
 .tf-sep{font-size:16px;color:var(--mut);padding-bottom:2px;flex-shrink:0}
 /* prod-pill fjernet — erstattet af dag-prod-ttl */
@@ -107,8 +107,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .res-advarsel{background:linear-gradient(135deg,#2E1A00,#381F00) !important;border-color:#F0A500 !important;border-width:2.5px !important;animation:advarsel-puls 1.8s ease-in-out infinite}
 .res-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .res-t{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;letter-spacing:.5px;line-height:1;white-space:nowrap;color:var(--mut);margin-top:2px}
-.res-sub{font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:4px}
-.res-pay-amt{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
+.res-sub{display:none;font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:4px}
+.res-pay-amt{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
 .res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:right;margin-top:2px}
 .res-expand{font-size:10px;color:var(--mut);text-align:center;margin-top:6px;letter-spacing:1px;opacity:.6}
 .res-bottom{display:none}
