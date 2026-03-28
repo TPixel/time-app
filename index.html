@@ -1459,14 +1459,7 @@ function sletDag() {
 // ═══════════════════════════════════════════════════
 // SEND ENKELT DAG
 // ═══════════════════════════════════════════════════
-function sendEnkeltDag() {
-  const d = hentDag(aktivDag);
-  if (!d) { toast('Gem dagen først'); return; }
-
-  const dagStr = `${DAGE[aktivDag.getDay()]} ${aktivDag.getDate()}. ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
-  const otType = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : null;
-
-  // ── Lønspec linjer ──────────────────────────────────────────────
+  // ── Spec linjer ─────────────────────────────────────────────────
   const specRækker = [];
   if (d.manuelLon) {
     specRækker.push({ lbl: 'Manuel aftalt dagssats', kr: d.manuelLon });
@@ -1479,183 +1472,62 @@ function sendEnkeltDag() {
     if (d.fskKr)  specRækker.push({ lbl: 'Forskudt §7', kr: d.fskKr });
   }
 
-  // ── Badges ──────────────────────────────────────────────────────
-  const badges = [
-    d.knapper?.v ? { txt: 'Varslet OT',           bg: '#1e3a5f', col: '#60a5fa' } : null,
-    d.knapper?.u ? { txt: 'Uvarslet OT',          bg: '#3b1f1f', col: '#f87171' } : null,
-    d.knapper?.h ? { txt: 'Weekend / helligdag §8', bg: '#1f2e1f', col: '#4ade80' } : null,
-    d.knapper?.f ? { txt: 'Sen frokost',           bg: '#2e2a1a', col: '#facc15' } : null,
-    d.knapper?.r ? { txt: 'Kørsel m. udstyr',     bg: '#1e1e3a', col: '#a78bfa' } : null,
+  const badgeTxt = [
+    d.knapper?.v ? '◆ Varslet OT' : null,
+    d.knapper?.u ? '◆ Uvarslet OT' : null,
+    d.knapper?.h ? '◆ Weekend / helligdag §8' : null,
+    d.knapper?.f ? '◆ Sen frokost' : null,
+    d.knapper?.r ? '◆ Kørsel m. udstyr' : null,
   ].filter(Boolean);
 
-  const specHtml = specRækker.map(r => `
-      <tr>
-        <td style="padding:8px 0;color:#94a3b8;font-size:14px;border-bottom:1px solid #1e293b">${r.lbl}</td>
-        <td style="padding:8px 0;color:#e2e8f0;font-size:14px;text-align:right;border-bottom:1px solid #1e293b;font-family:'DM Mono',monospace;white-space:nowrap">${r.kr.toLocaleString('da-DK', {minimumFractionDigits:2})} kr.</td>
-      </tr>`).join('');
+  // ── Formatering ──────────────────────────────────────────────────
+  const W   = 44;
+  const SEP = '─'.repeat(W);
+  const TOP = '═'.repeat(W);
+  const fKr = kr => kr.toLocaleString('da-DK', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' kr.';
 
-  const badgesHtml = badges.map(b =>
-    `<span style="display:inline-block;background:${b.bg};color:${b.col};border:1px solid ${b.col}40;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin:3px 4px 3px 0;letter-spacing:.4px">${b.txt}</span>`
-  ).join('');
+  const specLinje = (lbl, krStr) => {
+    const dots = W - 2 - lbl.length - krStr.length;
+    return '  ' + lbl + ' '.repeat(Math.max(1, dots)) + krStr;
+  };
 
-  const noteHtml = d.note ? `
-    <div style="background:#1e1a0a;border-left:3px solid #facc15;border-radius:6px;padding:12px 16px;margin-bottom:20px">
-      <div style="font-size:11px;color:#facc15;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Note</div>
-      <div style="color:#fef9c3;font-size:14px;line-height:1.5">${d.note}</div>
-    </div>` : '';
+  // ── Header boks ──────────────────────────────────────────────────
+  const boksIndhold = s => '║  ' + s.substring(0, W - 4).padEnd(W - 4) + '  ║';
+  const lines = [
+    '╔' + '═'.repeat(W) + '╗',
+    boksIndhold(cfg.prod || 'Time App'),
+    boksIndhold(dagStr),
+    '╚' + '═'.repeat(W) + '╝',
+    '',
+    `  ${d.start}  →  ${d.slut}     ${hFmt(d.h)}`,
+  ];
 
-  // ── Mailto (kun subject — body kopieres som HTML) ───────────────
-  const subj   = encodeURIComponent(`${cfg.prod ? cfg.prod + ' · ' : ''}${dagStr}`);
-  const mailto = `mailto:${cfg.email || ''}?subject=${subj}`;
+  if (badgeTxt.length) {
+    lines.push('');
+    lines.push('  ' + badgeTxt.join('   '));
+  }
 
-  // ── Email HTML (inline styles — til Apple Mail via clipboard) ────
-  const eBadges = badges.map(b =>
-    `<span style="display:inline-block;background:${b.bg};color:${b.col};border:1px solid ${b.col};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin:2px 4px 2px 0;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${b.txt}</span>`
-  ).join('');
+  if (d.note) {
+    lines.push('');
+    lines.push('  Note: ' + d.note);
+  }
 
-  const eSpec = specRækker.map(r => `
-    <tr>
-      <td style="padding:9px 0;color:#94a3b8;font-size:14px;border-bottom:1px solid #1e293b;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${r.lbl}</td>
-      <td style="padding:9px 0;color:#e2e8f0;font-size:14px;text-align:right;border-bottom:1px solid #1e293b;font-family:Menlo,Courier New,monospace;white-space:nowrap">${r.kr.toLocaleString('da-DK', {minimumFractionDigits:2})} kr.</td>
-    </tr>`).join('');
+  lines.push('');
+  lines.push(SEP);
+  lines.push('  LØNSPECIFIKATION');
+  lines.push(SEP);
+  for (const r of specRækker) lines.push(specLinje(r.lbl, fKr(r.kr)));
+  lines.push(SEP);
+  lines.push(specLinje('DAGSLØN', fKr(d.lon)));
+  lines.push(TOP);
+  lines.push('');
+  if (cfg.navn) lines.push('  ' + cfg.navn);
+  lines.push('  Importeret fra Time App');
+  lines.push('  Fiktionsoverenskomst 2025–2027');
 
-  const eNote = d.note ? `
-    <div style="background:#1e1a0a;border-left:3px solid #facc15;border-radius:6px;padding:12px 16px;margin-bottom:20px">
-      <div style="font-size:11px;color:#facc15;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:-apple-system,Helvetica Neue,Arial,sans-serif;font-weight:600">Note</div>
-      <div style="color:#fef9c3;font-size:14px;line-height:1.5;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${d.note}</div>
-    </div>` : '';
-
-  const emailHtml = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#060c1a">
-<div style="background:#060c1a;padding:32px 16px;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">
-<div style="max-width:480px;margin:0 auto;background:#0d1526;border-radius:16px;overflow:hidden">
-
-<div style="background:#0f1835;padding:24px 28px;border-bottom:1px solid #1e2d4a">
-  ${cfg.prod ? `<div style="font-size:12px;color:#4ade80;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-weight:700;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${cfg.prod}</div>` : ''}
-  <div style="font-size:24px;font-weight:700;color:#f0f6ff;letter-spacing:-0.3px;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${dagStr}</div>
-</div>
-
-<div style="padding:24px 28px">
-  <div style="margin-bottom:${badges.length || d.note ? '16px' : '20px'}">
-    <span style="font-family:Menlo,Courier New,monospace;font-size:34px;color:#f0f6ff;font-weight:500">${d.start}</span>
-    <span style="font-size:20px;color:#334e68;margin:0 10px">→</span>
-    <span style="font-family:Menlo,Courier New,monospace;font-size:34px;color:#f0f6ff;font-weight:500">${d.slut}</span>
-    <span style="font-family:Menlo,Courier New,monospace;font-size:13px;color:#64748b;margin-left:10px">${hFmt(d.h)}</span>
-  </div>
-  ${badges.length ? `<div style="margin-bottom:16px">${eBadges}</div>` : ''}
-  ${eNote}
-  ${specRækker.length ? `
-  <div style="font-size:11px;color:#334e68;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-weight:600;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">Lønspecifikation</div>
-  <table style="width:100%;border-collapse:collapse">${eSpec}</table>
-  <div style="height:1px;background:#1e293b;margin:20px 0"></div>` : ''}
-  <table style="width:100%;background:#0a1929;border-radius:10px">
-    <tr>
-      <td style="padding:20px 22px;font-size:13px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">Dagsløn</td>
-      <td style="padding:20px 22px;text-align:right;font-family:Menlo,Courier New,monospace;font-size:30px;color:#4adeac">${d.lon.toLocaleString('da-DK', {minimumFractionDigits:2})} kr.</td>
-    </tr>
-  </table>
-</div>
-
-<div style="padding:16px 28px;border-top:1px solid #111d30">
-  ${cfg.navn ? `<div style="font-size:13px;color:#94a3b8;font-weight:600;margin-bottom:2px;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${cfg.navn}</div>` : ''}
-  <div style="font-size:11px;color:#334e68;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">Importeret fra Time App · Fiktionsoverenskomst 2025–2027</div>
-</div>
-
-</div>
-</div>
-</body></html>`;
-
-  // ── Preview HTML (åbnes i ny fane) ───────────────────────────────
-  const preview = `<!DOCTYPE html>
-<html lang="da">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${dagStr}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#060c1a;font-family:Syne,sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px 64px}
-.card{background:#0d1526;border-radius:20px;max-width:480px;width:100%;overflow:hidden;box-shadow:0 24px 80px #000a}
-.hd{background:linear-gradient(135deg,#0f1835 0%,#0a2040 100%);padding:28px 28px 24px;border-bottom:1px solid #1e2d4a}
-.hd-prod{font-size:13px;color:#4ade80;text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px}
-.hd-dag{font-size:26px;font-weight:800;color:#f0f6ff;letter-spacing:-.3px;line-height:1.1}
-.body{padding:24px 28px}
-.tider-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.tid{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:#f0f6ff;letter-spacing:-.5px;line-height:1}
-.tid-pil{font-size:20px;color:#334e68;flex-shrink:0}
-.tid-dur{font-size:13px;color:#64748b;margin-left:4px;align-self:flex-end;padding-bottom:4px;font-family:'DM Mono',monospace}
-.badges{margin-bottom:16px;margin-top:-4px}
-.spec-lbl{font-size:11px;color:#334e68;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-weight:600}
-table{width:100%;border-collapse:collapse}
-.divider{height:1px;background:#1e293b;margin:20px 0}
-.total-box{background:#0a1929;border-radius:12px;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;margin-top:4px}
-.total-lbl{font-size:13px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600}
-.total-amt{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:#4adeac;letter-spacing:-.5px}
-.footer{padding:20px 28px;border-top:1px solid #111d30;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.footer-meta{font-size:12px;color:#334e68;line-height:1.5}
-.send-btn{background:#1a4a2e;color:#4ade80;border:1px solid #4ade8040;border-radius:10px;padding:11px 20px;font-family:Syne,sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;letter-spacing:.3px;transition:background .2s}
-.send-btn:hover{background:#1e5a38}
-.hint{font-size:11px;color:#334e68;margin-top:6px;text-align:right}
-</style>
-<script>
-const _email = ${JSON.stringify(emailHtml)};
-const _mailto = ${JSON.stringify(mailto)};
-async function kopierOgAabn() {
-  const btn = document.getElementById('sbtn');
-  try {
-    await navigator.clipboard.write([new ClipboardItem({'text/html': new Blob([_email],{type:'text/html'}),'text/plain': new Blob([''],{type:'text/plain'})})]);
-    btn.textContent = '✓ Kopieret!';
-    btn.style.background = '#14532d';
-    document.getElementById('hint').textContent = 'Tryk ⌘V i Apple Mail';
-    document.getElementById('hint').style.color = '#4ade80';
-  } catch(e) {}
-  window.open(_mailto);
-}
-<\/script>
-</head>
-<body>
-<div class="card">
-  <div class="hd">
-    ${cfg.prod ? `<div class="hd-prod">${cfg.prod}</div>` : ''}
-    <div class="hd-dag">${dagStr}</div>
-  </div>
-  <div class="body">
-    <div class="tider-row">
-      <div class="tid">${d.start}</div>
-      <div class="tid-pil">→</div>
-      <div class="tid">${d.slut}</div>
-      <div class="tid-dur">${hFmt(d.h)}</div>
-    </div>
-    ${badges.length ? `<div class="badges">${badgesHtml}</div>` : ''}
-    ${noteHtml}
-    ${specRækker.length ? `
-    <div class="spec-lbl">Lønspecifikation</div>
-    <table>${specHtml}</table>
-    <div class="divider"></div>` : ''}
-    <div class="total-box">
-      <div class="total-lbl">Dagsløn</div>
-      <div class="total-amt">${d.lon.toLocaleString('da-DK', {minimumFractionDigits:2})} kr.</div>
-    </div>
-  </div>
-  <div class="footer">
-    <div class="footer-meta">
-      ${cfg.navn ? `<strong style="color:#94a3b8">${cfg.navn}</strong><br>` : ''}
-      <span>Importeret fra Time App</span>
-    </div>
-    <div>
-      <button id="sbtn" class="send-btn" onclick="kopierOgAabn()">✉ Send via Mail</button>
-      <div id="hint" class="hint">Kopierer HTML til udklipsholder</div>
-    </div>
-  </div>
-</div>
-</body>
-</html>`;
-
-  const blob = new Blob([preview], { type: 'text/html' });
-  window.open(URL.createObjectURL(blob), '_blank');
+  const body = lines.join('\n');
+  const subj = encodeURIComponent(`${cfg.prod ? cfg.prod + ' · ' : ''}${dagStr}`);
+  window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${encodeURIComponent(body)}`;
 }
 
 // ═══════════════════════════════════════════════════
