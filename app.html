@@ -712,7 +712,7 @@ textarea::placeholder{color:var(--mut)}
       <a href="index.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
         <span>🌐 Om Time App</span><span style="color:var(--acc)">→</span>
       </a>
-      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 33</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 34</div>
     </div>
   </div>
 </div>
@@ -1704,9 +1704,9 @@ function rendDag() {
   // Stor produktionstitel
   const ttl = document.getElementById('prod-pill');
   if (ttl) {
-    if (!s) {
-      // Blank dag: ingen produktion valgt — opfordr bruger til at vælge
-      ttl.textContent = '← vælg produktion';
+    if (!s && visAlleProduktioner) {
+      // Blank dag + Alle-mode: ingen produktion valgt
+      ttl.textContent = 'vælg produktion ↑';
       ttl.classList.add('anden-prod');
       ttl.title = 'Vælg en produktion i baren ovenfor';
     } else {
