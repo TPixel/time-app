@@ -1498,13 +1498,12 @@ function sendEnkeltDag() {
     return '  ' + lbl + ' '.repeat(Math.max(1, dots)) + krStr;
   };
 
-  // ── Header boks ──────────────────────────────────────────────────
-  const boksIndhold = s => '║  ' + s.substring(0, W - 4).padEnd(W - 4) + '  ║';
+  // ── Header ───────────────────────────────────────────────────────
   const lines = [
-    '╔' + '═'.repeat(W) + '╗',
-    boksIndhold(cfg.prod || 'Time App'),
-    boksIndhold(dagStr),
-    '╚' + '═'.repeat(W) + '╝',
+    TOP,
+    `  ${(cfg.prod || 'Time App').toUpperCase()}`,
+    `  ${dagStr}`,
+    TOP,
     '',
     `  ${d.start}  →  ${d.slut}     ${hFmt(d.h)}`,
   ];
