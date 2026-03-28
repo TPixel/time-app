@@ -946,9 +946,7 @@ function skiftProduktion(id) {
   rendProdListe();
   rendProdSwitcher();
   opdaterProdLabel();
-  const pp = document.getElementById('prod-pill');
-  if (pp) { pp.textContent = cfg.prod || '—'; }
-  beregn();
+  rendDag(); // Genindlæs dagens data for den nye produktion — nulstiller form hvis tom dag
 }
 
 function sletProduktion(id) {
