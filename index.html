@@ -1459,6 +1459,13 @@ function sletDag() {
 // ═══════════════════════════════════════════════════
 // SEND ENKELT DAG
 // ═══════════════════════════════════════════════════
+function sendEnkeltDag() {
+  const d = hentDag(aktivDag);
+  if (!d) { toast('Gem dagen først'); return; }
+
+  const dagStr = `${DAGE[aktivDag.getDay()]} ${aktivDag.getDate()}. ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
+  const otType = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : null;
+
   // ── Spec linjer ─────────────────────────────────────────────────
   const specRækker = [];
   if (d.manuelLon) {
