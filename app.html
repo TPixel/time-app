@@ -294,6 +294,13 @@ textarea::placeholder{color:var(--mut)}
 .model-opt-sub{font-size:10px;color:var(--mut)}
 .model-opt.on .model-opt-sub{color:var(--acc);opacity:.8}
 
+/* ── PROD SWITCHER BAR ── */
+.prod-sw-bar{position:sticky;top:57px;z-index:99;background:rgba(12,12,18,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:6px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.prod-sw-bar::-webkit-scrollbar{display:none}
+.prod-sw-pill{flex-shrink:0;padding:6px 14px;border-radius:50px;border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1}
+.prod-sw-pill.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.prod-sw-pill:active{opacity:.7}
+
 /* ── BOTTOMBAR ── */
 .botbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,18,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--brd);display:flex;padding:10px 16px;padding-bottom:max(10px, env(safe-area-inset-bottom));gap:2px}
 .bb{flex:1;padding:9px 4px;border:none;background:transparent;color:var(--mut);font-size:9px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:var(--rs);transition:all .15s;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Sans',sans-serif}
@@ -348,6 +355,9 @@ textarea::placeholder{color:var(--mut)}
     <button class="gear-btn" id="gear-btn" onclick="visView('inst')" title="Indstillinger">⚙️</button>
   </div>
 </div>
+
+<!-- PROD SWITCHER BAR -->
+<div class="prod-sw-bar" id="prod-sw-bar"></div>
 
 <div class="toast" id="toast"></div>
 <div id="pdf-frame"></div>
@@ -488,7 +498,6 @@ textarea::placeholder{color:var(--mut)}
       <div class="uge-yr" id="uge-yr"></div>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
-      <button class="alle-prod-btn nbtn" onclick="togAlleProduktioner()" title="Vis alle produktioner" style="font-size:11px;padding:4px 8px;white-space:nowrap">Alle prod.</button>
       <button class="nbtn" onclick="skiftUge(-1)">‹</button>
       <button class="nbtn" onclick="skiftUge(1)">›</button>
     </div>
@@ -516,7 +525,6 @@ textarea::placeholder{color:var(--mut)}
       <div class="uge-yr" id="mnd-yr"></div>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
-      <button class="alle-prod-btn nbtn" onclick="togAlleProduktioner()" title="Vis alle produktioner" style="font-size:11px;padding:4px 8px;white-space:nowrap">Alle prod.</button>
       <button class="nbtn" onclick="skiftMaaned(-1)">‹</button>
       <button class="nbtn" onclick="skiftMaaned(1)">›</button>
     </div>
@@ -664,10 +672,7 @@ textarea::placeholder{color:var(--mut)}
         <div><div class="s-lbl">Normaldagsløn</div><div class="s-desc" id="daglon-desc">8t/dag (normal uge §4)</div></div>
         <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--acc)" id="daglon-vis">—</div>
       </div>
-      <div class="s-row">
-        <div><div class="s-lbl">10% enkeltdagstillæg</div><div class="s-desc">Ansættelse under 1 uge §3.10</div></div>
-        <div class="sw" id="sw-tillæg" onclick="swTog('tillæg')"></div>
-      </div>
+      <!-- 10% enkeltdagstillæg styres per dag via bn-e knappen på dag-visningen -->
     </div>
   </div>
 
@@ -710,7 +715,7 @@ textarea::placeholder{color:var(--mut)}
       <a href="index.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
         <span>🌐 Om Time App</span><span style="color:var(--acc)">→</span>
       </a>
-      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 29</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 30</div>
     </div>
   </div>
 </div>
@@ -853,7 +858,11 @@ function nøgle(d) {
 }
 function p2(n) { return String(n).padStart(2,'0'); }
 function hentDag(d) {
-  try { return JSON.parse(localStorage.getItem(nøgle(d))) || null; } catch { return null; }
+  try {
+    const s = JSON.parse(localStorage.getItem(nøgle(d)));
+    if (!s || !s.start) return null; // Tomme poster behandles som ingen data
+    return s;
+  } catch { return null; }
 }
 function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); }
 
@@ -872,8 +881,40 @@ function hentDagMedProd(d) {
 }
 function togAlleProduktioner() {
   visAlleProduktioner = !visAlleProduktioner;
-  document.querySelectorAll('.alle-prod-btn').forEach(b => b.classList.toggle('on', visAlleProduktioner));
+  rendProdSwitcher();
   rendUge(); rendMaaned(); rendAar();
+}
+
+// Permanent produktionsskifter — altid synlig under tabs
+function rendProdSwitcher() {
+  const bar = document.getElementById('prod-sw-bar');
+  if (!bar) return;
+  bar.innerHTML = '';
+
+  // "Alle" pill
+  const alle = document.createElement('button');
+  alle.className = 'prod-sw-pill' + (visAlleProduktioner ? ' on' : '');
+  alle.textContent = 'Alle';
+  alle.onclick = () => {
+    visAlleProduktioner = !visAlleProduktioner;
+    rendProdSwitcher();
+    rendUge(); rendMaaned(); rendAar();
+  };
+  bar.appendChild(alle);
+
+  // En pill per produktion
+  produktioner.forEach(p => {
+    const pill = document.createElement('button');
+    const isActive = p.id === aktivProdId && !visAlleProduktioner;
+    pill.className = 'prod-sw-pill' + (isActive ? ' on' : '');
+    pill.textContent = p.prod || '(ingen titel)';
+    pill.onclick = () => {
+      visAlleProduktioner = false;
+      skiftProduktion(p.id);
+      rendUge(); rendMaaned(); rendAar();
+    };
+    bar.appendChild(pill);
+  });
 }
 
 // ═══════════════════════════════════════════════════
@@ -903,6 +944,7 @@ function skiftProduktion(id) {
   if (p) cfg = { ...cfg, dagLon: 0, ...p };
   indlæsCfgIForm();
   rendProdListe();
+  rendProdSwitcher();
   opdaterProdLabel();
   const pp = document.getElementById('prod-pill');
   if (pp) { pp.textContent = cfg.prod || '—'; }
@@ -983,6 +1025,7 @@ function hentCfg() {
   cfg = { ...cfg, ...p };
   indlæsCfgIForm();
   rendProdListe();
+  rendProdSwitcher();
 
   // Migration: flyt gamle globale dagnøgler (faf-YYYY-MM-DD) til alle produktioner
   migrerGamleDage();
