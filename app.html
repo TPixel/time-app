@@ -844,9 +844,8 @@ function tidStreng(t) {
 // STORAGE
 // ═══════════════════════════════════════════════════
 function nøgle(d) {
-  // Global nøgle — dage deles på tværs af produktioner.
-  // Produktion er metadata på dagen (s.prodId), ikke en del af nøglen.
-  return `faf-${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+  // Nøgle er per produktion — dage isoleres per aktivProdId.
+  return `faf-${aktivProdId}-${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
 }
 function p2(n) { return String(n).padStart(2,'0'); }
 function hentDag(d) {
