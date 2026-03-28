@@ -849,13 +849,7 @@ function nøgle(d) {
 }
 function p2(n) { return String(n).padStart(2,'0'); }
 function hentDag(d) {
-  try {
-    const data = JSON.parse(localStorage.getItem(nøgle(d)));
-    if (!data) return null;
-    // Valider at dagen tilhører den aktive produktion (guard mod fejlmigreret data)
-    if (data.prodId && data.prodId !== aktivProdId) return null;
-    return data;
-  } catch { return null; }
+  try { return JSON.parse(localStorage.getItem(nøgle(d))) || null; } catch { return null; }
 }
 function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); }
 
@@ -972,30 +966,53 @@ function hentCfg() {
 }
 
 function migrerGamleDage() {
-  if (localStorage.getItem('faf-dage-migreret-v2')) return; // allerede kørt v2
-  const gammeltMønster = /^faf-(\d{4}-\d{2}-\d{2})$/;
-  const gamleNøgler = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (gammeltMønster.test(k)) gamleNøgler.push(k);
+  // --- Trin 1: Gamle globale nøgler (faf-YYYY-MM-DD) → korrekt produktion ---
+  if (!localStorage.getItem('faf-dage-migreret-v2')) {
+    const gammeltMønster = /^faf-(\d{4}-\d{2}-\d{2})$/;
+    const gamleNøgler = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (gammeltMønster.test(k)) gamleNøgler.push(k);
+    }
+    gamleNøgler.forEach(gamlNøgle => {
+      const datoStr = gamlNøgle.replace('faf-', '');
+      const raw = localStorage.getItem(gamlNøgle);
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        const targetId = (data.prodId && produktioner.find(p => p.id === data.prodId))
+          ? data.prodId : aktivProdId;
+        const nyNøgle = `faf-${targetId}-${datoStr}`;
+        if (!localStorage.getItem(nyNøgle)) localStorage.setItem(nyNøgle, raw);
+        localStorage.removeItem(gamlNøgle);
+      } catch { localStorage.removeItem(gamlNøgle); }
+    });
+    localStorage.setItem('faf-dage-migreret-v2', '1');
+    if (gamleNøgler.length) console.log(`Migration v2: ${gamleNøgler.length} dage → korrekte produktioner.`);
   }
-  // Migrer gamle globale nøgler til korrekt produktion vha. gemt prodId
-  gamleNøgler.forEach(gamlNøgle => {
-    const datoStr = gamlNøgle.replace('faf-', ''); // "YYYY-MM-DD"
-    const raw = localStorage.getItem(gamlNøgle);
-    if (!raw) return;
-    try {
-      const data = JSON.parse(raw);
-      // Brug gemt prodId hvis det findes, ellers aktiv produktion
-      const targetId = (data.prodId && produktioner.find(p => p.id === data.prodId))
-        ? data.prodId : aktivProdId;
-      const nyNøgle = `faf-${targetId}-${datoStr}`;
-      if (!localStorage.getItem(nyNøgle)) localStorage.setItem(nyNøgle, raw);
-      localStorage.removeItem(gamlNøgle);
-    } catch { localStorage.removeItem(gamlNøgle); }
-  });
-  localStorage.setItem('faf-dage-migreret-v2', '1');
-  if (gamleNøgler.length) console.log(`Migration v2: ${gamleNøgler.length} dage migreret til korrekte produktioner.`);
+
+  // --- Trin 2: Ryd op efter v1-migration der kopierede til alle produktioner ---
+  // Nøgleformat: faf-{prodId}-YYYY-MM-DD — prodId er alfanumerisk (ikke dato)
+  if (!localStorage.getItem('faf-dage-opryddet-v3')) {
+    const nyMønster = /^faf-([a-z0-9]+)-(\d{4}-\d{2}-\d{2})$/;
+    const sletListe = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      const m = k.match(nyMønster);
+      if (!m) continue;
+      const nøgleProdId = m[1];
+      // Tjek om det er en rigtig produktion (ikke en dato-ligning)
+      if (!produktioner.find(p => p.id === nøgleProdId)) continue;
+      try {
+        const data = JSON.parse(localStorage.getItem(k));
+        // Slet nøglen hvis data tilhører en ANDEN produktion (v1-migrationsfejl)
+        if (data?.prodId && data.prodId !== nøgleProdId) sletListe.push(k);
+      } catch { /* ignorer */ }
+    }
+    sletListe.forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('faf-dage-opryddet-v3', '1');
+    if (sletListe.length) console.log(`Oprydning v3: ${sletListe.length} fejlkopierede nøgler slettet.`);
+  }
 }
 
 function opdaterLonTotal() {
