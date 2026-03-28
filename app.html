@@ -959,6 +959,38 @@ function hentCfg() {
   cfg = { ...cfg, ...p };
   indlæsCfgIForm();
   rendProdListe();
+
+  // Migration: flyt gamle globale dagnøgler (faf-YYYY-MM-DD) til alle produktioner
+  migrerGamleDage();
+}
+
+function migrerGamleDage() {
+  if (localStorage.getItem('faf-dage-migreret')) return; // allerede kørt
+  const gammeltMønster = /^faf-(\d{4}-\d{2}-\d{2})$/;
+  const gamleNøgler = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (gammeltMønster.test(k)) gamleNøgler.push(k);
+  }
+  if (gamleNøgler.length === 0) {
+    localStorage.setItem('faf-dage-migreret', '1');
+    return;
+  }
+  // Kopiér hver gammel dag til ALLE produktioner
+  gamleNøgler.forEach(gamlNøgle => {
+    const datoStr = gamlNøgle.replace('faf-', ''); // "YYYY-MM-DD"
+    const data = localStorage.getItem(gamlNøgle);
+    if (!data) return;
+    produktioner.forEach(prod => {
+      const nyNøgle = `faf-${prod.id}-${datoStr}`;
+      if (!localStorage.getItem(nyNøgle)) {
+        localStorage.setItem(nyNøgle, data);
+      }
+    });
+    localStorage.removeItem(gamlNøgle);
+  });
+  localStorage.setItem('faf-dage-migreret', '1');
+  console.log(`Migration: ${gamleNøgler.length} dage kopieret til ${produktioner.length} produktion(er).`);
 }
 
 function opdaterLonTotal() {
