@@ -1483,7 +1483,7 @@ function sendEnkeltDag() {
     d.knapper?.r ? 'Kørsel m. udstyr' : '',
   ].filter(Boolean).join(', ');
 
-  const subj = encodeURIComponent(`Time App — ${dagStr}${cfg.prod ? ' · ' + cfg.prod : ''}`);
+  const subj = encodeURIComponent(`${cfg.prod ? cfg.prod + ' · ' : ''}${dagStr}`);
   const body =
     `${cfg.prod ? 'Produktion: ' + cfg.prod + n : ''}` +
     `${cfg.navn ? 'Navn: ' + cfg.navn + n : ''}` +
@@ -2167,14 +2167,14 @@ function doKalender() {
 
     const uid   = `timeapp-uge${uge}-${isoDate(dato)}-${sh}${sm}@ditzel`;
     const now   = new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
-    const title = `${prod}${navn ? ' · ' + navn : ''}`;
+    const title = prod; // navn indgår ikke i titlen
     const notes = [
-      `Time App — ${dagNavn(dato)} uge ${uge}`,
       `Arbejdstid: ${d.start} → ${d.slut} (${d.h.toFixed(2)} t)`,
       `Dagløn: ${krFmt(d.lon)}`,
       d.knapper?.v ? 'Varslet OT' : d.knapper?.u ? 'Uvarslet OT' : '',
       d.knapper?.h ? 'Weekend/helligdag §8' : '',
-      d.note ? `Note: ${d.note}` : ''
+      d.note ? `Note: ${d.note}` : '',
+      'Importeret fra Time App'
     ].filter(Boolean).join('\\n');
 
     ics += `BEGIN:VEVENT\r\n`;
