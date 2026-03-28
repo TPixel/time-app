@@ -849,7 +849,13 @@ function nøgle(d) {
 }
 function p2(n) { return String(n).padStart(2,'0'); }
 function hentDag(d) {
-  try { return JSON.parse(localStorage.getItem(nøgle(d))) || null; } catch { return null; }
+  try {
+    const data = JSON.parse(localStorage.getItem(nøgle(d)));
+    if (!data) return null;
+    // Valider at dagen tilhører den aktive produktion (guard mod fejlmigreret data)
+    if (data.prodId && data.prodId !== aktivProdId) return null;
+    return data;
+  } catch { return null; }
 }
 function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); }
 
@@ -876,7 +882,8 @@ function skiftProduktion(id) {
   aktivProdId = id;
   localStorage.setItem('faf-aktiv-prod', id);
   const p = produktioner.find(p => p.id === id);
-  if (p) cfg = { ...cfg, ...p };
+  // Nulstil dagLon FØR spread, så den ikke bløder fra forrige produktion
+  if (p) cfg = { ...cfg, dagLon: 0, ...p };
   indlæsCfgIForm();
   rendProdListe();
   opdaterProdLabel();
@@ -965,32 +972,30 @@ function hentCfg() {
 }
 
 function migrerGamleDage() {
-  if (localStorage.getItem('faf-dage-migreret')) return; // allerede kørt
+  if (localStorage.getItem('faf-dage-migreret-v2')) return; // allerede kørt v2
   const gammeltMønster = /^faf-(\d{4}-\d{2}-\d{2})$/;
   const gamleNøgler = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (gammeltMønster.test(k)) gamleNøgler.push(k);
   }
-  if (gamleNøgler.length === 0) {
-    localStorage.setItem('faf-dage-migreret', '1');
-    return;
-  }
-  // Kopiér hver gammel dag til ALLE produktioner
+  // Migrer gamle globale nøgler til korrekt produktion vha. gemt prodId
   gamleNøgler.forEach(gamlNøgle => {
     const datoStr = gamlNøgle.replace('faf-', ''); // "YYYY-MM-DD"
-    const data = localStorage.getItem(gamlNøgle);
-    if (!data) return;
-    produktioner.forEach(prod => {
-      const nyNøgle = `faf-${prod.id}-${datoStr}`;
-      if (!localStorage.getItem(nyNøgle)) {
-        localStorage.setItem(nyNøgle, data);
-      }
-    });
-    localStorage.removeItem(gamlNøgle);
+    const raw = localStorage.getItem(gamlNøgle);
+    if (!raw) return;
+    try {
+      const data = JSON.parse(raw);
+      // Brug gemt prodId hvis det findes, ellers aktiv produktion
+      const targetId = (data.prodId && produktioner.find(p => p.id === data.prodId))
+        ? data.prodId : aktivProdId;
+      const nyNøgle = `faf-${targetId}-${datoStr}`;
+      if (!localStorage.getItem(nyNøgle)) localStorage.setItem(nyNøgle, raw);
+      localStorage.removeItem(gamlNøgle);
+    } catch { localStorage.removeItem(gamlNøgle); }
   });
-  localStorage.setItem('faf-dage-migreret', '1');
-  console.log(`Migration: ${gamleNøgler.length} dage kopieret til ${produktioner.length} produktion(er).`);
+  localStorage.setItem('faf-dage-migreret-v2', '1');
+  if (gamleNøgler.length) console.log(`Migration v2: ${gamleNøgler.length} dage migreret til korrekte produktioner.`);
 }
 
 function opdaterLonTotal() {
