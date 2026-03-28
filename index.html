@@ -580,7 +580,7 @@ textarea::placeholder{color:var(--mut)}
 <!-- INDSTILLINGER VIEW -->
 <div class="view" id="view-inst">
   <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px">Indstillinger</div>
-  <div style="font-size:12px;color:var(--mut);margin-bottom:20px">FAF Fiktionsoverenskomst 2025–2027</div>
+  <div style="font-size:12px;color:var(--mut);margin-bottom:20px">Fiktionsoverenskomst 2025–2027</div>
 
   <!-- PRODUKTIONER — foldbar, viser aktuel produktion når lukket -->
   <div class="s-card">
@@ -1500,7 +1500,7 @@ function sendEnkeltDag() {
     `Dagsløn: ${d.lon.toLocaleString('da-DK')} kr.${n}` +
     `${n}` +
     `Time App · Ditzel${n}` +
-    `Beregnet iht. FAF Fiktionsoverenskomst 2025–2027`;
+    `Beregnet iht. Fiktionsoverenskomst 2025–2027`;
 
   window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${body}`;
 }
@@ -1972,7 +1972,7 @@ function doPDF() {
     </table>
 
     <div class="pdf-footer">
-      Beregnet iht. FAF Fiktionsoverenskomst 2025–2027 §3–§13 · Udskrevet ${new Date().toLocaleDateString('da-DK')}
+      Beregnet iht. Fiktionsoverenskomst 2025–2027 §3–§13 · Udskrevet ${new Date().toLocaleDateString('da-DK')}
     </div>
   </div>`;
 
@@ -2019,7 +2019,7 @@ function _genXLSX() {
   const hTime = { numFmt:'hh:mm' };
 
   // Titel
-  aoa.push([`Time App · Ditzel — FAF Fiktionsoverenskomst 2025–2027`,'','','','','','','','','','']);
+  aoa.push([`Time App · Ditzel — Fiktionsoverenskomst 2025–2027`,'','','','','','','','','','']);
   aoa.push([`Navn: ${cfg.navn || '—'}`, '', '', `Uge: ${uge}`, '', `År: ${år}`,'','','','','']);
   aoa.push([`Produktion: ${cfg.prod || '—'}`, '', '', `Ugeløn: ${cfg.ugelon} kr.`, '', `Timesats: ${ts.toFixed(2)} kr/t`,'','','','','']);
   aoa.push([`Arbejdstid: ${cfg.model === 'saertid' ? 'Forskudt særtid §5 (OT efter 10t)' : 'Normal §4 (OT efter 8t)'}`,
@@ -2101,7 +2101,7 @@ function _genXLSX() {
 
   // ── SHEET 2: UDREGNINGSGRUNDLAG ──
   const aoa2 = [
-    ['Udregningsgrundlag — FAF Fiktionsoverenskomst 2025–2027'],
+    ['Udregningsgrundlag — Fiktionsoverenskomst 2025–2027'],
     [''],
     ['Sats','Procent','Multiplikator'],
     ['Varslet OT 9. time', '50%', 1.5],
@@ -2263,7 +2263,7 @@ function doMail() {
     `Pension 9,5%25: ${pension.toLocaleString('da-DK')} kr.${n}` +
     `${n}` +
     `Time App · Ditzel${n}` +
-    `Beregnet iht. FAF Fiktionsoverenskomst 2025–2027`;
+    `Beregnet iht. Fiktionsoverenskomst 2025–2027`;
 
   window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${body}`;
 }
@@ -2323,7 +2323,7 @@ function doPDF_mnd() {
       <tr><td class="lbl">Løn i alt</td><td class="num">${totL.toLocaleString('da-DK')} kr.</td></tr>
       <tr class="sub"><td class="lbl">Pension 9,5%</td><td class="num">${pension.toLocaleString('da-DK')} kr.</td></tr>
     </table>
-    <div class="pdf-footer">Time App · FAF Fiktionsoverenskomst 2025–2027 · Udskrevet ${new Date().toLocaleDateString('da-DK')}</div>
+    <div class="pdf-footer">Time App · Fiktionsoverenskomst 2025–2027 · Udskrevet ${new Date().toLocaleDateString('da-DK')}</div>
   </div>`;
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = html; frame.classList.add('vis');
@@ -2368,7 +2368,7 @@ function doMail_mnd() {
     (totOt ? encodeURIComponent(`Overtid: ${hFmt(totOt)}`) + n : '') +
     encodeURIComponent(`Løn i alt: ${totL.toLocaleString('da-DK')} kr.`) + n +
     encodeURIComponent(`Pension 9,5%: ${pension.toLocaleString('da-DK')} kr.`) + n + n +
-    encodeURIComponent(`Time App · FAF Fiktionsoverenskomst 2025–2027`);
+    encodeURIComponent(`Time App · Fiktionsoverenskomst 2025–2027`);
   window.location.href = `mailto:${cfg.email||''}?subject=${subj}&body=${body}`;
 }
 
@@ -2425,7 +2425,7 @@ function doPDF_aar() {
       <tr class="total"><td class="lbl">I alt ${år}</td><td class="num">${totL.toLocaleString('da-DK')} kr.</td></tr>
       <tr class="sub"><td class="lbl">Pension 9,5%</td><td class="num">${pension.toLocaleString('da-DK')} kr.</td></tr>
     </table>
-    <div class="pdf-footer">Time App · FAF Fiktionsoverenskomst 2025–2027 · Udskrevet ${new Date().toLocaleDateString('da-DK')}</div>
+    <div class="pdf-footer">Time App · Fiktionsoverenskomst 2025–2027 · Udskrevet ${new Date().toLocaleDateString('da-DK')}</div>
   </div>`;
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = html; frame.classList.add('vis');
@@ -2473,7 +2473,7 @@ function doMail_aar() {
     (totOt ? encodeURIComponent(`Overtid: ${hFmt(totOt)}`) + n : '') +
     encodeURIComponent(`Løn i alt: ${totL.toLocaleString('da-DK')} kr.`) + n +
     encodeURIComponent(`Pension 9,5%: ${pension.toLocaleString('da-DK')} kr.`) + n + n +
-    encodeURIComponent(`Time App · FAF Fiktionsoverenskomst 2025–2027`);
+    encodeURIComponent(`Time App · Fiktionsoverenskomst 2025–2027`);
   window.location.href = `mailto:${cfg.email||''}?subject=${subj}&body=${body}`;
 }
 
