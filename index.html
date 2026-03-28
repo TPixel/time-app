@@ -105,8 +105,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 @keyframes advarsel-puls{0%,100%{box-shadow:0 0 0 3px rgba(232,160,10,.3),0 0 24px rgba(232,130,10,.18)}50%{box-shadow:0 0 0 6px rgba(232,160,10,.5),0 0 32px rgba(232,130,10,.35)}}
 .res-advarsel{background:linear-gradient(135deg,#2E1A00,#381F00) !important;border-color:#F0A500 !important;border-width:2.5px !important;animation:advarsel-puls 1.8s ease-in-out infinite}
 .res-top{display:flex;flex-direction:column;gap:6px}
-.res-bottom-row{display:flex;align-items:center;justify-content:space-between}
-.res-t{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;letter-spacing:.5px;line-height:1;white-space:nowrap;color:var(--mut);margin-top:2px}
+.res-bottom-row{display:flex;align-items:flex-start;justify-content:space-between}
+.res-t{font-family:'DM Mono',monospace;font-size:32px;font-weight:700;letter-spacing:.5px;line-height:1;white-space:nowrap;color:var(--txt)}
 .res-sub{display:none;font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:4px}
 .res-pay-amt{font-family:'DM Mono',monospace;font-size:25px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
 .res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
@@ -407,7 +407,7 @@ textarea::placeholder{color:var(--mut)}
       </div>
       <div class="res-bottom-row">
         <div class="res-t" id="res-t">– –</div>
-        <div style="display:flex;align-items:baseline;gap:6px;flex-shrink:0">
+        <div style="text-align:right;flex-shrink:0">
           <div class="res-pay-amt" id="res-pay">0 kr.</div>
           <div class="res-pay-lbl" id="res-pay-lbl">Dagsløn</div>
         </div>
