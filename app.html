@@ -2599,6 +2599,10 @@ function importerData(evt) {
       const data = JSON.parse(e.target.result);
       if (!confirm(`Importer ${Object.keys(data).length} dataposter? Eksisterende data overskrives.`)) return;
       Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+      // Nulstil migrationsflag så gamle nøgler bliver konverteret ved genindlæsning
+      localStorage.removeItem('faf-dage-migreret');
+      localStorage.removeItem('faf-dage-migreret-v2');
+      localStorage.removeItem('faf-dage-opryddet-v3');
       toast('Data importeret ✓ — genindlæser...');
       setTimeout(() => location.reload(), 1500);
     } catch { toast('Fejl: ugyldig backup-fil'); }
