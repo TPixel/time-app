@@ -1493,6 +1493,15 @@ function sendEnkeltDag() {
   const TOP = '═'.repeat(W);
   const fKr = kr => kr.toLocaleString('da-DK', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' kr.';
 
+  // Unicode bold (A-Z, a-z, 0-9 — ø æ å beholder normal stil)
+  const bold = s => s.split('').map(c => {
+    const n = c.charCodeAt(0);
+    if (n >= 65 && n <= 90)  return String.fromCodePoint(0x1D400 + n - 65);
+    if (n >= 97 && n <= 122) return String.fromCodePoint(0x1D41A + n - 97);
+    if (n >= 48 && n <= 57)  return String.fromCodePoint(0x1D7CE + n - 48);
+    return c;
+  }).join('');
+
   const specLinje = (lbl, krStr) => {
     const dots = W - 2 - lbl.length - krStr.length;
     return '  ' + lbl + ' '.repeat(Math.max(1, dots)) + krStr;
@@ -1501,8 +1510,8 @@ function sendEnkeltDag() {
   // ── Header ───────────────────────────────────────────────────────
   const lines = [
     TOP,
-    `  ${(cfg.prod || 'Time App').toUpperCase()}`,
-    `  ${dagStr}`,
+    `  ${bold(cfg.prod || 'Time App')}`,
+    `  ${bold(dagStr)}`,
     TOP,
     '',
     `  ${d.start}  →  ${d.slut}     ${hFmt(d.h)}`,
