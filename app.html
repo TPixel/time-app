@@ -51,6 +51,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .dag-nav{display:flex;gap:8px;margin-top:6px}
 .nbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .nbtn:active{transform:scale(.88)}
+.alle-prod-btn{width:auto;border-radius:20px;font-family:'DM Mono',monospace;font-weight:600;color:var(--mut)}
+.alle-prod-btn.on{background:var(--acc);border-color:var(--acc);color:#000}
 .dag-navn{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-2px;line-height:1}
 .dag-dato{font-family:'DM Mono',monospace;font-size:15px;display:inline-block;color:#FFFFFF;margin-top:4px;opacity:1;color:#ffffff}
 .dag-uge{font-family:'DM Mono',monospace;font-size:15px;color:var(--acc);margin-top:0;display:inline-block;margin-left:10px;text-transform:uppercase;letter-spacing:1px}
@@ -485,7 +487,8 @@ textarea::placeholder{color:var(--mut)}
       <div class="uge-ttl" id="uge-ttl">Uge –</div>
       <div class="uge-yr" id="uge-yr"></div>
     </div>
-    <div class="dag-nav">
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="alle-prod-btn nbtn" onclick="togAlleProduktioner()" title="Vis alle produktioner" style="font-size:11px;padding:4px 8px;white-space:nowrap">Alle prod.</button>
       <button class="nbtn" onclick="skiftUge(-1)">‹</button>
       <button class="nbtn" onclick="skiftUge(1)">›</button>
     </div>
@@ -512,7 +515,8 @@ textarea::placeholder{color:var(--mut)}
       <div class="uge-ttl" id="mnd-ttl">—</div>
       <div class="uge-yr" id="mnd-yr"></div>
     </div>
-    <div class="dag-nav">
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="alle-prod-btn nbtn" onclick="togAlleProduktioner()" title="Vis alle produktioner" style="font-size:11px;padding:4px 8px;white-space:nowrap">Alle prod.</button>
       <button class="nbtn" onclick="skiftMaaned(-1)">‹</button>
       <button class="nbtn" onclick="skiftMaaned(1)">›</button>
     </div>
@@ -852,6 +856,25 @@ function hentDag(d) {
   try { return JSON.parse(localStorage.getItem(nøgle(d))) || null; } catch { return null; }
 }
 function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); }
+
+// Hent dag fra aktiv produktion — eller scan alle produktioner
+let visAlleProduktioner = false;
+function hentDagMedProd(d) {
+  if (!visAlleProduktioner) return hentDag(d);
+  const datoStr = `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+  for (const prod of produktioner) {
+    try {
+      const data = JSON.parse(localStorage.getItem(`faf-${prod.id}-${datoStr}`));
+      if (data?.start) return data;
+    } catch {}
+  }
+  return null;
+}
+function togAlleProduktioner() {
+  visAlleProduktioner = !visAlleProduktioner;
+  document.querySelectorAll('.alle-prod-btn').forEach(b => b.classList.toggle('on', visAlleProduktioner));
+  rendUge(); rendMaaned(); rendAar();
+}
 
 // ═══════════════════════════════════════════════════
 // PRODUKTIONER
@@ -1695,7 +1718,7 @@ function rendAar() {
     const sidsteDag = new Date(år, m + 1, 0);
     for (let dato = new Date(år, m, 1); dato <= sidsteDag; dato.setDate(dato.getDate()+1)) {
       const d = new Date(dato);
-      const s = hentDag(d);
+      const s = hentDagMedProd(d);
       if (!s?.h) continue;
       if (s.prod) prodSet.add(s.prod);
       const idx = d.getDay();
@@ -1703,7 +1726,7 @@ function rendAar() {
       const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
-      const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0));
+      const dagLon = visAlleProduktioner ? (s.lon ?? (l.total + (s.fskKr ?? 0))) : (s.manuelLon ?? (l.total + (s.fskKr ?? 0)));
       alleDage.push({d, m, s, h:s.h, lon:dagLon, ot:Math.max(0, s.h - dagMax()), prod:s.prod||''});
     }
   }
@@ -1795,14 +1818,14 @@ function _rendMaaned() {
 
     let ugeH=0, ugeL=0, ugeOt=0, ugeD=0;
     dageIMnd.forEach(d => {
-      const s = hentDag(d);
+      const s = hentDagMedProd(d);
       if (!s?.h) return;
       const idx = d.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
       const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
-      const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0));
+      const dagLon = visAlleProduktioner ? (s.lon ?? (l.total + (s.fskKr ?? 0))) : (s.manuelLon ?? (l.total + (s.fskKr ?? 0)));
       ugeH += s.h; ugeL += dagLon;
       ugeOt += Math.max(0, s.h - dagMax()); ugeD++;
     });
@@ -1852,7 +1875,7 @@ function rendUge() {
   const liste = document.getElementById('uge-liste');
   liste.innerHTML = '';
   datoer.forEach((d, i) => {
-    const s    = hentDag(d);
+    const s    = hentDagMedProd(d);
     const h    = s?.h ?? null;
     const dMax = dagMax();
     const idx  = d.getDay();
@@ -1863,7 +1886,8 @@ function rendUge() {
     const wkRate = (s?.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
     const l    = h ? calcLon(h, opt, wkAutoH, wkRate) : null;
     const lonBeregnet = l ? l.total + (s?.fskKr ?? 0) : 0;
-    const lon  = s?.manuelLon ?? lonBeregnet;
+    // I alle-produktioner-mode: brug gemt lon (fra korrekt produktions-cfg)
+    const lon  = visAlleProduktioner ? (s?.lon ?? lonBeregnet) : (s?.manuelLon ?? lonBeregnet);
     if (h) { totH += h; totL += lon; totOt += Math.max(0, h - dMax); totD++; }
     const el = document.createElement('div');
     el.className = `dk c${i}${(!s || !s.start) ? ' tom' : ''}`;
