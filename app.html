@@ -553,11 +553,8 @@ textarea::placeholder{color:var(--mut)}
       <div class="uge-yr" id="aar-sub">Årsoversigt</div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      <div class="dag-nav">
-        <button class="nbtn" onclick="skiftAar(-1)">‹</button>
-        <button class="nbtn" onclick="skiftAar(1)">›</button>
-      </div>
-      <button class="nbtn" onclick="visView('mnd')" style="font-size:12px;padding:6px 12px;letter-spacing:0">← Måned</button>
+      <button class="nbtn" onclick="skiftAar(-1)">‹</button>
+      <button class="nbtn" onclick="skiftAar(1)">›</button>
     </div>
   </div>
   <!-- Totalkort -->
@@ -715,7 +712,7 @@ textarea::placeholder{color:var(--mut)}
       <a href="index.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
         <span>🌐 Om Time App</span><span style="color:var(--acc)">→</span>
       </a>
-      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 30</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 31</div>
     </div>
   </div>
 </div>
@@ -1076,6 +1073,24 @@ function migrerGamleDage() {
     sletListe.forEach(k => localStorage.removeItem(k));
     localStorage.setItem('faf-dage-opryddet-v3', '1');
     if (sletListe.length) console.log(`Oprydning v3: ${sletListe.length} fejlkopierede nøgler slettet.`);
+  }
+
+  // --- Trin 3: Slet tomme poster (start:"" eller ingen start) — altid ved opstart ---
+  // Disse opstod ved v1-migration og forhindrer blanke dage
+  if (!localStorage.getItem('faf-dage-opryddet-v4')) {
+    const dagMønster = /^faf-([a-z0-9]+)-(\d{4}-\d{2}-\d{2})$/;
+    const tomme = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!dagMønster.test(k)) continue;
+      try {
+        const data = JSON.parse(localStorage.getItem(k));
+        if (!data || !data.start) tomme.push(k);
+      } catch { tomme.push(k); }
+    }
+    tomme.forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('faf-dage-opryddet-v4', '1');
+    if (tomme.length) console.log(`Oprydning v4: ${tomme.length} tomme poster slettet.`);
   }
 }
 
