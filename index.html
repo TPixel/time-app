@@ -1504,30 +1504,70 @@ function sendEnkeltDag() {
       <div style="color:#fef9c3;font-size:14px;line-height:1.5">${d.note}</div>
     </div>` : '';
 
-  // ── Mailto fallback (plain text) ─────────────────────────────────
-  const plainSpec = specRækker.map(r => `  ${r.lbl}: ${r.kr.toLocaleString('da-DK')} kr.`).join('\n');
-  const plainBody = [
-    cfg.prod ? `Produktion: ${cfg.prod}` : '',
-    cfg.navn ? `Navn: ${cfg.navn}` : '',
-    '',
-    dagStr,
-    `${d.start}–${d.slut}  (${hFmt(d.h)})`,
-    badges.map(b=>b.txt).join(', '),
-    d.note ? `Note: ${d.note}` : '',
-    '',
-    'LØNSPECIFIKATION',
-    plainSpec,
-    '',
-    `Dagsløn: ${d.lon.toLocaleString('da-DK')} kr.`,
-    '',
-    'Time App · Fiktionsoverenskomst 2025–2027',
-  ].filter(x => x !== undefined).join('\n');
-
+  // ── Mailto (kun subject — body kopieres som HTML) ───────────────
   const subj   = encodeURIComponent(`${cfg.prod ? cfg.prod + ' · ' : ''}${dagStr}`);
-  const mailto = `mailto:${cfg.email || ''}?subject=${subj}&body=${encodeURIComponent(plainBody)}`;
+  const mailto = `mailto:${cfg.email || ''}?subject=${subj}`;
 
-  // ── HTML preview ─────────────────────────────────────────────────
-  const html = `<!DOCTYPE html>
+  // ── Email HTML (inline styles — til Apple Mail via clipboard) ────
+  const eBadges = badges.map(b =>
+    `<span style="display:inline-block;background:${b.bg};color:${b.col};border:1px solid ${b.col};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin:2px 4px 2px 0;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${b.txt}</span>`
+  ).join('');
+
+  const eSpec = specRækker.map(r => `
+    <tr>
+      <td style="padding:9px 0;color:#94a3b8;font-size:14px;border-bottom:1px solid #1e293b;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${r.lbl}</td>
+      <td style="padding:9px 0;color:#e2e8f0;font-size:14px;text-align:right;border-bottom:1px solid #1e293b;font-family:Menlo,Courier New,monospace;white-space:nowrap">${r.kr.toLocaleString('da-DK', {minimumFractionDigits:2})} kr.</td>
+    </tr>`).join('');
+
+  const eNote = d.note ? `
+    <div style="background:#1e1a0a;border-left:3px solid #facc15;border-radius:6px;padding:12px 16px;margin-bottom:20px">
+      <div style="font-size:11px;color:#facc15;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;font-family:-apple-system,Helvetica Neue,Arial,sans-serif;font-weight:600">Note</div>
+      <div style="color:#fef9c3;font-size:14px;line-height:1.5;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${d.note}</div>
+    </div>` : '';
+
+  const emailHtml = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#060c1a">
+<div style="background:#060c1a;padding:32px 16px;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">
+<div style="max-width:480px;margin:0 auto;background:#0d1526;border-radius:16px;overflow:hidden">
+
+<div style="background:#0f1835;padding:24px 28px;border-bottom:1px solid #1e2d4a">
+  ${cfg.prod ? `<div style="font-size:12px;color:#4ade80;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;font-weight:700;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${cfg.prod}</div>` : ''}
+  <div style="font-size:24px;font-weight:700;color:#f0f6ff;letter-spacing:-0.3px;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${dagStr}</div>
+</div>
+
+<div style="padding:24px 28px">
+  <div style="margin-bottom:${badges.length || d.note ? '16px' : '20px'}">
+    <span style="font-family:Menlo,Courier New,monospace;font-size:34px;color:#f0f6ff;font-weight:500">${d.start}</span>
+    <span style="font-size:20px;color:#334e68;margin:0 10px">→</span>
+    <span style="font-family:Menlo,Courier New,monospace;font-size:34px;color:#f0f6ff;font-weight:500">${d.slut}</span>
+    <span style="font-family:Menlo,Courier New,monospace;font-size:13px;color:#64748b;margin-left:10px">${hFmt(d.h)}</span>
+  </div>
+  ${badges.length ? `<div style="margin-bottom:16px">${eBadges}</div>` : ''}
+  ${eNote}
+  ${specRækker.length ? `
+  <div style="font-size:11px;color:#334e68;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-weight:600;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">Lønspecifikation</div>
+  <table style="width:100%;border-collapse:collapse">${eSpec}</table>
+  <div style="height:1px;background:#1e293b;margin:20px 0"></div>` : ''}
+  <table style="width:100%;background:#0a1929;border-radius:10px">
+    <tr>
+      <td style="padding:20px 22px;font-size:13px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">Dagsløn</td>
+      <td style="padding:20px 22px;text-align:right;font-family:Menlo,Courier New,monospace;font-size:30px;color:#4adeac">${d.lon.toLocaleString('da-DK', {minimumFractionDigits:2})} kr.</td>
+    </tr>
+  </table>
+</div>
+
+<div style="padding:16px 28px;border-top:1px solid #111d30">
+  ${cfg.navn ? `<div style="font-size:13px;color:#94a3b8;font-weight:600;margin-bottom:2px;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">${cfg.navn}</div>` : ''}
+  <div style="font-size:11px;color:#334e68;font-family:-apple-system,Helvetica Neue,Arial,sans-serif">Importeret fra Time App · Fiktionsoverenskomst 2025–2027</div>
+</div>
+
+</div>
+</div>
+</body></html>`;
+
+  // ── Preview HTML (åbnes i ny fane) ───────────────────────────────
+  const preview = `<!DOCTYPE html>
 <html lang="da">
 <head>
 <meta charset="UTF-8">
@@ -1556,9 +1596,25 @@ table{width:100%;border-collapse:collapse}
 .total-amt{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:#4adeac;letter-spacing:-.5px}
 .footer{padding:20px 28px;border-top:1px solid #111d30;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .footer-meta{font-size:12px;color:#334e68;line-height:1.5}
-.send-btn{background:#1a4a2e;color:#4ade80;border:1px solid #4ade8040;border-radius:10px;padding:10px 18px;font-family:Syne,sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;letter-spacing:.3px}
+.send-btn{background:#1a4a2e;color:#4ade80;border:1px solid #4ade8040;border-radius:10px;padding:11px 20px;font-family:Syne,sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;letter-spacing:.3px;transition:background .2s}
 .send-btn:hover{background:#1e5a38}
+.hint{font-size:11px;color:#334e68;margin-top:6px;text-align:right}
 </style>
+<script>
+const _email = ${JSON.stringify(emailHtml)};
+const _mailto = ${JSON.stringify(mailto)};
+async function kopierOgAabn() {
+  const btn = document.getElementById('sbtn');
+  try {
+    await navigator.clipboard.write([new ClipboardItem({'text/html': new Blob([_email],{type:'text/html'}),'text/plain': new Blob([''],{type:'text/plain'})})]);
+    btn.textContent = '✓ Kopieret!';
+    btn.style.background = '#14532d';
+    document.getElementById('hint').textContent = 'Tryk ⌘V i Apple Mail';
+    document.getElementById('hint').style.color = '#4ade80';
+  } catch(e) {}
+  window.open(_mailto);
+}
+<\/script>
 </head>
 <body>
 <div class="card">
@@ -1589,13 +1645,16 @@ table{width:100%;border-collapse:collapse}
       ${cfg.navn ? `<strong style="color:#94a3b8">${cfg.navn}</strong><br>` : ''}
       <span>Importeret fra Time App</span>
     </div>
-    <a class="send-btn" href="${mailto.replace(/"/g,'&quot;')}">✉ Send via Mail</a>
+    <div>
+      <button id="sbtn" class="send-btn" onclick="kopierOgAabn()">✉ Send via Mail</button>
+      <div id="hint" class="hint">Kopierer HTML til udklipsholder</div>
+    </div>
   </div>
 </div>
 </body>
 </html>`;
 
-  const blob = new Blob([html], { type: 'text/html' });
+  const blob = new Blob([preview], { type: 'text/html' });
   window.open(URL.createObjectURL(blob), '_blank');
 }
 
