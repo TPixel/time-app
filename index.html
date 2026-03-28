@@ -582,14 +582,19 @@ textarea::placeholder{color:var(--mut)}
   <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px">Indstillinger</div>
   <div style="font-size:12px;color:var(--mut);margin-bottom:20px">FAF Fiktionsoverenskomst 2025–2027</div>
 
+  <!-- PRODUKTIONER — foldbar, viser aktuel produktion når lukket -->
   <div class="s-card">
-    <div class="s-hd">Produktioner</div>
-    <div style="padding:14px 16px">
+    <div class="s-hd" onclick="togCard('prod-body','prod-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      <span>Produktioner <span id="prod-collapsed-lbl" style="font-weight:400;opacity:.6;font-size:11px;margin-left:6px"></span></span>
+      <span id="prod-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+    </div>
+    <div id="prod-body" style="padding:14px 16px">
       <div class="prod-liste" id="prod-liste"></div>
       <button class="ny-prod-btn" onclick="nyProduktion()">＋ Ny produktion</button>
     </div>
   </div>
 
+  <!-- PERSONLIGT -->
   <div class="s-card">
     <div class="s-hd">Personligt</div>
     <div class="s-row">
@@ -606,35 +611,7 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
 
-  <div class="s-card">
-    <div class="s-hd">Løn §3</div>
-    <div class="s-row">
-      <div><div class="s-lbl">Mindsteløn</div><div class="s-desc">Kr. pr. uge (40 timer)</div></div>
-      <input class="s-inp" type="number" id="s-ugelon" value="10380" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
-    </div>
-    <div class="s-row">
-      <div><div class="s-lbl">Personligt tillæg</div><div class="s-desc">Erfaring, kørekort, DMX mm. kr/uge</div></div>
-      <input class="s-inp" type="number" id="s-pers" value="0" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
-    </div>
-    <div class="s-row" id="lon-total-row">
-      <div><div class="s-lbl">Samlet ugeløn</div><div class="s-desc" id="lon-total-desc">OT beregnes på mindsteløn §3</div></div>
-      <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--grn)" id="lon-total">10.380 kr.</div>
-    </div>
-    <div class="s-row">
-      <div><div class="s-lbl">Normaldagsløn</div><div class="s-desc" id="daglon-desc">8t/dag (normal uge §4)</div></div>
-      <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--acc)" id="daglon-vis">—</div>
-    </div>
-    <div class="s-row">
-      <div><div class="s-lbl">10% enkeltdagstillæg</div><div class="s-desc">Ansættelse under 1 uge §3.10</div></div>
-      <div class="sw" id="sw-tillæg" onclick="swTog('tillæg')"></div>
-    </div>
-    <div class="s-row" id="s-daglon-row">
-      <div><div class="s-lbl">Manuel dagløn</div><div class="s-desc">Fast aftalt dagssats — overskriver beregnet løn</div></div>
-      <input class="s-inp" type="number" id="s-daglon" min="0" step="1" placeholder="0 = beregn auto"
-        style="width:110px;text-align:right;font-family:'DM Mono',monospace" oninput="opdaterLonTotal()">
-    </div>
-  </div>
-
+  <!-- ARBEJDSTIDSMODEL — nu over løn -->
   <div class="s-card">
     <div class="s-hd">Arbejdstidsmodel §4 / §5</div>
     <div class="model-seg">
@@ -656,6 +633,40 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
 
+  <!-- LØN — foldbar, Manuel dagløn øverst -->
+  <div class="s-card">
+    <div class="s-hd" onclick="togCard('lon-body','lon-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      Løn §3 <span id="lon-ch" style="font-size:12px;opacity:.6">▴ Luk</span>
+    </div>
+    <div id="lon-body">
+      <div class="s-row" id="s-daglon-row">
+        <div><div class="s-lbl">Manuel dagløn</div><div class="s-desc">Fast aftalt dagssats — overskriver beregnet løn</div></div>
+        <input class="s-inp" type="number" id="s-daglon" min="0" step="1" placeholder="0 = beregn auto"
+          style="width:110px;text-align:right;font-family:'DM Mono',monospace" oninput="opdaterLonTotal()">
+      </div>
+      <div class="s-row">
+        <div><div class="s-lbl">Mindsteløn</div><div class="s-desc">Kr. pr. uge (40 timer)</div></div>
+        <input class="s-inp" type="number" id="s-ugelon" value="10380" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
+      </div>
+      <div class="s-row">
+        <div><div class="s-lbl">Personligt tillæg</div><div class="s-desc">Erfaring, kørekort, DMX mm. kr/uge</div></div>
+        <input class="s-inp" type="number" id="s-pers" value="0" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
+      </div>
+      <div class="s-row" id="lon-total-row">
+        <div><div class="s-lbl">Samlet ugeløn</div><div class="s-desc" id="lon-total-desc">OT beregnes på mindsteløn §3</div></div>
+        <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--grn)" id="lon-total">10.380 kr.</div>
+      </div>
+      <div class="s-row">
+        <div><div class="s-lbl">Normaldagsløn</div><div class="s-desc" id="daglon-desc">8t/dag (normal uge §4)</div></div>
+        <div style="font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:var(--acc)" id="daglon-vis">—</div>
+      </div>
+      <div class="s-row">
+        <div><div class="s-lbl">10% enkeltdagstillæg</div><div class="s-desc">Ansættelse under 1 uge §3.10</div></div>
+        <div class="sw" id="sw-tillæg" onclick="swTog('tillæg')"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="s-card">
     <div class="s-hd" id="tillæg-hd" onclick="togTillæg()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
       Tillægsoversigt <span id="tillæg-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
@@ -672,8 +683,10 @@ textarea::placeholder{color:var(--mut)}
   <button class="gem-btn" onclick="gemInst()">GEM INDSTILLINGER</button>
 
   <div class="s-card" style="margin-top:20px">
-    <div class="s-hd">Sikkerhedskopi</div>
-    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+    <div class="s-hd" onclick="togCard('sik-body','sik-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      Sikkerhedskopi <span id="sik-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+    </div>
+    <div id="sik-body" data-display="flex" style="padding:14px 16px;flex-direction:column;gap:10px;display:none">
       <div style="font-size:12px;color:var(--mut);margin-bottom:2px">Eksporter alle dine data som en JSON-fil. Importer for at gendanne.</div>
       <button class="gem-btn" onclick="exporterData()" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt)">⬇ EKSPORTER DATA</button>
       <label class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-align:center;cursor:pointer">
@@ -854,7 +867,7 @@ function gemProduktionerStore() {
 }
 
 function nyProduktion() {
-  const nyt = { id: genId(), navn: '', email: '', prod: 'Ny produktion', ugelon: 10380, pers: 0, tillæg: false, model: '5dag', fridag: 'fre' };
+  const nyt = { id: genId(), navn: cfg.navn || '', email: cfg.email || '', prod: 'Ny produktion', ugelon: 10380, pers: 0, tillæg: false, model: '5dag', fridag: 'fre' };
   produktioner.push(nyt);
   gemProduktionerStore();
   skiftProduktion(nyt.id);
@@ -1040,6 +1053,31 @@ function opdaterProdLabel() {
   const navn = cfg.prod || '';
   const dp = document.getElementById('dag-prod');
   if (dp) dp.textContent = navn;
+  // Vis aktuel produktion i foldet Produktioner-header
+  const cl = document.getElementById('prod-collapsed-lbl');
+  if (cl) cl.textContent = navn ? '· ' + navn : '';
+}
+
+// Generisk fold/unfold for s-cards
+function togCard(bodyId, chId) {
+  const body = document.getElementById(bodyId);
+  const ch   = document.getElementById(chId);
+  if (!body) return;
+  const lukker = body.style.display !== 'none';
+  const showAs = body.dataset.display || 'block';
+  body.style.display = lukker ? 'none' : showAs;
+  if (ch) ch.textContent = lukker ? '▾ Vis' : '▴ Luk';
+  localStorage.setItem('faf-card-' + bodyId, lukker ? '0' : '1');
+}
+function initCard(bodyId, chId, defaultOpen = true) {
+  const gemt = localStorage.getItem('faf-card-' + bodyId);
+  const open  = gemt === null ? defaultOpen : gemt === '1';
+  const body  = document.getElementById(bodyId);
+  const ch    = document.getElementById(chId);
+  if (!body) return;
+  const showAs = body.dataset.display || 'block';
+  body.style.display = open ? showAs : 'none';
+  if (ch) ch.textContent = open ? '▴ Luk' : '▾ Vis';
 }
 
 function togTillæg() {
@@ -2509,6 +2547,9 @@ function toast(msg) {
 hentCfg();
 rendDag();
 initTillæg();
+initCard('lon-body', 'lon-ch', true);
+initCard('sik-body', 'sik-ch', false);
+initCard('prod-body', 'prod-ch', false);
 </script>
 
 <!-- INSTALL BANNER (Android/Chrome) -->
