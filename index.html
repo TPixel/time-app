@@ -1464,45 +1464,139 @@ function sendEnkeltDag() {
   if (!d) { toast('Gem dagen først'); return; }
 
   const dagStr = `${DAGE[aktivDag.getDay()]} ${aktivDag.getDate()}. ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
-  const n = '%0D%0A';
-
-  // OT type
   const otType = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : null;
-  let lonspec = '';
-  if (d.normal)  lonspec += `  Normal arbejdstid:    ${d.normal.toLocaleString('da-DK')} kr.${n}`;
-  if (d.ot1)     lonspec += `  OT 1. time (${otType==='Varslet'?'+50%':'+75%'}):    ${d.ot1.toLocaleString('da-DK')} kr.${n}`;
-  if (d.ot2)     lonspec += `  OT 2. time (${otType==='Varslet'?'+60%':'+100%'}):   ${d.ot2.toLocaleString('da-DK')} kr.${n}`;
-  if (d.ot3)     lonspec += `  OT 3.+ time (+135%):  ${d.ot3.toLocaleString('da-DK')} kr.${n}`;
-  if (d.wk)      lonspec += `  Weekend §8:           ${d.wk.toLocaleString('da-DK')} kr.${n}`;
-  if (d.fskKr)   lonspec += `  Forskudt §7:          ${d.fskKr.toLocaleString('da-DK')} kr.${n}`;
-  const extras = [
-    d.knapper?.v ? 'Varslet OT' : '',
-    d.knapper?.u ? 'Uvarslet OT' : '',
-    d.knapper?.h ? 'Weekend/helligdag' : '',
-    d.knapper?.f ? 'Sen frokost' : '',
-    d.knapper?.r ? 'Kørsel m. udstyr' : '',
-  ].filter(Boolean).join(', ');
 
-  const subj = encodeURIComponent(`${cfg.prod ? cfg.prod + ' · ' : ''}${dagStr}`);
-  const body =
-    `${cfg.prod ? 'Produktion: ' + cfg.prod + n : ''}` +
-    `${cfg.navn ? 'Navn: ' + cfg.navn + n : ''}` +
-    `${n}` +
-    `${dagStr}${n}` +
-    `${d.start}–${d.slut}  (${hFmt(d.h)})${n}` +
-    `${extras ? extras + n : ''}` +
-    `${d.note ? 'Note: ' + d.note + n : ''}` +
-    `${n}` +
-    `LØNSPECIFIKATION${n}` +
-    `${d.manuelLon ? '' : lonspec}` +
-    `${d.manuelLon ? `  Manuel aftalt dagssats:  ${d.manuelLon.toLocaleString('da-DK')} kr.${n}` : ''}` +
-    `${n}` +
-    `Dagsløn: ${d.lon.toLocaleString('da-DK')} kr.${n}` +
-    `${n}` +
-    `Time App · Ditzel${n}` +
-    `Beregnet iht. Fiktionsoverenskomst 2025–2027`;
+  // ── Lønspec linjer ──────────────────────────────────────────────
+  const specRækker = [];
+  if (d.manuelLon) {
+    specRækker.push({ lbl: 'Manuel aftalt dagssats', kr: d.manuelLon });
+  } else {
+    if (d.normal) specRækker.push({ lbl: 'Normal arbejdstid', kr: d.normal });
+    if (d.ot1)    specRækker.push({ lbl: `OT 1. time (${otType==='Varslet'?'+50%':'+75%'})`, kr: d.ot1 });
+    if (d.ot2)    specRækker.push({ lbl: `OT 2. time (${otType==='Varslet'?'+60%':'+100%'})`, kr: d.ot2 });
+    if (d.ot3)    specRækker.push({ lbl: 'OT 3.+ time (+135%)', kr: d.ot3 });
+    if (d.wk)     specRækker.push({ lbl: 'Weekendtillæg §8', kr: d.wk });
+    if (d.fskKr)  specRækker.push({ lbl: 'Forskudt §7', kr: d.fskKr });
+  }
 
-  window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${body}`;
+  // ── Badges ──────────────────────────────────────────────────────
+  const badges = [
+    d.knapper?.v ? { txt: 'Varslet OT',           bg: '#1e3a5f', col: '#60a5fa' } : null,
+    d.knapper?.u ? { txt: 'Uvarslet OT',          bg: '#3b1f1f', col: '#f87171' } : null,
+    d.knapper?.h ? { txt: 'Weekend / helligdag §8', bg: '#1f2e1f', col: '#4ade80' } : null,
+    d.knapper?.f ? { txt: 'Sen frokost',           bg: '#2e2a1a', col: '#facc15' } : null,
+    d.knapper?.r ? { txt: 'Kørsel m. udstyr',     bg: '#1e1e3a', col: '#a78bfa' } : null,
+  ].filter(Boolean);
+
+  const specHtml = specRækker.map(r => `
+      <tr>
+        <td style="padding:8px 0;color:#94a3b8;font-size:14px;border-bottom:1px solid #1e293b">${r.lbl}</td>
+        <td style="padding:8px 0;color:#e2e8f0;font-size:14px;text-align:right;border-bottom:1px solid #1e293b;font-family:'DM Mono',monospace;white-space:nowrap">${r.kr.toLocaleString('da-DK', {minimumFractionDigits:2})} kr.</td>
+      </tr>`).join('');
+
+  const badgesHtml = badges.map(b =>
+    `<span style="display:inline-block;background:${b.bg};color:${b.col};border:1px solid ${b.col}40;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin:3px 4px 3px 0;letter-spacing:.4px">${b.txt}</span>`
+  ).join('');
+
+  const noteHtml = d.note ? `
+    <div style="background:#1e1a0a;border-left:3px solid #facc15;border-radius:6px;padding:12px 16px;margin-bottom:20px">
+      <div style="font-size:11px;color:#facc15;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Note</div>
+      <div style="color:#fef9c3;font-size:14px;line-height:1.5">${d.note}</div>
+    </div>` : '';
+
+  // ── Mailto fallback (plain text) ─────────────────────────────────
+  const plainSpec = specRækker.map(r => `  ${r.lbl}: ${r.kr.toLocaleString('da-DK')} kr.`).join('\n');
+  const plainBody = [
+    cfg.prod ? `Produktion: ${cfg.prod}` : '',
+    cfg.navn ? `Navn: ${cfg.navn}` : '',
+    '',
+    dagStr,
+    `${d.start}–${d.slut}  (${hFmt(d.h)})`,
+    badges.map(b=>b.txt).join(', '),
+    d.note ? `Note: ${d.note}` : '',
+    '',
+    'LØNSPECIFIKATION',
+    plainSpec,
+    '',
+    `Dagsløn: ${d.lon.toLocaleString('da-DK')} kr.`,
+    '',
+    'Time App · Fiktionsoverenskomst 2025–2027',
+  ].filter(x => x !== undefined).join('\n');
+
+  const subj   = encodeURIComponent(`${cfg.prod ? cfg.prod + ' · ' : ''}${dagStr}`);
+  const mailto = `mailto:${cfg.email || ''}?subject=${subj}&body=${encodeURIComponent(plainBody)}`;
+
+  // ── HTML preview ─────────────────────────────────────────────────
+  const html = `<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${dagStr}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#060c1a;font-family:Syne,sans-serif;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px 64px}
+.card{background:#0d1526;border-radius:20px;max-width:480px;width:100%;overflow:hidden;box-shadow:0 24px 80px #000a}
+.hd{background:linear-gradient(135deg,#0f1835 0%,#0a2040 100%);padding:28px 28px 24px;border-bottom:1px solid #1e2d4a}
+.hd-prod{font-size:13px;color:#4ade80;text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-bottom:8px}
+.hd-dag{font-size:26px;font-weight:800;color:#f0f6ff;letter-spacing:-.3px;line-height:1.1}
+.body{padding:24px 28px}
+.tider-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.tid{font-family:'DM Mono',monospace;font-size:36px;font-weight:500;color:#f0f6ff;letter-spacing:-.5px;line-height:1}
+.tid-pil{font-size:20px;color:#334e68;flex-shrink:0}
+.tid-dur{font-size:13px;color:#64748b;margin-left:4px;align-self:flex-end;padding-bottom:4px;font-family:'DM Mono',monospace}
+.badges{margin-bottom:16px;margin-top:-4px}
+.spec-lbl{font-size:11px;color:#334e68;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-weight:600}
+table{width:100%;border-collapse:collapse}
+.divider{height:1px;background:#1e293b;margin:20px 0}
+.total-box{background:#0a1929;border-radius:12px;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+.total-lbl{font-size:13px;color:#64748b;text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.total-amt{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:#4adeac;letter-spacing:-.5px}
+.footer{padding:20px 28px;border-top:1px solid #111d30;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.footer-meta{font-size:12px;color:#334e68;line-height:1.5}
+.send-btn{background:#1a4a2e;color:#4ade80;border:1px solid #4ade8040;border-radius:10px;padding:10px 18px;font-family:Syne,sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;letter-spacing:.3px}
+.send-btn:hover{background:#1e5a38}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="hd">
+    ${cfg.prod ? `<div class="hd-prod">${cfg.prod}</div>` : ''}
+    <div class="hd-dag">${dagStr}</div>
+  </div>
+  <div class="body">
+    <div class="tider-row">
+      <div class="tid">${d.start}</div>
+      <div class="tid-pil">→</div>
+      <div class="tid">${d.slut}</div>
+      <div class="tid-dur">${hFmt(d.h)}</div>
+    </div>
+    ${badges.length ? `<div class="badges">${badgesHtml}</div>` : ''}
+    ${noteHtml}
+    ${specRækker.length ? `
+    <div class="spec-lbl">Lønspecifikation</div>
+    <table>${specHtml}</table>
+    <div class="divider"></div>` : ''}
+    <div class="total-box">
+      <div class="total-lbl">Dagsløn</div>
+      <div class="total-amt">${d.lon.toLocaleString('da-DK', {minimumFractionDigits:2})} kr.</div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="footer-meta">
+      ${cfg.navn ? `<strong style="color:#94a3b8">${cfg.navn}</strong><br>` : ''}
+      <span>Importeret fra Time App</span>
+    </div>
+    <a class="send-btn" href="${mailto.replace(/"/g,'&quot;')}">✉ Send via Mail</a>
+  </div>
+</div>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  window.open(URL.createObjectURL(blob), '_blank');
 }
 
 // ═══════════════════════════════════════════════════
