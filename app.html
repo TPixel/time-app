@@ -712,7 +712,7 @@ textarea::placeholder{color:var(--mut)}
       <a href="index.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
         <span>🌐 Om Time App</span><span style="color:var(--acc)">→</span>
       </a>
-      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 31</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 32</div>
     </div>
   </div>
 </div>
@@ -879,7 +879,7 @@ function hentDagMedProd(d) {
 function togAlleProduktioner() {
   visAlleProduktioner = !visAlleProduktioner;
   rendProdSwitcher();
-  rendUge(); rendMaaned(); rendAar();
+  rendDag(); rendUge(); rendMaaned(); rendAar();
 }
 
 // Permanent produktionsskifter — altid synlig under tabs
@@ -1701,14 +1701,21 @@ function rendDag() {
   const uge = ugeNr(d);
   document.getElementById('dag-uge').textContent = `UGE ${uge}`;
   const s = hentDag(d);
-  // Stor produktionstitel — vis DAGENS gemte produktion, ikke den globalt aktive
+  // Stor produktionstitel
   const ttl = document.getElementById('prod-pill');
   if (ttl) {
-    const dagProd = s?.prod || cfg.prod || '';
-    ttl.textContent = dagProd || '—';
-    const erAndenProd = s?.prod && s.prod !== cfg.prod;
-    ttl.classList.toggle('anden-prod', !!erAndenProd);
-    ttl.title = produktioner.length > 1 ? 'Tryk for at skifte aktiv produktion' : '';
+    if (!s && visAlleProduktioner) {
+      // Ingen data + Alle-mode: opfordr bruger til at vælge produktion
+      ttl.textContent = '← vælg produktion';
+      ttl.classList.add('anden-prod');
+      ttl.title = 'Vælg en produktion i baren ovenfor';
+    } else {
+      const dagProd = s?.prod || cfg.prod || '';
+      ttl.textContent = dagProd || '—';
+      const erAndenProd = s?.prod && s.prod !== cfg.prod;
+      ttl.classList.toggle('anden-prod', !!erAndenProd);
+      ttl.title = produktioner.length > 1 ? 'Tryk for at skifte aktiv produktion' : '';
+    }
   }
   knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,r:false,e:false, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, r:false, e:false };
   tidStart = s?.tidStart || null;
