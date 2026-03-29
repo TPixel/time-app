@@ -486,6 +486,7 @@ textarea::placeholder{color:var(--mut)}
 
   <div class="dag-actions" id="dag-actions" style="display:none">
     <button class="dag-act-btn act-send" onclick="sendEnkeltDag()">✉️ Send dag</button>
+    <button class="dag-act-btn act-send" onclick="doPDF_dag()">🖨 PDF dag</button>
     <button class="dag-act-btn act-slet" onclick="sletDag()">🗑 Slet dag</button>
   </div>
 </div>
@@ -712,7 +713,7 @@ textarea::placeholder{color:var(--mut)}
       <a href="index.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
         <span>🌐 Om Time App</span><span style="color:var(--acc)">→</span>
       </a>
-      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 37</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 38</div>
     </div>
   </div>
 </div>
@@ -1591,6 +1592,55 @@ function sletDag() {
 // ═══════════════════════════════════════════════════
 // SEND ENKELT DAG
 // ═══════════════════════════════════════════════════
+function doPDF_dag() {
+  const d = hentDag(aktivDag);
+  if (!d) { toast('Gem dagen først'); return; }
+  const dagNavn = DAGE[aktivDag.getDay()];
+  const dagStr = `${dagNavn} ${aktivDag.getDate()}. ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
+  const otType = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : null;
+  const rækker = [];
+  if (d.manuelLon) {
+    rækker.push(`<tr><td>Manuel aftalt dagssats</td><td class="num">${d.manuelLon.toLocaleString('da-DK')} kr.</td></tr>`);
+  } else {
+    if (d.normal) rækker.push(`<tr><td>Normal arbejdstid</td><td class="num">${d.normal.toLocaleString('da-DK')} kr.</td></tr>`);
+    if (d.ot1)    rækker.push(`<tr><td>OT 1. time (${otType==='Varslet'?'+50%':'+75%'})</td><td class="num">${d.ot1.toLocaleString('da-DK')} kr.</td></tr>`);
+    if (d.ot2)    rækker.push(`<tr><td>OT 2. time (${otType==='Varslet'?'+60%':'+100%'})</td><td class="num">${d.ot2.toLocaleString('da-DK')} kr.</td></tr>`);
+    if (d.ot3)    rækker.push(`<tr><td>OT 3.+ time (+135%)</td><td class="num">${d.ot3.toLocaleString('da-DK')} kr.</td></tr>`);
+    if (d.wk)     rækker.push(`<tr><td>Weekendtillæg §8</td><td class="num">${d.wk.toLocaleString('da-DK')} kr.</td></tr>`);
+    if (d.fskKr)  rækker.push(`<tr><td>Forskudt §7</td><td class="num">${d.fskKr.toLocaleString('da-DK')} kr.</td></tr>`);
+  }
+  const badges = [
+    d.knapper?.v ? 'Varslet OT' : null,
+    d.knapper?.u ? 'Uvarslet OT' : null,
+    d.knapper?.h ? 'Helligdag §8' : null,
+    d.knapper?.f ? 'Sen frokost' : null,
+    d.knapper?.r ? 'Kørsel m. udstyr' : null,
+    d.knapper?.e ? '10% Enkeltdag' : null,
+  ].filter(Boolean).map(b => `<span style="background:var(--acc);color:#fff;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700">${b}</span>`).join(' ');
+  const pension = Math.round(d.lon * 0.095);
+  const html = `<div class="pdf-body">
+    <div class="pdf-h1">${d.prod || cfg.prod || 'Timespecifikation'} — ${dagStr}</div>
+    <div class="pdf-meta">
+      <span><strong>${cfg.navn||'—'}</strong>Navn</span>
+      <span><strong>${d.start||'—'}–${d.slut||'—'}</strong>Arbejdstid</span>
+      <span><strong>${hFmt(d.h)}</strong>Timer</span>
+      <span><strong>${d.lon.toLocaleString('da-DK')} kr.</strong>Dagsløn</span>
+    </div>
+    ${badges ? `<div style="margin:8px 0;display:flex;gap:6px;flex-wrap:wrap">${badges}</div>` : ''}
+    <div class="pdf-sect">Lønspecifikation</div>
+    <table class="pdf-tbl"><thead><tr><th>Post</th><th class="num">Beløb</th></tr></thead><tbody>${rækker.join('')}</tbody></table>
+    <table class="pdf-tillæg">
+      <tr><td class="lbl">I alt</td><td class="num">${d.lon.toLocaleString('da-DK')} kr.</td></tr>
+      <tr class="sub"><td class="lbl">Pension 9,5%</td><td class="num">${pension.toLocaleString('da-DK')} kr.</td></tr>
+    </table>
+    ${d.note ? `<div class="pdf-sect">Note</div><div style="font-size:12px;padding:8px 0;color:#555">${d.note}</div>` : ''}
+    <div class="pdf-footer">Time App · Fiktionsoverenskomst 2025–2027 · Udskrevet ${new Date().toLocaleDateString('da-DK')}</div>
+  </div>`;
+  const frame = document.getElementById('pdf-frame');
+  frame.innerHTML = html; frame.classList.add('vis');
+  setTimeout(() => { window.print(); frame.classList.remove('vis'); }, 300);
+}
+
 function sendEnkeltDag() {
   const d = hentDag(aktivDag);
   if (!d) { toast('Gem dagen først'); return; }
