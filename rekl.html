@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Time App · Reklame</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Reklame">
+<style>
+:root{
+  --bg:#f2f2f7;--card:#fff;--accent:#e05c00;--accent2:#ff8c42;
+  --text:#1c1c1e;--sub:#8e8e93;--border:#e5e5ea;--r:12px;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;font-size:16px}
+#hdr{position:sticky;top:0;z-index:100;background:var(--card);
+  padding:calc(var(--st)+10px) 16px 0;border-bottom:1px solid var(--border)}
+#hdr-top{display:flex;align-items:center;justify-content:space-between}
+#app-title{font-size:19px;font-weight:800;color:var(--accent);letter-spacing:-.3px}
+#app-sub{font-size:11px;color:var(--sub);font-weight:500;margin-top:1px}
+#cfg-btn{background:none;border:none;font-size:22px;cursor:pointer;padding:4px}
+#nav-tabs{display:flex;gap:0;margin-top:8px}
+.nav-tab{flex:1;text-align:center;padding:9px 4px;font-size:12px;font-weight:700;
+  color:var(--sub);border-bottom:3px solid transparent;cursor:pointer;
+  text-transform:uppercase;letter-spacing:.5px;transition:color .15s}
+.nav-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+#prod-bar{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  background:var(--card);border-bottom:1px solid var(--border)}
+#prod-bar::-webkit-scrollbar{display:none}
+.ppill{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;
+  font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--bg);
+  color:var(--sub);transition:all .12s}
+.ppill.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ppill.add{color:var(--accent);border-color:var(--accent);background:transparent}
+#content{padding:14px;padding-bottom:calc(var(--sb)+80px)}
+.card{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:12px;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.row{display:flex;align-items:center;gap:10px;padding:10px 0;
+  border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.rlbl{font-size:13px;color:var(--sub);width:88px;flex-shrink:0}
+.rinp{flex:1;background:none;border:none;font-size:16px;color:var(--text);
+  font-family:inherit;outline:none;text-align:right}
+.rinp::placeholder{color:#d1d1d6}
+select.rinp{-webkit-appearance:none;cursor:pointer}
+.tog{display:flex;gap:5px;margin-left:auto}
+.tb{padding:5px 11px;border-radius:8px;border:1.5px solid var(--border);
+  font-size:13px;font-weight:700;cursor:pointer;background:var(--bg);
+  color:var(--sub);transition:all .12s;white-space:nowrap}
+.tb.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* nav arrows */
+#dag-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.nav-arr{width:40px;height:40px;border-radius:50%;background:var(--bg);
+  border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#dag-dato{font-size:16px;font-weight:700;text-align:center;flex:1;line-height:1.2}
+/* beregning */
+.br{display:flex;justify-content:space-between;align-items:baseline;
+  padding:6px 0;font-size:14px}
+.br+.br{border-top:1px solid var(--border)}
+.brl{color:var(--sub)}
+.brv{font-weight:700}
+.brtot{display:flex;justify-content:space-between;align-items:baseline;
+  padding:10px 0 4px;margin-top:4px;border-top:2px solid var(--text)}
+.brtot .brv{color:var(--accent);font-size:22px}
+/* actions */
+.acts{display:flex;gap:8px;margin-top:2px}
+.abt{flex:1;padding:13px 6px;border-radius:var(--r);border:none;
+  font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
+.a-gem{background:var(--accent);color:#fff}
+.a-pdf{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
+.a-mail{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
+/* uge/mnd/år */
+.pnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.ptit{font-size:16px;font-weight:700;text-align:center;flex:1}
+.drow{display:flex;align-items:center;gap:8px;padding:10px 0;
+  border-bottom:1px solid var(--border);cursor:pointer}
+.drow:last-child{border-bottom:none}
+.drow-dg{width:28px;font-size:12px;font-weight:700}
+.drow-dt{font-size:14px;color:var(--text);flex:1}
+.drow-tm{font-size:12px;color:var(--sub)}
+.drow-kr{font-size:15px;font-weight:700;min-width:80px;text-align:right}
+.nodata .drow-kr{color:#d1d1d6}
+.wksum,.msum,.ysum{display:flex;justify-content:space-between;align-items:baseline;
+  padding:10px 0 4px;border-top:2px solid var(--text);margin-top:4px;font-weight:700}
+.wksum-v,.msum-v,.ysum-v{font-size:20px;color:var(--accent)}
+/* kalender */
+.mcal-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+.mcal-hdr div{text-align:center;font-size:11px;font-weight:700;color:var(--sub);padding:3px 0}
+.mcal-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+.mdag{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;border-radius:8px;font-size:12px;cursor:pointer;padding:2px}
+.mdag.has{background:var(--accent);color:#fff}
+.mdag.we{color:var(--accent)}
+.mdag.empty{visibility:hidden}
+.mdag-tal{font-weight:700;font-size:13px}
+.mdag-kr{font-size:10px;opacity:.85}
+/* år */
+.ymrow{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.ymrow:last-child{border-bottom:none}
+.ym-n{font-size:15px;font-weight:600}
+.ym-d{font-size:12px;color:var(--sub)}
+.ym-k{font-size:15px;font-weight:700}
+/* overlay */
+#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200}
+#ov.open{display:flex;align-items:flex-end}
+#panel{width:100%;background:var(--card);border-radius:20px 20px 0 0;
+  padding:20px 16px calc(var(--sb)+20px);max-height:82vh;overflow-y:auto}
+#panel h2{font-size:17px;margin-bottom:14px}
+.srow{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 0;border-bottom:1px solid var(--border)}
+.srow:last-child{border-bottom:none}
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#333;color:#fff;padding:10px 20px;border-radius:20px;
+  font-size:14px;opacity:0;transition:all .3s;pointer-events:none;z-index:300;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;
+  font-weight:700;background:#e05c0020;color:var(--accent);margin-left:6px}
+.saved-badge{display:block;text-align:center;font-size:12px;color:var(--accent);
+  margin-bottom:6px}
+</style>
+</head>
+<body>
+<div id="hdr">
+  <div id="hdr-top">
+    <div>
+      <div id="app-title">Time App · Reklame</div>
+      <div id="app-sub">FAF Reklamefilmsoverenskomst 2024</div>
+    </div>
+    <button id="cfg-btn" onclick="toggleCfg()">⚙️</button>
+  </div>
+  <div id="nav-tabs">
+    <div class="nav-tab" onclick="goView('dag')" id="t-dag">Dag</div>
+    <div class="nav-tab" onclick="goView('uge')" id="t-uge">Uge</div>
+    <div class="nav-tab" onclick="goView('mnd')" id="t-mnd">Måned</div>
+    <div class="nav-tab" onclick="goView('aar')" id="t-aar">År</div>
+  </div>
+</div>
+<div id="prod-bar"></div>
+<div id="content"></div>
+
+<!-- Settings overlay -->
+<div id="ov" onclick="if(event.target===this)toggleCfg()">
+ <div id="panel">
+  <h2>⚙️ Indstillinger</h2>
+  <div class="srow"><span>Navn</span>
+    <input id="c-navn" class="rinp" style="max-width:160px" placeholder="Dit navn"></div>
+  <div class="srow"><span>Standard løngruppe</span>
+    <select id="c-gruppe" class="rinp" style="max-width:190px" onchange="onCfgGruppe()">
+      <option value="2">Gruppe 2 – 4.100 kr</option>
+      <option value="3">Gruppe 3 – 3.300 kr</option>
+      <option value="4">Gruppe 4 – 2.750 kr</option>
+      <option value="5">Gruppe 5 – 1.540 kr</option>
+      <option value="1">Gruppe 1 – fri forhandling</option>
+    </select></div>
+  <div class="srow" id="c-ds1-row" style="display:none"><span>Din dagløn (gr.1)</span>
+    <input id="c-dagsloen1" class="rinp" style="max-width:120px" type="number" placeholder="kr/dag"
+      oninput="saveCfgUI()"></div>
+  <div class="srow"><span>Standard dagtype</span>
+    <select id="c-dagtype" class="rinp" style="max-width:180px" onchange="saveCfgUI()">
+      <option value="optagelse">Optagelse</option>
+      <option value="forbered">Forbered/afrig</option>
+    </select></div>
+  <div class="srow"><span>Standard start</span>
+    <input id="c-start" class="rinp" type="time" style="max-width:100px" onchange="saveCfgUI()"></div>
+  <div class="srow" style="flex-direction:column;align-items:flex-start;gap:8px">
+    <span style="font-weight:600">Produktioner</span>
+    <div id="prod-mgr"></div>
+    <button class="tb on" onclick="addProd()" style="margin-top:2px">+ Tilføj produktion</button>
+  </div>
+  <div class="srow"><span>Eksporter data</span>
+    <button class="tb" onclick="doExport()">📤 Eksporter</button></div>
+  <div class="srow"><span>Importer data</span>
+    <button class="tb" onclick="doImport()">📥 Importer</button></div>
+  <div style="height:14px"></div>
+  <button onclick="toggleCfg()"
+    style="width:100%;padding:13px;background:var(--bg);border:1.5px solid var(--border);
+      border-radius:var(--r);font-size:16px;font-weight:600;cursor:pointer">Luk</button>
+ </div>
+</div>
+<div id="toast"></div>
+<iframe id="pdf-frame" style="display:none"></iframe>
+
+<script>
+// ════════════════ KONSTANTER ════════════════
+const MND = ['Januar','Februar','Marts','April','Maj','Juni',
+             'Juli','August','September','Oktober','November','December'];
+const DAGE = ['Søn','Man','Tir','Ons','Tor','Fre','Lør'];
+const DAGE_L = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+const LGRP = [
+  {id:1,navn:'Gruppe 1 – fri forhandling',ds:0,fri:true},
+  {id:2,navn:'Gruppe 2 – Indspilningsleder mv.',ds:4100},
+  {id:3,navn:'Gruppe 3 – Scripter mv.',ds:3300},
+  {id:4,navn:'Gruppe 4 – Assistent mv.',ds:2750},
+  {id:5,navn:'Gruppe 5 – Runner/Trainee',ds:1540},
+];
+
+// ════════════════ STATE ════════════════
+let view = 'dag';
+let aktDag = new Date(); aktDag.setHours(0,0,0,0);
+let aktProd = null;
+let dagSt = {};
+let brugerValgProd = false;
+
+let cfg = (() => {
+  try { return JSON.parse(localStorage.getItem('rek2-cfg')||'null') || defCfg(); }
+  catch { return defCfg(); }
+})();
+function defCfg() {
+  return {navn:'',gruppe:2,dagsloen1:0,dagtype:'optagelse',start:'07:00',
+    prods:[{id:'p1',navn:'Produktion 1'}]};
+}
+function saveCfg() { localStorage.setItem('rek2-cfg',JSON.stringify(cfg)); }
+
+let prods = cfg.prods || [{id:'p1',navn:'Produktion 1'}];
+
+// ════════════════ DATO UTILS ════════════════
+function toKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function datoStr(d) {
+  return `${DAGE_L[d.getDay()]} ${d.getDate()}. ${MND[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
+}
+function isWE(d) { return d.getDay()===0||d.getDay()===6; }
+function parseTime(s) {
+  if(!s) return 0;
+  const p=s.split(':');
+  return parseInt(p[0])+(parseInt(p[1]||0))/60;
+}
+function fmtKr(v) {
+  if(v==null||isNaN(v)) return '—';
+  return v.toLocaleString('da-DK',{minimumFractionDigits:2,maximumFractionDigits:2})+' kr';
+}
+function fmtH(h) {
+  const hh=Math.floor(h),mm=Math.round((h-hh)*60);
+  return mm>0?`${hh}:${String(mm).padStart(2,'0')}`:`${hh}`;
+}
+function mndDage(y,m) {
+  const d=[],dt=new Date(y,m,1);
+  while(dt.getMonth()===m){d.push(new Date(dt));dt.setDate(dt.getDate()+1);}
+  return d;
+}
+function ugeDage(d) {
+  const r=[];
+  const mn=new Date(d);
+  mn.setDate(d.getDate()-(d.getDay()===0?6:d.getDay()-1));
+  for(let i=0;i<7;i++){const dd=new Date(mn);dd.setDate(mn.getDate()+i);r.push(dd);}
+  return r;
+}
+function ugeNr(d) {
+  const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));
+  const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));
+  return Math.ceil((((dt-ys)/86400000)+1)/7);
+}
+
+// ════════════════ BEREGNING (fra Excel v1.35) ════════════════
+function ovlp(a1,a2,b1,b2){return Math.max(0,Math.min(a2,b2)-Math.max(a1,b1));}
+function beregnNatT(sh,eh){
+  const n18=ovlp(sh,eh,18,24);
+  const n00=(sh<6?ovlp(sh,eh,0,6):0)+ovlp(sh,eh,24,30);
+  return{n18,n00};
+}
+function otBands(total){
+  const L=total>13?Math.max(0,total-13):0;
+  const K=total>12?Math.max(0,total-12-L):0;
+  const J=total>10?Math.max(0,total-10-K-L):0;
+  const I=total>8 ?Math.max(0,total-8 -J-K-L):0;
+  return{I,J,K,L};
+}
+function getDagsloen(gruppe) {
+  if(gruppe===1) return dagSt.dagsloenCustom||cfg.dagsloen1||0;
+  return LGRP.find(g=>g.id===gruppe)?.ds||0;
+}
+function beregnDag(p) {
+  const{gruppe,dagsloen,dagtype,startStr,slutStr,
+    weekend=false,weekendDage=1,transportTimer=0}=p;
+  if(!startStr||!slutStr||!dagsloen) return null;
+  let sh=parseTime(startStr),eh=parseTime(slutStr);
+  if(eh===0&&sh>0) eh=24;
+  if(eh<sh) eh+=24;
+  const tot=eh-sh;
+  if(tot<=0) return null;
+  const tl=dagsloen/8;
+  let normal;
+  if(dagtype==='optagelse') normal=8;
+  else{
+    if(tot<=0) normal=0;
+    else if(tot<=4) normal=4;
+    else if(tot<=8) normal=tot;
+    else normal=8;
+  }
+  const H18=normal*tl;
+  const{I,J,K,L}=otBands(tot);
+  const otList=[]; let otSum=0;
+  if(gruppe===5){
+    const b1=I+J+K,b2=L;
+    if(b1>0){const bl=b1*200;otList.push({lbl:`OT t9–13 (${fmtH(b1)}t × 200 kr)`,t:b1,bl});otSum+=bl;}
+    if(b2>0){const bl=b2*350;otList.push({lbl:`OT t14+ (${fmtH(b2)}t × 350 kr)`,t:b2,bl});otSum+=bl;}
+  } else {
+    const rt=dagtype==='optagelse'?{I:.25,J:1,K:1.5,L:2}:{I:.25,J:.5,K:.75,L:.75};
+    const def=[
+      {h:I,r:rt.I,lbl:dagtype==='optagelse'?'t9-10 (+25%)':'t9-10 (+25%)'},
+      {h:J,r:rt.J,lbl:dagtype==='optagelse'?'t11-12 (+100%)':'t11-12 (+50%)'},
+      {h:K,r:rt.K,lbl:dagtype==='optagelse'?'t13 (+150%)':'t13+ (+75%)'},
+      {h:L,r:rt.L,lbl:dagtype==='optagelse'?'t14+ (+200%)':'t14+ (+75%)'},
+    ];
+    for(const b of def) if(b.h>0){
+      const bl=b.h*tl*(1+b.r);
+      otList.push({lbl:`OT ${b.lbl} (${fmtH(b.h)}t)`,t:b.h,bl});otSum+=bl;
+    }
+  }
+  let weB=0;
+  if(weekend){
+    const wf=weekendDage>=2?1:.75;
+    const wt=dagtype==='optagelse'?tot+transportTimer:tot;
+    weB=wt*tl*wf;
+  }
+  let n18B=0,n00B=0,natT={n18:0,n00:0};
+  if(dagtype==='optagelse'){
+    natT=beregnNatT(sh,eh);
+    n18B=natT.n18*100; n00B=natT.n00*200;
+  }
+  let trB=0;
+  if(dagtype==='optagelse'&&transportTimer>0) trB=transportTimer*tl*1.75;
+  const brutto=H18+otSum+weB+n18B+n00B+trB;
+  const ialt=dagtype==='optagelse'?Math.max(brutto,dagsloen):brutto;
+  return{tot,normal,otimer:I+J+K+L,tl,normalLoen:H18,otList,otSum,
+    weB,n18:natT.n18,n00:natT.n00,n18B,n00B,trB,brutto,ialt};
+}
+
+// ════════════════ STORAGE ════════════════
+function dagKey(dato,pid){return`rek2-${pid}-${toKey(dato)}`;}
+function gemDagData(dato,pid,data){localStorage.setItem(dagKey(dato,pid),JSON.stringify(data));}
+function hentDagData(dato,pid){
+  try{const r=localStorage.getItem(dagKey(dato,pid));return r?JSON.parse(r):null;}
+  catch{return null;}
+}
+function getPid(){return aktProd||(prods[0]?.id)||'p1';}
+
+// ════════════════ VIEWS ════════════════
+function goView(v) {
+  view=v;
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById(`t-${v}`)?.classList.add('on');
+  const pb=document.getElementById('prod-bar');
+  pb.style.display=(v==='dag'||v==='uge')?'flex':'none';
+  rendProdBar();
+  switch(v){
+    case 'dag': rendDag(); break;
+    case 'uge': rendUge(); break;
+    case 'mnd': rendMnd(); break;
+    case 'aar': rendAar(); break;
+  }
+}
+
+function rendProdBar(){
+  const bar=document.getElementById('prod-bar');
+  bar.innerHTML='';
+  const pid=getPid();
+  prods.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='ppill'+(p.id===pid?' on':'');
+    el.textContent=p.navn;
+    el.onclick=()=>{brugerValgProd=true;aktProd=p.id;rendProdBar();if(view==='dag')rendDag();else if(view==='uge')rendUge();};
+    bar.appendChild(el);
+  });
+  const add=document.createElement('div');
+  add.className='ppill add';add.textContent='+ Ny';add.onclick=addProd;
+  bar.appendChild(add);
+}
+
+// ════════════════ DAG VIEW ════════════════
+function initDagSt(){
+  const we=isWE(aktDag);
+  dagSt={gruppe:cfg.gruppe||2,dagsloenCustom:cfg.dagsloen1||0,
+    dagtype:cfg.dagtype||'optagelse',start:cfg.start||'07:00',slut:'',
+    weekend:we,weekendDage:1,transport:0,note:'',inited:true};
+}
+
+function rendDag(){
+  const pid=getPid();
+  const saved=hentDagData(aktDag,pid);
+  if(saved&&!dagSt._editing){
+    dagSt={...saved._input,inited:true,_editing:false};
+  } else if(!dagSt.inited){
+    initDagSt();
+  }
+  const ds=dagSt;
+  const dagsloen=ds.gruppe===1?(ds.dagsloenCustom||cfg.dagsloen1||0):
+    (LGRP.find(g=>g.id===ds.gruppe)?.ds||0);
+  const b=ds.start&&ds.slut?beregnDag({gruppe:ds.gruppe,dagsloen,dagtype:ds.dagtype,
+    startStr:ds.start,slutStr:ds.slut,weekend:ds.weekend,weekendDage:ds.weekendDage,
+    transportTimer:ds.transport||0}):null;
+
+  const ct=document.getElementById('content');
+  let html=`
+<div id="dag-nav">
+  <button class="nav-arr" onclick="skiftDag(-1)">←</button>
+  <div id="dag-dato">${datoStr(aktDag)}</div>
+  <button class="nav-arr" onclick="skiftDag(1)">→</button>
+</div>
+${saved?'<div class="saved-badge">✓ Gemt</div>':''}
+<div class="card">
+  <div class="row"><div class="rlbl">Løngruppe</div>
+    <select class="rinp" onchange="onGr(+this.value)">
+      ${LGRP.map(g=>`<option value="${g.id}"${ds.gruppe===g.id?' selected':''}>${g.navn}</option>`).join('')}
+    </select></div>
+  ${ds.gruppe===1?`
+  <div class="row"><div class="rlbl">Dagløn</div>
+    <input class="rinp" type="number" placeholder="kr/dag" value="${ds.dagsloenCustom||''}"
+      oninput="dagSt.dagsloenCustom=+this.value;rendDag()"></div>`:`
+  <div class="row"><div class="rlbl">Dagløn</div>
+    <div style="margin-left:auto;font-size:15px;font-weight:700">${fmtKr(dagsloen)}</div></div>`}
+  <div class="row"><div class="rlbl">Dagtype</div>
+    <div class="tog">
+      <div class="tb${ds.dagtype==='optagelse'?' on':''}" onclick="onDT('optagelse')">Optagelse</div>
+      <div class="tb${ds.dagtype==='forbered'?' on':''}" onclick="onDT('forbered')">Forbered</div>
+    </div></div>
+  <div class="row"><div class="rlbl">Kl. start</div>
+    <input class="rinp" type="time" value="${ds.start||''}"
+      onchange="dagSt.start=this.value;rendDag()"></div>
+  <div class="row"><div class="rlbl">Kl. slut</div>
+    <input class="rinp" type="time" value="${ds.slut||''}"
+      onchange="dagSt.slut=this.value;rendDag()"></div>`;
+  if(b) html+=`
+  <div class="row"><div class="rlbl">Timer</div>
+    <div style="margin-left:auto;font-weight:700;font-size:15px">
+      ${fmtH(b.tot)}<span style="color:var(--sub);font-size:12px;margin-left:6px">${b.otimer>0?'('+fmtH(b.otimer)+'t OT)':''}</span>
+    </div></div>`;
+  html+=`
+  <div class="row"><div class="rlbl">Weekend</div>
+    <div class="tog">
+      <div class="tb${!ds.weekend?' on':''}" onclick="dagSt.weekend=false;rendDag()">Nej</div>
+      <div class="tb${ds.weekend?' on':''}" onclick="dagSt.weekend=true;rendDag()">Ja</div>
+    </div></div>`;
+  if(ds.weekend) html+=`
+  <div class="row"><div class="rlbl">Weekend</div>
+    <div class="tog">
+      <div class="tb${ds.weekendDage<2?' on':''}" onclick="dagSt.weekendDage=1;rendDag()">1 dag +75%</div>
+      <div class="tb${ds.weekendDage>=2?' on':''}" onclick="dagSt.weekendDage=2;rendDag()">2 dage +100%</div>
+    </div></div>`;
+  if(ds.dagtype==='optagelse') html+=`
+  <div class="row"><div class="rlbl">Transport</div>
+    <select class="rinp" onchange="dagSt.transport=+this.value;rendDag()">
+      ${[0,0.5,1,1.5,2,2.5,3].map(v=>`<option value="${v}"${ds.transport===v?' selected':''}>${v===0?'Ingen':fmtH(v)+' timer'}</option>`).join('')}
+    </select></div>`;
+  html+=`
+  <div class="row"><div class="rlbl">Note</div>
+    <input class="rinp" placeholder="Valgfrit…" value="${ds.note||''}"
+      oninput="dagSt.note=this.value"></div>
+</div>`;
+  ct.innerHTML=html;
+  if(b) rendBeregning(b,dagsloen,ct);
+  ct.insertAdjacentHTML('beforeend',`
+<div class="card"><div class="acts">
+  <button class="abt a-gem" onclick="doGem()">💾 Gem</button>
+  <button class="abt a-pdf" onclick="doPDF()">🖨 PDF</button>
+  <button class="abt a-mail" onclick="doMail()">✉️ Mail</button>
+</div></div>`);
+}
+
+function rendBeregning(b,dagsloen,ct){
+  let rows=`<div class="br"><span class="brl">Normal dag (${fmtH(b.normal)}t)</span>
+    <span class="brv">${fmtKr(b.normalLoen)}</span></div>`;
+  b.otList.forEach(o=>rows+=`<div class="br"><span class="brl">${o.lbl}</span>
+    <span class="brv">${fmtKr(o.bl)}</span></div>`);
+  if(b.weB>0) rows+=`<div class="br"><span class="brl">Weekend tillæg</span>
+    <span class="brv">${fmtKr(b.weB)}</span></div>`;
+  if(b.n18B>0) rows+=`<div class="br"><span class="brl">Nat gene 18-00 (${fmtH(b.n18)}t)</span>
+    <span class="brv">${fmtKr(b.n18B)}</span></div>`;
+  if(b.n00B>0) rows+=`<div class="br"><span class="brl">Nat gene 00-06 (${fmtH(b.n00)}t)</span>
+    <span class="brv">${fmtKr(b.n00B)}</span></div>`;
+  if(b.trB>0) rows+=`<div class="br"><span class="brl">Transport</span>
+    <span class="brv">${fmtKr(b.trB)}</span></div>`;
+  ct.insertAdjacentHTML('beforeend',`
+<div class="card">
+  <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--sub);
+    letter-spacing:.5px;margin-bottom:8px">Beregning</div>
+  ${rows}
+  <div class="brtot">
+    <span style="font-size:16px;font-weight:700">I alt</span>
+    <span class="brv">${fmtKr(b.ialt)}</span>
+  </div>
+</div>`);
+}
+
+function onGr(v){dagSt.gruppe=v;dagSt._editing=true;rendDag();}
+function onDT(v){dagSt.dagtype=v;dagSt._editing=true;rendDag();}
+
+function skiftDag(dir){
+  brugerValgProd=false;dagSt={};
+  aktDag=new Date(aktDag);aktDag.setDate(aktDag.getDate()+dir);
+  rendDag();
+}
+
+function doGem(){
+  const pid=getPid();
+  if(!dagSt.start||!dagSt.slut){toast('Angiv start- og sluttid');return;}
+  const dagsloen=dagSt.gruppe===1?(dagSt.dagsloenCustom||0):
+    (LGRP.find(g=>g.id===dagSt.gruppe)?.ds||0);
+  if(!dagsloen){toast('Angiv dagløn');return;}
+  const b=beregnDag({gruppe:dagSt.gruppe,dagsloen,dagtype:dagSt.dagtype,
+    startStr:dagSt.start,slutStr:dagSt.slut,weekend:dagSt.weekend,
+    weekendDage:dagSt.weekendDage,transportTimer:dagSt.transport||0});
+  if(!b){toast('Ugyldig tid');return;}
+  const prodNavn=prods.find(p=>p.id===pid)?.navn||'';
+  gemDagData(aktDag,pid,{prod:prodNavn,dato:toKey(aktDag),_input:{...dagSt},bregn:b,dagsloen,gemt:new Date().toISOString()});
+  dagSt._editing=false;
+  toast('✓ Gemt!');rendDag();
+}
+
+// ════════════════ PDF & MAIL ════════════════
+function doPDF(){
+  const pid=getPid();const saved=hentDagData(aktDag,pid);
+  if(!saved){toast('Gem dagen først');return;}
+  const b=saved.bregn;const dt=datoStr(aktDag);const pn=saved.prod||'—';
+  const gr=saved._input?.gruppe||'';const ds=saved.dagsloen;
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>body{font-family:-apple-system,Arial,sans-serif;padding:28px;max-width:580px;color:#1c1c1e}
+h1{color:#e05c00;font-size:20px;margin-bottom:2px}.sub{color:#8e8e93;font-size:13px;margin-bottom:22px}
+table{width:100%;border-collapse:collapse}tr{border-bottom:1px solid #e5e5ea}
+td{padding:7px 0;font-size:13px}td:last-child{text-align:right;font-weight:600}
+.tot td{font-size:17px;font-weight:700;padding-top:12px;border-top:2px solid #1c1c1e;border-bottom:none}
+.tot td:last-child{color:#e05c00;font-size:19px}
+.note{margin-top:20px;padding:10px;background:#f2f2f7;border-radius:8px;font-size:13px}
+.foot{margin-top:24px;font-size:10px;color:#8e8e93}</style></head>
+<body><h1>Time App · Reklame</h1>
+<div class="sub">${pn} · ${dt}</div>
+<table>
+<tr><td>Løngruppe</td><td>Gruppe ${gr}</td></tr>
+<tr><td>Dagløn</td><td>${fmtKr(ds)}</td></tr>
+<tr><td>Dagtype</td><td>${saved._input?.dagtype==='optagelse'?'Optagelse':'Forbered/afrig'}</td></tr>
+<tr><td>Arbejdstid</td><td>${saved._input?.start} – ${saved._input?.slut} (${fmtH(b.tot)}t)</td></tr>
+${b.otimer>0?`<tr><td>Overarbejde</td><td>${fmtH(b.otimer)}t</td></tr>`:''}
+<tr><td colspan="2" style="height:10px"></td></tr>
+<tr><td>Normal dag (${fmtH(b.normal)}t)</td><td>${fmtKr(b.normalLoen)}</td></tr>
+${b.otList.map(o=>`<tr><td>${o.lbl}</td><td>${fmtKr(o.bl)}</td></tr>`).join('')}
+${b.weB>0?`<tr><td>Weekend tillæg</td><td>${fmtKr(b.weB)}</td></tr>`:''}
+${b.n18B>0?`<tr><td>Nat gene 18-00 (${fmtH(b.n18)}t)</td><td>${fmtKr(b.n18B)}</td></tr>`:''}
+${b.n00B>0?`<tr><td>Nat gene 00-06 (${fmtH(b.n00)}t)</td><td>${fmtKr(b.n00B)}</td></tr>`:''}
+${b.trB>0?`<tr><td>Transport</td><td>${fmtKr(b.trB)}</td></tr>`:''}
+<tr class="tot"><td>I alt</td><td>${fmtKr(b.ialt)}</td></tr>
+</table>
+${saved._input?.note?`<div class="note">📝 ${saved._input.note}</div>`:''}
+<div class="foot">Time App · Reklame · FAF Reklamefilmsoverenskomst 2024</div>
+</body></html>`;
+  const fr=document.getElementById('pdf-frame');
+  fr.style.display='block';fr.srcdoc=html;
+  setTimeout(()=>{fr.contentWindow.print();setTimeout(()=>{fr.style.display='none';},1000);},400);
+}
+
+function doMail(){
+  const pid=getPid();const saved=hentDagData(aktDag,pid);
+  if(!saved){toast('Gem dagen først');return;}
+  const b=saved.bregn;const dt=datoStr(aktDag);const pn=saved.prod||'—';
+  let body=`Timeregistrering – ${pn}\n${dt}\n\n`;
+  body+=`Løngruppe: Gruppe ${saved._input?.gruppe}\n`;
+  body+=`Dagløn: ${fmtKr(saved.dagsloen)}\n`;
+  body+=`Dagtype: ${saved._input?.dagtype==='optagelse'?'Optagelse':'Forbered/afrig'}\n`;
+  body+=`Arbejdstid: ${saved._input?.start} – ${saved._input?.slut} (${fmtH(b.tot)}t)\n\n`;
+  body+=`Normal dag (${fmtH(b.normal)}t): ${fmtKr(b.normalLoen)}\n`;
+  b.otList.forEach(o=>body+=`${o.lbl}: ${fmtKr(o.bl)}\n`);
+  if(b.weB>0) body+=`Weekend tillæg: ${fmtKr(b.weB)}\n`;
+  if(b.n18B>0) body+=`Nat gene 18-00: ${fmtKr(b.n18B)}\n`;
+  if(b.n00B>0) body+=`Nat gene 00-06: ${fmtKr(b.n00B)}\n`;
+  if(b.trB>0) body+=`Transport: ${fmtKr(b.trB)}\n`;
+  body+=`\nI alt: ${fmtKr(b.ialt)}\n`;
+  if(saved._input?.note) body+=`\nNote: ${saved._input.note}\n`;
+  body+=`\n---\nTime App · Reklame · FAF Reklamefilmsoverenskomst 2024`;
+  window.location.href=`mailto:?subject=${encodeURIComponent('Timeregistrering – '+pn+' – '+dt)}&body=${encodeURIComponent(body)}`;
+}
+
+// ════════════════ UGE VIEW ════════════════
+function rendUge(){
+  const pid=getPid();const dage=ugeDage(aktDag);const un=ugeNr(aktDag);
+  let ugeTot=0,ugeTim=0;
+  const rows=dage.map(d=>{
+    const s=hentDagData(d,pid);const b=s?.bregn;
+    if(b){ugeTot+=b.ialt;ugeTim+=b.tot;}
+    const we=d.getDay()===0||d.getDay()===6;
+    return`<div class="drow${!b?' nodata':''}" onclick="gaaDag('${toKey(d)}')">
+      <div class="drow-dg" style="color:${we?'var(--accent)':'var(--sub)'}">${DAGE[d.getDay()]}</div>
+      <div class="drow-dt">${d.getDate()}. ${MND[d.getMonth()].substring(0,3).toLowerCase()}</div>
+      <div class="drow-tm">${b?fmtH(b.tot)+'t':''}</div>
+      <div class="drow-kr">${b?fmtKr(b.ialt):'—'}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('content').innerHTML=`
+<div class="pnav">
+  <button class="nav-arr" onclick="skiftUge(-1)">←</button>
+  <div class="ptit">Uge ${un} · ${dage[0].getDate()}/${dage[0].getMonth()+1}–${dage[6].getDate()}/${dage[6].getMonth()+1}</div>
+  <button class="nav-arr" onclick="skiftUge(1)">→</button>
+</div>
+<div class="card">${rows}
+  <div class="wksum"><span>Uge i alt (${fmtH(ugeTim)}t)</span>
+    <span class="wksum-v">${fmtKr(ugeTot)}</span></div>
+</div>`;
+}
+function skiftUge(d){aktDag=new Date(aktDag);aktDag.setDate(aktDag.getDate()+d*7);rendUge();}
+function gaaDag(k){const[y,m,dd]=k.split('-').map(Number);aktDag=new Date(y,m-1,dd);brugerValgProd=false;dagSt={};goView('dag');}
+
+// ════════════════ MÅNED VIEW ════════════════
+function rendMnd(){
+  const pid=getPid();const y=aktDag.getFullYear();const m=aktDag.getMonth();
+  const dage=mndDage(y,m);let mTot=0,mTim=0;
+  const dagMap={};
+  dage.forEach(d=>{
+    const s=hentDagData(d,pid);dagMap[d.getDate()]=s;
+    if(s?.bregn){mTot+=s.bregn.ialt;mTim+=s.bregn.tot;}
+  });
+  const hdrs=['M','T','O','T','F','L','S'];
+  let cal=`<div class="mcal-hdr">${hdrs.map(h=>`<div>${h}</div>`).join('')}</div>`;
+  const off=(dage[0].getDay()===0?6:dage[0].getDay()-1);
+  let cells=Array(off).fill('<div class="mdag empty"></div>');
+  dage.forEach(d=>{
+    const s=dagMap[d.getDate()];const has=!!s?.bregn;
+    const we=d.getDay()===0||d.getDay()===6;
+    cells.push(`<div class="mdag${has?' has':''}${!has&&we?' we':''}" onclick="gaaDag('${toKey(d)}')">
+      <div class="mdag-tal">${d.getDate()}</div>
+      ${has?`<div class="mdag-kr">${Math.round(s.bregn.ialt/1000)}k</div>`:''}
+    </div>`);
+  });
+  let grid='';for(let i=0;i<cells.length;i+=7)grid+=`<div class="mcal-row">${cells.slice(i,i+7).join('')}</div>`;
+  document.getElementById('content').innerHTML=`
+<div class="pnav">
+  <button class="nav-arr" onclick="skiftMnd(-1)">←</button>
+  <div class="ptit">${MND[m]} ${y}</div>
+  <button class="nav-arr" onclick="skiftMnd(1)">→</button>
+</div>
+<div class="card">${cal}${grid}
+  <div class="msum" style="margin-top:10px">
+    <span>Måned i alt (${fmtH(mTim)}t)</span>
+    <span class="msum-v">${fmtKr(mTot)}</span>
+  </div>
+</div>`;
+}
+function skiftMnd(d){aktDag=new Date(aktDag.getFullYear(),aktDag.getMonth()+d,1);rendMnd();}
+
+// ════════════════ ÅR VIEW ════════════════
+function rendAar(){
+  const pid=getPid();const y=aktDag.getFullYear();
+  let yTot=0,yTim=0;
+  const rows=MND.map((n,i)=>{
+    const dage=mndDage(y,i);let mT=0,mTim=0,mD=0;
+    dage.forEach(d=>{const s=hentDagData(d,pid);if(s?.bregn){mT+=s.bregn.ialt;mTim+=s.bregn.tot;mD++;}});
+    yTot+=mT;yTim+=mTim;
+    return`<div class="ymrow" onclick="gaaMnd(${y},${i})">
+      <div class="ym-n">${n}</div>
+      <div class="ym-d">${mD>0?mD+' dage':''}</div>
+      <div class="ym-k" style="${mT>0?'':'color:var(--border)'}">${mT>0?fmtKr(mT):'—'}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('content').innerHTML=`
+<div class="pnav">
+  <button class="nav-arr" onclick="skiftAar(-1)">←</button>
+  <div class="ptit">${y}</div>
+  <button class="nav-arr" onclick="skiftAar(1)">→</button>
+</div>
+<div class="card" onclick="goView('mnd')" style="cursor:pointer" title="Gå til månedsoversigt">
+  ${rows}
+  <div class="ysum"><span>År i alt (${fmtH(yTim)}t)</span>
+    <span class="ysum-v">${fmtKr(yTot)}</span></div>
+  <div style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px">↑ Klik for månedsoversigt</div>
+</div>`;
+}
+function skiftAar(d){aktDag=new Date(aktDag.getFullYear()+d,aktDag.getMonth(),1);rendAar();}
+function gaaMnd(y,m){aktDag=new Date(y,m,1);goView('mnd');}
+
+// ════════════════ SETTINGS ════════════════
+function toggleCfg(){
+  const ov=document.getElementById('ov');
+  ov.classList.toggle('open');
+  if(ov.classList.contains('open')){
+    document.getElementById('c-navn').value=cfg.navn||'';
+    document.getElementById('c-gruppe').value=cfg.gruppe||2;
+    document.getElementById('c-dagtype').value=cfg.dagtype||'optagelse';
+    document.getElementById('c-start').value=cfg.start||'07:00';
+    document.getElementById('c-dagsloen1').value=cfg.dagsloen1||'';
+    onCfgGruppe();rendProdMgr();
+  }
+}
+function onCfgGruppe(){
+  const v=document.getElementById('c-gruppe')?.value;
+  document.getElementById('c-ds1-row').style.display=v==='1'?'flex':'none';
+  saveCfgUI();
+}
+function saveCfgUI(){
+  cfg.navn=document.getElementById('c-navn')?.value||'';
+  cfg.gruppe=+(document.getElementById('c-gruppe')?.value)||2;
+  cfg.dagtype=document.getElementById('c-dagtype')?.value||'optagelse';
+  cfg.start=document.getElementById('c-start')?.value||'07:00';
+  cfg.dagsloen1=+(document.getElementById('c-dagsloen1')?.value)||0;
+  cfg.prods=prods;
+  saveCfg();
+}
+function rendProdMgr(){
+  const el=document.getElementById('prod-mgr');if(!el) return;
+  el.innerHTML=prods.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <input style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px"
+        value="${p.navn}" onchange="prods[${i}].navn=this.value;cfg.prods=prods;saveCfg();rendProdBar()">
+      ${prods.length>1?`<button onclick="delProd(${i})" style="background:none;border:none;font-size:18px;cursor:pointer">🗑️</button>`:''}
+    </div>`).join('');
+}
+function addProd(){
+  const id='p'+Date.now();
+  prods.push({id,navn:'Ny produktion'});
+  cfg.prods=prods;saveCfg();
+  toggleCfg();rendProdBar();
+}
+function delProd(i){
+  if(!confirm(`Slet "${prods[i].navn}"?`)) return;
+  prods.splice(i,1);cfg.prods=prods;saveCfg();
+  rendProdMgr();rendProdBar();
+}
+
+// ════════════════ EXPORT / IMPORT ════════════════
+function doExport(){
+  const data={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k&&k.startsWith('rek2-')) data[k]=localStorage.getItem(k);
+  }
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`time-reklame-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();toast('✓ Data eksporteret');
+}
+function doImport(){
+  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file) return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      try{
+        const d=JSON.parse(ev.target.result);let c=0;
+        for(const[k,v] of Object.entries(d)){
+          if(k.startsWith('rek2-')){localStorage.setItem(k,v);c++;}
+        }
+        toast(`✓ ${c} poster importeret`);goView(view);
+      } catch{toast('⚠️ Fejl ved import');}
+    };r.readAsText(file);
+  };inp.click();
+}
+
+// ════════════════ TOAST ════════════════
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ════════════════ INIT ════════════════
+if(cfg.prods&&cfg.prods.length>0) prods=cfg.prods;
+// Listen for cfg changes
+document.querySelectorAll('#panel input,#panel select').forEach(el=>{
+  el.addEventListener('change',()=>{
+    if(el.id!=='c-gruppe') saveCfgUI();
+  });
+});
+goView('dag');
+</script>
+</body>
+</html>
