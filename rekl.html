@@ -2,769 +2,1538 @@
 <html lang="da">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Time App · Reklame</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Reklame">
+<meta name="theme-color" content="#0C0C12">
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Time%20App%20%C2%B7%20Reklame%22%2C%22short_name%22%3A%22Reklame%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230C0C12%22%2C%22theme_color%22%3A%22%230C0C12%22%7D">
+<title>Time App · Reklame</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#f2f2f7;--card:#fff;--accent:#e05c00;--accent2:#ff8c42;
-  --text:#1c1c1e;--sub:#8e8e93;--border:#e5e5ea;--r:12px;
-  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+:root {
+  --bg:#0C0C12; --surf:#14141E; --card:#1C1C2A; --card2:#222232;
+  --brd:#2E2E42; --txt:#EEEEF5; --mut:#666680;
+  --grn:#34D399; --red:#F87171; --yel:#FBBF24; --pnk:#F472B6;
+  --acc:#FF6B35; --acc2:#FF9D6C; --acc-d:rgba(255,107,53,.14);
+  --pur:#A78BFA; --pur-d:rgba(167,139,250,.1);
+  --r:14px; --rs:12px;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;font-size:16px}
-#hdr{position:sticky;top:0;z-index:100;background:var(--card);
-  padding:calc(var(--st)+10px) 16px 0;border-bottom:1px solid var(--border)}
-#hdr-top{display:flex;align-items:center;justify-content:space-between}
-#app-title{font-size:19px;font-weight:800;color:var(--accent);letter-spacing:-.3px}
-#app-sub{font-size:11px;color:var(--sub);font-weight:500;margin-top:1px}
-#cfg-btn{background:none;border:none;font-size:22px;cursor:pointer;padding:4px}
-#nav-tabs{display:flex;gap:0;margin-top:8px}
-.nav-tab{flex:1;text-align:center;padding:9px 4px;font-size:12px;font-weight:700;
-  color:var(--sub);border-bottom:3px solid transparent;cursor:pointer;
-  text-transform:uppercase;letter-spacing:.5px;transition:color .15s}
-.nav-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
-#prod-bar{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;
-  -webkit-overflow-scrolling:touch;scrollbar-width:none;
-  background:var(--card);border-bottom:1px solid var(--border)}
-#prod-bar::-webkit-scrollbar{display:none}
-.ppill{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;
-  font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--bg);
-  color:var(--sub);transition:all .12s}
-.ppill.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-.ppill.add{color:var(--accent);border-color:var(--accent);background:transparent}
-#content{padding:14px;padding-bottom:calc(var(--sb)+80px)}
-.card{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:12px;
-  box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.row{display:flex;align-items:center;gap:10px;padding:10px 0;
-  border-bottom:1px solid var(--border)}
-.row:last-child{border-bottom:none}
-.rlbl{font-size:13px;color:var(--sub);width:88px;flex-shrink:0}
-.rinp{flex:1;background:none;border:none;font-size:16px;color:var(--text);
-  font-family:inherit;outline:none;text-align:right}
-.rinp::placeholder{color:#d1d1d6}
-select.rinp{-webkit-appearance:none;cursor:pointer}
-.tog{display:flex;gap:5px;margin-left:auto}
-.tb{padding:5px 11px;border-radius:8px;border:1.5px solid var(--border);
-  font-size:13px;font-weight:700;cursor:pointer;background:var(--bg);
-  color:var(--sub);transition:all .12s;white-space:nowrap}
-.tb.on{background:var(--accent);color:#fff;border-color:var(--accent)}
-/* nav arrows */
-#dag-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.nav-arr{width:40px;height:40px;border-radius:50%;background:var(--bg);
-  border:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-#dag-dato{font-size:16px;font-weight:700;text-align:center;flex:1;line-height:1.2}
-/* beregning */
-.br{display:flex;justify-content:space-between;align-items:baseline;
-  padding:6px 0;font-size:14px}
-.br+.br{border-top:1px solid var(--border)}
-.brl{color:var(--sub)}
-.brv{font-weight:700}
-.brtot{display:flex;justify-content:space-between;align-items:baseline;
-  padding:10px 0 4px;margin-top:4px;border-top:2px solid var(--text)}
-.brtot .brv{color:var(--accent);font-size:22px}
-/* actions */
-.acts{display:flex;gap:8px;margin-top:2px}
-.abt{flex:1;padding:13px 6px;border-radius:var(--r);border:none;
-  font-size:13px;font-weight:700;cursor:pointer;transition:all .15s}
-.a-gem{background:var(--accent);color:#fff}
-.a-pdf{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
-.a-mail{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
-/* uge/mnd/år */
-.pnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.ptit{font-size:16px;font-weight:700;text-align:center;flex:1}
-.drow{display:flex;align-items:center;gap:8px;padding:10px 0;
-  border-bottom:1px solid var(--border);cursor:pointer}
-.drow:last-child{border-bottom:none}
-.drow-dg{width:28px;font-size:12px;font-weight:700}
-.drow-dt{font-size:14px;color:var(--text);flex:1}
-.drow-tm{font-size:12px;color:var(--sub)}
-.drow-kr{font-size:15px;font-weight:700;min-width:80px;text-align:right}
-.nodata .drow-kr{color:#d1d1d6}
-.wksum,.msum,.ysum{display:flex;justify-content:space-between;align-items:baseline;
-  padding:10px 0 4px;border-top:2px solid var(--text);margin-top:4px;font-weight:700}
-.wksum-v,.msum-v,.ysum-v{font-size:20px;color:var(--accent)}
-/* kalender */
-.mcal-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
-.mcal-hdr div{text-align:center;font-size:11px;font-weight:700;color:var(--sub);padding:3px 0}
-.mcal-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
-.mdag{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;border-radius:8px;font-size:12px;cursor:pointer;padding:2px}
-.mdag.has{background:var(--accent);color:#fff}
-.mdag.we{color:var(--accent)}
-.mdag.empty{visibility:hidden}
-.mdag-tal{font-weight:700;font-size:13px}
-.mdag-kr{font-size:10px;opacity:.85}
-/* år */
-.ymrow{display:flex;align-items:center;justify-content:space-between;
-  padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
-.ymrow:last-child{border-bottom:none}
-.ym-n{font-size:15px;font-weight:600}
-.ym-d{font-size:12px;color:var(--sub)}
-.ym-k{font-size:15px;font-weight:700}
-/* overlay */
-#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200}
-#ov.open{display:flex;align-items:flex-end}
-#panel{width:100%;background:var(--card);border-radius:20px 20px 0 0;
-  padding:20px 16px calc(var(--sb)+20px);max-height:82vh;overflow-y:auto}
-#panel h2{font-size:17px;margin-bottom:14px}
-.srow{display:flex;align-items:center;justify-content:space-between;
-  padding:11px 0;border-bottom:1px solid var(--border)}
-.srow:last-child{border-bottom:none}
-#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
-  background:#333;color:#fff;padding:10px 20px;border-radius:20px;
-  font-size:14px;opacity:0;transition:all .3s;pointer-events:none;z-index:300;white-space:nowrap}
-#toast.show{opacity:1;transform:translateX(-50%)}
-.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;
-  font-weight:700;background:#e05c0020;color:var(--accent);margin-left:6px}
-.saved-badge{display:block;text-align:center;font-size:12px;color:var(--accent);
-  margin-bottom:6px}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto;overflow-x:hidden}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.3px}
+.logo em{color:var(--acc);font-style:normal}
+.tabs{display:flex;background:var(--surf);border-radius:50px;padding:3px;gap:2px}
+.tab{padding:6px 10px;border-radius:50px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s;font-family:'DM Sans',sans-serif}
+.tab.on{background:var(--acc);color:#fff}
+.gear-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;line-height:1}
+.gear-btn:active{transform:scale(.88)}
+.gear-btn.on{border-color:var(--acc);background:var(--acc-d)}
+
+/* ── VIEWS ── */
+.view{display:none;padding:16px 16px 100px}
+.view.on{display:block}
+
+/* ── DAG header ── */
+.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.dag-nav{display:flex;gap:8px}
+.nbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.nbtn:active{transform:scale(.88)}
+.dag-navn{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-2px;line-height:1}
+.dag-dato{font-family:'DM Mono',monospace;font-size:14px;color:#fff;margin-top:4px;display:inline-block}
+.dag-uge{font-family:'DM Mono',monospace;font-size:14px;color:var(--acc);margin-left:8px;text-transform:uppercase;letter-spacing:1px}
+
+/* ── DAGTYPE TOGGLE ── */
+.dagtype-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.dtbtn{padding:10px 8px;border-radius:var(--rs);border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .18s;font-family:'DM Sans',sans-serif;line-height:1.2}
+.dtbtn.on{border-color:var(--acc);background:var(--acc-d);color:var(--txt)}
+.dtbtn:active{transform:scale(.96)}
+.dtbtn-ttl{font-weight:700;font-size:13px}
+.dtbtn-sub{font-size:10px;color:var(--mut)}
+.dtbtn.on .dtbtn-sub{color:var(--acc);opacity:.85}
+
+/* ── RESULTAT KORT ── */
+.res{background:linear-gradient(135deg,#1A1208,#1E1508);border:1.5px solid rgba(255,107,53,.22);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;user-select:none;position:relative}
+.res-top{display:flex;flex-direction:column;gap:6px}
+.res-tider-row{display:flex;align-items:flex-end;gap:6px}
+.tf-inline{cursor:pointer}
+.tf-inline .tf-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:2px}
+.tf-inline .tf-display{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:var(--txt);letter-spacing:.5px;line-height:1}
+.tf-inline .tf-display.tom{color:var(--mut)}
+.tf-sep{font-size:16px;color:var(--mut);padding-bottom:2px;flex-shrink:0}
+.res-bottom-row{display:flex;align-items:flex-start;justify-content:space-between}
+.res-t{font-family:'DM Mono',monospace;font-size:32px;font-weight:700;letter-spacing:.5px;line-height:1;color:var(--txt)}
+.res-pay-amt{font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
+.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:right;margin-top:2px}
+.res-expand{font-size:10px;color:var(--mut);text-align:center;margin-top:6px;letter-spacing:1px;opacity:.6}
+.res-sub{font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:4px}
+
+/* ── OT BREAKDOWN ── */
+.ot-boks{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;display:none}
+.ot-boks.vis{display:block}
+.ot-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd)}
+.ot-row:last-child{border-bottom:none}
+.ot-lbl{font-size:12px;color:var(--mut)}
+.ot-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+.ot-val.g{color:var(--grn)}.ot-val.y{color:var(--yel)}.ot-val.r{color:var(--red)}.ot-val.p{color:var(--pur)}.ot-val.o{color:var(--acc)}
+
+/* ── SEKTION LABELS ── */
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.oe{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--acc-d);color:var(--acc);text-transform:uppercase;letter-spacing:.5px}
+
+/* ── LØNSATS BOKS ── */
+.loen-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.loen-blok{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:10px 14px}
+.loen-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:6px}
+.loen-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--txt)}
+select.loen-sel{width:100%;background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:6px 8px;color:var(--txt);font-family:'DM Mono',monospace;font-size:12px;outline:none;-webkit-appearance:none;margin-top:2px}
+select.loen-sel:focus{border-color:var(--acc)}
+.loen-inp{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Mono',monospace;font-size:22px;font-weight:500}
+.loen-inp::-webkit-inner-spin-button,.loen-inp::-webkit-outer-spin-button{-webkit-appearance:none}
+.loen-ts{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);margin-top:2px}
+
+/* ── TILLÆG KNAPPER ── */
+.bgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
+.bgrid2{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.xb{padding:10px 6px;border-radius:var(--rs);border:2px solid var(--brd);background:var(--card);color:rgba(255,255,255,.6);font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:.2px;text-transform:uppercase;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1.2;text-align:center}
+.xb-sub{font-family:'DM Mono',monospace;font-size:9px;font-weight:400;opacity:.7;text-transform:none;letter-spacing:0;line-height:1.2}
+.xb:active{transform:scale(.94)}
+.xb.on{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important}
+.xb.on2{background:#7C3AED!important;border-color:#7C3AED!important;color:#fff!important}
+.xb.on .xb-sub{opacity:.85}
+
+/* Transport input */
+.trans-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:10px 14px;margin-bottom:12px}
+.trans-lbl{font-size:12px;font-weight:600;flex:1}
+.trans-inp{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:6px 10px;color:var(--txt);font-family:'DM Mono',monospace;font-size:16px;outline:none;width:72px;text-align:center}
+.trans-inp:focus{border-color:var(--acc)}
+.trans-unit{font-size:11px;color:var(--mut)}
+
+/* ── TID MODAL ── */
+.tmodal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.tmodal-bg.skjult{display:none}
+.tmodal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:430px;padding:20px 20px 40px}
+.tmodal-ttl{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;text-align:center;margin-bottom:20px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.tmodal-vis{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;text-align:center;letter-spacing:2px;margin-bottom:24px}
+.tmodal-sep{color:var(--mut)}
+.tscroll-row{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.tscroll{flex:1;max-width:150px}
+.tscroll-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);text-align:center;margin-bottom:8px}
+.tscroll-inner{display:flex;flex-direction:column;gap:2px;max-height:200px;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tscroll-inner::-webkit-scrollbar{display:none}
+.tscroll-item{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;text-align:center;padding:12px 0;border-radius:8px;cursor:pointer;color:var(--mut);scroll-snap-align:start;transition:all .15s;flex-shrink:0}
+.tscroll-item.sel{background:var(--acc);color:#fff;font-weight:700}
+.tscroll-item:active{opacity:.7}
+.tmodal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tmodal-btn{padding:15px;border-radius:var(--rs);border:none;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer}
+.tmodal-btn.annul{background:var(--surf);color:var(--mut)}
+.tmodal-btn.ok{background:var(--acc);color:#fff}
+
+/* ── NOTE + GEM ── */
+.note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px}
+textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;line-height:1.5}
+textarea::placeholder{color:var(--mut)}
+.gem-btn{width:100%;padding:15px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s;margin-bottom:8px}
+.gem-btn:active{transform:scale(.98);opacity:.9}
+.gem-btn.ok{background:var(--grn)}
+.dag-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dag-act-btn{padding:12px;border-radius:var(--r);border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.dag-act-btn:active{transform:scale(.96)}
+.act-send{background:var(--card);border:1.5px solid var(--acc);color:var(--acc)}
+.act-slet{background:var(--card);border:1.5px solid var(--red);color:var(--red)}
+
+/* ── UGE VIEW ── */
+.uge-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.uge-ttl{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-1px}
+.uge-yr{font-size:12px;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace}
+.uge-sum{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:18px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.us-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+.us-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.dk{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.dk::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.dk.optagelse::before{background:var(--acc)}
+.dk.forbered::before{background:var(--pur)}
+.dk:active{transform:scale(.98)}.dk.tom{opacity:.35}
+.dk-dag{width:42px;text-align:center}
+.dk-navn{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.dk-dato{font-family:'DM Mono',monospace;font-size:11px;color:var(--mut);margin-top:2px}
+.dk-info{flex:1;min-width:0}
+.dk-type{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.dk-type.optagelse{color:var(--acc)}
+.dk-type.forbered{color:var(--pur)}
+.dk-lon{font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--grn);margin-top:2px}
+.dk-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px}
+.bo{background:rgba(255,107,53,.18);color:var(--acc)}
+.bp{background:rgba(167,139,250,.18);color:var(--pur)}
+.by{background:rgba(251,191,36,.18);color:var(--yel)}
+.dk-note{font-size:10px;color:var(--mut);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk-timer{text-align:right;min-width:72px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px}
+.dk-tider{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--txt);white-space:nowrap}
+.dk-timer-h{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--mut)}
+
+/* ── MÅNED / ÅR ── */
+.mnd-uge{display:flex;align-items:center;background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;gap:12px;transition:background .15s}
+.mnd-uge:active{background:var(--brd)}
+.mnd-uge-nr{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);text-transform:uppercase;letter-spacing:1px;min-width:52px}
+.mnd-uge-dato{font-size:12px;color:var(--mut);flex:1}
+.mnd-uge-t{font-size:14px;font-weight:600;min-width:44px;text-align:right}
+.mnd-uge-l{font-size:14px;font-weight:700;color:var(--grn);min-width:80px;text-align:right}
+.mnd-uge-tom{opacity:.4}
+.uge-sum-link{cursor:pointer;position:relative}
+.uge-sum-link:active{opacity:.8}
+.uge-sum-hint{position:absolute;bottom:10px;right:14px;font-size:10px;color:var(--acc);font-weight:700;letter-spacing:.5px;text-transform:uppercase;opacity:.7}
+.aar-sum{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:8px}
+.aar-sum-blok{background:var(--card);padding:16px 14px}
+.aar-sum-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-1px;line-height:1}
+.aar-sum-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+#aar-liste{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.aar-mnd{display:flex;flex-direction:column;background:var(--card);border-radius:12px;padding:12px 14px;cursor:pointer;gap:4px;transition:background .15s}
+.aar-mnd:active{background:var(--brd)}
+.aar-mnd-navn{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;line-height:1}
+.aar-mnd-t{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--mut)}
+.aar-mnd-l{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--grn)}
+.aar-mnd-tom .aar-mnd-navn{color:var(--mut);font-weight:400}
+.aar-mnd-tom .aar-mnd-l{color:var(--mut);font-size:13px}
+
+/* ── SEND KNAPPER ── */
+.send-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.sbtn{flex:1;min-width:calc(50% - 4px);padding:14px;border-radius:var(--r);border:1.5px solid var(--brd);background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif}
+.sbtn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.sbtn:active{transform:scale(.97)}
+
+/* ── INDSTILLINGER ── */
+.s-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.s-hd{padding:12px 16px;background:var(--card2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut)}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--brd)}
+.s-row:last-child{border-bottom:none}
+.s-lbl{font-size:14px;font-weight:500}
+.s-desc{font-size:11px;color:var(--mut);margin-top:2px}
+.s-inp{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:var(--txt);font-family:'DM Mono',monospace;font-size:14px;outline:none}
+.s-inp:focus{border-color:var(--acc)}
+select.s-inp{-webkit-appearance:none;padding-right:20px}
+.sw{width:46px;height:26px;background:var(--brd);border-radius:50px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.sw.on{background:var(--acc)}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.sw.on::after{left:23px}
+
+/* ── BOTTOMBAR ── */
+.botbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,18,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--brd);display:flex;padding:10px 16px;padding-bottom:max(10px,env(safe-area-inset-bottom));gap:2px}
+.bb{flex:1;padding:9px 4px;border:none;background:transparent;color:var(--mut);font-size:9px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:var(--rs);transition:all .15s;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Sans',sans-serif}
+.bb .bi{font-size:20px;line-height:1}
+.bb.on{color:var(--acc)}
+.bb:active{transform:scale(.9)}
+
+/* ── TOAST ── */
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-12px);background:var(--grn);color:#0C0C12;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── INFO BOKS ── */
+.info-boks{background:var(--card2);border:1px solid var(--brd);border-radius:var(--r);padding:14px;margin-bottom:14px;font-size:12px;line-height:1.9;color:var(--mut)}
+.info-boks strong{color:var(--txt)}
+
+/* ── PDF ── */
+#pdf-frame{display:none}
+@media print{
+  @page{size:A4 portrait;margin:18mm 16mm}
+  html,body{background:#fff!important;max-width:none!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important}
+  body>*{display:none!important}
+  #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important;height:auto!important;min-height:0!important}
+}
+.pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;max-width:175mm;margin:0 auto}
+.pdf-h1{font-size:20pt;font-weight:900;letter-spacing:-.5px;margin-bottom:2px}
+.pdf-h2{font-size:11pt;color:#555;margin-bottom:12px}
+.pdf-meta{display:flex;gap:24px;font-size:9pt;color:#333;padding:8px 0;border-top:2px solid #111;border-bottom:1px solid #ccc;margin-bottom:14px}
+.pdf-meta span{display:flex;flex-direction:column;gap:1px}
+.pdf-meta strong{font-size:10pt;color:#111}
+.pdf-tbl{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:9pt}
+.pdf-tbl th{background:#111;color:#fff;padding:6px 8px;text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.5px}
+.pdf-tbl td{padding:6px 8px;border-bottom:1px solid #eee;vertical-align:top}
+.pdf-tbl tr:nth-child(even) td{background:#f9f9f9}
+.pdf-tbl .num{text-align:right;font-family:'Courier New',monospace}
+.pdf-tbl .fri td{color:#999;font-style:italic}
+.pdf-sum{width:100%;border-collapse:collapse;font-size:9pt;margin-bottom:16px}
+.pdf-sum td{padding:5px 8px;border-bottom:1px solid #f0f0f0}
+.pdf-sum .num{text-align:right;font-family:'Courier New',monospace}
+.pdf-sum tr.tot td{border-top:2px solid #111;font-weight:700;font-size:10pt;padding-top:8px}
+.pdf-footer{font-size:7.5pt;color:#888;border-top:1px solid #ccc;padding-top:8px;margin-top:16px;text-align:center}
 </style>
 </head>
 <body>
-<div id="hdr">
-  <div id="hdr-top">
-    <div>
-      <div id="app-title">Time App · Reklame</div>
-      <div id="app-sub">FAF Reklamefilmsoverenskomst 2024</div>
-    </div>
-    <button id="cfg-btn" onclick="toggleCfg()">⚙️</button>
-  </div>
-  <div id="nav-tabs">
-    <div class="nav-tab" onclick="goView('dag')" id="t-dag">Dag</div>
-    <div class="nav-tab" onclick="goView('uge')" id="t-uge">Uge</div>
-    <div class="nav-tab" onclick="goView('mnd')" id="t-mnd">Måned</div>
-    <div class="nav-tab" onclick="goView('aar')" id="t-aar">År</div>
-  </div>
-</div>
-<div id="prod-bar"></div>
-<div id="content"></div>
 
-<!-- Settings overlay -->
-<div id="ov" onclick="if(event.target===this)toggleCfg()">
- <div id="panel">
-  <h2>⚙️ Indstillinger</h2>
-  <div class="srow"><span>Navn</span>
-    <input id="c-navn" class="rinp" style="max-width:160px" placeholder="Dit navn"></div>
-  <div class="srow"><span>Standard løngruppe</span>
-    <select id="c-gruppe" class="rinp" style="max-width:190px" onchange="onCfgGruppe()">
-      <option value="2">Gruppe 2 – 4.100 kr</option>
-      <option value="3">Gruppe 3 – 3.300 kr</option>
-      <option value="4">Gruppe 4 – 2.750 kr</option>
-      <option value="5">Gruppe 5 – 1.540 kr</option>
-      <option value="1">Gruppe 1 – fri forhandling</option>
-    </select></div>
-  <div class="srow" id="c-ds1-row" style="display:none"><span>Din dagløn (gr.1)</span>
-    <input id="c-dagsloen1" class="rinp" style="max-width:120px" type="number" placeholder="kr/dag"
-      oninput="saveCfgUI()"></div>
-  <div class="srow"><span>Standard dagtype</span>
-    <select id="c-dagtype" class="rinp" style="max-width:180px" onchange="saveCfgUI()">
-      <option value="optagelse">Optagelse</option>
-      <option value="forbered">Forbered/afrig</option>
-    </select></div>
-  <div class="srow"><span>Standard start</span>
-    <input id="c-start" class="rinp" type="time" style="max-width:100px" onchange="saveCfgUI()"></div>
-  <div class="srow" style="flex-direction:column;align-items:flex-start;gap:8px">
-    <span style="font-weight:600">Produktioner</span>
-    <div id="prod-mgr"></div>
-    <button class="tb on" onclick="addProd()" style="margin-top:2px">+ Tilføj produktion</button>
+<div class="topbar">
+  <div class="logo">REKLAME<em>·</em>FILM</div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <div class="tabs">
+      <button class="tab on" id="tab-dag" onclick="visView('dag')">Dag</button>
+      <button class="tab" id="tab-uge" onclick="visView('uge')">Uge</button>
+      <button class="tab" id="tab-mnd" onclick="visView('mnd')">Måned</button>
+    </div>
+    <button class="gear-btn" id="gear-btn" onclick="visView('inst')">⚙️</button>
   </div>
-  <div class="srow"><span>Eksporter data</span>
-    <button class="tb" onclick="doExport()">📤 Eksporter</button></div>
-  <div class="srow"><span>Importer data</span>
-    <button class="tb" onclick="doImport()">📥 Importer</button></div>
-  <div style="height:14px"></div>
-  <button onclick="toggleCfg()"
-    style="width:100%;padding:13px;background:var(--bg);border:1.5px solid var(--border);
-      border-radius:var(--r);font-size:16px;font-weight:600;cursor:pointer">Luk</button>
- </div>
 </div>
-<div id="toast"></div>
-<iframe id="pdf-frame" style="display:none"></iframe>
+
+<div class="toast" id="toast"></div>
+<div id="pdf-frame"></div>
+
+<!-- TID MODAL -->
+<div class="tmodal-bg skjult" id="tmodal-bg" onclick="lukkModal(event)">
+  <div class="tmodal" onclick="event.stopPropagation()">
+    <div class="tmodal-ttl" id="tmodal-ttl">Vælg tidspunkt</div>
+    <div class="tmodal-vis">
+      <span id="mv-h">--</span><span class="tmodal-sep">:</span><span id="mv-m">--</span>
+    </div>
+    <div class="tscroll-row">
+      <div class="tscroll">
+        <div class="tscroll-lbl">Timer</div>
+        <div class="tscroll-inner" id="ts-timer"></div>
+      </div>
+      <div class="tscroll">
+        <div class="tscroll-lbl">Kvarter</div>
+        <div class="tscroll-inner" id="ts-min"></div>
+      </div>
+    </div>
+    <div class="tmodal-btns">
+      <button class="tmodal-btn annul" onclick="lukkModal(null)">Annuller</button>
+      <button class="tmodal-btn ok" onclick="bekræftTid()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ DAG VIEW ══════════════════════════════ -->
+<div class="view on" id="view-dag">
+  <div class="dag-hd">
+    <div>
+      <div class="dag-navn" id="dag-navn">–</div>
+      <span class="dag-dato" id="dag-dato">–</span><span class="dag-uge" id="dag-uge">–</span>
+    </div>
+    <div class="dag-nav">
+      <button class="nbtn" onclick="skiftDag(-1)">‹</button>
+      <button class="nbtn" onclick="skiftDag(1)">›</button>
+    </div>
+  </div>
+
+  <!-- Dagtype toggle -->
+  <div class="dagtype-row">
+    <button class="dtbtn on" id="dt-opt" onclick="sætDagtype('optagelse')">
+      <span class="dtbtn-ttl">🎬 Optagelse</span>
+      <span class="dtbtn-sub">OT +25/100/150/200% · Nat · Transport</span>
+    </button>
+    <button class="dtbtn" id="dt-for" onclick="sætDagtype('forbered')">
+      <span class="dtbtn-ttl">🔧 Forbered/Afrig</span>
+      <span class="dtbtn-sub">OT +25/50/75% · Min. 4 timer</span>
+    </button>
+  </div>
+
+  <!-- Resultat kort (tid + beløb) -->
+  <div class="res" onclick="togOT()" id="res-boks">
+    <div class="res-top">
+      <div class="res-tider-row">
+        <div class="tf-inline" id="tf-start" onclick="event.stopPropagation();åbnModal('start')">
+          <div class="tf-lbl">Mødt op</div>
+          <div class="tf-display tom" id="disp-start">––:––</div>
+        </div>
+        <div class="tf-sep">→</div>
+        <div class="tf-inline" id="tf-slut" onclick="event.stopPropagation();åbnModal('slut')">
+          <div class="tf-lbl">Pakket ned</div>
+          <div class="tf-display tom" id="disp-slut">––:––</div>
+        </div>
+      </div>
+      <div class="res-bottom-row">
+        <div class="res-t" id="res-t">– –</div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="res-pay-amt" id="res-pay">– kr.</div>
+          <div class="res-pay-lbl" id="res-pay-lbl">Dagsløn</div>
+        </div>
+      </div>
+    </div>
+    <div class="res-sub" id="res-sub"></div>
+    <div class="res-expand" id="res-expand"></div>
+  </div>
+
+  <!-- OT breakdown -->
+  <div class="ot-boks" id="ot-boks">
+    <div class="ot-row"><span class="ot-lbl">Normal (1–8 t)</span><span class="ot-val g" id="o-normal">–</span></div>
+    <div class="ot-row" id="o-ot1-row"><span class="ot-lbl" id="o-ot1-lbl">OT 9.–10. time</span><span class="ot-val y" id="o-ot1">–</span></div>
+    <div class="ot-row" id="o-ot2-row"><span class="ot-lbl" id="o-ot2-lbl">OT 11.–12. time</span><span class="ot-val y" id="o-ot2">–</span></div>
+    <div class="ot-row" id="o-ot3-row"><span class="ot-lbl" id="o-ot3-lbl">OT 13. time</span><span class="ot-val r" id="o-ot3">–</span></div>
+    <div class="ot-row" id="o-ot4-row"><span class="ot-lbl" id="o-ot4-lbl">OT 14.+ time</span><span class="ot-val r" id="o-ot4">–</span></div>
+    <div class="ot-row" id="o-trans-row" style="display:none"><span class="ot-lbl">Transport</span><span class="ot-val o" id="o-trans">–</span></div>
+    <div class="ot-row" id="o-nat-row" style="display:none"><span class="ot-lbl" id="o-nat-lbl">Genetillæg nat</span><span class="ot-val p" id="o-nat">–</span></div>
+    <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl" id="o-wk-lbl">Weekend-tillæg</span><span class="ot-val p" id="o-wk">–</span></div>
+    <div class="ot-row" id="o-min-row" style="display:none"><span class="ot-lbl">Dagsløngaranti</span><span class="ot-val g" id="o-min">–</span></div>
+  </div>
+
+  <!-- Løngruppe + dagssats -->
+  <div class="loen-row">
+    <div class="loen-blok">
+      <div class="loen-lbl">Løngruppe</div>
+      <select class="loen-sel" id="s-gruppe" onchange="skiftGruppe()">
+        <option value="1">Gr. 1 — Fri</option>
+        <option value="2" selected>Gr. 2 — 4.100</option>
+        <option value="3">Gr. 3 — 3.300</option>
+        <option value="4">Gr. 4 — 2.750</option>
+        <option value="5">Gr. 5 — Fast OT</option>
+      </select>
+    </div>
+    <div class="loen-blok">
+      <div class="loen-lbl">Dagssats <span class="loen-ts" id="timesats-vis"></span></div>
+      <input class="loen-inp" type="number" id="s-dagssats" value="4100" oninput="beregn()">
+    </div>
+  </div>
+
+  <!-- Tillæg (Optagelse) -->
+  <div id="opt-tillaeg">
+    <div class="slbl">Tillæg <span class="oe">§4–6</span></div>
+    <div class="bgrid">
+      <button class="xb" id="bn-nat" onclick="tog('nat')">
+        Nat<br><span class="xb-sub">18–24: 100<br>00–06: 200 kr/t</span>
+      </button>
+      <button class="xb" id="bn-wk" onclick="togWk()">
+        Weekend<br><span class="xb-sub" id="bn-wk-sub">Lør–Man +75/100%</span>
+      </button>
+      <button class="xb" id="bn-trans" onclick="togTrans()">
+        Transport<br><span class="xb-sub">×1,75 × timesats</span>
+      </button>
+    </div>
+    <!-- Transport timer input -->
+    <div class="trans-row" id="trans-row" style="display:none">
+      <span class="trans-lbl">🚗 Transport-timer</span>
+      <input class="trans-inp" type="number" id="trans-timer" value="2" min="0" max="24" step="0.5" oninput="beregn()">
+      <span class="trans-unit">timer</span>
+    </div>
+  </div>
+
+  <!-- Ingen tillæg for Forbered -->
+  <div id="for-info" style="display:none">
+    <div class="info-boks">
+      <strong>Forberedelse/Afrigning §4 stk.2</strong><br>
+      Minimum 4 timers kald. Ingen nat-gene, weekend-tillæg eller transport-betaling på forberedelses-/afrignsdage.
+      OT satser: +25% (t9–10), +50% (t11–12), +75% (t13+).
+    </div>
+  </div>
+
+  <!-- Note -->
+  <div class="slbl">Note</div>
+  <div class="note-wrap">
+    <textarea id="i-note" placeholder="Produktion, location, instruktør…" rows="2"></textarea>
+  </div>
+
+  <!-- Gem -->
+  <button class="gem-btn" id="gem-btn" onclick="gemDag()">GEM DAG →</button>
+  <div class="dag-actions" id="dag-actions" style="display:none">
+    <button class="dag-act-btn act-send" onclick="sendEnkeltDag()">✉️ Send dag</button>
+    <button class="dag-act-btn act-slet" onclick="sletDag()">🗑 Slet dag</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ UGE VIEW ══════════════════════════════ -->
+<div class="view" id="view-uge">
+  <div class="uge-hd">
+    <div>
+      <div class="uge-ttl" id="uge-ttl">Uge –</div>
+      <div class="uge-yr" id="uge-yr"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="nbtn" onclick="skiftUge(-1)">‹</button>
+      <button class="nbtn" onclick="skiftUge(1)">›</button>
+    </div>
+  </div>
+  <div class="uge-sum">
+    <div><div class="us-val" id="us-t">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Timer</div></div>
+    <div><div class="us-val" style="color:var(--grn)" id="us-l">0</div><div class="us-lbl">Kr.</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--red)" id="us-o">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">OT-timer</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--acc)" id="us-d">0</div><div class="us-lbl">Dage</div></div>
+  </div>
+  <div id="uge-liste"></div>
+  <div class="send-row">
+    <button class="sbtn" onclick="doPDF()">🖨 PDF</button>
+    <button class="sbtn pri" onclick="doMail()">✉️ Mail</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ MÅNED VIEW ══════════════════════════════ -->
+<div class="view" id="view-mnd">
+  <div class="uge-hd">
+    <div>
+      <div class="uge-ttl" id="mnd-ttl">–</div>
+      <div class="uge-yr" id="mnd-yr"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="nbtn" onclick="skiftMaaned(-1)">‹</button>
+      <button class="nbtn" onclick="skiftMaaned(1)">›</button>
+    </div>
+  </div>
+  <div class="uge-sum uge-sum-link" onclick="visView('aar')">
+    <div><div class="us-val" id="mnd-t">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Timer</div></div>
+    <div><div class="us-val" style="color:var(--grn)" id="mnd-l">0</div><div class="us-lbl">Kr.</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--red)" id="mnd-o">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">OT-timer</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--acc)" id="mnd-d">0</div><div class="us-lbl">Dage</div></div>
+    <div class="uge-sum-hint">I alt →</div>
+  </div>
+  <div id="mnd-liste"></div>
+  <div class="send-row">
+    <button class="sbtn" onclick="doPDF_mnd()">🖨 PDF</button>
+    <button class="sbtn pri" onclick="doMail_mnd()">✉️ Mail</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ ÅR VIEW ══════════════════════════════ -->
+<div class="view" id="view-aar">
+  <div class="uge-hd">
+    <div>
+      <div class="uge-ttl" id="aar-ttl">–</div>
+      <div class="uge-yr" id="aar-sub">Reklamefilmsoverenskomst 2024</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="nbtn" onclick="skiftAar(-1)">‹</button>
+      <button class="nbtn" onclick="skiftAar(1)">›</button>
+    </div>
+  </div>
+  <div class="aar-sum">
+    <div class="aar-sum-blok"><div class="aar-sum-val" id="aar-t">0</div><div class="aar-sum-lbl">Timer</div></div>
+    <div class="aar-sum-blok"><div class="aar-sum-val" style="color:var(--grn)" id="aar-l">0</div><div class="aar-sum-lbl">Kr. i alt</div></div>
+    <div class="aar-sum-blok"><div class="aar-sum-val" style="color:var(--red)" id="aar-o">0</div><div class="aar-sum-lbl">OT-timer</div></div>
+    <div class="aar-sum-blok"><div class="aar-sum-val" style="color:var(--acc)" id="aar-d">0</div><div class="aar-sum-lbl">Dage i alt</div></div>
+  </div>
+  <div id="aar-liste"></div>
+</div>
+
+<!-- ══════════════════════════════ INDSTILLINGER VIEW ══════════════════════════════ -->
+<div class="view" id="view-inst">
+  <div class="s-card">
+    <div class="s-hd">Standard lønindstillinger</div>
+    <div class="s-row">
+      <div><div class="s-lbl">Standard løngruppe</div><div class="s-desc">Jf. Bilag 2</div></div>
+      <select class="s-inp" id="inst-gruppe" onchange="gemInst()" style="width:160px">
+        <option value="1">Gr. 1 — Fri forhandling</option>
+        <option value="2">Gr. 2 — 4.100 kr/dag</option>
+        <option value="3">Gr. 3 — 3.300 kr/dag</option>
+        <option value="4">Gr. 4 — 2.750 kr/dag</option>
+        <option value="5">Gr. 5 — Fast OT-sats</option>
+      </select>
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Standard dagssats</div><div class="s-desc">Kr. per dag</div></div>
+      <input class="s-inp" type="number" id="inst-dagssats" value="4100" onchange="gemInst()" style="width:100px;text-align:right">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Standard dagtype</div></div>
+      <select class="s-inp" id="inst-dagtype" onchange="gemInst()" style="width:160px">
+        <option value="optagelse">Optagelse</option>
+        <option value="forbered">Forbered/Afrig</option>
+      </select>
+    </div>
+  </div>
+  <div class="s-card">
+    <div class="s-hd">Mine oplysninger</div>
+    <div class="s-row">
+      <div><div class="s-lbl">Navn</div></div>
+      <input class="s-inp" type="text" id="inst-navn" placeholder="Dit navn" onchange="gemInst()" style="width:160px">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Email</div><div class="s-desc">Til timeafsendelse</div></div>
+      <input class="s-inp" type="email" id="inst-email" placeholder="din@email.dk" onchange="gemInst()" style="width:160px">
+    </div>
+  </div>
+  <div class="s-card">
+    <div class="s-hd">Data</div>
+    <div class="s-row">
+      <div><div class="s-lbl">Eksportér data</div><div class="s-desc">JSON-backup</div></div>
+      <button class="s-inp" onclick="eksportData()" style="cursor:pointer;background:var(--acc-d);color:var(--acc);border-color:var(--acc)">Eksportér</button>
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Importér data</div><div class="s-desc">Gendan backup</div></div>
+      <button class="s-inp" onclick="importData()" style="cursor:pointer">Importér</button>
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl">Slet alle data</div><div class="s-desc" style="color:var(--red)">Kan ikke fortrydes</div></div>
+      <button class="s-inp" onclick="sletAlleData()" style="cursor:pointer;background:rgba(248,113,113,.12);color:var(--red);border-color:var(--red)">Slet alt</button>
+    </div>
+  </div>
+  <div class="info-boks">
+    <strong>Reklamefilmsoverenskomst 2024</strong> · FAF/Producentforeningen<br>
+    OT-satser (Optagelse): +25% / +100% / +150% / +200%<br>
+    OT-satser (Forbered): +25% / +50% / +75% / +75%<br>
+    Gruppe 5: 200 kr/t (t9–13) · 350 kr/t (t14+)<br>
+    Nat §5: 100 kr/t (18–24) · 200 kr/t (00–06)<br>
+    Weekend §6: +75% (1 dag) · +100% (2 dage)<br>
+    Transport: timesats × 1,75 per time
+  </div>
+</div>
+
+<!-- BOTTOMBAR -->
+<div class="botbar">
+  <button class="bb on" id="bb-dag" onclick="visView('dag')"><span class="bi">📅</span>Dag</button>
+  <button class="bb" id="bb-uge" onclick="visView('uge')"><span class="bi">📆</span>Uge</button>
+  <button class="bb" id="bb-mnd" onclick="visView('mnd')"><span class="bi">🗓</span>Måned</button>
+  <button class="bb" id="bb-aar" onclick="visView('aar')"><span class="bi">📊</span>År</button>
+  <button class="bb" id="bb-inst" onclick="visView('inst')"><span class="bi">⚙️</span>Indst.</button>
+</div>
 
 <script>
-// ════════════════ KONSTANTER ════════════════
-const MND = ['Januar','Februar','Marts','April','Maj','Juni',
-             'Juli','August','September','Oktober','November','December'];
-const DAGE = ['Søn','Man','Tir','Ons','Tor','Fre','Lør'];
-const DAGE_L = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
-const LGRP = [
-  {id:1,navn:'Gruppe 1 – fri forhandling',ds:0,fri:true},
-  {id:2,navn:'Gruppe 2 – Indspilningsleder mv.',ds:4100},
-  {id:3,navn:'Gruppe 3 – Scripter mv.',ds:3300},
-  {id:4,navn:'Gruppe 4 – Assistent mv.',ds:2750},
-  {id:5,navn:'Gruppe 5 – Runner/Trainee',ds:1540},
-];
+// ═══════════════════════════════════════════════════════════
+// KONSTANTER
+// ═══════════════════════════════════════════════════════════
+const KVARTER = [0, 15, 30, 45];
+const DAGNAVNE = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+const DAGNAVNE_K = ['Søn','Man','Tir','Ons','Tor','Fre','Lør'];
+const MAANEDER = ['Januar','Februar','Marts','April','Maj','Juni','Juli','August','September','Oktober','November','December'];
+const MAANEDER_K = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+const LS_DAGE = 'rekl-dage-v2';
+const LS_INST = 'rekl-inst-v2';
 
-// ════════════════ STATE ════════════════
-let view = 'dag';
-let aktDag = new Date(); aktDag.setHours(0,0,0,0);
-let aktProd = null;
-let dagSt = {};
-let brugerValgProd = false;
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let S = {
+  view: 'dag',
+  dagOffset: 0,
+  ugeOffset: 0,
+  mndOffset: 0,
+  aarOffset: 0,
+  dagtype: 'optagelse',
+  tidStart: null,
+  tidSlut: null,
+  gruppe: 2,
+  dagssats: 4100,
+  transAktiv: false,
+  nat: false,
+  wk: 0,           // 0=nej, 1=+75%, 2=+100%
+  otVis: false,
+  modalFelt: null,
+  valgtH: 8, valgtM: 0,
+  dage: {},         // YYYY-MM-DD -> DagEntry
+  inst: { gruppe: 2, dagssats: 4100, dagtype: 'optagelse', navn: '', email: '' }
+};
 
-let cfg = (() => {
-  try { return JSON.parse(localStorage.getItem('rek2-cfg')||'null') || defCfg(); }
-  catch { return defCfg(); }
-})();
-function defCfg() {
-  return {navn:'',gruppe:2,dagsloen1:0,dagtype:'optagelse',start:'07:00',
-    prods:[{id:'p1',navn:'Produktion 1'}]};
+// ═══════════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════════
+function loadData() {
+  try {
+    const d = localStorage.getItem(LS_DAGE);
+    if (d) S.dage = JSON.parse(d);
+  } catch(e) { S.dage = {}; }
+  try {
+    const i = localStorage.getItem(LS_INST);
+    if (i) S.inst = { ...S.inst, ...JSON.parse(i) };
+  } catch(e) {}
 }
-function saveCfg() { localStorage.setItem('rek2-cfg',JSON.stringify(cfg)); }
-
-let prods = cfg.prods || [{id:'p1',navn:'Produktion 1'}];
-
-// ════════════════ DATO UTILS ════════════════
-function toKey(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function saveData() {
+  try { localStorage.setItem(LS_DAGE, JSON.stringify(S.dage)); } catch(e) {}
 }
-function datoStr(d) {
-  return `${DAGE_L[d.getDay()]} ${d.getDate()}. ${MND[d.getMonth()].toLowerCase()} ${d.getFullYear()}`;
-}
-function isWE(d) { return d.getDay()===0||d.getDay()===6; }
-function parseTime(s) {
-  if(!s) return 0;
-  const p=s.split(':');
-  return parseInt(p[0])+(parseInt(p[1]||0))/60;
-}
-function fmtKr(v) {
-  if(v==null||isNaN(v)) return '—';
-  return v.toLocaleString('da-DK',{minimumFractionDigits:2,maximumFractionDigits:2})+' kr';
-}
-function fmtH(h) {
-  const hh=Math.floor(h),mm=Math.round((h-hh)*60);
-  return mm>0?`${hh}:${String(mm).padStart(2,'0')}`:`${hh}`;
-}
-function mndDage(y,m) {
-  const d=[],dt=new Date(y,m,1);
-  while(dt.getMonth()===m){d.push(new Date(dt));dt.setDate(dt.getDate()+1);}
-  return d;
-}
-function ugeDage(d) {
-  const r=[];
-  const mn=new Date(d);
-  mn.setDate(d.getDate()-(d.getDay()===0?6:d.getDay()-1));
-  for(let i=0;i<7;i++){const dd=new Date(mn);dd.setDate(mn.getDate()+i);r.push(dd);}
-  return r;
-}
-function ugeNr(d) {
-  const dt=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
-  dt.setUTCDate(dt.getUTCDate()+4-(dt.getUTCDay()||7));
-  const ys=new Date(Date.UTC(dt.getUTCFullYear(),0,1));
-  return Math.ceil((((dt-ys)/86400000)+1)/7);
+function saveInst() {
+  try { localStorage.setItem(LS_INST, JSON.stringify(S.inst)); } catch(e) {}
 }
 
-// ════════════════ BEREGNING (fra Excel v1.35) ════════════════
-function ovlp(a1,a2,b1,b2){return Math.max(0,Math.min(a2,b2)-Math.max(a1,b1));}
-function beregnNatT(sh,eh){
-  const n18=ovlp(sh,eh,18,24);
-  const n00=(sh<6?ovlp(sh,eh,0,6):0)+ovlp(sh,eh,24,30);
-  return{n18,n00};
+// ═══════════════════════════════════════════════════════════
+// BEREGNINGSMOTOR — Reklamefilmsoverenskomst 2024
+// ═══════════════════════════════════════════════════════════
+
+function otBands(t) {
+  const ot = Math.max(0, t - 8);
+  return {
+    I: Math.min(ot, 2),
+    J: Math.min(Math.max(ot - 2, 0), 2),
+    K: Math.min(Math.max(ot - 4, 0), 1),
+    L: Math.max(ot - 5, 0)
+  };
 }
-function otBands(total){
-  const L=total>13?Math.max(0,total-13):0;
-  const K=total>12?Math.max(0,total-12-L):0;
-  const J=total>10?Math.max(0,total-10-K-L):0;
-  const I=total>8 ?Math.max(0,total-8 -J-K-L):0;
-  return{I,J,K,L};
+
+function overlap(sh, eh, fra, til) {
+  const a = Math.max(sh, fra), b = Math.min(eh, til);
+  return b > a ? b - a : 0;
 }
-function getDagsloen(gruppe) {
-  if(gruppe===1) return dagSt.dagsloenCustom||cfg.dagsloen1||0;
-  return LGRP.find(g=>g.id===gruppe)?.ds||0;
-}
-function beregnDag(p) {
-  const{gruppe,dagsloen,dagtype,startStr,slutStr,
-    weekend=false,weekendDage=1,transportTimer=0}=p;
-  if(!startStr||!slutStr||!dagsloen) return null;
-  let sh=parseTime(startStr),eh=parseTime(slutStr);
-  if(eh===0&&sh>0) eh=24;
-  if(eh<sh) eh+=24;
-  const tot=eh-sh;
-  if(tot<=0) return null;
-  const tl=dagsloen/8;
-  let normal;
-  if(dagtype==='optagelse') normal=8;
-  else{
-    if(tot<=0) normal=0;
-    else if(tot<=4) normal=4;
-    else if(tot<=8) normal=tot;
-    else normal=8;
-  }
-  const H18=normal*tl;
-  const{I,J,K,L}=otBands(tot);
-  const otList=[]; let otSum=0;
-  if(gruppe===5){
-    const b1=I+J+K,b2=L;
-    if(b1>0){const bl=b1*200;otList.push({lbl:`OT t9–13 (${fmtH(b1)}t × 200 kr)`,t:b1,bl});otSum+=bl;}
-    if(b2>0){const bl=b2*350;otList.push({lbl:`OT t14+ (${fmtH(b2)}t × 350 kr)`,t:b2,bl});otSum+=bl;}
+
+function calcReklame(dagtype, start, slut, dagssats, gruppe, opts) {
+  // opts: { transport, nat, wk }
+  if (!start || !slut) return null;
+  const s = start.h + start.m / 60;
+  const e = slut.h + slut.m / 60;
+  const raaTimer = e >= s ? e - s : e - s + 24;
+
+  // Minimum 4 timers kald for Forbered
+  const arbejdsTimer = dagtype === 'forbered' ? Math.max(4, raaTimer) : raaTimer;
+  const ts = dagssats / 8;
+
+  // OT bands
+  const b = otBands(arbejdsTimer);
+  const otTimer = b.I + b.J + b.K + b.L;
+
+  let normalKr = Math.min(arbejdsTimer, 8) * ts;
+  let otKr = 0;
+
+  if (gruppe === 5) {
+    // Fast OT-sats
+    const band1 = b.I + b.J + b.K;
+    otKr = band1 * 200 + b.L * 350;
+  } else if (gruppe === 1) {
+    // Fri forhandling — ingen definerede OT-satser
+    otKr = 0;
   } else {
-    const rt=dagtype==='optagelse'?{I:.25,J:1,K:1.5,L:2}:{I:.25,J:.5,K:.75,L:.75};
-    const def=[
-      {h:I,r:rt.I,lbl:dagtype==='optagelse'?'t9-10 (+25%)':'t9-10 (+25%)'},
-      {h:J,r:rt.J,lbl:dagtype==='optagelse'?'t11-12 (+100%)':'t11-12 (+50%)'},
-      {h:K,r:rt.K,lbl:dagtype==='optagelse'?'t13 (+150%)':'t13+ (+75%)'},
-      {h:L,r:rt.L,lbl:dagtype==='optagelse'?'t14+ (+200%)':'t14+ (+75%)'},
-    ];
-    for(const b of def) if(b.h>0){
-      const bl=b.h*tl*(1+b.r);
-      otList.push({lbl:`OT ${b.lbl} (${fmtH(b.h)}t)`,t:b.h,bl});otSum+=bl;
+    // Gr. 2–4, satser afhænger af dagtype
+    if (dagtype === 'optagelse') {
+      otKr = b.I * ts * 1.25 + b.J * ts * 2.00 + b.K * ts * 2.50 + b.L * ts * 3.00;
+    } else {
+      // Forbered: +25%/+50%/+75%/+75%
+      otKr = b.I * ts * 1.25 + b.J * ts * 1.50 + b.K * ts * 1.75 + b.L * ts * 1.75;
     }
   }
-  let weB=0;
-  if(weekend){
-    const wf=weekendDage>=2?1:.75;
-    const wt=dagtype==='optagelse'?tot+transportTimer:tot;
-    weB=wt*tl*wf;
+
+  // Transport (kun Optagelse)
+  let transKr = 0, transTimer = 0;
+  if (dagtype === 'optagelse' && opts.transport > 0) {
+    transTimer = opts.transport;
+    transKr = transTimer * ts * 1.75;
   }
-  let n18B=0,n00B=0,natT={n18:0,n00:0};
-  if(dagtype==='optagelse'){
-    natT=beregnNatT(sh,eh);
-    n18B=natT.n18*100; n00B=natT.n00*200;
+
+  // Nat-gene (kun Optagelse) §5
+  let natKr = 0, nat18t = 0, nat00t = 0;
+  if (dagtype === 'optagelse' && opts.nat) {
+    const sh = s, eh = e >= s ? e : e + 24;
+    nat18t = overlap(sh, eh, 18, 24);
+    nat00t = (sh < 6 ? overlap(sh, eh, 0, 6) : 0) + overlap(sh, eh, 24, 30);
+    natKr = nat18t * 100 + nat00t * 200;
   }
-  let trB=0;
-  if(dagtype==='optagelse'&&transportTimer>0) trB=transportTimer*tl*1.75;
-  const brutto=H18+otSum+weB+n18B+n00B+trB;
-  const ialt=dagtype==='optagelse'?Math.max(brutto,dagsloen):brutto;
-  return{tot,normal,otimer:I+J+K+L,tl,normalLoen:H18,otList,otSum,
-    weB,n18:natT.n18,n00:natT.n00,n18B,n00B,trB,brutto,ialt};
+
+  // Weekend-tillæg (kun Optagelse) §6
+  let wkKr = 0;
+  if (dagtype === 'optagelse' && opts.wk > 0) {
+    const wTimer = arbejdsTimer + transTimer;
+    const wFaktor = opts.wk === 2 ? 1.0 : 0.75;
+    wkKr = wTimer * ts * wFaktor;
+  }
+
+  const brutto = normalKr + otKr + transKr + natKr + wkKr;
+
+  // Minimum garanteret dagsløngaranti (kun Optagelse)
+  const garantiKr = (dagtype === 'optagelse' && brutto < dagssats) ? dagssats - brutto : 0;
+  const total = brutto + garantiKr;
+
+  return {
+    raaTimer, arbejdsTimer, otTimer, transTimer,
+    normalKr, otKr, transKr, natKr, wkKr, garantiKr,
+    brutto, total, ts,
+    bI: b.I, bJ: b.J, bK: b.K, bL: b.L,
+    nat18t, nat00t
+  };
 }
 
-// ════════════════ STORAGE ════════════════
-function dagKey(dato,pid){return`rek2-${pid}-${toKey(dato)}`;}
-function gemDagData(dato,pid,data){localStorage.setItem(dagKey(dato,pid),JSON.stringify(data));}
-function hentDagData(dato,pid){
-  try{const r=localStorage.getItem(dagKey(dato,pid));return r?JSON.parse(r):null;}
-  catch{return null;}
+// ═══════════════════════════════════════════════════════════
+// HJÆLPERE
+// ═══════════════════════════════════════════════════════════
+function p2(n) { return String(n).padStart(2,'0'); }
+function hFmt(h) {
+  if (!h && h !== 0) return '–';
+  const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+  return mm > 0 ? `${hh}t ${mm}m` : `${hh}t`;
 }
-function getPid(){return aktProd||(prods[0]?.id)||'p1';}
+function krFmt(kr) { return Math.round(kr).toLocaleString('da-DK') + ' kr.'; }
+function krFmtK(kr) {
+  const r = Math.round(kr);
+  if (r >= 1000) return (r/1000).toLocaleString('da-DK', {maximumFractionDigits:1}) + 'k';
+  return r.toLocaleString('da-DK');
+}
+function toast(msg, col) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = col || 'var(--grn)';
+  el.style.color = col ? '#fff' : '#0C0C12';
+  el.classList.add('on');
+  setTimeout(() => el.classList.remove('on'), 2200);
+}
+function dagKey(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().slice(0,10);
+}
+function keyTilDato(key) {
+  return new Date(key + 'T12:00:00');
+}
+function ugeNr(d) {
+  const t = new Date(d); t.setHours(12);
+  const jan1 = new Date(t.getFullYear(),0,1);
+  return Math.ceil(((t - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+}
+function mandag(ugeOffset) {
+  const d = new Date();
+  d.setHours(12,0,0,0);
+  const dag = d.getDay() || 7;
+  d.setDate(d.getDate() - dag + 1 + ugeOffset * 7);
+  return d;
+}
 
-// ════════════════ VIEWS ════════════════
-function goView(v) {
-  view=v;
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('on'));
-  document.getElementById(`t-${v}`)?.classList.add('on');
-  const pb=document.getElementById('prod-bar');
-  pb.style.display=(v==='dag'||v==='uge')?'flex':'none';
-  rendProdBar();
-  switch(v){
-    case 'dag': rendDag(); break;
-    case 'uge': rendUge(); break;
-    case 'mnd': rendMnd(); break;
-    case 'aar': rendAar(); break;
+// ═══════════════════════════════════════════════════════════
+// TID MODAL
+// ═══════════════════════════════════════════════════════════
+function byggModal() {
+  const hEl = document.getElementById('ts-timer');
+  const mEl = document.getElementById('ts-min');
+  hEl.innerHTML = ''; mEl.innerHTML = '';
+  for (let h = 0; h < 24; h++) {
+    const el = document.createElement('div');
+    el.className = 'tscroll-item' + (h === S.valgtH ? ' sel' : '');
+    el.textContent = p2(h);
+    el.onclick = () => { S.valgtH = h; opdaterModal(); };
+    hEl.appendChild(el);
   }
-}
-
-function rendProdBar(){
-  const bar=document.getElementById('prod-bar');
-  bar.innerHTML='';
-  const pid=getPid();
-  prods.forEach(p=>{
-    const el=document.createElement('div');
-    el.className='ppill'+(p.id===pid?' on':'');
-    el.textContent=p.navn;
-    el.onclick=()=>{brugerValgProd=true;aktProd=p.id;rendProdBar();if(view==='dag')rendDag();else if(view==='uge')rendUge();};
-    bar.appendChild(el);
+  KVARTER.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'tscroll-item' + (m === S.valgtM ? ' sel' : '');
+    el.textContent = p2(m);
+    el.onclick = () => { S.valgtM = m; opdaterModal(); };
+    mEl.appendChild(el);
   });
-  const add=document.createElement('div');
-  add.className='ppill add';add.textContent='+ Ny';add.onclick=addProd;
-  bar.appendChild(add);
+  setTimeout(() => {
+    const sh = hEl.querySelector('.sel');
+    if (sh) sh.scrollIntoView({ block:'center', behavior:'instant' });
+  }, 10);
 }
-
-// ════════════════ DAG VIEW ════════════════
-function initDagSt(){
-  const we=isWE(aktDag);
-  dagSt={gruppe:cfg.gruppe||2,dagsloenCustom:cfg.dagsloen1||0,
-    dagtype:cfg.dagtype||'optagelse',start:cfg.start||'07:00',slut:'',
-    weekend:we,weekendDage:1,transport:0,note:'',inited:true};
+function opdaterModal() {
+  document.querySelectorAll('#ts-timer .tscroll-item').forEach((el,i) => el.classList.toggle('sel', i === S.valgtH));
+  document.querySelectorAll('#ts-min .tscroll-item').forEach((el,i) => el.classList.toggle('sel', KVARTER[i] === S.valgtM));
+  document.getElementById('mv-h').textContent = p2(S.valgtH);
+  document.getElementById('mv-m').textContent = p2(S.valgtM);
 }
-
-function rendDag(){
-  const pid=getPid();
-  const saved=hentDagData(aktDag,pid);
-  if(saved&&!dagSt._editing){
-    dagSt={...saved._input,inited:true,_editing:false};
-  } else if(!dagSt.inited){
-    initDagSt();
+function åbnModal(felt) {
+  S.modalFelt = felt;
+  const t = felt === 'start' ? S.tidStart : S.tidSlut;
+  S.valgtH = t ? t.h : (felt === 'start' ? 7 : 17);
+  S.valgtM = t ? t.m : 0;
+  document.getElementById('tmodal-ttl').textContent = felt === 'start' ? 'Mødt op' : 'Pakket ned';
+  document.getElementById('mv-h').textContent = p2(S.valgtH);
+  document.getElementById('mv-m').textContent = p2(S.valgtM);
+  document.getElementById('tmodal-bg').classList.remove('skjult');
+  byggModal();
+}
+function lukkModal(e) {
+  if (e === null || e.target === document.getElementById('tmodal-bg')) {
+    document.getElementById('tmodal-bg').classList.add('skjult');
   }
-  const ds=dagSt;
-  const dagsloen=ds.gruppe===1?(ds.dagsloenCustom||cfg.dagsloen1||0):
-    (LGRP.find(g=>g.id===ds.gruppe)?.ds||0);
-  const b=ds.start&&ds.slut?beregnDag({gruppe:ds.gruppe,dagsloen,dagtype:ds.dagtype,
-    startStr:ds.start,slutStr:ds.slut,weekend:ds.weekend,weekendDage:ds.weekendDage,
-    transportTimer:ds.transport||0}):null;
-
-  const ct=document.getElementById('content');
-  let html=`
-<div id="dag-nav">
-  <button class="nav-arr" onclick="skiftDag(-1)">←</button>
-  <div id="dag-dato">${datoStr(aktDag)}</div>
-  <button class="nav-arr" onclick="skiftDag(1)">→</button>
-</div>
-${saved?'<div class="saved-badge">✓ Gemt</div>':''}
-<div class="card">
-  <div class="row"><div class="rlbl">Løngruppe</div>
-    <select class="rinp" onchange="onGr(+this.value)">
-      ${LGRP.map(g=>`<option value="${g.id}"${ds.gruppe===g.id?' selected':''}>${g.navn}</option>`).join('')}
-    </select></div>
-  ${ds.gruppe===1?`
-  <div class="row"><div class="rlbl">Dagløn</div>
-    <input class="rinp" type="number" placeholder="kr/dag" value="${ds.dagsloenCustom||''}"
-      oninput="dagSt.dagsloenCustom=+this.value;rendDag()"></div>`:`
-  <div class="row"><div class="rlbl">Dagløn</div>
-    <div style="margin-left:auto;font-size:15px;font-weight:700">${fmtKr(dagsloen)}</div></div>`}
-  <div class="row"><div class="rlbl">Dagtype</div>
-    <div class="tog">
-      <div class="tb${ds.dagtype==='optagelse'?' on':''}" onclick="onDT('optagelse')">Optagelse</div>
-      <div class="tb${ds.dagtype==='forbered'?' on':''}" onclick="onDT('forbered')">Forbered</div>
-    </div></div>
-  <div class="row"><div class="rlbl">Kl. start</div>
-    <input class="rinp" type="time" value="${ds.start||''}"
-      onchange="dagSt.start=this.value;rendDag()"></div>
-  <div class="row"><div class="rlbl">Kl. slut</div>
-    <input class="rinp" type="time" value="${ds.slut||''}"
-      onchange="dagSt.slut=this.value;rendDag()"></div>`;
-  if(b) html+=`
-  <div class="row"><div class="rlbl">Timer</div>
-    <div style="margin-left:auto;font-weight:700;font-size:15px">
-      ${fmtH(b.tot)}<span style="color:var(--sub);font-size:12px;margin-left:6px">${b.otimer>0?'('+fmtH(b.otimer)+'t OT)':''}</span>
-    </div></div>`;
-  html+=`
-  <div class="row"><div class="rlbl">Weekend</div>
-    <div class="tog">
-      <div class="tb${!ds.weekend?' on':''}" onclick="dagSt.weekend=false;rendDag()">Nej</div>
-      <div class="tb${ds.weekend?' on':''}" onclick="dagSt.weekend=true;rendDag()">Ja</div>
-    </div></div>`;
-  if(ds.weekend) html+=`
-  <div class="row"><div class="rlbl">Weekend</div>
-    <div class="tog">
-      <div class="tb${ds.weekendDage<2?' on':''}" onclick="dagSt.weekendDage=1;rendDag()">1 dag +75%</div>
-      <div class="tb${ds.weekendDage>=2?' on':''}" onclick="dagSt.weekendDage=2;rendDag()">2 dage +100%</div>
-    </div></div>`;
-  if(ds.dagtype==='optagelse') html+=`
-  <div class="row"><div class="rlbl">Transport</div>
-    <select class="rinp" onchange="dagSt.transport=+this.value;rendDag()">
-      ${[0,0.5,1,1.5,2,2.5,3].map(v=>`<option value="${v}"${ds.transport===v?' selected':''}>${v===0?'Ingen':fmtH(v)+' timer'}</option>`).join('')}
-    </select></div>`;
-  html+=`
-  <div class="row"><div class="rlbl">Note</div>
-    <input class="rinp" placeholder="Valgfrit…" value="${ds.note||''}"
-      oninput="dagSt.note=this.value"></div>
-</div>`;
-  ct.innerHTML=html;
-  if(b) rendBeregning(b,dagsloen,ct);
-  ct.insertAdjacentHTML('beforeend',`
-<div class="card"><div class="acts">
-  <button class="abt a-gem" onclick="doGem()">💾 Gem</button>
-  <button class="abt a-pdf" onclick="doPDF()">🖨 PDF</button>
-  <button class="abt a-mail" onclick="doMail()">✉️ Mail</button>
-</div></div>`);
+}
+function bekræftTid() {
+  const t = { h: S.valgtH, m: S.valgtM };
+  if (S.modalFelt === 'start') S.tidStart = t; else S.tidSlut = t;
+  opdaterTidDisplay();
+  document.getElementById('tmodal-bg').classList.add('skjult');
+  beregn();
+}
+function opdaterTidDisplay() {
+  const dS = document.getElementById('disp-start');
+  const dE = document.getElementById('disp-slut');
+  if (S.tidStart) { dS.textContent = `${p2(S.tidStart.h)}:${p2(S.tidStart.m)}`; dS.classList.remove('tom'); }
+  else { dS.textContent = '––:––'; dS.classList.add('tom'); }
+  if (S.tidSlut) { dE.textContent = `${p2(S.tidSlut.h)}:${p2(S.tidSlut.m)}`; dE.classList.remove('tom'); }
+  else { dE.textContent = '––:––'; dE.classList.add('tom'); }
 }
 
-function rendBeregning(b,dagsloen,ct){
-  let rows=`<div class="br"><span class="brl">Normal dag (${fmtH(b.normal)}t)</span>
-    <span class="brv">${fmtKr(b.normalLoen)}</span></div>`;
-  b.otList.forEach(o=>rows+=`<div class="br"><span class="brl">${o.lbl}</span>
-    <span class="brv">${fmtKr(o.bl)}</span></div>`);
-  if(b.weB>0) rows+=`<div class="br"><span class="brl">Weekend tillæg</span>
-    <span class="brv">${fmtKr(b.weB)}</span></div>`;
-  if(b.n18B>0) rows+=`<div class="br"><span class="brl">Nat gene 18-00 (${fmtH(b.n18)}t)</span>
-    <span class="brv">${fmtKr(b.n18B)}</span></div>`;
-  if(b.n00B>0) rows+=`<div class="br"><span class="brl">Nat gene 00-06 (${fmtH(b.n00)}t)</span>
-    <span class="brv">${fmtKr(b.n00B)}</span></div>`;
-  if(b.trB>0) rows+=`<div class="br"><span class="brl">Transport</span>
-    <span class="brv">${fmtKr(b.trB)}</span></div>`;
-  ct.insertAdjacentHTML('beforeend',`
-<div class="card">
-  <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--sub);
-    letter-spacing:.5px;margin-bottom:8px">Beregning</div>
-  ${rows}
-  <div class="brtot">
-    <span style="font-size:16px;font-weight:700">I alt</span>
-    <span class="brv">${fmtKr(b.ialt)}</span>
-  </div>
-</div>`);
+// ═══════════════════════════════════════════════════════════
+// DAG CONTROLS
+// ═══════════════════════════════════════════════════════════
+function sætDagtype(dt) {
+  S.dagtype = dt;
+  document.getElementById('dt-opt').classList.toggle('on', dt === 'optagelse');
+  document.getElementById('dt-for').classList.toggle('on', dt === 'forbered');
+  document.getElementById('opt-tillaeg').style.display = dt === 'optagelse' ? 'block' : 'none';
+  document.getElementById('for-info').style.display = dt === 'forbered' ? 'block' : 'none';
+  // Reset Optagelse-only tillæg
+  if (dt === 'forbered') {
+    S.nat = false; S.wk = 0; S.transAktiv = false;
+    document.getElementById('bn-nat')?.classList.remove('on');
+    document.getElementById('bn-wk')?.classList.remove('on','on2');
+    document.getElementById('bn-trans')?.classList.remove('on');
+    document.getElementById('trans-row').style.display = 'none';
+  }
+  opdaterOTLabels();
+  beregn();
 }
 
-function onGr(v){dagSt.gruppe=v;dagSt._editing=true;rendDag();}
-function onDT(v){dagSt.dagtype=v;dagSt._editing=true;rendDag();}
-
-function skiftDag(dir){
-  brugerValgProd=false;dagSt={};
-  aktDag=new Date(aktDag);aktDag.setDate(aktDag.getDate()+dir);
-  rendDag();
+function tog(k) {
+  if (k === 'nat') {
+    S.nat = !S.nat;
+    document.getElementById('bn-nat').classList.toggle('on', S.nat);
+  }
+  beregn();
 }
 
-function doGem(){
-  const pid=getPid();
-  if(!dagSt.start||!dagSt.slut){toast('Angiv start- og sluttid');return;}
-  const dagsloen=dagSt.gruppe===1?(dagSt.dagsloenCustom||0):
-    (LGRP.find(g=>g.id===dagSt.gruppe)?.ds||0);
-  if(!dagsloen){toast('Angiv dagløn');return;}
-  const b=beregnDag({gruppe:dagSt.gruppe,dagsloen,dagtype:dagSt.dagtype,
-    startStr:dagSt.start,slutStr:dagSt.slut,weekend:dagSt.weekend,
-    weekendDage:dagSt.weekendDage,transportTimer:dagSt.transport||0});
-  if(!b){toast('Ugyldig tid');return;}
-  const prodNavn=prods.find(p=>p.id===pid)?.navn||'';
-  gemDagData(aktDag,pid,{prod:prodNavn,dato:toKey(aktDag),_input:{...dagSt},bregn:b,dagsloen,gemt:new Date().toISOString()});
-  dagSt._editing=false;
-  toast('✓ Gemt!');rendDag();
+function togWk() {
+  S.wk = (S.wk + 1) % 3;
+  const bn = document.getElementById('bn-wk');
+  const sub = document.getElementById('bn-wk-sub');
+  bn.classList.remove('on','on2');
+  if (S.wk === 1) { bn.classList.add('on'); sub.textContent = '1 dag: +75%'; }
+  else if (S.wk === 2) { bn.classList.add('on2'); sub.textContent = '2 dage: +100%'; }
+  else { sub.textContent = 'Lør–Man +75/100%'; }
+  beregn();
 }
 
-// ════════════════ PDF & MAIL ════════════════
-function doPDF(){
-  const pid=getPid();const saved=hentDagData(aktDag,pid);
-  if(!saved){toast('Gem dagen først');return;}
-  const b=saved.bregn;const dt=datoStr(aktDag);const pn=saved.prod||'—';
-  const gr=saved._input?.gruppe||'';const ds=saved.dagsloen;
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>body{font-family:-apple-system,Arial,sans-serif;padding:28px;max-width:580px;color:#1c1c1e}
-h1{color:#e05c00;font-size:20px;margin-bottom:2px}.sub{color:#8e8e93;font-size:13px;margin-bottom:22px}
-table{width:100%;border-collapse:collapse}tr{border-bottom:1px solid #e5e5ea}
-td{padding:7px 0;font-size:13px}td:last-child{text-align:right;font-weight:600}
-.tot td{font-size:17px;font-weight:700;padding-top:12px;border-top:2px solid #1c1c1e;border-bottom:none}
-.tot td:last-child{color:#e05c00;font-size:19px}
-.note{margin-top:20px;padding:10px;background:#f2f2f7;border-radius:8px;font-size:13px}
-.foot{margin-top:24px;font-size:10px;color:#8e8e93}</style></head>
-<body><h1>Time App · Reklame</h1>
-<div class="sub">${pn} · ${dt}</div>
-<table>
-<tr><td>Løngruppe</td><td>Gruppe ${gr}</td></tr>
-<tr><td>Dagløn</td><td>${fmtKr(ds)}</td></tr>
-<tr><td>Dagtype</td><td>${saved._input?.dagtype==='optagelse'?'Optagelse':'Forbered/afrig'}</td></tr>
-<tr><td>Arbejdstid</td><td>${saved._input?.start} – ${saved._input?.slut} (${fmtH(b.tot)}t)</td></tr>
-${b.otimer>0?`<tr><td>Overarbejde</td><td>${fmtH(b.otimer)}t</td></tr>`:''}
-<tr><td colspan="2" style="height:10px"></td></tr>
-<tr><td>Normal dag (${fmtH(b.normal)}t)</td><td>${fmtKr(b.normalLoen)}</td></tr>
-${b.otList.map(o=>`<tr><td>${o.lbl}</td><td>${fmtKr(o.bl)}</td></tr>`).join('')}
-${b.weB>0?`<tr><td>Weekend tillæg</td><td>${fmtKr(b.weB)}</td></tr>`:''}
-${b.n18B>0?`<tr><td>Nat gene 18-00 (${fmtH(b.n18)}t)</td><td>${fmtKr(b.n18B)}</td></tr>`:''}
-${b.n00B>0?`<tr><td>Nat gene 00-06 (${fmtH(b.n00)}t)</td><td>${fmtKr(b.n00B)}</td></tr>`:''}
-${b.trB>0?`<tr><td>Transport</td><td>${fmtKr(b.trB)}</td></tr>`:''}
-<tr class="tot"><td>I alt</td><td>${fmtKr(b.ialt)}</td></tr>
-</table>
-${saved._input?.note?`<div class="note">📝 ${saved._input.note}</div>`:''}
-<div class="foot">Time App · Reklame · FAF Reklamefilmsoverenskomst 2024</div>
-</body></html>`;
-  const fr=document.getElementById('pdf-frame');
-  fr.style.display='block';fr.srcdoc=html;
-  setTimeout(()=>{fr.contentWindow.print();setTimeout(()=>{fr.style.display='none';},1000);},400);
+function togTrans() {
+  S.transAktiv = !S.transAktiv;
+  document.getElementById('bn-trans').classList.toggle('on', S.transAktiv);
+  document.getElementById('trans-row').style.display = S.transAktiv ? 'flex' : 'none';
+  beregn();
 }
 
-function doMail(){
-  const pid=getPid();const saved=hentDagData(aktDag,pid);
-  if(!saved){toast('Gem dagen først');return;}
-  const b=saved.bregn;const dt=datoStr(aktDag);const pn=saved.prod||'—';
-  let body=`Timeregistrering – ${pn}\n${dt}\n\n`;
-  body+=`Løngruppe: Gruppe ${saved._input?.gruppe}\n`;
-  body+=`Dagløn: ${fmtKr(saved.dagsloen)}\n`;
-  body+=`Dagtype: ${saved._input?.dagtype==='optagelse'?'Optagelse':'Forbered/afrig'}\n`;
-  body+=`Arbejdstid: ${saved._input?.start} – ${saved._input?.slut} (${fmtH(b.tot)}t)\n\n`;
-  body+=`Normal dag (${fmtH(b.normal)}t): ${fmtKr(b.normalLoen)}\n`;
-  b.otList.forEach(o=>body+=`${o.lbl}: ${fmtKr(o.bl)}\n`);
-  if(b.weB>0) body+=`Weekend tillæg: ${fmtKr(b.weB)}\n`;
-  if(b.n18B>0) body+=`Nat gene 18-00: ${fmtKr(b.n18B)}\n`;
-  if(b.n00B>0) body+=`Nat gene 00-06: ${fmtKr(b.n00B)}\n`;
-  if(b.trB>0) body+=`Transport: ${fmtKr(b.trB)}\n`;
-  body+=`\nI alt: ${fmtKr(b.ialt)}\n`;
-  if(saved._input?.note) body+=`\nNote: ${saved._input.note}\n`;
-  body+=`\n---\nTime App · Reklame · FAF Reklamefilmsoverenskomst 2024`;
-  window.location.href=`mailto:?subject=${encodeURIComponent('Timeregistrering – '+pn+' – '+dt)}&body=${encodeURIComponent(body)}`;
+function skiftGruppe() {
+  S.gruppe = parseInt(document.getElementById('s-gruppe').value);
+  opdaterOTLabels();
+  beregn();
 }
 
-// ════════════════ UGE VIEW ════════════════
-function rendUge(){
-  const pid=getPid();const dage=ugeDage(aktDag);const un=ugeNr(aktDag);
-  let ugeTot=0,ugeTim=0;
-  const rows=dage.map(d=>{
-    const s=hentDagData(d,pid);const b=s?.bregn;
-    if(b){ugeTot+=b.ialt;ugeTim+=b.tot;}
-    const we=d.getDay()===0||d.getDay()===6;
-    return`<div class="drow${!b?' nodata':''}" onclick="gaaDag('${toKey(d)}')">
-      <div class="drow-dg" style="color:${we?'var(--accent)':'var(--sub)'}">${DAGE[d.getDay()]}</div>
-      <div class="drow-dt">${d.getDate()}. ${MND[d.getMonth()].substring(0,3).toLowerCase()}</div>
-      <div class="drow-tm">${b?fmtH(b.tot)+'t':''}</div>
-      <div class="drow-kr">${b?fmtKr(b.ialt):'—'}</div>
+function opdaterOTLabels() {
+  const g = S.gruppe;
+  const dt = S.dagtype;
+  if (g === 5) {
+    document.getElementById('o-ot1-lbl').textContent = 'OT 9.–13. time (200 kr/t)';
+    document.getElementById('o-ot2-lbl').textContent = 'OT 14.+ time (350 kr/t)';
+    document.getElementById('o-ot3-row').style.display = 'none';
+    document.getElementById('o-ot4-row').style.display = 'none';
+  } else if (g === 1) {
+    document.getElementById('o-ot1-lbl').textContent = 'OT (fri forhandling)';
+    document.getElementById('o-ot3-row').style.display = 'none';
+    document.getElementById('o-ot4-row').style.display = 'none';
+    document.getElementById('o-ot2-row').style.display = 'none';
+  } else if (dt === 'optagelse') {
+    document.getElementById('o-ot1-lbl').textContent = 'OT 9.–10. time (+25%)';
+    document.getElementById('o-ot2-lbl').textContent = 'OT 11.–12. time (+100%)';
+    document.getElementById('o-ot3-lbl').textContent = 'OT 13. time (+150%)';
+    document.getElementById('o-ot4-lbl').textContent = 'OT 14.+ time (+200%)';
+    document.getElementById('o-ot2-row').style.display = 'flex';
+    document.getElementById('o-ot3-row').style.display = 'flex';
+    document.getElementById('o-ot4-row').style.display = 'flex';
+  } else {
+    document.getElementById('o-ot1-lbl').textContent = 'OT 9.–10. time (+25%)';
+    document.getElementById('o-ot2-lbl').textContent = 'OT 11.–12. time (+50%)';
+    document.getElementById('o-ot3-lbl').textContent = 'OT 13.+ time (+75%)';
+    document.getElementById('o-ot4-row').style.display = 'none';
+    document.getElementById('o-ot2-row').style.display = 'flex';
+    document.getElementById('o-ot3-row').style.display = 'flex';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// BEREGN & RENDER (DAG)
+// ═══════════════════════════════════════════════════════════
+function beregn() {
+  S.dagssats = parseFloat(document.getElementById('s-dagssats').value) || 4100;
+  const ts = S.dagssats / 8;
+  document.getElementById('timesats-vis').textContent = ts.toLocaleString('da-DK',{maximumFractionDigits:2}) + ' kr/t';
+
+  if (!S.tidStart || !S.tidSlut) {
+    document.getElementById('res-t').textContent = '– –';
+    document.getElementById('res-pay').textContent = '– kr.';
+    document.getElementById('res-sub').textContent = '';
+    document.getElementById('res-expand').textContent = '';
+    document.getElementById('ot-boks').classList.remove('vis');
+    return;
+  }
+
+  const transTimer = S.transAktiv ? (parseFloat(document.getElementById('trans-timer').value) || 0) : 0;
+  const opts = { transport: transTimer, nat: S.nat, wk: S.wk };
+  const r = calcReklame(S.dagtype, S.tidStart, S.tidSlut, S.dagssats, S.gruppe, opts);
+  if (!r) return;
+
+  document.getElementById('res-t').textContent = hFmt(r.arbejdsTimer);
+  document.getElementById('res-pay').textContent = krFmt(r.total);
+  document.getElementById('res-pay-lbl').textContent = r.garantiKr > 0 ? 'Garanteret' : 'Dagsløn';
+
+  const dtLbl = S.dagtype === 'optagelse' ? 'Optagelse' : 'Forbered';
+  document.getElementById('res-sub').textContent =
+    `${dtLbl} · Gr.${S.gruppe} · ${S.dagssats.toLocaleString('da-DK')} kr/dag · ts ${Math.round(ts)} kr/t`;
+  document.getElementById('res-expand').textContent = S.otVis ? '▴ Luk specifikation' : '▾ Vis specifikation';
+
+  // OT rows
+  document.getElementById('o-normal').textContent = krFmt(r.normalKr);
+
+  if (S.gruppe === 5) {
+    const band1 = r.bI + r.bJ + r.bK;
+    const band1Kr = band1 * 200;
+    document.getElementById('o-ot1').textContent = band1 > 0 ? `${hFmt(band1)} × 200 kr/t = ${krFmt(band1Kr)}` : '—';
+    document.getElementById('o-ot2').textContent = r.bL > 0 ? `${hFmt(r.bL)} × 350 kr/t = ${krFmt(r.bL * 350)}` : '—';
+    document.getElementById('o-ot1-row').style.display = 'flex';
+    document.getElementById('o-ot2-row').style.display = 'flex';
+  } else if (S.gruppe === 1) {
+    document.getElementById('o-ot1').textContent = 'Aftales individuelt';
+    document.getElementById('o-ot1-row').style.display = 'flex';
+  } else {
+    const ts_ = r.ts;
+    if (S.dagtype === 'optagelse') {
+      const data = [
+        { id:'o-ot1', t:r.bI, rate:1.25, lbl:'(+25%)' },
+        { id:'o-ot2', t:r.bJ, rate:2.00, lbl:'(+100%)' },
+        { id:'o-ot3', t:r.bK, rate:2.50, lbl:'(+150%)' },
+        { id:'o-ot4', t:r.bL, rate:3.00, lbl:'(+200%)' }
+      ];
+      data.forEach(x => {
+        const el = document.getElementById(x.id);
+        if (el) el.textContent = x.t > 0 ? `${hFmt(x.t)} × ts ${x.lbl} = ${krFmt(x.t * ts_ * x.rate)}` : '—';
+      });
+    } else {
+      // Forbered: I=+25%, J=+50%, K+L=+75% (vist i ot3-row)
+      const kl = r.bK + r.bL;
+      document.getElementById('o-ot1').textContent = r.bI > 0 ? `${hFmt(r.bI)} × ts (+25%) = ${krFmt(r.bI * ts_ * 1.25)}` : '—';
+      document.getElementById('o-ot2').textContent = r.bJ > 0 ? `${hFmt(r.bJ)} × ts (+50%) = ${krFmt(r.bJ * ts_ * 1.50)}` : '—';
+      document.getElementById('o-ot3').textContent = kl > 0 ? `${hFmt(kl)} × ts (+75%) = ${krFmt(kl * ts_ * 1.75)}` : '—';
+    }
+  }
+
+  // Transport
+  const transRow = document.getElementById('o-trans-row');
+  transRow.style.display = r.transKr > 0 ? 'flex' : 'none';
+  if (r.transKr > 0) document.getElementById('o-trans').textContent = `${hFmt(r.transTimer)} × ts × 1.75 = ${krFmt(r.transKr)}`;
+
+  // Nat
+  const natRow = document.getElementById('o-nat-row');
+  natRow.style.display = r.natKr > 0 ? 'flex' : 'none';
+  if (r.natKr > 0) {
+    let t = '';
+    if (r.nat18t > 0) t += `${hFmt(r.nat18t)}×100`;
+    if (r.nat00t > 0) t += (t ? ' + ' : '') + `${hFmt(r.nat00t)}×200`;
+    document.getElementById('o-nat').textContent = `${t} = ${krFmt(r.natKr)}`;
+  }
+
+  // Weekend
+  const wkRow = document.getElementById('o-wk-row');
+  wkRow.style.display = r.wkKr > 0 ? 'flex' : 'none';
+  if (r.wkKr > 0) {
+    const pct = S.wk === 2 ? '100%' : '75%';
+    document.getElementById('o-wk').textContent = `${hFmt(r.arbejdsTimer + r.transTimer)} × ts × ${pct} = ${krFmt(r.wkKr)}`;
+  }
+
+  // Garanti
+  const minRow = document.getElementById('o-min-row');
+  minRow.style.display = r.garantiKr > 0 ? 'flex' : 'none';
+  if (r.garantiKr > 0) document.getElementById('o-min').textContent = `Brutto ${krFmt(r.brutto)} → garanti ${krFmt(S.dagssats)}`;
+
+  if (S.otVis) document.getElementById('ot-boks').classList.add('vis');
+  else document.getElementById('ot-boks').classList.remove('vis');
+}
+
+function togOT() {
+  if (!S.tidStart || !S.tidSlut) return;
+  S.otVis = !S.otVis;
+  document.getElementById('ot-boks').classList.toggle('vis', S.otVis);
+  document.getElementById('res-expand').textContent = S.otVis ? '▴ Luk specifikation' : '▾ Vis specifikation';
+}
+
+// ═══════════════════════════════════════════════════════════
+// DAG NAVIGATION & INDLÆSNING
+// ═══════════════════════════════════════════════════════════
+function visView(v) {
+  S.view = v;
+  ['dag','uge','mnd','aar','inst'].forEach(id => {
+    document.getElementById('view-'+id)?.classList.toggle('on', id === v);
+    document.getElementById('tab-'+id)?.classList.toggle('on', id === v);
+    document.getElementById('bb-'+id)?.classList.toggle('on', id === v);
+  });
+  document.getElementById('gear-btn')?.classList.toggle('on', v === 'inst');
+
+  // Render korrekt view
+  if (v === 'dag') renderDag();
+  else if (v === 'uge') renderUge();
+  else if (v === 'mnd') renderMnd();
+  else if (v === 'aar') renderAar();
+  else if (v === 'inst') renderInst();
+}
+
+function skiftDag(d) {
+  S.dagOffset += d;
+  renderDag();
+}
+
+function renderDag() {
+  const key = dagKey(S.dagOffset);
+  const dato = keyTilDato(key);
+  document.getElementById('dag-navn').textContent = DAGNAVNE[dato.getDay()];
+  document.getElementById('dag-dato').textContent = dato.getDate() + '. ' + MAANEDER_K[dato.getMonth()] + ' ' + dato.getFullYear();
+  document.getElementById('dag-uge').textContent = 'Uge ' + ugeNr(dato);
+
+  // Indlæs evt. gemt dag
+  const gem = S.dage[key];
+  if (gem) {
+    S.dagtype = gem.dagtype || 'optagelse';
+    S.tidStart = gem.tidStart;
+    S.tidSlut = gem.tidSlut;
+    S.gruppe = gem.gruppe || S.inst.gruppe;
+    S.dagssats = gem.dagssats || S.inst.dagssats;
+    S.nat = gem.nat || false;
+    S.wk = gem.wk || 0;
+    S.transAktiv = gem.transAktiv || false;
+    document.getElementById('s-gruppe').value = S.gruppe;
+    document.getElementById('s-dagssats').value = S.dagssats;
+    document.getElementById('i-note').value = gem.note || '';
+    document.getElementById('gem-btn').classList.add('ok');
+    document.getElementById('gem-btn').textContent = '✓ Opdatér dag';
+    document.getElementById('dag-actions').style.display = 'grid';
+  } else {
+    S.dagtype = S.inst.dagtype || 'optagelse';
+    S.tidStart = null; S.tidSlut = null;
+    S.nat = false; S.wk = 0; S.transAktiv = false;
+    S.gruppe = S.inst.gruppe;
+    S.dagssats = S.inst.dagssats;
+    document.getElementById('s-gruppe').value = S.gruppe;
+    document.getElementById('s-dagssats').value = S.dagssats;
+    document.getElementById('i-note').value = '';
+    document.getElementById('gem-btn').classList.remove('ok');
+    document.getElementById('gem-btn').textContent = 'GEM DAG →';
+    document.getElementById('dag-actions').style.display = 'none';
+  }
+
+  // Reset UI
+  sætDagtype(S.dagtype);
+  opdaterTidDisplay();
+
+  // Nat/wk knapper
+  document.getElementById('bn-nat')?.classList.toggle('on', S.nat);
+  document.getElementById('bn-wk')?.classList.remove('on','on2');
+  const sub = document.getElementById('bn-wk-sub');
+  if (S.wk === 1 && sub) { document.getElementById('bn-wk').classList.add('on'); sub.textContent = '1 dag: +75%'; }
+  else if (S.wk === 2 && sub) { document.getElementById('bn-wk').classList.add('on2'); sub.textContent = '2 dage: +100%'; }
+  else if (sub) sub.textContent = 'Lør–Man +75/100%';
+
+  document.getElementById('bn-trans')?.classList.toggle('on', S.transAktiv);
+  document.getElementById('trans-row').style.display = S.transAktiv ? 'flex' : 'none';
+  if (gem && gem.transTimer) document.getElementById('trans-timer').value = gem.transTimer;
+
+  S.otVis = false;
+  document.getElementById('ot-boks').classList.remove('vis');
+  opdaterOTLabels();
+  beregn();
+}
+
+// ═══════════════════════════════════════════════════════════
+// GEM / SLET DAG
+// ═══════════════════════════════════════════════════════════
+function gemDag() {
+  if (!S.tidStart || !S.tidSlut) { toast('Vælg tidspunkt først', 'var(--red)'); return; }
+  const transTimer = S.transAktiv ? (parseFloat(document.getElementById('trans-timer').value) || 0) : 0;
+  const opts = { transport: transTimer, nat: S.nat, wk: S.wk };
+  const r = calcReklame(S.dagtype, S.tidStart, S.tidSlut, S.dagssats, S.gruppe, opts);
+  const key = dagKey(S.dagOffset);
+  S.dage[key] = {
+    dagtype: S.dagtype,
+    tidStart: S.tidStart, tidSlut: S.tidSlut,
+    gruppe: S.gruppe, dagssats: S.dagssats,
+    transAktiv: S.transAktiv, transTimer,
+    nat: S.nat, wk: S.wk,
+    note: document.getElementById('i-note').value,
+    beregnet: r
+  };
+  saveData();
+  document.getElementById('gem-btn').classList.add('ok');
+  document.getElementById('gem-btn').textContent = '✓ Opdatér dag';
+  document.getElementById('dag-actions').style.display = 'grid';
+  toast(`Gemt — ${krFmt(r.total)}`);
+}
+
+function sletDag() {
+  if (!confirm('Slet denne dag?')) return;
+  const key = dagKey(S.dagOffset);
+  delete S.dage[key];
+  saveData();
+  renderDag();
+  toast('Dag slettet');
+}
+
+function sendEnkeltDag() {
+  const key = dagKey(S.dagOffset);
+  const dag = S.dage[key];
+  if (!dag) return;
+  const dato = keyTilDato(key);
+  const datoStr = dato.getDate() + '. ' + MAANEDER[dato.getMonth()] + ' ' + dato.getFullYear();
+  const dtLbl = dag.dagtype === 'optagelse' ? 'Optagelse' : 'Forbered/Afrig';
+  const r = dag.beregnet;
+  const body = `Timeregistrering — Reklame\n\n${datoStr}\nType: ${dtLbl}\nStart: ${p2(dag.tidStart.h)}:${p2(dag.tidStart.m)} → Slut: ${p2(dag.tidSlut.h)}:${p2(dag.tidSlut.m)}\nTimer: ${hFmt(r.arbejdsTimer)}\nLøngruppe: ${dag.gruppe}\nDagssats: ${dag.dagssats.toLocaleString('da-DK')} kr.\nBeløb: ${Math.round(r.total).toLocaleString('da-DK')} kr.\n${dag.note ? '\nNote: ' + dag.note : ''}\n\n— Sendt fra Time App · Reklame`;
+  window.location.href = `mailto:${S.inst.email}?subject=Timeregistrering ${datoStr}&body=${encodeURIComponent(body)}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// UGE VIEW
+// ═══════════════════════════════════════════════════════════
+function skiftUge(d) { S.ugeOffset += d; renderUge(); }
+
+function renderUge() {
+  const man = mandag(S.ugeOffset);
+  const uge = ugeNr(man);
+  document.getElementById('uge-ttl').textContent = 'Uge ' + uge;
+  document.getElementById('uge-yr').textContent = man.getFullYear() + ' · ' + man.getDate() + '. ' + MAANEDER_K[man.getMonth()] + ' – ' + (new Date(man.getTime() + 6 * 86400000)).getDate() + '. ' + MAANEDER_K[(new Date(man.getTime() + 6 * 86400000)).getMonth()];
+
+  let totalT = 0, totalKr = 0, otT = 0, dage = 0;
+  const liste = [];
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(man.getTime() + i * 86400000);
+    const key = d.toISOString().slice(0,10);
+    const dag = S.dage[key];
+    liste.push({ d, key, dag });
+    if (dag && dag.beregnet) {
+      totalT += dag.beregnet.arbejdsTimer || 0;
+      totalKr += dag.beregnet.total || 0;
+      otT += dag.beregnet.otTimer || 0;
+      dage++;
+    }
+  }
+
+  document.getElementById('us-t').innerHTML = `${Math.round(totalT)}<small style="font-size:14px;color:var(--mut)">t</small>`;
+  document.getElementById('us-l').textContent = totalKr > 0 ? krFmtK(totalKr) : '0';
+  document.getElementById('us-o').innerHTML = `${Math.round(otT * 10) / 10}<small style="font-size:14px;color:var(--mut)">t</small>`;
+  document.getElementById('us-d').textContent = dage;
+
+  const ul = document.getElementById('uge-liste');
+  ul.innerHTML = liste.map(({d, key, dag}) => {
+    const dagN = DAGNAVNE_K[d.getDay()];
+    const datN = d.getDate() + '/' + (d.getMonth()+1);
+    const idag = key === dagKey(0);
+    const harDag = dag && dag.beregnet;
+    const dtCls = dag ? dag.dagtype : '';
+    const badges = [];
+    if (dag?.nat) badges.push('<span class="badge bp">Nat</span>');
+    if (dag?.wk > 0) badges.push('<span class="badge by">Weekend</span>');
+    if (dag?.transAktiv) badges.push('<span class="badge bo">Trans</span>');
+    return `<div class="dk ${dtCls} ${harDag ? '' : 'tom'}" onclick="gåTilDag('${key}')">
+      <div class="dk-dag">
+        <div class="dk-navn" ${idag ? 'style="color:var(--acc)"' : ''}>${dagN}</div>
+        <div class="dk-dato">${datN}</div>
+      </div>
+      <div class="dk-info">
+        ${harDag ? `<div class="dk-type ${dag.dagtype}">${dag.dagtype === 'optagelse' ? 'Optagelse' : 'Forbered'}</div>
+        <div class="dk-lon">${krFmt(dag.beregnet.total)}</div>
+        ${badges.length ? '<div class="dk-badges">'+badges.join('')+'</div>' : ''}
+        ${dag.note ? `<div class="dk-note">${dag.note}</div>` : ''}` : '<div style="font-size:12px;color:var(--mut)">Ingen registrering</div>'}
+      </div>
+      <div class="dk-timer">
+        ${harDag ? `<div class="dk-tider">${p2(dag.tidStart.h)}:${p2(dag.tidStart.m)}→${p2(dag.tidSlut.h)}:${p2(dag.tidSlut.m)}</div>
+        <div class="dk-timer-h">${hFmt(dag.beregnet.arbejdsTimer)}</div>` : ''}
+      </div>
     </div>`;
   }).join('');
-  document.getElementById('content').innerHTML=`
-<div class="pnav">
-  <button class="nav-arr" onclick="skiftUge(-1)">←</button>
-  <div class="ptit">Uge ${un} · ${dage[0].getDate()}/${dage[0].getMonth()+1}–${dage[6].getDate()}/${dage[6].getMonth()+1}</div>
-  <button class="nav-arr" onclick="skiftUge(1)">→</button>
-</div>
-<div class="card">${rows}
-  <div class="wksum"><span>Uge i alt (${fmtH(ugeTim)}t)</span>
-    <span class="wksum-v">${fmtKr(ugeTot)}</span></div>
-</div>`;
 }
-function skiftUge(d){aktDag=new Date(aktDag);aktDag.setDate(aktDag.getDate()+d*7);rendUge();}
-function gaaDag(k){const[y,m,dd]=k.split('-').map(Number);aktDag=new Date(y,m-1,dd);brugerValgProd=false;dagSt={};goView('dag');}
 
-// ════════════════ MÅNED VIEW ════════════════
-function rendMnd(){
-  const pid=getPid();const y=aktDag.getFullYear();const m=aktDag.getMonth();
-  const dage=mndDage(y,m);let mTot=0,mTim=0;
-  const dagMap={};
-  dage.forEach(d=>{
-    const s=hentDagData(d,pid);dagMap[d.getDate()]=s;
-    if(s?.bregn){mTot+=s.bregn.ialt;mTim+=s.bregn.tot;}
-  });
-  const hdrs=['M','T','O','T','F','L','S'];
-  let cal=`<div class="mcal-hdr">${hdrs.map(h=>`<div>${h}</div>`).join('')}</div>`;
-  const off=(dage[0].getDay()===0?6:dage[0].getDay()-1);
-  let cells=Array(off).fill('<div class="mdag empty"></div>');
-  dage.forEach(d=>{
-    const s=dagMap[d.getDate()];const has=!!s?.bregn;
-    const we=d.getDay()===0||d.getDay()===6;
-    cells.push(`<div class="mdag${has?' has':''}${!has&&we?' we':''}" onclick="gaaDag('${toKey(d)}')">
-      <div class="mdag-tal">${d.getDate()}</div>
-      ${has?`<div class="mdag-kr">${Math.round(s.bregn.ialt/1000)}k</div>`:''}
-    </div>`);
-  });
-  let grid='';for(let i=0;i<cells.length;i+=7)grid+=`<div class="mcal-row">${cells.slice(i,i+7).join('')}</div>`;
-  document.getElementById('content').innerHTML=`
-<div class="pnav">
-  <button class="nav-arr" onclick="skiftMnd(-1)">←</button>
-  <div class="ptit">${MND[m]} ${y}</div>
-  <button class="nav-arr" onclick="skiftMnd(1)">→</button>
-</div>
-<div class="card">${cal}${grid}
-  <div class="msum" style="margin-top:10px">
-    <span>Måned i alt (${fmtH(mTim)}t)</span>
-    <span class="msum-v">${fmtKr(mTot)}</span>
-  </div>
-</div>`;
+function gåTilDag(key) {
+  const dato = keyTilDato(key);
+  const nu = new Date();
+  nu.setHours(12,0,0,0);
+  const diff = Math.round((dato - nu) / 86400000);
+  S.dagOffset = diff;
+  visView('dag');
 }
-function skiftMnd(d){aktDag=new Date(aktDag.getFullYear(),aktDag.getMonth()+d,1);rendMnd();}
 
-// ════════════════ ÅR VIEW ════════════════
-function rendAar(){
-  const pid=getPid();const y=aktDag.getFullYear();
-  let yTot=0,yTim=0;
-  const rows=MND.map((n,i)=>{
-    const dage=mndDage(y,i);let mT=0,mTim=0,mD=0;
-    dage.forEach(d=>{const s=hentDagData(d,pid);if(s?.bregn){mT+=s.bregn.ialt;mTim+=s.bregn.tot;mD++;}});
-    yTot+=mT;yTim+=mTim;
-    return`<div class="ymrow" onclick="gaaMnd(${y},${i})">
-      <div class="ym-n">${n}</div>
-      <div class="ym-d">${mD>0?mD+' dage':''}</div>
-      <div class="ym-k" style="${mT>0?'':'color:var(--border)'}">${mT>0?fmtKr(mT):'—'}</div>
+// ═══════════════════════════════════════════════════════════
+// MÅNED VIEW
+// ═══════════════════════════════════════════════════════════
+function skiftMaaned(d) { S.mndOffset += d; renderMnd(); }
+
+function renderMnd() {
+  const ref = new Date();
+  ref.setDate(1);
+  ref.setMonth(ref.getMonth() + S.mndOffset);
+  document.getElementById('mnd-ttl').textContent = MAANEDER[ref.getMonth()] + ' ' + ref.getFullYear();
+  document.getElementById('mnd-yr').textContent = 'Reklamefilm · FAF 2024';
+
+  // Grupper dage i uger
+  const aar = ref.getFullYear(), mnd = ref.getMonth();
+  const dageIMnd = new Date(aar, mnd + 1, 0).getDate();
+  const ugemap = {};
+
+  let totalT = 0, totalKr = 0, otT = 0, totalDage = 0;
+
+  for (let d = 1; d <= dageIMnd; d++) {
+    const dato = new Date(aar, mnd, d, 12);
+    const key = dato.toISOString().slice(0,10);
+    const dag = S.dage[key];
+    if (dag && dag.beregnet) {
+      totalT += dag.beregnet.arbejdsTimer || 0;
+      totalKr += dag.beregnet.total || 0;
+      otT += dag.beregnet.otTimer || 0;
+      totalDage++;
+    }
+    const u = ugeNr(dato);
+    const uKey = dato.getFullYear() + '-W' + String(u).padStart(2,'0');
+    if (!ugemap[uKey]) ugemap[uKey] = { uge: u, dage: [], t: 0, kr: 0 };
+    if (dag && dag.beregnet) {
+      ugemap[uKey].t += dag.beregnet.arbejdsTimer || 0;
+      ugemap[uKey].kr += dag.beregnet.total || 0;
+      ugemap[uKey].dage.push(dato);
+    } else {
+      ugemap[uKey].dage.push(dato);
+    }
+  }
+
+  document.getElementById('mnd-t').innerHTML = `${Math.round(totalT)}<small style="font-size:14px;color:var(--mut)">t</small>`;
+  document.getElementById('mnd-l').textContent = totalKr > 0 ? krFmtK(totalKr) : '0';
+  document.getElementById('mnd-o').innerHTML = `${Math.round(otT * 10) / 10}<small style="font-size:14px;color:var(--mut)">t</small>`;
+  document.getElementById('mnd-d').textContent = totalDage;
+
+  const ul = document.getElementById('mnd-liste');
+  ul.innerHTML = Object.entries(ugemap).map(([uKey, u]) => {
+    const fra = u.dage[0];
+    const til = u.dage[u.dage.length - 1];
+    const hasDage = u.kr > 0;
+    return `<div class="mnd-uge ${hasDage ? '' : 'mnd-uge-tom'}" onclick="gåTilUge(${u.uge}, ${aar})">
+      <span class="mnd-uge-nr">Uge ${u.uge}</span>
+      <span class="mnd-uge-dato">${fra.getDate()}. ${MAANEDER_K[fra.getMonth()]} – ${til.getDate()}. ${MAANEDER_K[til.getMonth()]}</span>
+      <span class="mnd-uge-t">${hasDage ? hFmt(u.t) : '–'}</span>
+      <span class="mnd-uge-l">${hasDage ? krFmtK(u.kr) : '–'}</span>
     </div>`;
   }).join('');
-  document.getElementById('content').innerHTML=`
-<div class="pnav">
-  <button class="nav-arr" onclick="skiftAar(-1)">←</button>
-  <div class="ptit">${y}</div>
-  <button class="nav-arr" onclick="skiftAar(1)">→</button>
-</div>
-<div class="card" onclick="goView('mnd')" style="cursor:pointer" title="Gå til månedsoversigt">
-  ${rows}
-  <div class="ysum"><span>År i alt (${fmtH(yTim)}t)</span>
-    <span class="ysum-v">${fmtKr(yTot)}</span></div>
-  <div style="font-size:11px;color:var(--sub);text-align:center;margin-top:6px">↑ Klik for månedsoversigt</div>
-</div>`;
-}
-function skiftAar(d){aktDag=new Date(aktDag.getFullYear()+d,aktDag.getMonth(),1);rendAar();}
-function gaaMnd(y,m){aktDag=new Date(y,m,1);goView('mnd');}
-
-// ════════════════ SETTINGS ════════════════
-function toggleCfg(){
-  const ov=document.getElementById('ov');
-  ov.classList.toggle('open');
-  if(ov.classList.contains('open')){
-    document.getElementById('c-navn').value=cfg.navn||'';
-    document.getElementById('c-gruppe').value=cfg.gruppe||2;
-    document.getElementById('c-dagtype').value=cfg.dagtype||'optagelse';
-    document.getElementById('c-start').value=cfg.start||'07:00';
-    document.getElementById('c-dagsloen1').value=cfg.dagsloen1||'';
-    onCfgGruppe();rendProdMgr();
-  }
-}
-function onCfgGruppe(){
-  const v=document.getElementById('c-gruppe')?.value;
-  document.getElementById('c-ds1-row').style.display=v==='1'?'flex':'none';
-  saveCfgUI();
-}
-function saveCfgUI(){
-  cfg.navn=document.getElementById('c-navn')?.value||'';
-  cfg.gruppe=+(document.getElementById('c-gruppe')?.value)||2;
-  cfg.dagtype=document.getElementById('c-dagtype')?.value||'optagelse';
-  cfg.start=document.getElementById('c-start')?.value||'07:00';
-  cfg.dagsloen1=+(document.getElementById('c-dagsloen1')?.value)||0;
-  cfg.prods=prods;
-  saveCfg();
-}
-function rendProdMgr(){
-  const el=document.getElementById('prod-mgr');if(!el) return;
-  el.innerHTML=prods.map((p,i)=>`
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <input style="flex:1;padding:8px;border:1.5px solid var(--border);border-radius:8px;font-size:14px"
-        value="${p.navn}" onchange="prods[${i}].navn=this.value;cfg.prods=prods;saveCfg();rendProdBar()">
-      ${prods.length>1?`<button onclick="delProd(${i})" style="background:none;border:none;font-size:18px;cursor:pointer">🗑️</button>`:''}
-    </div>`).join('');
-}
-function addProd(){
-  const id='p'+Date.now();
-  prods.push({id,navn:'Ny produktion'});
-  cfg.prods=prods;saveCfg();
-  toggleCfg();rendProdBar();
-}
-function delProd(i){
-  if(!confirm(`Slet "${prods[i].navn}"?`)) return;
-  prods.splice(i,1);cfg.prods=prods;saveCfg();
-  rendProdMgr();rendProdBar();
 }
 
-// ════════════════ EXPORT / IMPORT ════════════════
-function doExport(){
-  const data={};
-  for(let i=0;i<localStorage.length;i++){
-    const k=localStorage.key(i);
-    if(k&&k.startsWith('rek2-')) data[k]=localStorage.getItem(k);
-  }
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`time-reklame-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();toast('✓ Data eksporteret');
-}
-function doImport(){
-  const inp=document.createElement('input');inp.type='file';inp.accept='.json';
-  inp.onchange=e=>{
-    const file=e.target.files[0];if(!file) return;
-    const r=new FileReader();
-    r.onload=ev=>{
-      try{
-        const d=JSON.parse(ev.target.result);let c=0;
-        for(const[k,v] of Object.entries(d)){
-          if(k.startsWith('rek2-')){localStorage.setItem(k,v);c++;}
-        }
-        toast(`✓ ${c} poster importeret`);goView(view);
-      } catch{toast('⚠️ Fejl ved import');}
-    };r.readAsText(file);
-  };inp.click();
+function gåTilUge(ugeN, aar) {
+  // Find mandag i den uge
+  const jan1 = new Date(aar, 0, 1, 12);
+  const man = new Date(jan1.getTime() + (ugeN - 1) * 7 * 86400000);
+  // Juster til mandag
+  while (man.getDay() !== 1) man.setDate(man.getDate() - 1);
+  const nuMan = mandag(0);
+  const diffUge = Math.round((man - nuMan) / (7 * 86400000));
+  S.ugeOffset = diffUge;
+  visView('uge');
 }
 
-// ════════════════ TOAST ════════════════
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
+// ═══════════════════════════════════════════════════════════
+// ÅR VIEW
+// ═══════════════════════════════════════════════════════════
+function skiftAar(d) { S.aarOffset += d; renderAar(); }
 
-// ════════════════ INIT ════════════════
-if(cfg.prods&&cfg.prods.length>0) prods=cfg.prods;
-// Listen for cfg changes
-document.querySelectorAll('#panel input,#panel select').forEach(el=>{
-  el.addEventListener('change',()=>{
-    if(el.id!=='c-gruppe') saveCfgUI();
+function renderAar() {
+  const aar = new Date().getFullYear() + S.aarOffset;
+  document.getElementById('aar-ttl').textContent = aar;
+
+  let totalT = 0, totalKr = 0, otT = 0, totalDage = 0;
+  const mndData = Array(12).fill(null).map(() => ({ t: 0, kr: 0, dage: 0 }));
+
+  Object.entries(S.dage).forEach(([key, dag]) => {
+    if (!dag.beregnet) return;
+    const d = keyTilDato(key);
+    if (d.getFullYear() !== aar) return;
+    const m = d.getMonth();
+    mndData[m].t += dag.beregnet.arbejdsTimer || 0;
+    mndData[m].kr += dag.beregnet.total || 0;
+    mndData[m].dage++;
+    totalT += dag.beregnet.arbejdsTimer || 0;
+    totalKr += dag.beregnet.total || 0;
+    otT += dag.beregnet.otTimer || 0;
+    totalDage++;
   });
-});
-goView('dag');
+
+  document.getElementById('aar-t').textContent = Math.round(totalT) + 't';
+  document.getElementById('aar-l').textContent = totalKr > 0 ? krFmtK(totalKr) : '0';
+  document.getElementById('aar-o').textContent = Math.round(otT * 10) / 10 + 't';
+  document.getElementById('aar-d').textContent = totalDage;
+
+  document.getElementById('aar-liste').innerHTML = MAANEDER.map((mn, i) => {
+    const m = mndData[i];
+    const har = m.dage > 0;
+    return `<div class="aar-mnd ${har ? '' : 'aar-mnd-tom'}" onclick="gåTilMaaned(${i}, ${aar})">
+      <div class="aar-mnd-navn">${mn.slice(0,3)}</div>
+      <div class="aar-mnd-t">${har ? hFmt(m.t) + ' · ' + m.dage + 'd' : '–'}</div>
+      <div class="aar-mnd-l">${har ? krFmtK(m.kr) : '–'}</div>
+    </div>`;
+  }).join('');
+}
+
+function gåTilMaaned(mndIdx, aar) {
+  const nuRef = new Date();
+  const diff = (aar - nuRef.getFullYear()) * 12 + (mndIdx - nuRef.getMonth());
+  S.mndOffset = diff;
+  visView('mnd');
+}
+
+// ═══════════════════════════════════════════════════════════
+// INDSTILLINGER
+// ═══════════════════════════════════════════════════════════
+function renderInst() {
+  document.getElementById('inst-gruppe').value = S.inst.gruppe;
+  document.getElementById('inst-dagssats').value = S.inst.dagssats;
+  document.getElementById('inst-dagtype').value = S.inst.dagtype || 'optagelse';
+  document.getElementById('inst-navn').value = S.inst.navn || '';
+  document.getElementById('inst-email').value = S.inst.email || '';
+}
+
+function gemInst() {
+  S.inst.gruppe = parseInt(document.getElementById('inst-gruppe').value);
+  S.inst.dagssats = parseFloat(document.getElementById('inst-dagssats').value) || 4100;
+  S.inst.dagtype = document.getElementById('inst-dagtype').value;
+  S.inst.navn = document.getElementById('inst-navn').value;
+  S.inst.email = document.getElementById('inst-email').value;
+  saveInst();
+  toast('Indstillinger gemt');
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT / IMPORT / SLET
+// ═══════════════════════════════════════════════════════════
+function eksportData() {
+  const json = JSON.stringify({ dage: S.dage, inst: S.inst, eksporteret: new Date().toISOString() }, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'rekl-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.dage) { S.dage = data.dage; saveData(); }
+        if (data.inst) { S.inst = { ...S.inst, ...data.inst }; saveInst(); }
+        renderInst(); toast('Data importeret');
+      } catch(e) { toast('Fejl ved import', 'var(--red)'); }
+    };
+    reader.readAsText(f);
+  };
+  input.click();
+}
+
+function sletAlleData() {
+  if (!confirm('Slet ALLE registreringer? Dette kan ikke fortrydes.')) return;
+  S.dage = {};
+  localStorage.removeItem(LS_DAGE);
+  renderDag();
+  toast('Alle data slettet');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PDF + MAIL
+// ═══════════════════════════════════════════════════════════
+function ugeDage() {
+  const man = mandag(S.ugeOffset);
+  const res = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(man.getTime() + i * 86400000);
+    const key = d.toISOString().slice(0,10);
+    res.push({ d, key, dag: S.dage[key] });
+  }
+  return res;
+}
+
+function bygPDF(dage, titel) {
+  let totalKr = 0, totalT = 0;
+  const rækker = dage.map(({d, dag}) => {
+    if (!dag || !dag.beregnet) {
+      return `<tr class="fri"><td>${DAGNAVNE_K[d.getDay()]}</td><td>${d.getDate()}/${d.getMonth()+1}</td><td>–</td><td>–</td><td>–</td><td class="num">–</td></tr>`;
+    }
+    const r = dag.beregnet;
+    const dt = dag.dagtype === 'optagelse' ? 'Opt.' : 'Forb.';
+    const tider = `${p2(dag.tidStart.h)}:${p2(dag.tidStart.m)}–${p2(dag.tidSlut.h)}:${p2(dag.tidSlut.m)}`;
+    totalKr += r.total; totalT += r.arbejdsTimer;
+    return `<tr><td>${DAGNAVNE_K[d.getDay()]}</td><td>${d.getDate()}/${d.getMonth()+1}</td><td>${tider}</td><td>${hFmt(r.arbejdsTimer)}</td><td>${dt} Gr.${dag.gruppe}</td><td class="num">${Math.round(r.total).toLocaleString('da-DK')}</td></tr>`;
+  }).join('');
+
+  return `<div class="pdf-body">
+    <div class="pdf-h1">Time App · Reklame</div>
+    <div class="pdf-h2">${titel}</div>
+    <div class="pdf-meta">
+      ${S.inst.navn ? `<span><span style="font-size:8pt;color:#888">NAVN</span><strong>${S.inst.navn}</strong></span>` : ''}
+      <span><span style="font-size:8pt;color:#888">OVERENSKOMST</span><strong>Reklamefilm FAF 2024</strong></span>
+      <span><span style="font-size:8pt;color:#888">GENERERET</span><strong>${new Date().toLocaleDateString('da-DK')}</strong></span>
+    </div>
+    <table class="pdf-tbl">
+      <tr><th>Dag</th><th>Dato</th><th>Tid</th><th>Timer</th><th>Type/Gr.</th><th class="num">Beløb kr.</th></tr>
+      ${rækker}
+    </table>
+    <table class="pdf-sum">
+      <tr><td>Timer i alt</td><td class="num"><strong>${hFmt(totalT)}</strong></td></tr>
+      <tr class="tot"><td>I alt</td><td class="num"><strong>${Math.round(totalKr).toLocaleString('da-DK')} kr.</strong></td></tr>
+    </table>
+    <div class="pdf-footer">Reklamefilmsoverenskomst 2024 · Producentforeningen/FAF · Genereret af Time App · Reklame</div>
+  </div>`;
+}
+
+function doPDF() {
+  const dage = ugeDage();
+  const man = mandag(S.ugeOffset);
+  const uge = ugeNr(man);
+  const titel = 'Uge ' + uge + ', ' + man.getFullYear();
+  const frame = document.getElementById('pdf-frame');
+  frame.className = 'vis';
+  frame.innerHTML = bygPDF(dage, titel);
+  setTimeout(() => { window.print(); frame.className = ''; frame.innerHTML = ''; }, 300);
+}
+
+function doPDF_mnd() {
+  const ref = new Date();
+  ref.setDate(1);
+  ref.setMonth(ref.getMonth() + S.mndOffset);
+  const aar = ref.getFullYear(), mnd = ref.getMonth();
+  const dageIMnd = new Date(aar, mnd + 1, 0).getDate();
+  const dage = [];
+  for (let d = 1; d <= dageIMnd; d++) {
+    const dato = new Date(aar, mnd, d, 12);
+    const key = dato.toISOString().slice(0,10);
+    dage.push({ d: dato, key, dag: S.dage[key] });
+  }
+  const titel = MAANEDER[mnd] + ' ' + aar;
+  const frame = document.getElementById('pdf-frame');
+  frame.className = 'vis';
+  frame.innerHTML = bygPDF(dage, titel);
+  setTimeout(() => { window.print(); frame.className = ''; frame.innerHTML = ''; }, 300);
+}
+
+function mailTekst(dage, titel) {
+  let totalKr = 0, lines = [];
+  dage.forEach(({d, dag}) => {
+    if (!dag || !dag.beregnet) {
+      lines.push(`${DAGNAVNE_K[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}: –`);
+      return;
+    }
+    const r = dag.beregnet;
+    const dt = dag.dagtype === 'optagelse' ? 'Opt.' : 'Forb.';
+    totalKr += r.total;
+    lines.push(`${DAGNAVNE_K[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}: ${p2(dag.tidStart.h)}:${p2(dag.tidStart.m)}–${p2(dag.tidSlut.h)}:${p2(dag.tidSlut.m)} · ${hFmt(r.arbejdsTimer)} · ${dt} Gr.${dag.gruppe} · ${Math.round(r.total).toLocaleString('da-DK')} kr.`);
+  });
+  return `Timeregistrering — Reklamefilm\n${titel}\n${ S.inst.navn ? 'Navn: ' + S.inst.navn + '\n' : ''}Overenskomst: FAF Reklamefilm 2024\n\n${lines.join('\n')}\n\nI ALT: ${Math.round(totalKr).toLocaleString('da-DK')} kr.\n\n— Time App · Reklame`;
+}
+
+function doMail() {
+  const dage = ugeDage();
+  const man = mandag(S.ugeOffset);
+  const titel = 'Uge ' + ugeNr(man) + ', ' + man.getFullYear();
+  const body = mailTekst(dage, titel);
+  window.location.href = `mailto:${S.inst.email}?subject=Timeregistrering ${titel}&body=${encodeURIComponent(body)}`;
+}
+
+function doMail_mnd() {
+  const ref = new Date();
+  ref.setDate(1);
+  ref.setMonth(ref.getMonth() + S.mndOffset);
+  const aar = ref.getFullYear(), mnd = ref.getMonth();
+  const dageIMnd = new Date(aar, mnd + 1, 0).getDate();
+  const dage = [];
+  for (let d = 1; d <= dageIMnd; d++) {
+    const dato = new Date(aar, mnd, d, 12);
+    const key = dato.toISOString().slice(0,10);
+    dage.push({ d: dato, key, dag: S.dage[key] });
+  }
+  const titel = MAANEDER[mnd] + ' ' + aar;
+  const body = mailTekst(dage, titel);
+  window.location.href = `mailto:${S.inst.email}?subject=Timeregistrering ${titel}&body=${encodeURIComponent(body)}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+loadData();
+
+// Brug standard-indstillinger
+S.gruppe = S.inst.gruppe;
+S.dagssats = S.inst.dagssats;
+S.dagtype = S.inst.dagtype || 'optagelse';
+
+renderInst();
+visView('dag');
+
 </script>
 </body>
 </html>
