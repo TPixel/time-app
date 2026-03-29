@@ -712,7 +712,7 @@ textarea::placeholder{color:var(--mut)}
       <a href="index.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
         <span>🌐 Om Time App</span><span style="color:var(--acc)">→</span>
       </a>
-      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 35</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 36</div>
     </div>
   </div>
 </div>
@@ -1681,6 +1681,7 @@ function sendEnkeltDag() {
 // DAG NAVIGATION
 // ═══════════════════════════════════════════════════
 function skiftDag(dir) {
+  brugerValgteProduktion = false;
   aktivDag = new Date(aktivDag);
   aktivDag.setDate(aktivDag.getDate() + dir);
   rendDag();
@@ -1709,7 +1710,7 @@ function rendDag() {
       ttl.textContent = 'vælg produktion ↑';
       ttl.classList.add('anden-prod');
       ttl.title = 'Vælg en produktion i baren ovenfor';
-    } else if (!s) {
+    } else if (!s && !brugerValgteProduktion) {
       ttl.textContent = '—';
       ttl.classList.remove('anden-prod');
       ttl.title = '';
