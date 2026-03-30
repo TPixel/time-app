@@ -89,8 +89,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .loen-blok{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:10px 14px}
 .loen-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:6px}
 .loen-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--txt)}
-select.loen-sel{width:100%;background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:6px 8px;color:var(--txt);font-family:'DM Mono',monospace;font-size:12px;outline:none;-webkit-appearance:none;margin-top:2px}
-select.loen-sel:focus{border-color:var(--acc)}
+select.loen-sel,.loen-sel[type="text"]{width:100%;background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:6px 8px;color:var(--txt);font-family:'DM Mono',monospace;font-size:12px;outline:none;-webkit-appearance:none;margin-top:2px}
+select.loen-sel:focus,.loen-sel[type="text"]:focus{border-color:var(--acc)}
+.fag-valgt{font-size:11px;color:var(--acc);margin-top:4px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fag-dd{display:none;position:absolute;left:0;right:0;top:100%;background:var(--card);border:1px solid var(--acc);border-radius:10px;z-index:200;max-height:55vh;overflow-y:auto;box-shadow:0 12px 36px rgba(0,0,0,.6);margin-top:4px}
+.fag-dd.open{display:block}
+.fag-dd-grp{padding:8px 10px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--acc);position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--brd)}
+.fag-dd-item{padding:9px 12px;font-size:12px;cursor:pointer;border-bottom:1px solid rgba(46,46,66,.4);transition:background .12s}
+.fag-dd-item:hover,.fag-dd-item.hl{background:var(--acc-d)}
+.fag-dd-item:last-child{border-bottom:none}
+.fag-dd-item .fag-gr{font-size:10px;color:var(--mut);float:right}
 .loen-inp{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Mono',monospace;font-size:22px;font-weight:500}
 .loen-inp::-webkit-inner-spin-button,.loen-inp::-webkit-outer-spin-button{-webkit-appearance:none}
 .loen-ts{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);margin-top:2px}
@@ -317,7 +325,7 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
   </div>
 
   <!-- Dagtype toggle -->
-  <div class="dagtype-row" style="grid-template-columns:1fr 1fr 1fr">
+  <div class="dagtype-row">
     <button class="dtbtn on" id="dt-opt" onclick="sætDagtype('optagelse')">
       <span class="dtbtn-ttl">🎬 Optagelse</span>
       <span class="dtbtn-sub">OT +25/100/150/200% · Nat · Transport</span>
@@ -325,11 +333,6 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
     <button class="dtbtn" id="dt-for" onclick="sætDagtype('forbered')">
       <span class="dtbtn-ttl">🔧 Forbered/Afrig</span>
       <span class="dtbtn-sub">OT +25/50/75% · Min. 4 timer</span>
-    </button>
-    <!-- FIX 4: Helligdag -->
-    <button class="dtbtn" id="dt-hel" onclick="sætDagtype('helligdag')">
-      <span class="dtbtn-ttl">🎉 Helligdag</span>
-      <span class="dtbtn-sub">+100% weekend-tillæg</span>
     </button>
   </div>
 
@@ -364,41 +367,44 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
     <div class="ot-row"><span class="ot-lbl">Normal (1–8 t)</span><span class="ot-val g" id="o-normal">–</span></div>
     <div class="ot-row" id="o-ot1-row"><span class="ot-lbl" id="o-ot1-lbl">OT 9.–10. time</span><span class="ot-val y" id="o-ot1">–</span></div>
     <div class="ot-row" id="o-ot2-row"><span class="ot-lbl" id="o-ot2-lbl">OT 11.–12. time</span><span class="ot-val y" id="o-ot2">–</span></div>
-    <div class="ot-row" id="o-ot3-row"><span class="ot-lbl" id="o-ot3-lbl">OT 13. time</span><span class="ot-val r" id="o-ot3">–</span></div>
-    <div class="ot-row" id="o-ot4-row"><span class="ot-lbl" id="o-ot4-lbl">OT 14.+ time</span><span class="ot-val r" id="o-ot4">–</span></div>
+    <div class="ot-row" id="o-ot3-row"><span class="ot-lbl" id="o-ot3-lbl">OT 13.–14. time</span><span class="ot-val r" id="o-ot3">–</span></div>
+    <div class="ot-row" id="o-ot4-row"><span class="ot-lbl" id="o-ot4-lbl">OT 15.+ time</span><span class="ot-val r" id="o-ot4">–</span></div>
     <div class="ot-row" id="o-trans-row" style="display:none"><span class="ot-lbl">Transport</span><span class="ot-val o" id="o-trans">–</span></div>
     <div class="ot-row" id="o-nat-row" style="display:none"><span class="ot-lbl" id="o-nat-lbl">Genetillæg nat</span><span class="ot-val p" id="o-nat">–</span></div>
     <div class="ot-row" id="o-wk-row" style="display:none"><span class="ot-lbl" id="o-wk-lbl">Weekend-tillæg</span><span class="ot-val p" id="o-wk">–</span></div>
-    <div class="ot-row" id="o-min-row" style="display:none"><span class="ot-lbl">Dagsløngaranti</span><span class="ot-val g" id="o-min">–</span></div>
-    <div class="ot-row" id="o-pers-row" style="display:none"><span class="ot-lbl">Personligt tillæg</span><span class="ot-val p" id="o-pers">–</span></div>
     <div class="ot-row" id="o-pause-row" style="display:none"><span class="ot-lbl">Pause-betaling</span><span class="ot-val y" id="o-pause">–</span></div>
     <div class="ot-row" id="o-rabat-row" style="display:none"><span class="ot-lbl" id="o-rabat-lbl">Rabat</span><span class="ot-val r" id="o-rabat">–</span></div>
-    <div class="ot-row" id="o-diaet-row" style="display:none"><span class="ot-lbl">Diæt</span><span class="ot-val g" id="o-diaet">–</span></div>
+    <div class="ot-row" id="o-min-row" style="display:none"><span class="ot-lbl">Dagsløngaranti</span><span class="ot-val g" id="o-min">–</span></div>
+    <div class="ot-row" id="o-diaet-row" style="display:none"><span class="ot-lbl">Diæter</span><span class="ot-val g" id="o-diaet">–</span></div>
+    <div class="ot-row" id="o-pers-row" style="display:none"><span class="ot-lbl">Personligt tillæg</span><span class="ot-val g" id="o-pers">–</span></div>
   </div>
 
   <!-- Løngruppe + dagssats -->
   <div class="loen-row">
-    <div class="loen-blok">
-      <div class="loen-lbl">Løngruppe</div>
-      <select class="loen-sel" id="s-gruppe" onchange="skiftGruppe()">
-        <option value="1">Gr. 1 — Fri</option>
-        <option value="2" selected>Gr. 2 — 4.100</option>
-        <option value="3">Gr. 3 — 3.300</option>
-        <option value="4">Gr. 4 — 2.750</option>
-        <option value="5">Gr. 5 — Fast OT</option>
-      </select>
+    <div class="loen-blok" style="position:relative">
+      <div class="loen-lbl">Faggruppe / Løngruppe</div>
+      <input class="loen-sel" type="text" id="fag-search" placeholder="Søg faggruppe…" autocomplete="off" onfocus="openFagDD()" oninput="filterFag(this.value)">
+      <div class="fag-dd" id="fag-dd"></div>
+      <input type="hidden" id="s-gruppe" value="2">
+      <div class="fag-valgt" id="fag-valgt" onclick="openFagDD()">Gr. 2 — Indspilningsleder mv.</div>
     </div>
     <div class="loen-blok">
       <div class="loen-lbl">Dagssats <span class="loen-ts" id="timesats-vis"></span></div>
       <input class="loen-inp" type="number" id="s-dagssats" value="4100" oninput="beregn()">
     </div>
   </div>
-  <!-- FIX 3: Personligt tillæg -->
-  <div class="loen-row">
-    <div class="loen-blok" style="grid-column:1/-1">
-      <div class="loen-lbl">Personligt tillæg <span style="font-size:9px;color:var(--mut)">(kr/dag, lægges oveni dagssats)</span></div>
-      <input class="loen-inp" type="number" id="s-pers-tillaeg" value="0" oninput="beregn()" placeholder="0">
-    </div>
+
+  <!-- Personligt tillæg -->
+  <div class="loen-blok" style="margin-bottom:14px">
+    <div class="loen-lbl">Personligt tillæg <span class="loen-ts">kr/dag</span></div>
+    <input class="loen-inp" type="number" id="s-persontillaeg" value="0" min="0" oninput="beregn()" placeholder="0">
+  </div>
+
+  <!-- Gr. 1 OT-sats -->
+  <div class="trans-row" id="gr1ot-row" style="display:none">
+    <span class="trans-lbl">Gr. 1 — OT-sats (fri forhandling)</span>
+    <input class="trans-inp" type="number" id="gr1-ot-sats" value="0" min="0" oninput="beregn()">
+    <span class="trans-unit">kr/t</span>
   </div>
 
   <!-- Tillæg (Optagelse) -->
@@ -414,12 +420,55 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
       <button class="xb" id="bn-trans" onclick="togTrans()">
         Transport<br><span class="xb-sub">×1,75 × timesats</span>
       </button>
+      <button class="xb" id="bn-helligdag" onclick="tog('helligdag')">
+        Helligdag<br><span class="xb-sub">+100% (som søn)</span>
+      </button>
     </div>
     <!-- Transport timer input -->
     <div class="trans-row" id="trans-row" style="display:none">
       <span class="trans-lbl">🚗 Transport-timer</span>
       <input class="trans-inp" type="number" id="trans-timer" value="2" min="0" max="24" step="0.5" oninput="beregn()">
       <span class="trans-unit">timer</span>
+    </div>
+    <!-- Diæter -->
+    <div class="trans-row" id="diaet-row">
+      <span class="trans-lbl">🍽 Diæter (172,20 kr/stk)</span>
+      <input class="trans-inp" type="number" id="diaet-antal" value="0" min="0" max="10" step="1" oninput="beregn()">
+      <span class="trans-unit">stk</span>
+    </div>
+    <!-- Produktionsrabat -->
+    <div class="slbl">Produktionsrabat <span class="oe">§3</span></div>
+    <div class="bgrid2" id="rabat-row">
+      <button class="xb" id="bn-rabatA" onclick="togRabat(1)">
+        Rabat A<br><span class="xb-sub">2–4 opt.dage: −10%</span>
+      </button>
+      <button class="xb" id="bn-rabatB" onclick="togRabat(2)">
+        Rabat B<br><span class="xb-sub">5.+ dag: −15%</span>
+      </button>
+    </div>
+    <!-- Pause-betalinger -->
+    <div class="slbl">Pauser <span class="oe">§7</span></div>
+    <div class="bgrid2" id="pause-row">
+      <button class="xb" id="bn-pf" onclick="togPause('forsinket')">
+        Forsinket frokost<br><span class="xb-sub">30 min +100%</span>
+      </button>
+      <button class="xb" id="bn-pi" onclick="togPause('ingenserv')">
+        Ingen servering<br><span class="xb-sub">15 min +150%</span>
+      </button>
+    </div>
+    <div class="bgrid" id="pause-row2">
+      <button class="xb" id="bn-pp" onclick="togPause('planlagt')">
+        Planl. pause<br><span class="xb-sub">45 min +25%</span>
+      </button>
+      <button class="xb" id="bn-p5" onclick="togPause('5')">
+        5. time<br><span class="xb-sub">pause ikke afh.</span>
+      </button>
+      <button class="xb" id="bn-p10" onclick="togPause('10')">
+        10. time<br><span class="xb-sub">pause ikke afh.</span>
+      </button>
+      <button class="xb" id="bn-p13" onclick="togPause('13')">
+        13. time<br><span class="xb-sub">pause ikke afh.</span>
+      </button>
     </div>
   </div>
 
@@ -430,41 +479,6 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
       Minimum 4 timers kald. Ingen nat-gene, weekend-tillæg eller transport-betaling på forberedelses-/afrignsdage.
       OT satser: +25% (t9–10), +50% (t11–12), +75% (t13+).
     </div>
-  </div>
-
-  <!-- FIX 5: Rabat A/B -->
-  <div class="slbl">Produktion <span class="oe">Rabat</span></div>
-  <div class="trans-row" style="margin-bottom:8px">
-    <span class="trans-lbl">Optagelsesdage i produktionen</span>
-    <input class="trans-inp" type="number" id="rabat-dage" value="0" min="0" max="99" step="1" oninput="beregn()">
-    <span class="trans-unit">dage</span>
-  </div>
-  <div class="trans-row" style="margin-bottom:12px">
-    <span class="trans-lbl">Dag nr. i produktionen</span>
-    <input class="trans-inp" type="number" id="rabat-dag-nr" value="1" min="1" max="99" step="1" oninput="beregn()">
-    <span class="trans-unit">dag</span>
-  </div>
-
-  <!-- FIX 6: Diæt -->
-  <div class="slbl">Diæt <span class="oe">§</span></div>
-  <div class="bgrid2" style="margin-bottom:12px">
-    <button class="xb" id="bn-diaet" onclick="togDiaet()">
-      Diæt<br><span class="xb-sub">172,20 kr/dag</span>
-    </button>
-  </div>
-
-  <!-- FIX 7: Pause-regler -->
-  <div class="slbl">Pause-regler</div>
-  <div class="bgrid" style="margin-bottom:12px">
-    <button class="xb" id="bn-p-frokost" onclick="togPause('forsinketFrokost')">
-      Forsinket frokost<br><span class="xb-sub">+30min × ts × 2,0</span>
-    </button>
-    <button class="xb" id="bn-p-servering" onclick="togPause('ingenServering')">
-      Ingen servering<br><span class="xb-sub">+15min × ts × 2,5</span>
-    </button>
-    <button class="xb" id="bn-p-planmaessig" onclick="togPause('planmaessig')">
-      Planm. pause<br><span class="xb-sub">+45min × ts × 1,25</span>
-    </button>
   </div>
 
   <!-- Note -->
@@ -564,7 +578,7 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
         <option value="2">Gr. 2 — 4.100 kr/dag</option>
         <option value="3">Gr. 3 — 3.300 kr/dag</option>
         <option value="4">Gr. 4 — 2.750 kr/dag</option>
-        <option value="5">Gr. 5 — Fast OT-sats</option>
+        <option value="5">Gr. 5 — 1.540 kr/dag</option>
       </select>
     </div>
     <div class="s-row">
@@ -576,7 +590,6 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
       <select class="s-inp" id="inst-dagtype" onchange="gemInst()" style="width:160px">
         <option value="optagelse">Optagelse</option>
         <option value="forbered">Forbered/Afrig</option>
-        <option value="helligdag">Helligdag</option>
       </select>
     </div>
   </div>
@@ -608,12 +621,14 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
   </div>
   <div class="info-boks">
     <strong>Reklamefilmsoverenskomst 2024</strong> · FAF/Producentforeningen<br>
-    OT-satser (Optagelse): t9–10: +25% · t11–12: +100% · t13–14: +150% · t15+: +200%<br>
-    OT-satser (Forbered): +25% / +50% / +75%<br>
-    Gruppe 5: 200 kr/t (t9–14) · 350 kr/t (t15+) · Dagssats: 1.540 kr<br>
+    OT-satser (Optagelse): +25% (t9–10) / +100% (t11–12) / +150% (t13–14) / +200% (t15+)<br>
+    OT-satser (Forbered): +25% / +50% / +75% / +75%<br>
+    Gruppe 5: 200 kr/t (t9–14) · 350 kr/t (t15+)<br>
     Nat §5: 100 kr/t (18–24) · 200 kr/t (00–06)<br>
-    Weekend §6: +75% (1 dag) · +100% (2 dage/helligdag)<br>
-    Transport: timesats × 1,75 per time · Diæt: 172,20 kr/dag
+    Weekend §6: +75% (1 dag) · +100% (2 dage)<br>
+    Transport: timesats × 1,75 per time<br>
+    Rabat §3: Rabat A −10% (2–4 dage) · Rabat B −15% (5.+ dag)<br>
+    Diæter: 172,20 kr/stk · Pauser §7: forsinket/ingen servering/planlagt
   </div>
 </div>
 
@@ -655,14 +670,72 @@ let S = {
   transAktiv: false,
   nat: false,
   wk: 0,           // 0=nej, 1=+75%, 2=+100%
+  rabat: 0,        // 0=ingen, 1=Rabat A -10%, 2=Rabat B -15%
+  helligdag: false,
+  persontillaeg: 0,
+  gr1OTSats: 0,
+  diaeter: 0,
+  pauseForsinketFrokost: false,
+  pauseIngenServering: false,
+  pausePlanlagt: false,
+  pause5: false,
+  pause10: false,
+  pause13: false,
   otVis: false,
   modalFelt: null,
   valgtH: 8, valgtM: 0,
-  diaet: false,                                    // FIX 6
-  pause: { forsinketFrokost: false, ingenServering: false, planmaessig: false }, // FIX 7
   dage: {},         // YYYY-MM-DD -> DagEntry
   inst: { gruppe: 2, dagssats: 4100, dagtype: 'optagelse', navn: '', email: '' }
 };
+
+// ═══════════════════════════════════════════════════════════
+// FAGGRUPPER (FAF Reklamefilmsoverenskomst 2024 §1)
+// ═══════════════════════════════════════════════════════════
+const FAGGRUPPER = [
+  { gr: 1, titel: 'Kameraoperatør' },
+  { gr: 1, titel: 'Steadicam operatør' },
+  { gr: 1, titel: 'Food styling' },
+  { gr: 1, titel: 'Stylist (kostume og sminke)' },
+  { gr: 1, titel: 'Sound designer' },
+  { gr: 2, titel: 'Indspilningsleder' },
+  { gr: 2, titel: 'Location manager' },
+  { gr: 2, titel: 'Tonemester på optagelse' },
+  { gr: 2, titel: '1. AC / B-foto' },
+  { gr: 2, titel: 'Belysningsmester' },
+  { gr: 2, titel: 'SFX Supervisor' },
+  { gr: 2, titel: 'Key grip' },
+  { gr: 2, titel: 'Chefkostume' },
+  { gr: 2, titel: 'Chefrekvisitør' },
+  { gr: 2, titel: 'Chefsminkør' },
+  { gr: 3, titel: 'Statistkoordinator' },
+  { gr: 3, titel: '2. AC' },
+  { gr: 3, titel: 'B-tonemester / Boomer' },
+  { gr: 3, titel: 'Q-take operatør' },
+  { gr: 3, titel: 'DIT' },
+  { gr: 3, titel: 'Scripter' },
+  { gr: 3, titel: 'Board operator' },
+  { gr: 3, titel: 'Belyser' },
+  { gr: 3, titel: 'Best boy grip' },
+  { gr: 3, titel: 'Kostumier' },
+  { gr: 3, titel: 'Rekvisitør' },
+  { gr: 3, titel: 'Sminkør / Hår' },
+  { gr: 3, titel: 'SFX Tekniker' },
+  { gr: 4, titel: 'Indspilningslederassistant' },
+  { gr: 4, titel: 'Videoassistent' },
+  { gr: 4, titel: 'Data Wrangler' },
+  { gr: 4, titel: 'Belysningsassistent' },
+  { gr: 4, titel: 'Toneassistent' },
+  { gr: 4, titel: 'Grip assistent' },
+  { gr: 4, titel: 'Kostumierassistent' },
+  { gr: 4, titel: 'Rekvisitørassistent' },
+  { gr: 4, titel: 'Sminkørassistent' },
+  { gr: 4, titel: 'SFX-assistent' },
+  { gr: 4, titel: 'Locationassistent' },
+  { gr: 5, titel: 'Runner' },
+  { gr: 5, titel: 'Trainee' }
+];
+const GR_SATSER = { 1: 0, 2: 4100, 3: 3300, 4: 2750, 5: 1540 };
+const GR_NAVNE = { 1: 'Fri forhandling', 2: '4.100 kr/dag', 3: '3.300 kr/dag', 4: '2.750 kr/dag', 5: '1.540 kr/dag' };
 
 // ═══════════════════════════════════════════════════════════
 // STORAGE
@@ -689,13 +762,12 @@ function saveInst() {
 // ═══════════════════════════════════════════════════════════
 
 function otBands(t) {
-  // FIX 2: K-band = 2 timer (t13-14, +150%), L-band = t15+ (+200%)
   const ot = Math.max(0, t - 8);
   return {
-    I: Math.min(ot, 2),          // t9–10
-    J: Math.min(Math.max(ot - 2, 0), 2), // t11–12
-    K: Math.min(Math.max(ot - 4, 0), 2), // t13–14
-    L: Math.max(ot - 6, 0)               // t15+
+    I: Math.min(ot, 2),
+    J: Math.min(Math.max(ot - 2, 0), 2),
+    K: Math.min(Math.max(ot - 4, 0), 2),
+    L: Math.max(ot - 6, 0)
   };
 }
 
@@ -705,22 +777,16 @@ function overlap(sh, eh, fra, til) {
 }
 
 function calcReklame(dagtype, start, slut, dagssats, gruppe, opts) {
-  // opts: { transport, nat, wk, persTillaeg, diæt, pause, rabatPct, dagNr }
+  // opts: { transport, nat, wk, rabat, helligdag, pauseForsinketFrokost, pauseIngenServering,
+  //         pausePlanlagt, pause5, pause10, pause13, diaeter, persontillaeg, gr1OTSats }
   if (!start || !slut) return null;
   const s = start.h + start.m / 60;
   const e = slut.h + slut.m / 60;
   const raaTimer = e >= s ? e - s : e - s + 24;
 
-  // FIX 4: Helligdag behandles som optagelse med wk=2 tvunget
-  const effectiveDagtype = dagtype === 'helligdag' ? 'optagelse' : dagtype;
-
   // Minimum 4 timers kald for Forbered
-  const arbejdsTimer = effectiveDagtype === 'forbered' ? Math.max(4, raaTimer) : raaTimer;
-
-  // FIX 3: Personligt tillæg lægges oveni dagssats ved beregning af ts
-  const persTillaeg = opts.persTillaeg || 0;
-  const effektiv_dagssats = dagssats + persTillaeg;
-  const ts = effektiv_dagssats / 8;
+  const arbejdsTimer = dagtype === 'forbered' ? Math.max(4, raaTimer) : raaTimer;
+  const ts = dagssats / 8;
 
   // OT bands
   const b = otBands(arbejdsTimer);
@@ -734,12 +800,15 @@ function calcReklame(dagtype, start, slut, dagssats, gruppe, opts) {
     const band1 = b.I + b.J + b.K;
     otKr = band1 * 200 + b.L * 350;
   } else if (gruppe === 1) {
-    // Fri forhandling — ingen definerede OT-satser
-    otKr = 0;
+    // Fri forhandling
+    if (opts.gr1OTSats > 0) {
+      otKr = otTimer * opts.gr1OTSats;
+    } else {
+      otKr = 0;
+    }
   } else {
     // Gr. 2–4, satser afhænger af dagtype
-    if (effectiveDagtype === 'optagelse') {
-      // FIX 2: K=+150% (t13-14), L=+200% (t15+)
+    if (dagtype === 'optagelse') {
       otKr = b.I * ts * 1.25 + b.J * ts * 2.00 + b.K * ts * 2.50 + b.L * ts * 3.00;
     } else {
       // Forbered: +25%/+50%/+75%/+75%
@@ -747,61 +816,69 @@ function calcReklame(dagtype, start, slut, dagssats, gruppe, opts) {
     }
   }
 
-  // Transport (kun Optagelse/Helligdag)
+  // Transport (kun Optagelse)
   let transKr = 0, transTimer = 0;
-  if (effectiveDagtype === 'optagelse' && opts.transport > 0) {
+  if (dagtype === 'optagelse' && opts.transport > 0) {
     transTimer = opts.transport;
     transKr = transTimer * ts * 1.75;
   }
 
-  // Nat-gene (kun Optagelse/Helligdag) §5
+  // Nat-gene (kun Optagelse) §5
   let natKr = 0, nat18t = 0, nat00t = 0;
-  if (effectiveDagtype === 'optagelse' && opts.nat) {
+  if (dagtype === 'optagelse' && opts.nat) {
     const sh = s, eh = e >= s ? e : e + 24;
     nat18t = overlap(sh, eh, 18, 24);
     nat00t = (sh < 6 ? overlap(sh, eh, 0, 6) : 0) + overlap(sh, eh, 24, 30);
     natKr = nat18t * 100 + nat00t * 200;
   }
 
-  // Weekend-tillæg (kun Optagelse/Helligdag) §6
-  // FIX 4: Helligdag tvinger wk=2 (+100%)
-  const wkEffektiv = dagtype === 'helligdag' ? 2 : opts.wk;
+  // Weekend-tillæg (kun Optagelse) §6
+  // Helligdag opgraderer weekend-faktoren til 100%
   let wkKr = 0;
-  if (effectiveDagtype === 'optagelse' && wkEffektiv > 0) {
+  const effWk = (dagtype === 'optagelse' && opts.helligdag && opts.wk < 2) ? 2 : opts.wk;
+  if (dagtype === 'optagelse' && (effWk > 0 || opts.helligdag)) {
     const wTimer = arbejdsTimer + transTimer;
-    const wFaktor = wkEffektiv === 2 ? 1.0 : 0.75;
+    const wFaktor = effWk === 2 ? 1.0 : (effWk === 1 ? 0.75 : 1.0);
     wkKr = wTimer * ts * wFaktor;
   }
 
-  // FIX 7: Pause-betalinger
+  // Pause-betalinger (kun Optagelse) §7
   let pauseKr = 0;
-  const pause = opts.pause || {};
-  if (pause.forsinketFrokost) pauseKr += (30 / 60) * ts * 2.0;
-  if (pause.ingenServering)   pauseKr += (15 / 60) * ts * 2.5;
-  if (pause.planmaessig)      pauseKr += (45 / 60) * ts * 1.25;
+  if (dagtype === 'optagelse') {
+    if (opts.pauseForsinketFrokost) pauseKr += (30/60) * ts * 2.00;
+    if (opts.pauseIngenServering)   pauseKr += (15/60) * ts * 2.50;
+    if (opts.pausePlanlagt)         pauseKr += (45/60) * ts * 1.25;
+    if (opts.pause5)                pauseKr += (30/60) * ts * 2.00;
+    if (opts.pause10)               pauseKr += (30/60) * ts * 2.00;
+    if (opts.pause13)               pauseKr += (30/60) * ts * 2.00;
+  }
 
-  const brutto = normalKr + otKr + transKr + natKr + wkKr + pauseKr;
+  // Rabat (kun Optagelse) §3
+  let rabatKr = 0;
+  if (dagtype === 'optagelse' && opts.rabat > 0) {
+    const pct = opts.rabat === 1 ? 0.10 : 0.15;
+    rabatKr = -(normalKr + otKr) * pct;
+  }
 
-  // Minimum garanteret dagsløngaranti (kun Optagelse/Helligdag)
-  const garantiKr = (effectiveDagtype === 'optagelse' && brutto < effektiv_dagssats) ? effektiv_dagssats - brutto : 0;
-  let subtotal = brutto + garantiKr;
+  const brutto = normalKr + otKr + rabatKr + transKr + natKr + wkKr + pauseKr;
 
-  // FIX 5: Rabat
-  const rabatPct = opts.rabatPct || 0;
-  const rabatKr = rabatPct > 0 ? subtotal * (rabatPct / 100) : 0;
-  subtotal -= rabatKr;
+  // Minimum garanteret dagsløngaranti (kun Optagelse)
+  const garantiKr = (dagtype === 'optagelse' && brutto < dagssats) ? dagssats - brutto : 0;
 
-  // FIX 6: Diæt
-  const diætKr = opts.diæt ? 172.20 : 0;
-  const total = subtotal + diætKr;
+  // Diæter og personligt tillæg lægges til efter garanti
+  const diaetKr = (opts.diaeter || 0) * 172.20;
+  const persontillaegKr = opts.persontillaeg || 0;
+
+  const total = brutto + garantiKr + diaetKr + persontillaegKr;
 
   return {
     raaTimer, arbejdsTimer, otTimer, transTimer,
-    normalKr, otKr, transKr, natKr, wkKr, pauseKr, garantiKr,
-    rabatKr, rabatPct, diætKr,
-    brutto, subtotal, total, ts, effektiv_dagssats, persTillaeg,
+    normalKr, otKr, transKr, natKr, wkKr, pauseKr, rabatKr,
+    garantiKr, diaetKr, persontillaegKr,
+    brutto, total, ts,
     bI: b.I, bJ: b.J, bK: b.K, bL: b.L,
-    nat18t, nat00t
+    nat18t, nat00t, effWk,
+    helligdag: opts.helligdag || false
   };
 }
 
@@ -920,25 +997,29 @@ function sætDagtype(dt) {
   S.dagtype = dt;
   document.getElementById('dt-opt').classList.toggle('on', dt === 'optagelse');
   document.getElementById('dt-for').classList.toggle('on', dt === 'forbered');
-  document.getElementById('dt-hel').classList.toggle('on', dt === 'helligdag');
-  // FIX 4: Helligdag = optagelse-tillæg tilgængelige, men wk tvinges til 2
-  document.getElementById('opt-tillaeg').style.display = (dt === 'optagelse' || dt === 'helligdag') ? 'block' : 'none';
+  document.getElementById('opt-tillaeg').style.display = dt === 'optagelse' ? 'block' : 'none';
   document.getElementById('for-info').style.display = dt === 'forbered' ? 'block' : 'none';
   // Reset Optagelse-only tillæg
   if (dt === 'forbered') {
     S.nat = false; S.wk = 0; S.transAktiv = false;
+    S.rabat = 0; S.helligdag = false;
+    S.pauseForsinketFrokost = false; S.pauseIngenServering = false;
+    S.pausePlanlagt = false; S.pause5 = false; S.pause10 = false; S.pause13 = false;
     document.getElementById('bn-nat')?.classList.remove('on');
     document.getElementById('bn-wk')?.classList.remove('on','on2');
     document.getElementById('bn-trans')?.classList.remove('on');
     document.getElementById('trans-row').style.display = 'none';
-  }
-  if (dt === 'helligdag') {
-    // Helligdag giver altid +100% weekend (wk=2), låst
-    S.wk = 2;
-    const bn = document.getElementById('bn-wk');
-    const sub = document.getElementById('bn-wk-sub');
-    bn?.classList.remove('on'); bn?.classList.add('on2');
-    if (sub) sub.textContent = 'Helligdag: +100%';
+    document.getElementById('bn-rabatA')?.classList.remove('on');
+    document.getElementById('bn-rabatB')?.classList.remove('on');
+    document.getElementById('bn-helligdag')?.classList.remove('on');
+    document.getElementById('bn-pf')?.classList.remove('on');
+    document.getElementById('bn-pi')?.classList.remove('on');
+    document.getElementById('bn-pp')?.classList.remove('on');
+    document.getElementById('bn-p5')?.classList.remove('on');
+    document.getElementById('bn-p10')?.classList.remove('on');
+    document.getElementById('bn-p13')?.classList.remove('on');
+    const diaetAntal = document.getElementById('diaet-antal');
+    if (diaetAntal) diaetAntal.value = 0;
   }
   opdaterOTLabels();
   beregn();
@@ -948,7 +1029,40 @@ function tog(k) {
   if (k === 'nat') {
     S.nat = !S.nat;
     document.getElementById('bn-nat').classList.toggle('on', S.nat);
+  } else if (k === 'helligdag') {
+    S.helligdag = !S.helligdag;
+    document.getElementById('bn-helligdag').classList.toggle('on', S.helligdag);
   }
+  beregn();
+}
+
+function togRabat(r) {
+  S.rabat = S.rabat === r ? 0 : r;
+  document.getElementById('bn-rabatA').classList.toggle('on', S.rabat === 1);
+  document.getElementById('bn-rabatB').classList.toggle('on', S.rabat === 2);
+  beregn();
+}
+
+function togPause(t) {
+  const map = {
+    forsinket: 'pauseForsinketFrokost',
+    ingenserv: 'pauseIngenServering',
+    planlagt: 'pausePlanlagt',
+    '5': 'pause5',
+    '10': 'pause10',
+    '13': 'pause13'
+  };
+  const btnMap = {
+    forsinket: 'bn-pf',
+    ingenserv: 'bn-pi',
+    planlagt: 'bn-pp',
+    '5': 'bn-p5',
+    '10': 'bn-p10',
+    '13': 'bn-p13'
+  };
+  const key = map[t];
+  S[key] = !S[key];
+  document.getElementById(btnMap[t])?.classList.toggle('on', S[key]);
   beregn();
 }
 
@@ -970,34 +1084,92 @@ function togTrans() {
   beregn();
 }
 
-// FIX 6: Diæt toggle
-function togDiaet() {
-  S.diaet = !S.diaet;
-  document.getElementById('bn-diaet').classList.toggle('on', S.diaet);
-  beregn();
-}
-
-// FIX 7: Pause toggles
-function togPause(key) {
-  S.pause[key] = !S.pause[key];
-  const idMap = { forsinketFrokost: 'bn-p-frokost', ingenServering: 'bn-p-servering', planmaessig: 'bn-p-planmaessig' };
-  document.getElementById(idMap[key]).classList.toggle('on', S.pause[key]);
-  beregn();
-}
-
 function skiftGruppe() {
   S.gruppe = parseInt(document.getElementById('s-gruppe').value);
-  // FIX 1: Gruppe 5 auto-sætter dagssats til 1.540 kr
-  if (S.gruppe === 5) {
-    document.getElementById('s-dagssats').value = 1540;
-  }
   opdaterOTLabels();
   beregn();
 }
 
+// ── FAGGRUPPE DROPDOWN ──
+function buildFagDD(filter) {
+  const dd = document.getElementById('fag-dd');
+  const q = (filter || '').toLowerCase().trim();
+  let html = '';
+  for (let g = 1; g <= 5; g++) {
+    const items = FAGGRUPPER.filter(f => f.gr === g && (!q || f.titel.toLowerCase().includes(q)));
+    if (items.length === 0 && q) continue;
+    html += `<div class="fag-dd-grp">Løngruppe ${g} — ${GR_NAVNE[g]}</div>`;
+    if (items.length === 0) {
+      // Vis gruppen som valgbar selv uden match
+      html += `<div class="fag-dd-item" onclick="selectGruppe(${g})">Vælg Gr. ${g}<span class="fag-gr">${GR_NAVNE[g]}</span></div>`;
+    }
+    items.forEach(f => {
+      html += `<div class="fag-dd-item" onclick="selectFag(${f.gr},'${f.titel.replace(/'/g,"\\'")}')">` +
+              `${f.titel}<span class="fag-gr">Gr. ${f.gr}</span></div>`;
+    });
+  }
+  if (!html && q) {
+    html = '<div style="padding:14px;text-align:center;color:var(--mut);font-size:12px">Ingen faggrupper matcher "' + q + '"</div>';
+  }
+  dd.innerHTML = html;
+}
+function openFagDD() {
+  const dd = document.getElementById('fag-dd');
+  const inp = document.getElementById('fag-search');
+  dd.classList.add('open');
+  inp.style.display = 'block';
+  inp.value = '';
+  inp.focus();
+  buildFagDD('');
+  document.getElementById('fag-valgt').style.display = 'none';
+  // Luk ved klik udenfor
+  setTimeout(() => document.addEventListener('click', closeFagDDOutside, { once: true }), 10);
+}
+function closeFagDD() {
+  document.getElementById('fag-dd').classList.remove('open');
+  document.getElementById('fag-search').style.display = 'none';
+  document.getElementById('fag-valgt').style.display = 'block';
+}
+function closeFagDDOutside(e) {
+  const dd = document.getElementById('fag-dd');
+  const inp = document.getElementById('fag-search');
+  if (!dd.contains(e.target) && e.target !== inp) closeFagDD();
+  else setTimeout(() => document.addEventListener('click', closeFagDDOutside, { once: true }), 10);
+}
+function filterFag(val) { buildFagDD(val); }
+function selectFag(gr, titel) {
+  document.getElementById('s-gruppe').value = gr;
+  S.gruppe = gr;
+  if (GR_SATSER[gr]) document.getElementById('s-dagssats').value = GR_SATSER[gr];
+  S.dagssats = parseFloat(document.getElementById('s-dagssats').value) || 4100;
+  document.getElementById('fag-valgt').textContent = titel + ' — Gr. ' + gr;
+  closeFagDD();
+  opdaterOTLabels();
+  beregn();
+}
+function selectGruppe(gr) {
+  document.getElementById('s-gruppe').value = gr;
+  S.gruppe = gr;
+  if (GR_SATSER[gr]) document.getElementById('s-dagssats').value = GR_SATSER[gr];
+  S.dagssats = parseFloat(document.getElementById('s-dagssats').value) || 4100;
+  document.getElementById('fag-valgt').textContent = 'Gr. ' + gr + ' — ' + GR_NAVNE[gr];
+  closeFagDD();
+  opdaterOTLabels();
+  beregn();
+}
+// Initialiser faggruppe-display ved load
+function initFagValgt() {
+  const g = S.gruppe;
+  document.getElementById('fag-valgt').textContent = 'Gr. ' + g + ' — ' + GR_NAVNE[g];
+  document.getElementById('fag-search').style.display = 'none';
+}
+
 function opdaterOTLabels() {
   const g = S.gruppe;
-  const dt = S.dagtype === 'helligdag' ? 'optagelse' : S.dagtype; // FIX 4: helligdag = optagelse OT-regler
+  const dt = S.dagtype;
+  // Show/hide Gr. 1 OT-sats input
+  const gr1otRow = document.getElementById('gr1ot-row');
+  if (gr1otRow) gr1otRow.style.display = g === 1 ? 'flex' : 'none';
   if (g === 5) {
     document.getElementById('o-ot1-lbl').textContent = 'OT 9.–14. time (200 kr/t)';
     document.getElementById('o-ot2-lbl').textContent = 'OT 15.+ time (350 kr/t)';
@@ -1011,8 +1183,8 @@ function opdaterOTLabels() {
   } else if (dt === 'optagelse') {
     document.getElementById('o-ot1-lbl').textContent = 'OT 9.–10. time (+25%)';
     document.getElementById('o-ot2-lbl').textContent = 'OT 11.–12. time (+100%)';
-    document.getElementById('o-ot3-lbl').textContent = 'OT 13.–14. time (+150%)';  // FIX 2
-    document.getElementById('o-ot4-lbl').textContent = 'OT 15.+ time (+200%)';      // FIX 2
+    document.getElementById('o-ot3-lbl').textContent = 'OT 13.–14. time (+150%)';
+    document.getElementById('o-ot4-lbl').textContent = 'OT 15.+ time (+200%)';
     document.getElementById('o-ot2-row').style.display = 'flex';
     document.getElementById('o-ot3-row').style.display = 'flex';
     document.getElementById('o-ot4-row').style.display = 'flex';
@@ -1031,10 +1203,7 @@ function opdaterOTLabels() {
 // ═══════════════════════════════════════════════════════════
 function beregn() {
   S.dagssats = parseFloat(document.getElementById('s-dagssats').value) || 4100;
-  // FIX 3: læs personligt tillæg
-  const persTillaeg = parseFloat(document.getElementById('s-pers-tillaeg').value) || 0;
-  const effDagssats = S.dagssats + persTillaeg;
-  const ts = effDagssats / 8;
+  const ts = S.dagssats / 8;
   document.getElementById('timesats-vis').textContent = ts.toLocaleString('da-DK',{maximumFractionDigits:2}) + ' kr/t';
 
   if (!S.tidStart || !S.tidSlut) {
@@ -1047,22 +1216,17 @@ function beregn() {
   }
 
   const transTimer = S.transAktiv ? (parseFloat(document.getElementById('trans-timer').value) || 0) : 0;
-
-  // FIX 5: Rabat beregning
-  const rabatDage = parseInt(document.getElementById('rabat-dage').value) || 0;
-  const rabatDagNr = parseInt(document.getElementById('rabat-dag-nr').value) || 1;
-  let rabatPct = 0;
-  if (rabatDage >= 5 && rabatDagNr >= 5) rabatPct = 15;       // Rabat B: dag 5+ i prod med 5+ dage
-  else if (rabatDage >= 2 && rabatDage <= 4) rabatPct = 10;   // Rabat A: 2–4 dage i alt
-
+  const diaeter = parseInt(document.getElementById('diaet-antal')?.value) || 0;
+  const persontillaeg = parseFloat(document.getElementById('s-persontillaeg')?.value) || 0;
+  const gr1OTSats = S.gruppe === 1 ? (parseFloat(document.getElementById('gr1-ot-sats')?.value) || 0) : 0;
   const opts = {
-    transport: transTimer,
-    nat: S.nat,
-    wk: S.wk,
-    persTillaeg,
-    diæt: S.diaet || false,
-    pause: S.pause || {},
-    rabatPct
+    transport: transTimer, nat: S.nat, wk: S.wk,
+    rabat: S.rabat, helligdag: S.helligdag,
+    pauseForsinketFrokost: S.pauseForsinketFrokost,
+    pauseIngenServering: S.pauseIngenServering,
+    pausePlanlagt: S.pausePlanlagt,
+    pause5: S.pause5, pause10: S.pause10, pause13: S.pause13,
+    diaeter, persontillaeg, gr1OTSats
   };
   const r = calcReklame(S.dagtype, S.tidStart, S.tidSlut, S.dagssats, S.gruppe, opts);
   if (!r) return;
@@ -1071,15 +1235,13 @@ function beregn() {
   document.getElementById('res-pay').textContent = krFmt(r.total);
   document.getElementById('res-pay-lbl').textContent = r.garantiKr > 0 ? 'Garanteret' : 'Dagsløn';
 
-  const dtLbl = S.dagtype === 'optagelse' ? 'Optagelse' : (S.dagtype === 'helligdag' ? 'Helligdag' : 'Forbered');
+  const dtLbl = S.dagtype === 'optagelse' ? 'Optagelse' : 'Forbered';
   document.getElementById('res-sub').textContent =
     `${dtLbl} · Gr.${S.gruppe} · ${S.dagssats.toLocaleString('da-DK')} kr/dag · ts ${Math.round(ts)} kr/t`;
   document.getElementById('res-expand').textContent = S.otVis ? '▴ Luk specifikation' : '▾ Vis specifikation';
 
   // OT rows
   document.getElementById('o-normal').textContent = krFmt(r.normalKr);
-
-  const effectiveDagtype = S.dagtype === 'helligdag' ? 'optagelse' : S.dagtype;
 
   if (S.gruppe === 5) {
     const band1 = r.bI + r.bJ + r.bK;
@@ -1089,11 +1251,13 @@ function beregn() {
     document.getElementById('o-ot1-row').style.display = 'flex';
     document.getElementById('o-ot2-row').style.display = 'flex';
   } else if (S.gruppe === 1) {
-    document.getElementById('o-ot1').textContent = 'Aftales individuelt';
+    document.getElementById('o-ot1').textContent = gr1OTSats > 0
+      ? `${hFmt(r.bI + r.bJ + r.bK + r.bL)} × ${gr1OTSats} kr/t = ${krFmt(r.otKr)}`
+      : 'Aftales individuelt';
     document.getElementById('o-ot1-row').style.display = 'flex';
   } else {
     const ts_ = r.ts;
-    if (effectiveDagtype === 'optagelse') {
+    if (S.dagtype === 'optagelse') {
       const data = [
         { id:'o-ot1', t:r.bI, rate:1.25, lbl:'(+25%)' },
         { id:'o-ot2', t:r.bJ, rate:2.00, lbl:'(+100%)' },
@@ -1128,38 +1292,44 @@ function beregn() {
     document.getElementById('o-nat').textContent = `${t} = ${krFmt(r.natKr)}`;
   }
 
-  // Weekend
+  // Weekend / Helligdag
   const wkRow = document.getElementById('o-wk-row');
   wkRow.style.display = r.wkKr > 0 ? 'flex' : 'none';
   if (r.wkKr > 0) {
-    const pct = (S.dagtype === 'helligdag' || S.wk === 2) ? '100%' : '75%';
+    const effWkLabel = r.helligdag && r.effWk === 2 ? 'Helligdag/Weekend' : 'Weekend';
+    const pct = r.effWk === 2 ? '100%' : '75%';
+    document.getElementById('o-wk-lbl').textContent = effWkLabel + '-tillæg';
     document.getElementById('o-wk').textContent = `${hFmt(r.arbejdsTimer + r.transTimer)} × ts × ${pct} = ${krFmt(r.wkKr)}`;
+  }
+
+  // Pause
+  const pauseRow = document.getElementById('o-pause-row');
+  pauseRow.style.display = r.pauseKr > 0 ? 'flex' : 'none';
+  if (r.pauseKr > 0) document.getElementById('o-pause').textContent = krFmt(r.pauseKr);
+
+  // Rabat
+  const rabatRow = document.getElementById('o-rabat-row');
+  rabatRow.style.display = r.rabatKr < 0 ? 'flex' : 'none';
+  if (r.rabatKr < 0) {
+    const pct = S.rabat === 1 ? '10%' : '15%';
+    document.getElementById('o-rabat-lbl').textContent = `Rabat ${S.rabat === 1 ? 'A' : 'B'} (−${pct})`;
+    document.getElementById('o-rabat').textContent = krFmt(r.rabatKr);
   }
 
   // Garanti
   const minRow = document.getElementById('o-min-row');
   minRow.style.display = r.garantiKr > 0 ? 'flex' : 'none';
-  if (r.garantiKr > 0) document.getElementById('o-min').textContent = `Brutto ${krFmt(r.brutto)} → garanti ${krFmt(r.effektiv_dagssats)}`;
+  if (r.garantiKr > 0) document.getElementById('o-min').textContent = `Brutto ${krFmt(r.brutto)} → garanti ${krFmt(S.dagssats)}`;
 
-  // FIX 3: Personligt tillæg
-  document.getElementById('o-pers-row').style.display = r.persTillaeg > 0 ? 'flex' : 'none';
-  if (r.persTillaeg > 0) document.getElementById('o-pers').textContent = `+${krFmt(r.persTillaeg)} pr. dag`;
+  // Diæter
+  const diaetRow = document.getElementById('o-diaet-row');
+  diaetRow.style.display = r.diaetKr > 0 ? 'flex' : 'none';
+  if (r.diaetKr > 0) document.getElementById('o-diaet').textContent = `${diaeter} stk × 172,20 = ${krFmt(r.diaetKr)}`;
 
-  // FIX 7: Pause
-  document.getElementById('o-pause-row').style.display = r.pauseKr > 0 ? 'flex' : 'none';
-  if (r.pauseKr > 0) document.getElementById('o-pause').textContent = krFmt(r.pauseKr);
-
-  // FIX 5: Rabat
-  document.getElementById('o-rabat-row').style.display = r.rabatKr > 0 ? 'flex' : 'none';
-  if (r.rabatKr > 0) {
-    const rabatType = rabatPct === 15 ? 'Rabat B (−15%)' : 'Rabat A (−10%)';
-    document.getElementById('o-rabat-lbl').textContent = rabatType;
-    document.getElementById('o-rabat').textContent = `−${krFmt(r.rabatKr)}`;
-  }
-
-  // FIX 6: Diæt
-  document.getElementById('o-diaet-row').style.display = r.diætKr > 0 ? 'flex' : 'none';
-  if (r.diætKr > 0) document.getElementById('o-diaet').textContent = krFmt(r.diætKr);
+  // Personligt tillæg
+  const persRow = document.getElementById('o-pers-row');
+  persRow.style.display = r.persontillaegKr > 0 ? 'flex' : 'none';
+  if (r.persontillaegKr > 0) document.getElementById('o-pers').textContent = krFmt(r.persontillaegKr);
 
   if (S.otVis) document.getElementById('ot-boks').classList.add('vis');
   else document.getElementById('ot-boks').classList.remove('vis');
@@ -1215,14 +1385,21 @@ function renderDag() {
     S.nat = gem.nat || false;
     S.wk = gem.wk || 0;
     S.transAktiv = gem.transAktiv || false;
-    S.diaet = gem.diaet || false;
-    S.pause = gem.pause ? { ...gem.pause } : { forsinketFrokost: false, ingenServering: false, planmaessig: false };
+    S.rabat = gem.rabat || 0;
+    S.helligdag = gem.helligdag || false;
+    S.pauseForsinketFrokost = gem.pauseForsinketFrokost || false;
+    S.pauseIngenServering = gem.pauseIngenServering || false;
+    S.pausePlanlagt = gem.pausePlanlagt || false;
+    S.pause5 = gem.pause5 || false;
+    S.pause10 = gem.pause10 || false;
+    S.pause13 = gem.pause13 || false;
     document.getElementById('s-gruppe').value = S.gruppe;
     document.getElementById('s-dagssats').value = S.dagssats;
-    document.getElementById('s-pers-tillaeg').value = gem.persTillaeg || 0;
-    document.getElementById('rabat-dage').value = gem.rabatDage || 0;
-    document.getElementById('rabat-dag-nr').value = gem.rabatDagNr || 1;
+    document.getElementById('fag-valgt').textContent = gem.faggruppe || ('Gr. ' + S.gruppe + ' — ' + GR_NAVNE[S.gruppe]);
     document.getElementById('i-note').value = gem.note || '';
+    if (document.getElementById('diaet-antal')) document.getElementById('diaet-antal').value = gem.diaeter || 0;
+    if (document.getElementById('s-persontillaeg')) document.getElementById('s-persontillaeg').value = gem.persontillaeg || 0;
+    if (document.getElementById('gr1-ot-sats')) document.getElementById('gr1-ot-sats').value = gem.gr1OTSats || 0;
     document.getElementById('gem-btn').classList.add('ok');
     document.getElementById('gem-btn').textContent = '✓ Opdatér dag';
     document.getElementById('dag-actions').style.display = 'grid';
@@ -1230,16 +1407,18 @@ function renderDag() {
     S.dagtype = S.inst.dagtype || 'optagelse';
     S.tidStart = null; S.tidSlut = null;
     S.nat = false; S.wk = 0; S.transAktiv = false;
-    S.diaet = false;
-    S.pause = { forsinketFrokost: false, ingenServering: false, planmaessig: false };
+    S.rabat = 0; S.helligdag = false;
+    S.pauseForsinketFrokost = false; S.pauseIngenServering = false;
+    S.pausePlanlagt = false; S.pause5 = false; S.pause10 = false; S.pause13 = false;
     S.gruppe = S.inst.gruppe;
     S.dagssats = S.inst.dagssats;
     document.getElementById('s-gruppe').value = S.gruppe;
     document.getElementById('s-dagssats').value = S.dagssats;
-    document.getElementById('s-pers-tillaeg').value = 0;
-    document.getElementById('rabat-dage').value = 0;
-    document.getElementById('rabat-dag-nr').value = 1;
+    document.getElementById('fag-valgt').textContent = 'Gr. ' + S.gruppe + ' — ' + GR_NAVNE[S.gruppe];
     document.getElementById('i-note').value = '';
+    if (document.getElementById('diaet-antal')) document.getElementById('diaet-antal').value = 0;
+    if (document.getElementById('s-persontillaeg')) document.getElementById('s-persontillaeg').value = 0;
+    if (document.getElementById('gr1-ot-sats')) document.getElementById('gr1-ot-sats').value = 0;
     document.getElementById('gem-btn').classList.remove('ok');
     document.getElementById('gem-btn').textContent = 'GEM DAG →';
     document.getElementById('dag-actions').style.display = 'none';
@@ -1261,13 +1440,16 @@ function renderDag() {
   document.getElementById('trans-row').style.display = S.transAktiv ? 'flex' : 'none';
   if (gem && gem.transTimer) document.getElementById('trans-timer').value = gem.transTimer;
 
-  // FIX 6: Diæt knap
-  document.getElementById('bn-diaet')?.classList.toggle('on', S.diaet);
-
-  // FIX 7: Pause knapper
-  document.getElementById('bn-p-frokost')?.classList.toggle('on', S.pause.forsinketFrokost);
-  document.getElementById('bn-p-servering')?.classList.toggle('on', S.pause.ingenServering);
-  document.getElementById('bn-p-planmaessig')?.classList.toggle('on', S.pause.planmaessig);
+  // Rabat / helligdag / pause knapper
+  document.getElementById('bn-rabatA')?.classList.toggle('on', S.rabat === 1);
+  document.getElementById('bn-rabatB')?.classList.toggle('on', S.rabat === 2);
+  document.getElementById('bn-helligdag')?.classList.toggle('on', S.helligdag);
+  document.getElementById('bn-pf')?.classList.toggle('on', S.pauseForsinketFrokost);
+  document.getElementById('bn-pi')?.classList.toggle('on', S.pauseIngenServering);
+  document.getElementById('bn-pp')?.classList.toggle('on', S.pausePlanlagt);
+  document.getElementById('bn-p5')?.classList.toggle('on', S.pause5);
+  document.getElementById('bn-p10')?.classList.toggle('on', S.pause10);
+  document.getElementById('bn-p13')?.classList.toggle('on', S.pause13);
 
   S.otVis = false;
   document.getElementById('ot-boks').classList.remove('vis');
@@ -1281,23 +1463,33 @@ function renderDag() {
 function gemDag() {
   if (!S.tidStart || !S.tidSlut) { toast('Vælg tidspunkt først', 'var(--red)'); return; }
   const transTimer = S.transAktiv ? (parseFloat(document.getElementById('trans-timer').value) || 0) : 0;
-  const persTillaeg = parseFloat(document.getElementById('s-pers-tillaeg').value) || 0;
-  const rabatDage = parseInt(document.getElementById('rabat-dage').value) || 0;
-  const rabatDagNr = parseInt(document.getElementById('rabat-dag-nr').value) || 1;
-  let rabatPct = 0;
-  if (rabatDage >= 5 && rabatDagNr >= 5) rabatPct = 15;
-  else if (rabatDage >= 2 && rabatDage <= 4) rabatPct = 10;
-  const opts = { transport: transTimer, nat: S.nat, wk: S.wk, persTillaeg, diæt: S.diaet, pause: S.pause, rabatPct };
+  const diaeter = parseInt(document.getElementById('diaet-antal')?.value) || 0;
+  const persontillaeg = parseFloat(document.getElementById('s-persontillaeg')?.value) || 0;
+  const gr1OTSats = S.gruppe === 1 ? (parseFloat(document.getElementById('gr1-ot-sats')?.value) || 0) : 0;
+  const opts = {
+    transport: transTimer, nat: S.nat, wk: S.wk,
+    rabat: S.rabat, helligdag: S.helligdag,
+    pauseForsinketFrokost: S.pauseForsinketFrokost,
+    pauseIngenServering: S.pauseIngenServering,
+    pausePlanlagt: S.pausePlanlagt,
+    pause5: S.pause5, pause10: S.pause10, pause13: S.pause13,
+    diaeter, persontillaeg, gr1OTSats
+  };
   const r = calcReklame(S.dagtype, S.tidStart, S.tidSlut, S.dagssats, S.gruppe, opts);
   const key = dagKey(S.dagOffset);
   S.dage[key] = {
     dagtype: S.dagtype,
     tidStart: S.tidStart, tidSlut: S.tidSlut,
     gruppe: S.gruppe, dagssats: S.dagssats,
+    faggruppe: document.getElementById('fag-valgt').textContent,
     transAktiv: S.transAktiv, transTimer,
     nat: S.nat, wk: S.wk,
-    persTillaeg, diaet: S.diaet, pause: { ...S.pause },
-    rabatDage, rabatDagNr,
+    rabat: S.rabat, helligdag: S.helligdag,
+    pauseForsinketFrokost: S.pauseForsinketFrokost,
+    pauseIngenServering: S.pauseIngenServering,
+    pausePlanlagt: S.pausePlanlagt,
+    pause5: S.pause5, pause10: S.pause10, pause13: S.pause13,
+    diaeter, persontillaeg, gr1OTSats,
     note: document.getElementById('i-note').value,
     beregnet: r
   };
@@ -1533,7 +1725,13 @@ function renderInst() {
 }
 
 function gemInst() {
-  S.inst.gruppe = parseInt(document.getElementById('inst-gruppe').value);
+  const newGruppe = parseInt(document.getElementById('inst-gruppe').value);
+  S.inst.gruppe = newGruppe;
+  // Auto-fill dagssats from standard rates when gruppe changes
+  const autoSats = GR_SATSER[newGruppe];
+  if (autoSats) {
+    document.getElementById('inst-dagssats').value = autoSats;
+  }
   S.inst.dagssats = parseFloat(document.getElementById('inst-dagssats').value) || 4100;
   S.inst.dagtype = document.getElementById('inst-dagtype').value;
   S.inst.navn = document.getElementById('inst-navn').value;
@@ -1710,6 +1908,7 @@ S.dagssats = S.inst.dagssats;
 S.dagtype = S.inst.dagtype || 'optagelse';
 
 renderInst();
+initFagValgt();
 visView('dag');
 
 </script>
