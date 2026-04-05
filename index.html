@@ -2,145 +2,1106 @@
 <html lang="da">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0C0C12">
-<title>Time App · FAF</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time App — Lønberegning til dansk film</title>
+<meta name="description" content="Automatisk lønberegning for filmproduktionsmedarbejdere. FAF Fiktionsoverenskomst 2025-2027. Gratis. Ingen login.">
+<meta property="og:title" content="Time App — Lønberegning til dansk film">
+<meta property="og:description" content="Registrer dine timer, få løn beregnet automatisk. Til belysere, gripere og alle under FAF-overenskomsten.">
+<meta property="og:type" content="website">
 <style>
-:root{
-  --bg:#0C0C12;--surf:#14141E;--card:#1C1C2A;--card2:#222232;
-  --brd:#2E2E42;--txt:#EEEEF5;--mut:#666680;
-  --grn:#34D399;--fik:#818CF8;--rek:#FF6B35;
-  --r:16px;
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto;padding:0 0 48px}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:     #0D0D1A;
+    --card:   #141428;
+    --border: #1E1E38;
+    --acc:    #818CF8;
+    --acc2:   #6366F1;
+    --grn:    #34D399;
+    --yel:    #FBBF24;
+    --txt:    #E8E8F0;
+    --mut:    #8888AA;
+    --red:    #F87171;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--txt);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-.topbar{position:sticky;top:0;z-index:10;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.3px}
-.logo em{color:var(--fik);font-style:normal}
-.badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:50px;background:rgba(129,140,248,.15);color:var(--fik);text-transform:uppercase;letter-spacing:.5px}
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px;
+    background: rgba(13,13,26,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(129,140,248,0.1);
+  }
+  .nav-logo {
+    font-size: 18px; font-weight: 700;
+    background: linear-gradient(135deg, var(--acc), var(--grn));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: 0.04em;
+  }
+  .nav-cta {
+    background: var(--acc2); color: #fff;
+    border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 14px; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .nav-cta:hover { background: var(--acc); transform: translateY(-1px); }
 
-.hero{padding:36px 20px 24px}
-.hero-overtitle{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--mut);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
-.hero-title{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:12px}
-.hero-title em{color:var(--fik);font-style:normal}
-.hero-sub{font-size:14px;color:var(--mut);line-height:1.6;max-width:340px}
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-wrap: wrap;
+    align-items: center; justify-content: center;
+    gap: 60px;
+    padding: 100px 60px 0;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 60% at 20% 50%, rgba(99,102,241,0.14) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 60% at 85% 40%, rgba(52,211,153,0.09) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-text {
+    flex: 1; min-width: 300px; max-width: 520px;
+    display: flex; flex-direction: column; align-items: flex-start;
+    animation: fadeUp 0.6s ease both;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(129,140,248,0.12);
+    border: 1px solid rgba(129,140,248,0.3);
+    border-radius: 99px; padding: 6px 14px;
+    font-size: 12px; font-weight: 600;
+    color: var(--acc); letter-spacing: 0.06em;
+    margin-bottom: 28px;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--grn); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .hero h1 {
+    font-size: clamp(44px, 6vw, 76px);
+    font-weight: 800; line-height: 1.05; letter-spacing: -0.03em;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(135deg, var(--acc) 0%, var(--grn) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    margin-top: 20px;
+    font-size: clamp(15px, 1.8vw, 18px);
+    color: var(--mut); max-width: 440px; line-height: 1.7;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-actions {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    margin-top: 36px; animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, var(--acc2), var(--acc));
+    color: #fff; border: none; border-radius: 12px;
+    padding: 16px 32px; font-size: 17px; font-weight: 700;
+    cursor: pointer; text-decoration: none;
+    box-shadow: 0 4px 32px rgba(99,102,241,0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(99,102,241,0.5); }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--txt); border-radius: 12px;
+    padding: 16px 28px; font-size: 16px; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+  .hero-note { margin-top: 16px; font-size: 13px; color: var(--mut); animation: fadeUp 0.6s 0.4s ease both; }
 
-.apps{padding:0 16px;display:flex;flex-direction:column;gap:12px}
+  /* Hero telefon — holder i hånden */
+  /* ── Hero hånd-foto ── */
+  .hero-photo-wrap {
+    flex: 0 0 auto;
+    position: relative;
+    order: 2;
+    display: flex; align-items: flex-end; justify-content: center;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+  .hero-hand-img {
+    height: 640px;
+    width: auto;
+    object-fit: contain;
+    display: block;
+    border-radius: 20px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(129,140,248,0.08);
+  }
+  /* Subtil glød bag hånden */
+  .hero-photo-wrap::before {
+    content: '';
+    position: absolute;
+    width: 400px; height: 500px;
+    background: radial-gradient(ellipse at 50% 40%,
+      rgba(99,102,241,0.18) 0%,
+      rgba(52,211,153,0.08) 45%,
+      transparent 70%);
+    top: 0; left: 50%; transform: translateX(-50%);
+    pointer-events: none;
+    border-radius: 50%;
+  }
+  /* Gradient fade i bunden mod baggrund */
+  .hero-photo-wrap::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 120px;
+    background: linear-gradient(to top,
+      #0D0D1A 0%,
+      rgba(13,13,26,0.6) 50%,
+      transparent 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .hero-phone {
+    position: relative; z-index: 1;
+    width: 280px;
+    background: #0a0a14;
+    border-radius: 44px;
+    border: 2px solid #2a2a48;
+    padding: 14px 10px 10px;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.07),
+      0 40px 80px rgba(0,0,0,0.9),
+      0 0 0 1px rgba(0,0,0,0.8);
+    margin-bottom: -80px; /* viser at den holdes i bunden */
+  }
+  /* Notch */
+  .hero-phone::before {
+    content: '';
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    width: 90px; height: 28px;
+    background: #0a0a14;
+    border-radius: 0 0 18px 18px;
+    border: 2px solid #2a2a48;
+    border-top: none;
+    z-index: 10;
+  }
+  .hero-phone-screen {
+    background: #0D0D1A;
+    border-radius: 32px;
+    overflow: hidden;
+  }
 
-.app-card{display:block;text-decoration:none;background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:22px;transition:all .2s;position:relative;overflow:hidden}
-.app-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.app-card.fiktions::before{background:var(--fik)}
-.app-card.reklame::before{background:var(--rek)}
-.app-card:active{transform:scale(.98);opacity:.9}
+  /* ── APP SCREENSHOTS ── */
+  .app-screenshots {
+    padding: 80px 40px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .screenshots-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--acc);
+    margin-bottom: 40px;
+  }
+  .screenshots-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+    justify-items: center;
+  }
+  .screenshot-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .screenshot-item img {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    display: block;
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(129,140,248,0.07);
+    transition: transform 0.3s ease;
+  }
+  .screenshot-item img:hover { transform: translateY(-6px); }
+  .screenshot-caption {
+    font-size: 13px;
+    color: var(--mut);
+    letter-spacing: 0.04em;
+  }
 
-.app-tag{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
-.app-card.fiktions .app-tag{color:var(--fik)}
-.app-card.reklame .app-tag{color:var(--rek)}
+  /* ── PHOTO GALLERY ── */
+  .photo-gallery {
+    padding: 60px 40px 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr 1fr;
+    gap: 16px;
+    align-items: end;
+  }
+  .gallery-item {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .gallery-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 70px rgba(99,102,241,0.25);
+  }
+  .gallery-item--center {
+    transform: translateY(-20px);
+  }
+  .gallery-item--center:hover {
+    transform: translateY(-26px);
+  }
+  .gallery-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .gallery-caption {
+    text-align: center;
+    color: var(--mut);
+    font-size: 14px;
+    margin-top: 32px;
+    letter-spacing: 0.04em;
+  }
 
-.app-name{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-1px;line-height:1;margin-bottom:8px}
-.app-desc{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:16px}
+  /* ── STATS STRIP ── */
+  .stats-strip {
+    background: rgba(255,255,255,0.025);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    display: flex; flex-wrap: wrap; justify-content: center;
+    padding: 0;
+  }
+  .stat {
+    padding: 28px 48px; text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-val { font-size: 30px; font-weight: 800; color: var(--acc); }
+  .stat-lbl { font-size: 12px; color: var(--mut); margin-top: 4px; letter-spacing: 0.04em; }
 
-.app-features{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
-.feat{font-size:11px;font-weight:600;padding:4px 10px;border-radius:50px;background:var(--surf);color:var(--mut);border:1px solid var(--brd)}
-.app-card.fiktions .feat.hi{background:rgba(129,140,248,.12);color:var(--fik);border-color:rgba(129,140,248,.2)}
-.app-card.reklame .feat.hi{background:rgba(255,107,53,.12);color:var(--rek);border-color:rgba(255,107,53,.2)}
+  /* ══════════════════════════════════════════
+     MOCKUP SEKTION 1 — Dag-visning med callouts
+  ══════════════════════════════════════════ */
+  .mockup-scene {
+    position: relative;
+    padding: 100px 24px 80px;
+    background: #050510;
+    overflow: hidden;
+    text-align: center;
+  }
+  .mockup-scene::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 50%, rgba(99,102,241,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .mockup-tagline {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800; letter-spacing: -0.02em;
+    color: #fff; margin-bottom: 8px;
+    text-shadow: 0 0 60px rgba(129,140,248,0.4);
+  }
+  .mockup-tagline-sub {
+    font-size: 16px; color: var(--mut); margin-bottom: 64px;
+  }
 
-.app-cta{display:flex;align-items:center;justify-content:space-between}
-.app-url{font-family:'DM Mono',monospace;font-size:12px;color:var(--mut)}
-.app-arrow{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;padding:10px 18px;border-radius:50px;letter-spacing:.3px}
-.app-card.fiktions .app-arrow{background:var(--fik);color:#fff}
-.app-card.reklame .app-arrow{background:var(--rek);color:#fff}
+  /* Telefon-ramme */
+  .phone-wrap {
+    position: relative; display: inline-block;
+    filter: drop-shadow(0 40px 80px rgba(0,0,0,0.8)) drop-shadow(0 0 40px rgba(99,102,241,0.2));
+  }
+  .phone {
+    width: 260px;
+    background: #0a0a14;
+    border-radius: 40px;
+    border: 2px solid #2a2a48;
+    padding: 14px 10px;
+    position: relative;
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.06),
+      0 0 0 1px rgba(0,0,0,0.8);
+  }
+  .phone::before {
+    content: '';
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 28px;
+    background: #0a0a14;
+    border-radius: 0 0 18px 18px;
+    border: 2px solid #2a2a48;
+    border-top: none;
+    z-index: 10;
+  }
+  .phone-screen {
+    background: #0D0D1A;
+    border-radius: 28px;
+    overflow: hidden;
+    min-height: 480px;
+    position: relative;
+  }
 
-.divider{height:1px;background:var(--brd);margin:24px 20px}
+  /* App UI inde i telefonen — DAG-visning */
+  .app-topbar {
+    background: #141428;
+    padding: 36px 12px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #1E1E38;
+  }
+  .app-topbar-title { font-size: 11px; font-weight: 700; color: var(--acc); letter-spacing: 0.08em; }
+  .app-topbar-nav { font-size: 14px; color: var(--mut); }
+  .app-date-strip {
+    background: #141428;
+    padding: 8px 12px;
+    text-align: center;
+    border-bottom: 1px solid #1E1E38;
+  }
+  .app-date-big { font-size: 13px; font-weight: 700; color: var(--txt); }
+  .app-date-day { font-size: 10px; color: var(--mut); }
 
-.info{padding:0 20px;display:flex;flex-direction:column;gap:14px}
-.info-row{display:flex;gap:12px;align-items:flex-start}
-.info-icon{font-size:18px;margin-top:1px;flex-shrink:0;width:28px;text-align:center}
-.info-text{font-size:13px;color:var(--mut);line-height:1.55}
-.info-text strong{color:var(--txt);font-weight:600}
+  .app-prod-name {
+    margin: 10px 12px 4px;
+    font-size: 13px; font-weight: 700;
+    color: var(--acc);
+  }
+  .app-time-row {
+    display: flex; gap: 6px; margin: 0 12px 8px;
+  }
+  .app-time-box {
+    flex: 1; background: #1a1a2e;
+    border: 1px solid #2a2a48; border-radius: 10px;
+    padding: 8px 6px; text-align: center;
+  }
+  .app-time-lbl { font-size: 8px; color: var(--mut); letter-spacing: 0.05em; }
+  .app-time-val { font-size: 18px; font-weight: 700; color: var(--txt); line-height: 1.1; }
 
-.footer{margin-top:36px;padding:0 20px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:var(--mut);line-height:2}
+  .app-res-box {
+    margin: 0 12px 8px;
+    background: linear-gradient(135deg, #141428, #1a1a36);
+    border: 1px solid #2a2a50; border-radius: 12px;
+    padding: 10px 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .app-res-lbl { font-size: 8px; color: var(--mut); }
+  .app-res-val { font-size: 20px; font-weight: 800; color: var(--grn); }
+  .app-res-sub { font-size: 8px; color: var(--mut); }
+
+  .app-badges {
+    display: flex; gap: 4px; margin: 0 12px 8px; flex-wrap: wrap;
+  }
+  .app-badge {
+    font-size: 7px; font-weight: 700; border-radius: 5px; padding: 3px 6px;
+    letter-spacing: 0.04em;
+  }
+  .app-badge-v { background: rgba(52,211,153,0.15); color: var(--grn); }
+  .app-badge-f { background: rgba(129,140,248,0.15); color: var(--acc); }
+  .app-badge-w { background: rgba(251,191,36,0.15); color: var(--yel); }
+
+  .app-btn-row {
+    display: flex; gap: 6px; margin: 0 12px 8px;
+  }
+  .app-btn {
+    flex: 1; padding: 8px 4px; border-radius: 8px;
+    font-size: 8px; font-weight: 700; text-align: center;
+    letter-spacing: 0.04em;
+  }
+  .app-btn-pri { background: linear-gradient(135deg, var(--acc2), var(--acc)); color: #fff; }
+  .app-btn-sec { background: #1a1a2e; border: 1px solid #2a2a48; color: var(--mut); }
+
+  .app-bottom-nav {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: #0a0a1a; border-top: 1px solid #1E1E38;
+    display: flex; padding: 8px 0 16px;
+  }
+  .app-nav-item {
+    flex: 1; text-align: center; font-size: 7px; color: var(--mut);
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  .app-nav-item.active { color: var(--acc); }
+  .app-nav-icon { font-size: 14px; }
+
+  /* Callout-linjer */
+  .callout-scene {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 900px;
+  }
+  .callout-left, .callout-right {
+    position: absolute;
+    display: flex; flex-direction: column; gap: 28px;
+  }
+  .callout-left  { left: 0; align-items: flex-end; }
+  .callout-right { right: 0; align-items: flex-start; }
+
+  .callout {
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0; transform: translateX(0);
+    transition: opacity 0.6s, transform 0.6s;
+  }
+  .callout.visible { opacity: 1; transform: translateX(0) !important; }
+  .callout-left  .callout { flex-direction: row-reverse; transform: translateX(-20px); }
+  .callout-right .callout { flex-direction: row;          transform: translateX(20px); }
+
+  .callout-text { max-width: 180px; }
+  .callout-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+  .callout-desc  { font-size: 11px; color: var(--mut); line-height: 1.4; }
+  .callout-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(129,140,248,0.3);
+  }
+  .callout-dot-acc  { background: var(--acc); box-shadow: 0 0 0 3px rgba(129,140,248,0.3); }
+  .callout-dot-grn  { background: var(--grn); box-shadow: 0 0 0 3px rgba(52,211,153,0.3); }
+  .callout-dot-yel  { background: var(--yel); box-shadow: 0 0 0 3px rgba(251,191,36,0.3); }
+  .callout-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    min-width: 40px; max-width: 80px;
+  }
+
+  /* ══════════════════════════════════════════
+     MOCKUP SEKTION 2 — Ugeoversigt
+  ══════════════════════════════════════════ */
+  .mockup-scene2 {
+    padding: 120px 60px;
+    background: linear-gradient(160deg, #07071a 0%, #050510 60%, #060d18 100%);
+    display: flex; flex-wrap: wrap;
+    align-items: center; justify-content: center;
+    gap: 80px;
+    overflow: hidden;
+    position: relative;
+  }
+  .mockup-scene2::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 50% 70% at 75% 50%, rgba(52,211,153,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .mockup2-text { max-width: 400px; order: 1; }
+  .mockup2-text .sec-label { margin-bottom: 14px; }
+  .mockup2-text h2 { font-size: clamp(32px, 4.5vw, 52px); font-weight: 800; line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 20px; }
+  .mockup2-text p { font-size: 17px; color: var(--mut); line-height: 1.75; margin-bottom: 14px; }
+
+  .phone-hand-wrap {
+    position: relative; order: 2;
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* Glød bag telefonen */
+  .phone-hand-wrap::before {
+    content: '';
+    position: absolute;
+    width: 320px; height: 500px;
+    background: radial-gradient(ellipse at center, rgba(52,211,153,0.18) 0%, rgba(99,102,241,0.1) 40%, transparent 70%);
+    border-radius: 50%;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .phone-tilt {
+    transform: none;
+    filter: drop-shadow(0 32px 64px rgba(0,0,0,0.95)) drop-shadow(0 0 40px rgba(52,211,153,0.12));
+    transition: transform 0.4s ease, filter 0.4s ease;
+  }
+  .phone-tilt:hover {
+    transform: translateY(-10px);
+    filter: drop-shadow(0 48px 80px rgba(0,0,0,0.95)) drop-shadow(0 0 60px rgba(52,211,153,0.2));
+  }
+
+  /* App UI — UGE-visning */
+  .uge-header {
+    background: #141428; padding: 36px 10px 8px;
+    border-bottom: 1px solid #1E1E38;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .uge-header-title { font-size: 11px; font-weight: 700; color: var(--acc); }
+  .uge-header-period { font-size: 9px; color: var(--mut); }
+
+  /* Dag-rækker: grid med 3 kolonner — fast bredde */
+  .uge-day {
+    display: grid;
+    grid-template-columns: 56px auto 70px;
+    align-items: center;
+    padding: 6px 10px;
+    border-bottom: 1px solid rgba(30,30,56,0.6);
+    gap: 4px;
+  }
+  .uge-day:nth-child(even) { background: rgba(20,20,40,0.4); }
+  .uge-day-left { display: flex; flex-direction: column; }
+  .uge-day-name { font-size: 8px; font-weight: 700; color: var(--mut); line-height: 1.2; }
+  .uge-day-prod { font-size: 9px; font-weight: 700; color: var(--txt); line-height: 1.2; }
+  .uge-day-mid { display: flex; justify-content: center; }
+  .uge-day-badge { font-size: 6px; font-weight: 700; background: rgba(52,211,153,0.15); color: var(--grn); border-radius: 4px; padding: 2px 5px; white-space: nowrap; }
+  .uge-day-right { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+  .uge-day-tid { font-size: 8px; color: var(--acc); font-weight: 600; white-space: nowrap; }
+  .uge-day-lon { font-size: 9px; font-weight: 700; color: var(--grn); }
+  .uge-day-fri .uge-day-prod { color: var(--mut); font-weight: 400; }
+
+  .uge-total {
+    margin: 6px 8px;
+    background: linear-gradient(135deg, #141428, #1a1a36);
+    border: 1px solid rgba(129,140,248,0.25); border-radius: 10px;
+    padding: 8px 10px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+  }
+  .uge-tot-item { text-align: center; }
+  .uge-tot-val { font-size: 12px; font-weight: 800; color: var(--acc); }
+  .uge-tot-lbl { font-size: 7px; color: var(--mut); }
+
+  .uge-export {
+    display: flex; gap: 4px; margin: 4px 8px;
+  }
+  .uge-exp-btn {
+    flex: 1; padding: 5px 3px; border-radius: 7px;
+    font-size: 7px; font-weight: 700; text-align: center;
+    background: #1a1a2e; border: 1px solid #2a2a48; color: var(--mut);
+  }
+
+  /* ── SECTION ── */
+  section { padding: 96px 24px; max-width: 1100px; margin: 0 auto; }
+  .sec-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--acc); text-transform: uppercase; margin-bottom: 12px;
+  }
+  .sec-title { font-size: clamp(28px, 4vw, 42px); font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 16px; }
+  .sec-sub { font-size: 17px; color: var(--mut); max-width: 560px; line-height: 1.6; }
+
+  /* ── FEATURES ── */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px; margin-top: 56px;
+  }
+  .feat {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 28px;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .feat::before {
+    content: ''; position: absolute; inset: 0; border-radius: 20px;
+    background: linear-gradient(135deg, rgba(129,140,248,0.04), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .feat:hover { border-color: rgba(129,140,248,0.4); transform: translateY(-3px); }
+  .feat:hover::before { opacity: 1; }
+  .feat-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 16px; }
+  .feat-icon.purple { background: rgba(129,140,248,0.15); }
+  .feat-icon.green  { background: rgba(52,211,153,0.15); }
+  .feat-icon.yellow { background: rgba(251,191,36,0.15); }
+  .feat-icon.red    { background: rgba(248,113,113,0.15); }
+  .feat-icon.blue   { background: rgba(96,165,250,0.15); }
+  .feat-icon.cyan   { background: rgba(34,211,238,0.15); }
+  .feat h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .feat p  { font-size: 14px; color: var(--mut); line-height: 1.6; }
+
+  /* ── HOW ── */
+  .how-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0; margin-top: 56px; counter-reset: steps; }
+  .step { padding: 28px; position: relative; counter-increment: steps; }
+  .step::before {
+    content: counter(steps);
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--acc2), var(--acc));
+    font-size: 16px; font-weight: 800; color: #fff;
+    margin-bottom: 16px;
+  }
+  .step h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .step p  { font-size: 14px; color: var(--mut); line-height: 1.6; }
+
+  /* ── OK TABLE ── */
+  .ok-section { background: var(--card); border-radius: 24px; padding: 48px; margin-top: 56px; }
+  .ok-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; }
+  .ok-item { display: flex; gap: 12px; align-items: flex-start; }
+  .ok-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .ok-item h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .ok-item p  { font-size: 13px; color: var(--mut); line-height: 1.5; }
+
+  /* ── PLATFORMS ── */
+  .platform-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 48px; }
+  .platform { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 32px; text-align: center; }
+  .platform-icon { font-size: 40px; margin-bottom: 16px; }
+  .platform h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .platform p  { font-size: 14px; color: var(--mut); line-height: 1.6; }
+  .platform-tag { display: inline-block; margin-top: 14px; background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.3); color: var(--grn); border-radius: 99px; padding: 4px 12px; font-size: 12px; font-weight: 600; }
+
+  /* ── CTA BOTTOM ── */
+  .cta-bottom { text-align: center; padding: 96px 24px; background: linear-gradient(180deg, transparent, rgba(99,102,241,0.06)); border-top: 1px solid var(--border); }
+  .cta-bottom h2 { font-size: clamp(28px, 5vw, 48px); font-weight: 800; margin-bottom: 16px; }
+  .cta-bottom p  { font-size: 17px; color: var(--mut); margin-bottom: 36px; }
+
+  /* ── FOOTER ── */
+  footer { border-top: 1px solid var(--border); padding: 32px 24px; text-align: center; color: var(--mut); font-size: 13px; }
+  footer a { color: var(--acc); text-decoration: none; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0 24px; }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  @media (max-width: 700px) {
+    nav { padding: 14px 20px; }
+    .ok-grid { grid-template-columns: 1fr; }
+    .ok-section { padding: 28px 20px; }
+    .stat { min-width: 100px; padding: 16px 20px; }
+    .stat-val { font-size: 26px; }
+    .callout-left, .callout-right { display: none; }
+    .mockup2-text { text-align: center; }
+  }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="logo">TIME<em>·</em>APP</div>
-  <div class="badge">FAF 2024–2027</div>
-</div>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">⏱ TIME APP</div>
+  <a href="https://tpixel.github.io/time-app/" class="nav-cta">Åbn appen →</a>
+</nav>
 
+<!-- HERO -->
 <div class="hero">
-  <div class="hero-overtitle">Filmteknikere · Danmark</div>
-  <div class="hero-title">Time &amp; <em>løn</em>beregner</div>
-  <div class="hero-sub">Beregn din løn korrekt efter FAF's overenskomster. Registrér timer, eksportér til PDF og send direkte til produktion.</div>
+
+  <!-- TEKST VENSTRE -->
+  <div class="hero-text">
+    <h1>Gem dine timer.<br><span class="grad">Nemt &amp; hurtigt.</span></h1>
+    <p class="hero-sub">Lønnen bliver automatisk beregnet præcist til overenskomsten. Til filmarbejdere på Fiktionsoverenskomst. Snart reklamefilmoverenskomst.</p>
+    <div class="hero-actions">
+      <a href="https://tpixel.github.io/time-app/" class="btn-primary">⚡ Åbn Time App gratis</a>
+      <a href="#features" class="btn-secondary">Se funktioner ↓</a>
+    </div>
+    <p class="hero-note" style="font-size:15px;">Ingen login · Ingen abonnement · Virker offline</p>
+  </div>
+
+  <!-- HÅND-FOTO HØJRE -->
+  <div class="hero-photo-wrap">
+    <img src="hand_tatoo.jpg" class="hero-hand-img" alt="Filmarbejder med Time App" />
+  </div>
+
+  <!-- hidden original phone markup START (replaced by real photo) -->
+  <div style="display:none">
+    <div class="hero-phone">
+      <div class="hero-phone-screen">
+        <div class="app-topbar">
+          <div class="app-topbar-nav">‹</div>
+          <div class="app-topbar-title">TIME APP</div>
+          <div class="app-topbar-nav">⚙</div>
+        </div>
+        <div class="app-date-strip">
+          <div class="app-date-big">Torsdag 27. marts</div>
+          <div class="app-date-day">Uge 13 · 2026</div>
+        </div>
+        <div class="app-prod-name">🎬 Matador 4</div>
+        <div class="app-time-row">
+          <div class="app-time-box">
+            <div class="app-time-lbl">START</div>
+            <div class="app-time-val">14:30</div>
+          </div>
+          <div style="display:flex;align-items:center;color:#8888AA;font-size:14px;padding:0 2px;">→</div>
+          <div class="app-time-box">
+            <div class="app-time-lbl">SLUT</div>
+            <div class="app-time-val">02:15</div>
+          </div>
+        </div>
+        <div class="app-badges">
+          <div class="app-badge app-badge-v">Varslet OT</div>
+          <div class="app-badge app-badge-f">Forskudt</div>
+          <div class="app-badge app-badge-w">11t 15m</div>
+        </div>
+        <div class="app-res-box">
+          <div>
+            <div class="app-res-lbl">DAGSLØN</div>
+            <div class="app-res-val">2.847 kr.</div>
+            <div class="app-res-sub">inkl. alle tillæg</div>
+          </div>
+          <div style="text-align:right">
+            <div class="app-res-lbl">OVERTID</div>
+            <div style="font-size:16px;font-weight:800;color:var(--yel)">3t 15m</div>
+          </div>
+        </div>
+        <div class="app-btn-row">
+          <div class="app-btn app-btn-pri">GEM DAG</div>
+          <div class="app-btn app-btn-sec">Ryd</div>
+        </div>
+        <div class="app-bottom-nav">
+          <div class="app-nav-item active"><div class="app-nav-icon">📅</div>DAG</div>
+          <div class="app-nav-item"><div class="app-nav-icon">📊</div>UGE</div>
+          <div class="app-nav-item"><div class="app-nav-icon">📆</div>MÅNED</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- end hidden -->
+
 </div>
 
-<div class="apps">
+<!-- STATS STRIP -->
+<div class="stats-strip">
+  <div class="stat"><div class="stat-val">200</div><div class="stat-lbl">Tests bestået</div></div>
+  <div class="stat"><div class="stat-val">100%</div><div class="stat-lbl">Gratis</div></div>
+  <div class="stat"><div class="stat-val">§3–§13</div><div class="stat-lbl">Paragraffer dækket</div></div>
+  <div class="stat"><div class="stat-val">iOS · Android · Mac</div><div class="stat-lbl">Alle platforme</div></div>
+</div>
 
-  <a class="app-card fiktions" href="app.html">
-    <div class="app-tag">Fiktionsoverenskomsten 2025–2027</div>
-    <div class="app-name">Fiktions&shy;film</div>
-    <div class="app-desc">Varslet og uvarslet OT, forskudt tid, weekend, kørsel og 10% enkeltdag. Fuld dag-, uge-, måned- og årsrapportering.</div>
-    <div class="app-features">
-      <span class="feat hi">Varslet OT</span>
-      <span class="feat hi">Uvarslet OT</span>
-      <span class="feat hi">Weekend §8</span>
-      <span class="feat">Kørsel §13</span>
-      <span class="feat">Forskudt tid §7</span>
-      <span class="feat">PDF + Mail</span>
+<!-- ══ MOCKUP 1 — DAG-VISNING MED CALLOUTS ══ -->
+<div class="mockup-scene" id="mockup1">
+  <div class="mockup-tagline reveal">Præcist. Øjeblikkeligt.</div>
+  <div class="mockup-tagline-sub reveal">Løn beregnet i det sekund du taster dine tider</div>
+
+  <div class="callout-scene reveal">
+
+    <!-- Callouts venstre side -->
+    <div class="callout-left">
+      <div class="callout" style="transition-delay:0.1s">
+        <div class="callout-text">
+          <div class="callout-title">Produktionsnavn</div>
+          <div class="callout-desc">Skift lynhurtigt mellem produktioner med egne lønsatser</div>
+        </div>
+        <div class="callout-line"></div>
+        <div class="callout-dot callout-dot-acc"></div>
+      </div>
+      <div class="callout" style="transition-delay:0.2s">
+        <div class="callout-text">
+          <div class="callout-title">Start → Slut</div>
+          <div class="callout-desc">Vælg tider direkte — pause trækkes automatisk fra</div>
+        </div>
+        <div class="callout-line"></div>
+        <div class="callout-dot callout-dot-acc"></div>
+      </div>
+      <div class="callout" style="transition-delay:0.3s">
+        <div class="callout-text">
+          <div class="callout-title">Dagsløn i realtid</div>
+          <div class="callout-desc">Beregnes løbende inkl. alle tillæg og OT-satser</div>
+        </div>
+        <div class="callout-line"></div>
+        <div class="callout-dot callout-dot-grn"></div>
+      </div>
     </div>
-    <div class="app-cta">
-      <span class="app-url">time-app.dk/app.html</span>
-      <span class="app-arrow">Åbn →</span>
+
+    <!-- TELEFON – rigtig screenshot -->
+    <div class="phone-wrap">
+      <img src="mockup_dag.png" alt="Time App dag-view" style="width:260px;height:auto;border-radius:28px;box-shadow:0 30px 70px rgba(0,0,0,0.7);" />
     </div>
+
+    <!-- Callouts højre side -->
+    <div class="callout-right">
+      <div class="callout" style="transition-delay:0.1s">
+        <div class="callout-dot callout-dot-yel"></div>
+        <div class="callout-line"></div>
+        <div class="callout-text">
+          <div class="callout-title">Varslet / Uvarslet</div>
+          <div class="callout-desc">OT-type bestemmer satsen — appen advarer hvis du glemmer det</div>
+        </div>
+      </div>
+      <div class="callout" style="transition-delay:0.2s">
+        <div class="callout-dot callout-dot-acc"></div>
+        <div class="callout-line"></div>
+        <div class="callout-text">
+          <div class="callout-title">Forskudt tid §7</div>
+          <div class="callout-desc">Timer før 06:00 og efter 19:00 giver automatisk +110 kr/t</div>
+        </div>
+      </div>
+      <div class="callout" style="transition-delay:0.3s">
+        <div class="callout-dot callout-dot-grn"></div>
+        <div class="callout-line"></div>
+        <div class="callout-text">
+          <div class="callout-title">GEM DAG</div>
+          <div class="callout-desc">Gemmer alt lokalt på din telefon — ingen internet nødvendig</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- callout-scene -->
+</div><!-- mockup-scene -->
+
+<!-- ══ MOCKUP 2 — UGEOVERSIGT ══ -->
+<div class="mockup-scene2">
+
+  <div class="mockup2-text reveal">
+    <div class="sec-label">Ugeoversigt</div>
+    <h2>Hele ugen.<br>Ét overblik.</h2>
+    <p>Se alle 7 dage med produktionsnavn, tidsinterval og beregnet løn pr. dag. Ugensummering med timer, overtid og samlet løn i bunden.</p>
+    <p>Eksporter direkte til PDF, Numbers/Excel, send til produktionen via mail — eller synkroniser vagterne til din Apple Kalender.</p>
+    <a href="https://tpixel.github.io/time-app/" class="btn-primary" style="margin-top:8px; display:inline-flex">Prøv det selv →</a>
+  </div>
+
+  <div class="phone-hand-wrap reveal">
+    <img src="mockup_uge.png" alt="Time App uge-view" style="width:300px;height:auto;border-radius:28px;box-shadow:0 30px 70px rgba(0,0,0,0.7);transform:rotate(2deg);" />
+    <div style="display:none">
+    <div class="phone phone-tilt" style="width:300px">
+      <div class="phone-screen">
+        <!-- Uge-header -->
+        <div class="uge-header">
+          <div class="uge-header-title">UGE OVERSIGT</div>
+          <div class="uge-header-period">Uge 13 · marts 2026</div>
+        </div>
+        <!-- Dage – rigtige tal fra appen -->
+        <div class="uge-day">
+          <div class="uge-day-left">
+            <div class="uge-day-name">MAN</div>
+            <div class="uge-day-prod">Matador 4</div>
+          </div>
+          <div class="uge-day-mid"><div class="uge-day-badge">Varslet</div></div>
+          <div class="uge-day-right">
+            <div class="uge-day-tid">08:00→20:30</div>
+            <div class="uge-day-lon">4.100 kr.</div>
+          </div>
+        </div>
+        <div class="uge-day">
+          <div class="uge-day-left">
+            <div class="uge-day-name">TIR</div>
+            <div class="uge-day-prod">Matador 4</div>
+          </div>
+          <div class="uge-day-mid"><div class="uge-day-badge">Varslet</div></div>
+          <div class="uge-day-right">
+            <div class="uge-day-tid">07:00→19:00</div>
+            <div class="uge-day-lon">3.889 kr.</div>
+          </div>
+        </div>
+        <div class="uge-day">
+          <div class="uge-day-left">
+            <div class="uge-day-name">ONS</div>
+            <div class="uge-day-prod">Matador 4</div>
+          </div>
+          <div class="uge-day-mid"><div class="uge-day-badge" style="background:rgba(251,191,36,0.15);color:var(--yel)">Uvarslet</div></div>
+          <div class="uge-day-right">
+            <div class="uge-day-tid">10:00→23:00</div>
+            <div class="uge-day-lon">4.668 kr.</div>
+          </div>
+        </div>
+        <div class="uge-day">
+          <div class="uge-day-left">
+            <div class="uge-day-name">TOR</div>
+            <div class="uge-day-prod">Matador 4</div>
+          </div>
+          <div class="uge-day-mid"><div class="uge-day-badge">Varslet</div></div>
+          <div class="uge-day-right">
+            <div class="uge-day-tid">14:30→02:15</div>
+            <div class="uge-day-lon">3.737 kr.</div>
+          </div>
+        </div>
+        <div class="uge-day">
+          <div class="uge-day-left">
+            <div class="uge-day-name">FRE</div>
+            <div class="uge-day-prod">Matador 4</div>
+          </div>
+          <div class="uge-day-mid"><div class="uge-day-badge">Varslet</div></div>
+          <div class="uge-day-right">
+            <div class="uge-day-tid">08:00→18:00</div>
+            <div class="uge-day-lon">2.867 kr.</div>
+          </div>
+        </div>
+        <div class="uge-day uge-day-fri">
+          <div class="uge-day-left">
+            <div class="uge-day-name">LØR</div>
+            <div class="uge-day-prod">— fri —</div>
+          </div>
+          <div class="uge-day-mid"></div>
+          <div class="uge-day-right"><div class="uge-day-lon" style="color:var(--mut)">—</div></div>
+        </div>
+        <div class="uge-day uge-day-fri">
+          <div class="uge-day-left">
+            <div class="uge-day-name">SØN</div>
+            <div class="uge-day-prod">— fri —</div>
+          </div>
+          <div class="uge-day-mid"></div>
+          <div class="uge-day-right"><div class="uge-day-lon" style="color:var(--mut)">—</div></div>
+        </div>
+        <!-- Total – rigtige tal fra appen -->
+        <div class="uge-total">
+          <div class="uge-tot-item"><div class="uge-tot-val">19.261</div><div class="uge-tot-lbl">KR. I ALT</div></div>
+          <div class="uge-tot-item"><div class="uge-tot-val" style="color:var(--yel)">16t 45m</div><div class="uge-tot-lbl">OVERTID</div></div>
+          <div class="uge-tot-item"><div class="uge-tot-val" style="color:var(--grn)">56t 45m</div><div class="uge-tot-lbl">TIMER I ALT</div></div>
+          <div class="uge-tot-item"><div class="uge-tot-val">5</div><div class="uge-tot-lbl">ARBEJDSDAGE</div></div>
+        </div>
+        <!-- Eksport -->
+        <div class="uge-export">
+          <div class="uge-exp-btn">📄 PDF</div>
+          <div class="uge-exp-btn">📊 Excel</div>
+          <div class="uge-exp-btn">📅 Kalender</div>
+          <div class="uge-exp-btn">✉ Mail</div>
+        </div>
+        <!-- Bottom nav -->
+        <div class="app-bottom-nav" style="position:relative">
+          <div class="app-nav-item"><div class="app-nav-icon">📅</div>DAG</div>
+          <div class="app-nav-item active"><div class="app-nav-icon">📊</div>UGE</div>
+          <div class="app-nav-item"><div class="app-nav-icon">📆</div>MÅNED</div>
+        </div>
+      </div>
+    </div>
+    </div><!-- end hidden -->
+  </div>
+
+</div><!-- mockup-scene2 -->
+
+<hr class="divider">
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="reveal">
+    <div class="sec-label">Funktioner</div>
+    <h2 class="sec-title">Alt du har brug for.<br>Intet du ikke har.</h2>
+    <p class="sec-sub">Bygget specifikt til dansk filmproduktion — ikke et generisk tidsregistreringssystem.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feat reveal">
+      <div class="feat-icon purple">🧮</div>
+      <h3>Automatisk lønberegning</h3>
+      <p>Normaltimer, varslet og uvarslet OT (+50%/+75%/+60%/+100%/+135%), weekend-tillæg og forskudt tid — alt beregnet i realtid mens du taster.</p>
+    </div>
+    <div class="feat reveal">
+      <div class="feat-icon yellow">⚠️</div>
+      <h3>OT-advarsel</h3>
+      <p>Glemmer du at vælge Varslet eller Uvarslet OT, pulserer appen med en gul advarsel. Aldrig mere forkert ugeseddel.</p>
+    </div>
+    <div class="feat reveal">
+      <div class="feat-icon green">📅</div>
+      <h3>Uge · Måned · År</h3>
+      <p>Ugeoversigt med daglige tider og løn. Månedsoversigt med totaler. Årsoversigt med filter per produktion.</p>
+    </div>
+    <div class="feat reveal">
+      <div class="feat-icon blue">📤</div>
+      <h3>Eksport til Mail, Numbers, Kalender og PDF</h3>
+      <p>Send ugeseddel direkte til produktionen via mail, eksporter til Excel/Numbers, synkroniser til Kalender, eller udskriv som PDF — med ét tryk.</p>
+    </div>
+    <div class="feat reveal">
+      <div class="feat-icon cyan">📡</div>
+      <h3>Virker offline</h3>
+      <p>Service Worker cacher appen. Registrer dine timer på location uden wifi eller mobilsignal — det hele gemmes lokalt.</p>
+    </div>
+    <div class="feat reveal">
+      <div class="feat-icon red">🎬</div>
+      <h3>Flere produktioner</h3>
+      <p>Skift hurtigt mellem produktioner med hver deres lønsats, personligt tillæg og indstillinger. Perfekt til freelancere.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="reveal">
+    <div class="sec-label">Sådan virker det</div>
+    <h2 class="sec-title">Klar på under 2 minutter</h2>
+  </div>
+  <div class="how-grid">
+    <div class="step reveal">
+      <h3>Åbn appen</h3>
+      <p>Gå til tpixel.github.io/time-app i Safari eller Chrome. Gratis, ingen registrering.</p>
+    </div>
+    <div class="step reveal">
+      <h3>Installer på din telefon</h3>
+      <p>Tilføj til hjemmeskærm — appen får sit eget ikon og kører som en native app.</p>
+    </div>
+    <div class="step reveal">
+      <h3>Opret din produktion</h3>
+      <p>Indtast produktionsnavn, mindsteløn og evt. personligt tillæg under Indstillinger.</p>
+    </div>
+    <div class="step reveal">
+      <h3>Registrer og eksporter</h3>
+      <p>Tast start/slut-tid hver dag. Send ugesedlen til produktionen direkte fra appen.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- OVERENSKOMST -->
+<section id="ok">
+  <div class="reveal">
+    <div class="sec-label">Overenskomst</div>
+    <h2 class="sec-title">FAF Fiktions&shy;overenskomst 2025-2027</h2>
+    <p class="sec-sub">Alle beregninger er testet mod den gældende overenskomst. 200 automatiske tests bekræfter præcisionen.</p>
+  </div>
+  <div class="ok-section reveal">
+    <div class="ok-grid">
+      <div class="ok-item"><div class="ok-icon">📋</div><div><h4>§3.10 — Enkeltdagstillæg</h4><p>10% tillæg for dagsbeskæftigede. Slås til per produktion.</p></div></div>
+      <div class="ok-item"><div class="ok-icon">⏰</div><div><h4>§7 — Forskudt tid</h4><p>+110 kr/t for timer før 06:00 og efter 19:00 på hverdage.</p></div></div>
+      <div class="ok-item"><div class="ok-icon">📅</div><div><h4>§8 — Weekend og helligdage</h4><p>+75% tillæg, minimum 4 timer. Auto-detektion fre 20:00 → man 06:00.</p></div></div>
+      <div class="ok-item"><div class="ok-icon">💼</div><div><h4>§6 — Overarbejde</h4><p>Varslet: +50%/+60%/+135%. Uvarslet: +75%/+100%/+135%. OT fra time 9.</p></div></div>
+      <div class="ok-item"><div class="ok-icon">🍽️</div><div><h4>§12 — Diæt</h4><p>94 kr. for sen frokost — tilføjes med ét tryk.</p></div></div>
+      <div class="ok-item"><div class="ok-icon">💰</div><div><h4>Pension 9,5%</h4><p>Vises automatisk i måneds- og årsoversigtens totaler.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PLATFORMS -->
+<section id="platforms">
+  <div class="reveal">
+    <div class="sec-label">Platforme</div>
+    <h2 class="sec-title">Virker overalt</h2>
+  </div>
+  <div class="platform-cards">
+    <div class="platform reveal">
+      <div class="platform-icon">🍎</div>
+      <h3>iPhone & iPad</h3>
+      <p>Åbn i Safari og tilføj til hjemmeskærm. Virker offline med fuld funktionalitet.</p>
+      <div class="platform-tag">✓ Fuldt understøttet</div>
+    </div>
+    <div class="platform reveal">
+      <div class="platform-icon">🤖</div>
+      <h3>Android</h3>
+      <p>Chrome installerer appen automatisk. Downloads gemmes direkte i Downloads-mappen.</p>
+      <div class="platform-tag">✓ Fuldt understøttet</div>
+    </div>
+    <div class="platform reveal">
+      <div class="platform-icon">💻</div>
+      <h3>Mac & PC</h3>
+      <p>Kør i Chrome som en installeret PWA i eget vindue — uden browser-chrome.</p>
+      <div class="platform-tag">✓ Fuldt understøttet</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BOTTOM -->
+<div class="cta-bottom reveal">
+  <h2>Klar til at prøve?</h2>
+  <p>Gratis · Ingen login · Virker offline · Dansk overenskomst</p>
+  <a href="https://tpixel.github.io/time-app/" class="btn-primary" style="font-size:18px; padding:18px 40px;">
+    ⚡ Åbn Time App nu
   </a>
-
-  <a class="app-card reklame" href="rekl.html">
-    <div class="app-tag">Reklamefilmsoverenskomsten 2024</div>
-    <div class="app-name">Reklame&shy;film</div>
-    <div class="app-desc">Optagelse og forberedelse/afrigning med korrekte OT-satser, nat-gene, weekend-tillæg og transport. Minimum dagsløngaranti.</div>
-    <div class="app-features">
-      <span class="feat hi">Optagelse</span>
-      <span class="feat hi">Forbered/Afrig</span>
-      <span class="feat hi">Transport ×1,75</span>
-      <span class="feat">Nat-gene §5</span>
-      <span class="feat">Weekend §6</span>
-      <span class="feat">PDF + Mail</span>
-    </div>
-    <div class="app-cta">
-      <span class="app-url">time-app.dk/rekl.html</span>
-      <span class="app-arrow">Åbn →</span>
-    </div>
-  </a>
-
 </div>
 
-<div class="divider"></div>
+<!-- FOOTER -->
+<footer>
+  <p>Time App — Bygget til dansk filmproduktion · <a href="https://tpixel.github.io/time-app/">tpixel.github.io/time-app</a></p>
+  <p style="margin-top:8px">FAF Fiktionsoverenskomst 2025-2027 · 200 tests bestået · Version 29</p>
+</footer>
 
-<div class="info">
-  <div class="info-row">
-    <div class="info-icon">📱</div>
-    <div class="info-text"><strong>Fungerer som app</strong> — Tilføj til hjemmeskærm på iPhone: Del-knap → "Føj til hjemmeskærm"</div>
-  </div>
-  <div class="info-row">
-    <div class="info-icon">💾</div>
-    <div class="info-text"><strong>Dine data forbliver på din enhed</strong> — Ingen server, ingen login. Alt gemmes lokalt i browseren.</div>
-  </div>
-  <div class="info-row">
-    <div class="info-icon">📄</div>
-    <div class="info-text"><strong>Eksportér til PDF og mail</strong> — Send ugesedlen direkte til produktionskontoret fra app'en.</div>
-  </div>
-</div>
-
-<div class="footer">
-  time-app.dk · FAF Overenskomster 2024–2027<br>
-  Beregninger baseret på gældende overenskomster<br>
-  Ikke juridisk rådgivning — tjek altid med din tillidsrepræsentant
-</div>
-
+<script>
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // Callouts med delay
+        e.target.querySelectorAll('.callout').forEach(c => c.classList.add('visible'));
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
 </body>
 </html>
