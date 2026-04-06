@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SE Film">
+<meta name="theme-color" content="#0C0C12">
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Time%20App%20%C2%B7%20SE%20Film%22%2C%22short_name%22%3A%22SE%20Film%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230C0C12%22%2C%22theme_color%22%3A%22%230C0C12%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%2527http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%3D%25270%25200%2520100%2520100%2527%253E%253Crect%2520width%3D%2527100%2527%2520height%3D%2527100%2527%2520rx%3D%252722%2527%2520fill%3D%2527%25230C0C12%2527%2F%253E%253Ctext%2520y%3D%252768%2527%2520x%3D%252750%2527%2520text-anchor%3D%2527middle%2527%2520font-size%3D%252752%2527%253E%25F0%259F%258E%25AC%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+<title>Film·TV·Video · Scen & Film 2023–2025</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0C0C12; --surf:#14141E; --card:#1C1C2A; --card2:#222232;
+  --brd:#2E2E42; --txt:#EEEEF5; --mut:#666680;
+  --grn:#34D399; --red:#F87171; --yel:#FBBF24;
+  --acc:#60A5FA; --acc-d:rgba(96,165,250,.15);
+  --pur:#A78BFA; --pur-d:rgba(167,139,250,.1);
+  --r:14px; --rs:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.logo em{color:var(--acc);font-style:normal}
+.logo-flag{font-size:20px;line-height:1}
+.tabs{display:flex;background:var(--surf);border-radius:50px;padding:3px;gap:2px}
+.tab{padding:6px 10px;border-radius:50px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s}
+.tab.on{background:var(--acc);color:#fff}
+.gear-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;line-height:1;padding:0}
+.gear-btn:active{transform:scale(.88)}
+.gear-btn.on{border-color:var(--acc);background:var(--acc-d)}
+.lang-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;line-height:1;padding:0}
+.lang-btn:active{transform:scale(.88)}
+
+.view{display:none;padding:16px 16px 40px}
+.view.on{display:block}
+
+/* DAG */
+.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.dag-nav{display:flex;gap:8px;margin-top:6px}
+.nbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.nbtn:active{transform:scale(.88)}
+.dag-namn{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-2px;line-height:1}
+.dag-dato{font-family:'DM Mono',monospace;font-size:15px;display:inline-block;color:#fff;margin-top:4px}
+.dag-vecka{font-family:'DM Mono',monospace;font-size:15px;color:var(--acc);display:inline-block;margin-left:10px;text-transform:uppercase;letter-spacing:1px}
+.dag-prod-ttl{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;color:var(--txt);background:none;border:none;padding:2px 0 14px;margin:0;cursor:pointer;display:block;width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;transition:opacity .15s}
+.dag-prod-ttl:active{opacity:.6}
+
+/* TID */
+.time-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.tf{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:10px 14px 8px;transition:border-color .2s}
+.tf.focus{border-color:var(--acc)}
+.tf-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:4px}
+.tf-display{font-family:'DM Mono',monospace;font-size:28px;font-weight:500;color:var(--txt);cursor:pointer;letter-spacing:1px}
+.tf-display.tom{color:var(--mut)}
+
+/* RES-BOKS */
+.res-tider-row{display:flex;align-items:flex-end;gap:6px}
+.tf-inline{cursor:pointer;padding:0}
+.tf-inline .tf-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:2px}
+.tf-inline .tf-display{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:var(--txt);letter-spacing:.5px;line-height:1}
+.tf-inline .tf-display.tom{color:var(--mut)}
+.tf-sep{font-size:16px;color:var(--mut);padding-bottom:2px;flex-shrink:0}
+
+.res{background:linear-gradient(135deg,#0A0F1A,#0E1420);border:1.5px solid rgba(96,165,250,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;user-select:none;position:relative;transition:background .25s,border-color .25s}
+.res-top{display:flex;flex-direction:column;gap:6px}
+.res-bottom-row{display:flex;align-items:flex-start;justify-content:space-between}
+.res-t{font-family:'DM Mono',monospace;font-size:32px;font-weight:700;letter-spacing:.5px;line-height:1;white-space:nowrap}
+.res-sub{font-size:11px;color:var(--mut);font-family:'DM Mono',monospace;margin-top:4px}
+.res-pay-amt{font-family:'DM Mono',monospace;font-size:25px;font-weight:500;color:var(--grn);text-align:right;white-space:nowrap}
+.res-pay-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.res-expand{font-size:10px;color:var(--mut);text-align:center;margin-top:6px;letter-spacing:1px;opacity:.6}
+
+/* OT BREAKDOWN */
+.ot-boks{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:12px 14px;margin-bottom:10px;display:none}
+.ot-boks.vis{display:block}
+.ot-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd)}
+.ot-row:last-child{border-bottom:none}
+.ot-lbl{font-size:12px;color:var(--mut)}
+.ot-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500}
+.ot-val.g{color:var(--grn)}.ot-val.y{color:var(--yel)}.ot-val.r{color:var(--red)}.ot-val.p{color:var(--pur)}
+
+/* MODEL */
+.s-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.s-hd{padding:12px 16px;background:var(--card2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut)}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--brd)}
+.s-row:last-child{border-bottom:none}
+.s-lbl{font-size:14px;font-weight:500}
+.s-desc{font-size:11px;color:var(--mut);margin-top:2px}
+.s-inp{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:var(--txt);font-family:'DM Mono',monospace;font-size:14px;outline:none}
+.s-inp:focus{border-color:var(--acc)}
+select.s-inp{-webkit-appearance:none}
+
+.model-seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px 16px 12px}
+.model-opt{padding:10px 8px;border-radius:var(--rs);border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .18s;font-family:'DM Sans',sans-serif;line-height:1.2}
+.model-opt.on{border-color:var(--acc);background:var(--acc-d);color:var(--txt)}
+.model-opt:active{transform:scale(.96)}
+.model-opt-ttl{font-weight:700;font-size:13px}
+.model-opt-sub{font-size:10px;color:var(--mut)}
+.model-opt.on .model-opt-sub{color:var(--acc);opacity:.85}
+
+.sw{width:46px;height:26px;background:var(--brd);border-radius:50px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.sw.on{background:var(--acc)}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.sw.on::after{left:23px}
+
+.sek-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;background:rgba(96,165,250,.15);color:var(--acc);text-transform:uppercase;margin-left:4px}
+
+/* DAGTYPE */
+.slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:7px}
+
+/* NOTE */
+.note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:10px 12px;margin-bottom:10px}
+textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;line-height:1.5}
+textarea::placeholder{color:var(--mut)}
+
+/* GEM-BTN */
+.gem-btn{width:100%;padding:15px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.gem-btn:active{transform:scale(.98);opacity:.9}
+.gem-btn.ok{background:var(--grn)}
+.dag-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.dag-act-btn{padding:12px;border-radius:var(--r);border:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.dag-act-btn:active{transform:scale(.96)}
+.act-send{background:var(--card);border:1.5px solid var(--acc);color:var(--acc)}
+.act-slet{background:var(--card);border:1.5px solid var(--red);color:var(--red)}
+
+/* TID MODAL */
+.tmodal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.tmodal-bg.skjult{display:none}
+.tmodal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:430px;padding:20px 20px 40px}
+.tmodal-ttl{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;text-align:center;margin-bottom:20px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.tmodal-vis{font-family:'DM Mono',monospace;font-size:52px;font-weight:500;text-align:center;letter-spacing:2px;margin-bottom:24px}
+.tmodal-sep{color:var(--mut)}
+.tscroll-row{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.tscroll{flex:1;max-width:150px}
+.tscroll-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);text-align:center;margin-bottom:8px}
+.tscroll-inner{display:flex;flex-direction:column;gap:2px;max-height:200px;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tscroll-inner::-webkit-scrollbar{display:none}
+.tscroll-item{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;text-align:center;padding:12px 0;border-radius:8px;cursor:pointer;color:var(--mut);scroll-snap-align:start;transition:all .15s;flex-shrink:0}
+.tscroll-item.sel{background:var(--acc);color:#fff;font-weight:700}
+.tscroll-item:active{opacity:.7}
+.tmodal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tmodal-btn{padding:15px;border-radius:var(--rs);border:none;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer}
+.tmodal-btn.annul{background:var(--surf);color:var(--mut)}
+.tmodal-btn.ok{background:var(--acc);color:#fff}
+
+/* VECKA */
+.uge-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.uge-ttl{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-1px}
+.uge-yr{font-size:12px;color:var(--mut);margin-top:2px;font-family:'DM Mono',monospace}
+.uge-sum{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:18px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.us-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1}
+.us-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+.dk{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.dk::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.dk.c0::before{background:#60A5FA}.dk.c1::before{background:#34D399}.dk.c2::before{background:#A78BFA}
+.dk.c3::before{background:#FBBF24}.dk.c4::before{background:#F472B6}.dk.c5::before{background:#60A5FA}.dk.c6::before{background:#A78BFA}
+.dk:active{transform:scale(.98)}.dk.tom{opacity:.35}
+.dk-dag{width:42px;text-align:center}
+.dk-namn{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.dk-dato{font-family:'DM Mono',monospace;font-size:11px;color:var(--mut);margin-top:2px}
+.dk-info{flex:1;min-width:0;overflow:hidden}
+.dk-prod-ttl{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;letter-spacing:-.3px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.15}
+.dk-lon{font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--grn);margin-top:3px}
+.dk-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:50px;text-transform:uppercase;letter-spacing:.5px}
+.blor{background:rgba(96,165,250,.2);color:var(--acc)}
+.bson{background:rgba(167,139,250,.2);color:var(--pur)}
+.bob{background:rgba(167,139,250,.2);color:var(--pur)}
+.dk-timer{text-align:right;min-width:72px;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px}
+.dk-tider-stor{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--txt);white-space:nowrap;line-height:1.2}
+.dk-pil{color:var(--mut);margin:0 2px;font-size:10px}
+.dk-timer-h{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--mut)}
+
+/* SEND ROW */
+.send-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.sbtn{flex:1;min-width:calc(50% - 4px);padding:15px;border-radius:var(--r);border:1.5px solid var(--brd);background:var(--card);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center;font-family:'DM Sans',sans-serif}
+.sbtn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.sbtn:active{transform:scale(.97)}
+
+/* MÅNAD */
+.mnd-uge{display:flex;align-items:center;background:var(--card);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;gap:12px;transition:background .15s}
+.mnd-uge:active{background:var(--brd)}
+.mnd-uge-nr{font-family:'DM Mono',monospace;font-size:11px;color:var(--acc);text-transform:uppercase;letter-spacing:1px;min-width:52px}
+.mnd-uge-dato{font-size:12px;color:var(--mut);flex:1}
+.mnd-uge-t{font-size:14px;font-weight:600;min-width:44px;text-align:right}
+.mnd-uge-l{font-size:14px;font-weight:700;color:var(--grn);min-width:80px;text-align:right}
+.mnd-uge-tom{opacity:.4}
+
+/* ÅR */
+.aar-sum{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:8px}
+.aar-sum-blok{background:var(--card);padding:16px 14px}
+.aar-sum-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-1px;line-height:1}
+.aar-sum-lbl{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+#aar-liste{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.aar-mnd{display:flex;flex-direction:column;background:var(--card);border-radius:12px;padding:12px 14px;cursor:pointer;gap:4px;transition:background .15s}
+.aar-mnd:active{background:var(--brd)}
+.aar-mnd-namn{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;line-height:1}
+.aar-mnd-t{font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--mut)}
+.aar-mnd-l{font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--grn)}
+.aar-mnd-tom .aar-mnd-namn{color:var(--mut);font-weight:400}
+.aar-mnd-tom .aar-mnd-l{color:var(--mut);font-size:13px}
+
+/* PROD SWITCHER */
+.prod-sw-bar{position:sticky;top:57px;z-index:99;background:rgba(12,12,18,.96);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:6px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.prod-sw-bar::-webkit-scrollbar{display:none}
+.prod-sw-pill{flex-shrink:0;padding:6px 14px;border-radius:50px;border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1}
+.prod-sw-pill.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.prod-sw-pill:active{opacity:.7}
+
+/* PROD LISTE */
+.prod-liste{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.prod-item{display:flex;align-items:center;gap:10px;background:var(--surf);border:1.5px solid var(--brd);border-radius:var(--rs);padding:12px 14px;cursor:pointer;transition:all .18s}
+.prod-item.aktiv{border-color:var(--acc);background:var(--acc-d)}
+.prod-item-info{flex:1;min-width:0}
+.prod-item-namn{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-item-sub{font-size:11px;color:var(--mut);margin-top:1px}
+.prod-item-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:50px;background:var(--acc);color:#fff;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
+.prod-del{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--red);background:transparent;color:var(--red);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
+.prod-del:active{background:rgba(248,113,113,.12)}
+.ny-prod-btn{width:100%;padding:13px;border-radius:var(--rs);border:1.5px dashed var(--brd);background:transparent;color:var(--mut);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px}
+.ny-prod-btn:active{border-color:var(--acc);color:var(--acc)}
+
+/* BOTTOMBAR */
+.botbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(12,12,18,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--brd);display:flex;padding:10px 16px;padding-bottom:max(10px, env(safe-area-inset-bottom));gap:2px}
+.bb{flex:1;padding:9px 4px;border:none;background:transparent;color:var(--mut);font-size:9px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:var(--rs);transition:all .15s;text-transform:uppercase;letter-spacing:.5px;font-family:'DM Sans',sans-serif}
+.bb .bi{font-size:20px;line-height:1}
+.bb.on{color:var(--acc)}
+.bb:active{transform:scale(.9)}
+
+.toast{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-12px);background:var(--grn);color:#0C0C12;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* PDF PRINT */
+#pdf-frame{display:none}
+#pdf-frame.vis{display:block}
+@media print {
+  @page{size:A4 portrait;margin:18mm 16mm}
+  html,body{background:#fff!important;max-width:none!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important}
+  body>*{display:none!important}
+  #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important;height:auto!important;min-height:0!important}
+}
+.pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;max-width:175mm;margin:0 auto}
+.pdf-h1{font-size:20pt;font-weight:900;letter-spacing:-0.5px;margin-bottom:2px}
+.pdf-h2{font-size:11pt;color:#555;margin-bottom:12px}
+.pdf-meta{display:flex;gap:24px;font-size:9pt;color:#333;padding:8px 0;border-top:2px solid #111;border-bottom:1px solid #ccc;margin-bottom:14px}
+.pdf-meta span{display:flex;flex-direction:column;gap:1px}
+.pdf-meta strong{font-size:10pt;color:#111}
+.pdf-tbl{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:9pt}
+.pdf-tbl th{background:#111;color:#fff;padding:6px 8px;text-align:left;font-size:8pt;text-transform:uppercase;letter-spacing:.5px}
+.pdf-tbl td{padding:6px 8px;border-bottom:1px solid #eee;vertical-align:top}
+.pdf-tbl tr:nth-child(even) td{background:#f9f9f9}
+.pdf-tbl .num{text-align:right;font-family:'Courier New',monospace}
+.pdf-tbl .fri td{color:#999;font-style:italic}
+.pdf-sect{font-size:8pt;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#555;margin:14px 0 6px;border-bottom:1px solid #ddd;padding-bottom:3px}
+.pdf-tillagg{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:9pt}
+.pdf-tillagg td{padding:5px 8px;border-bottom:1px solid #f0f0f0}
+.pdf-tillagg .num{text-align:right;font-family:'Courier New',monospace;min-width:80px}
+.pdf-tillagg tr.total td{border-top:2px solid #111;font-weight:700;font-size:10pt;padding-top:8px}
+.pdf-footer{font-size:7.5pt;color:#888;border-top:1px solid #ccc;padding-top:8px;margin-top:16px;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><span class="logo-flag">🇸🇪</span> FILM<em>·</em>TV<em>·</em>VIDEO</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="lang-btn" id="lang-btn" onclick="toggleLang()" title="Svenska / Dansk">🇸🇪</button>
+    <div class="tabs">
+      <button class="tab on" id="tab-dag" onclick="visView('dag')" data-i18n="nav_dag">Dag</button>
+      <button class="tab" id="tab-vecka" onclick="visView('vecka')" data-i18n="nav_vecka">Vecka</button>
+      <button class="tab" id="tab-mnd" onclick="visView('mnd')" data-i18n="nav_mnd">Månad</button>
+    </div>
+    <span id="backup-icon" style="font-size:16px;cursor:pointer;opacity:0.25" title="Backup" onclick="idbMirrorAll();toast('Backup startat...')">☁️</span>
+    <button class="gear-btn" id="gear-btn" onclick="visView('inst')" title="Inställningar" data-i18n="nav_inst">⚙️</button>
+  </div>
+</div>
+
+<!-- PROD SWITCHER BAR -->
+<div class="prod-sw-bar" id="prod-sw-bar"></div>
+
+<div class="toast" id="toast"></div>
+<div id="pdf-frame"></div>
+
+<!-- TID MODAL -->
+<div class="tmodal-bg skjult" id="tmodal-bg" onclick="lukkModal(event)">
+  <div class="tmodal" onclick="event.stopPropagation()">
+    <div class="tmodal-ttl" id="tmodal-ttl">Välj tid</div>
+    <div class="tmodal-vis">
+      <span id="mv-h">--</span><span class="tmodal-sep">:</span><span id="mv-m">--</span>
+    </div>
+    <div class="tscroll-row">
+      <div class="tscroll">
+        <div class="tscroll-lbl" data-i18n="timmar">Timmar</div>
+        <div class="tscroll-inner" id="ts-timer"></div>
+      </div>
+      <div class="tscroll">
+        <div class="tscroll-lbl" data-i18n="kvart">Kvart</div>
+        <div class="tscroll-inner" id="ts-min"></div>
+      </div>
+    </div>
+    <div class="tmodal-btns">
+      <button class="tmodal-btn annul" onclick="lukkModal(null)" data-i18n="avbryt">Avbryt</button>
+      <button class="tmodal-btn ok" onclick="bekräftaTid()" data-i18n="ok">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAG VIEW -->
+<div class="view on" id="view-dag">
+  <div class="dag-hd">
+    <div>
+      <div class="dag-namn" id="dag-namn"></div>
+      <div class="dag-dato" id="dag-dato"></div>
+      <div class="dag-vecka" id="dag-vecka"></div>
+    </div>
+    <div class="dag-nav">
+      <button class="nbtn" onclick="skiftDag(-1)">‹</button>
+      <button class="nbtn" onclick="skiftDag(1)">›</button>
+    </div>
+  </div>
+
+  <button class="dag-prod-ttl" id="prod-pill" onclick="nästaProduktion()">···</button>
+
+  <!-- ANSTÄLLNINGSFORM -->
+  <div class="s-card">
+    <div class="s-hd" data-i18n="anstallningsform">Anställningsform</div>
+    <div class="model-seg">
+      <button class="model-opt on" id="mseg-dag" onclick="skiftModel('dag')">
+        <span class="model-opt-ttl" data-i18n="dagsanstallning">Dagsanställd</span>
+        <span class="model-opt-sub" data-i18n="dagsanstallning_sub">Dag 1/2/3+ sats</span>
+      </button>
+      <button class="model-opt" id="mseg-man" onclick="skiftModel('man')">
+        <span class="model-opt-ttl" data-i18n="manadsanstallning">Månadsanställd</span>
+        <span class="model-opt-sub" data-i18n="manadsanstallning_sub">OT = 1/94 · 1/82</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- DAGSLÖN -->
+  <div class="s-card" id="dag-sektion">
+    <div class="s-hd" data-i18n="dagslön">Dagslön <span class="sek-badge">SEK</span></div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="dag_i_produktion">Dag i produktion</div><div class="s-desc" data-i18n="dag_i_produktion_sub">Dag 1, 2 eller 3+ (minimum)</div></div>
+      <select class="s-inp" id="s-dagnr" style="width:120px" onchange="skiftDagNr()">
+        <option value="1">Dag 1 — 5 984</option>
+        <option value="2">Dag 2 — 5 502</option>
+        <option value="3">Dag 3+ — 3 645</option>
+        <option value="0">Fri sats</option>
+      </select>
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="dagslön_sek">Dagslön (SEK)</div><div class="s-desc" data-i18n="dagslön_sub">Minimum jfr avtal — kan vara högre</div></div>
+      <input class="s-inp" type="number" id="s-daglon" value="5984" style="width:110px;text-align:right" oninput="beregn()">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="timlön">Timlön</div><div class="s-desc" data-i18n="timlön_sub">= dagslön ÷ 8</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)" id="timlon-vis">748 kr</div>
+    </div>
+  </div>
+
+  <!-- MÅNADSSEKTION -->
+  <div class="s-card" id="man-sektion" style="display:none">
+    <div class="s-hd" data-i18n="manadslon">Månadslön <span class="sek-badge">SEK</span></div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="manadslon_sek">Månadslön (SEK)</div><div class="s-desc" data-i18n="manadslon_sub">Minimum 35 191 kr/mån (2025)</div></div>
+      <input class="s-inp" type="number" id="s-manlon" value="40000" style="width:120px;text-align:right" oninput="beregn()">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="ot_vardagar">OT-sats vardagar 07–21</div><div class="s-desc" data-i18n="ot_vardagar_sub">= månadslön ÷ 94</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--acc)" id="otlon-94">426 kr/t</div>
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="ot_ovrig">OT-sats övriga tider</div><div class="s-desc" data-i18n="ot_ovrig_sub">= månadslön ÷ 82</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:15px;color:var(--pur)" id="otlon-82">488 kr/t</div>
+    </div>
+  </div>
+
+  <!-- TID + RESULTAT -->
+  <div class="res" onclick="togOT()" id="res-boks">
+    <div class="res-top">
+      <div class="res-tider-row">
+        <div class="tf-inline" id="tf-start" onclick="event.stopPropagation();öppnaModal('start')">
+          <div class="tf-lbl" data-i18n="inspelning_start">Inspelning start</div>
+          <div class="tf-display tom" id="disp-start">––:––</div>
+        </div>
+        <div class="tf-sep">→</div>
+        <div class="tf-inline" id="tf-slut" onclick="event.stopPropagation();öppnaModal('slut')">
+          <div class="tf-lbl" data-i18n="inspelning_slut">Inspelning slut</div>
+          <div class="tf-display tom" id="disp-slut">––:––</div>
+        </div>
+      </div>
+      <div class="res-bottom-row">
+        <div class="res-t" id="res-t">– –</div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="res-pay-amt" id="res-pay">0 kr</div>
+          <div class="res-pay-lbl" id="res-pay-lbl" data-i18n="daglön_lbl">Daglön</div>
+        </div>
+      </div>
+    </div>
+    <div class="res-sub" id="res-sub"></div>
+    <div class="res-expand" id="res-expand"></div>
+  </div>
+
+  <!-- OT BREAKDOWN -->
+  <div class="ot-boks" id="ot-boks">
+    <div class="ot-row"><span class="ot-lbl" id="o-normal-lbl" data-i18n="normaltid">Normaltid</span><span class="ot-val g" id="o-normal">–</span></div>
+    <div class="ot-row" id="o-ot1-row" style="display:none"><span class="ot-lbl" id="o-ot1-lbl" data-i18n="ot_vardagar_breakdown">ÖT vardagar 07–21 (÷94)</span><span class="ot-val y" id="o-ot1">–</span></div>
+    <div class="ot-row" id="o-ot2-row" style="display:none"><span class="ot-lbl" id="o-ot2-lbl" data-i18n="ot_ovrig_tid">ÖT övrig tid (÷82)</span><span class="ot-val r" id="o-ot2">–</span></div>
+    <div class="ot-row" id="o-ob-row" style="display:none"><span class="ot-lbl" id="o-ob-lbl" data-i18n="ob_tillagg">OB-tillägg</span><span class="ot-val p" id="o-ob">–</span></div>
+    <div class="ot-row" id="o-pause-row" style="display:none"><span class="ot-lbl" data-i18n="pausavdrag">Pausavdrag</span><span class="ot-val" id="o-pause" style="color:var(--mut)">–</span></div>
+  </div>
+
+  <!-- DAGTYP -->
+  <div class="s-card">
+    <div class="s-hd" data-i18n="dagtype">Dagtyp</div>
+    <div class="model-seg" style="grid-template-columns:1fr 1fr 1fr">
+      <button class="model-opt on" id="mseg-hdag" onclick="skiftDagtype('hdag')">
+        <span class="model-opt-ttl" data-i18n="vardag">Vardag</span>
+        <span class="model-opt-sub">Mån–Fre</span>
+      </button>
+      <button class="model-opt" id="mseg-lordag" onclick="skiftDagtype('lordag')">
+        <span class="model-opt-ttl" data-i18n="lordag">Lördag</span>
+        <span class="model-opt-sub">07–21 +44</span>
+      </button>
+      <button class="model-opt" id="mseg-sondag" onclick="skiftDagtype('sondag')">
+        <span class="model-opt-ttl" data-i18n="sondag">Söndag</span>
+        <span class="model-opt-sub">+148 kr/t</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- NOTE -->
+  <div class="slbl" data-i18n="anteckning">Anteckning</div>
+  <div class="note-wrap">
+    <textarea id="i-note" placeholder="Plats, kommentarer…" rows="2"></textarea>
+  </div>
+
+  <button class="gem-btn" id="gem-btn" onclick="gemDag()" data-i18n="spara_dag">SPARA DAG →</button>
+
+  <div class="dag-actions" id="dag-actions" style="display:none">
+    <button class="dag-act-btn act-send" onclick="doMailDag()" data-i18n="skicka_dag">✉️ Skicka dag</button>
+    <button class="dag-act-btn act-send" onclick="doPDFDag()">🖨 PDF dag</button>
+    <button class="dag-act-btn act-slet" onclick="raderaDag()">🗑 Radera dag</button>
+  </div>
+
+  <!-- AVTALSREGLER -->
+  <div class="s-card" style="margin-top:14px">
+    <div class="s-hd" id="info-hd" onclick="togInfo()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      Avtalsregler <span id="info-ch" style="font-size:12px;opacity:.6">▾ Visa</span>
+    </div>
+    <div id="info-body" style="display:none;padding:14px 16px;font-size:12px;line-height:2;color:var(--mut)">
+      Normaldag: <strong style="color:var(--txt)">8 timmar</strong><br>
+      OT vardagar 07–21: <strong style="color:var(--yel)">månadslön ÷ 94</strong> per timme<br>
+      OT övriga tider: <strong style="color:var(--red)">månadslön ÷ 82</strong> per timme<br>
+      OB lördag 07–21: <strong style="color:var(--pur)">+44 SEK/t</strong><br>
+      OB mån–lör 21–24: <strong style="color:var(--pur)">+71 SEK/t</strong><br>
+      OB mån–lör 00–07 + sön + helg: <strong style="color:var(--pur)">+148 SEK/t</strong><br>
+      Paus 6–9t: <strong style="color:var(--txt)">30 min</strong> · &gt;9t: <strong style="color:var(--txt)">45 min</strong><br>
+      Minsta dagslön dag 1: <strong style="color:var(--txt)">5 984 SEK</strong><br>
+      Minsta månadslön: <strong style="color:var(--txt)">35 191 SEK</strong> (2025: +3,4%)<br>
+      <br>
+      <span style="color:var(--acc);font-size:11px">Scen & Film / Teaterförbundet Sverige — Film·TV·Video 2023–2025</span>
+    </div>
+  </div>
+</div>
+
+<!-- VECKA VIEW -->
+<div class="view" id="view-vecka">
+  <div class="uge-hd">
+    <div>
+      <div class="uge-ttl" id="vecka-ttl">Vecka –</div>
+      <div class="uge-yr" id="vecka-yr"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="nbtn" onclick="skiftVecka(-1)">‹</button>
+      <button class="nbtn" onclick="skiftVecka(1)">›</button>
+    </div>
+  </div>
+  <div class="uge-sum">
+    <div><div class="us-val" id="us-t">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Timmar</div></div>
+    <div><div class="us-val" style="color:var(--grn)" id="us-l">0</div><div class="us-lbl">Kr.</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--red)" id="us-o">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Övertid</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--acc)" id="us-d">0</div><div class="us-lbl">Dagar</div></div>
+  </div>
+  <div id="vecka-liste"></div>
+  <div class="send-row" style="flex-wrap:wrap;gap:6px">
+    <button class="sbtn" style="min-width:calc(50% - 3px)" onclick="doPDF()">🖨 PDF</button>
+    <button class="sbtn pri" style="min-width:calc(50% - 3px)" onclick="doMail()">✉️ Mail</button>
+  </div>
+</div>
+
+<!-- MÅNAD VIEW -->
+<div class="view" id="view-mnd">
+  <div class="uge-hd">
+    <div>
+      <div class="uge-ttl" id="mnd-ttl">—</div>
+      <div class="uge-yr" id="mnd-yr"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <button class="nbtn" onclick="skiftMaaned(-1)">‹</button>
+      <button class="nbtn" onclick="skiftMaaned(1)">›</button>
+    </div>
+  </div>
+  <div class="uge-sum" style="cursor:pointer" onclick="visView('aar')" title="Se årsoversikt">
+    <div><div class="us-val" id="mnd-t">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Timmar</div></div>
+    <div><div class="us-val" style="color:var(--grn)" id="mnd-l">0</div><div class="us-lbl">Kr.</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--red)" id="mnd-o">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Övertid</div></div>
+    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--acc)" id="mnd-d">0</div><div class="us-lbl">Dagar</div></div>
+  </div>
+  <div id="mnd-liste"></div>
+  <div class="send-row" style="flex-wrap:wrap;gap:6px">
+    <button class="sbtn" style="min-width:calc(50% - 3px)" onclick="doPDF_mnd()">🖨 PDF</button>
+    <button class="sbtn pri" style="min-width:calc(50% - 3px)" onclick="doMail_mnd()">✉️ Mail</button>
+  </div>
+</div>
+
+<!-- ÅR VIEW -->
+<div class="view" id="view-aar">
+  <div class="uge-hd">
+    <div>
+      <div class="uge-ttl" id="aar-ttl">2026</div>
+      <div class="uge-yr" id="aar-sub">Årsöversikt</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="nbtn" onclick="skiftAar(-1)">‹</button>
+      <button class="nbtn" onclick="skiftAar(1)">›</button>
+    </div>
+  </div>
+  <div class="aar-sum" id="aar-sum">
+    <div class="aar-sum-blok"><div class="aar-sum-val" id="aar-t">—</div><div class="aar-sum-lbl">Timmar</div></div>
+    <div class="aar-sum-blok"><div class="aar-sum-val" style="color:var(--grn)" id="aar-l">—</div><div class="aar-sum-lbl">Kr.</div></div>
+    <div class="aar-sum-blok"><div class="aar-sum-val" style="color:var(--red)" id="aar-o">—</div><div class="aar-sum-lbl">Övertid</div></div>
+    <div class="aar-sum-blok"><div class="aar-sum-val" style="color:var(--acc)" id="aar-d">—</div><div class="aar-sum-lbl">Dagar</div></div>
+  </div>
+  <div id="aar-liste"></div>
+</div>
+
+<!-- INSTÄLLNINGAR VIEW -->
+<div class="view" id="view-inst">
+  <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px" data-i18n="inställningar">Inställningar</div>
+  <div style="font-size:12px;color:var(--mut);margin-bottom:20px">Scen & Film · Film·TV·Video 2023–2025</div>
+
+  <!-- PRODUKTIONER -->
+  <div class="s-card">
+    <div class="s-hd" onclick="togCard('prod-body','prod-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      <span data-i18n="produktioner">Produktioner</span>
+      <span id="prod-ch" style="font-size:12px;opacity:.6">▾ <span data-i18n="visa">Visa</span></span>
+    </div>
+    <div id="prod-body" style="padding:14px 16px">
+      <div class="prod-liste" id="prod-liste"></div>
+      <button class="ny-prod-btn" onclick="nyProduktion()" data-i18n="ny_produktion">＋ Ny produktion</button>
+    </div>
+  </div>
+
+  <!-- PERSONLIGT -->
+  <div class="s-card">
+    <div class="s-hd" data-i18n="personuppgifter">Personuppgifter</div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="namn">Namn</div></div>
+      <input class="s-inp" type="text" id="s-namn" placeholder="Namn" style="width:140px;text-align:left">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="email_produktion">E-post produktion</div><div class="s-desc">Skicka tidrapport till</div></div>
+      <input class="s-inp" type="email" id="s-email" placeholder="prod@film.se" style="width:160px;text-align:left;font-size:12px">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="aktuell_produktion">Aktuell produktion</div></div>
+      <input class="s-inp" type="text" id="s-prod" placeholder="Filmtitel" style="width:140px;text-align:left">
+    </div>
+  </div>
+
+  <!-- LÖN -->
+  <div class="s-card">
+    <div class="s-hd" data-i18n="standard_dagslön">Standardlön</div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="standard_dagslön">Standarddagslön (SEK)</div><div class="s-desc">Används som default vid nya dagar</div></div>
+      <input class="s-inp" type="number" id="s-std-daglon" value="5984" style="width:120px;text-align:right">
+    </div>
+    <div class="s-row">
+      <div><div class="s-lbl" data-i18n="standard_manadslon">Standard månadslön (SEK)</div><div class="s-desc">Används vid månadsanst.</div></div>
+      <input class="s-inp" type="number" id="s-std-manlon" value="40000" style="width:120px;text-align:right">
+    </div>
+  </div>
+
+  <button class="gem-btn" onclick="sparaInst()" data-i18n="spara_inställningar">SPARA INSTÄLLNINGAR</button>
+
+  <!-- SÄKERHETSKOPIA -->
+  <div class="s-card" style="margin-top:20px">
+    <div class="s-hd" onclick="togCard('sik-body','sik-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      <span data-i18n="säkerhetskopia">Säkerhetskopia</span> <span id="sik-ch" style="font-size:12px;opacity:.6">▾ <span data-i18n="visa">Visa</span></span>
+    </div>
+    <div id="sik-body" style="padding:14px 16px;display:none;flex-direction:column;gap:10px" data-display="flex">
+      <div style="font-size:12px;color:var(--mut);margin-bottom:2px">Exportera all data som JSON. Importera för att återställa.</div>
+      <button class="gem-btn" onclick="exporteraData()" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt)" data-i18n="exportera">⬇ EXPORTERA DATA</button>
+      <label class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-align:center;cursor:pointer" data-i18n="importera">
+        ⬆ IMPORTERA DATA
+        <input type="file" accept=".json" style="display:none" onchange="importeraData(event)">
+      </label>
+    </div>
+  </div>
+
+  <div class="s-card" style="margin-top:8px">
+    <div class="s-hd" data-i18n="om_appen">Om appen</div>
+    <div style="padding:14px 16px">
+      <div style="font-size:11px;color:var(--mut);margin-top:4px">Scen & Film · Film·TV·Video 2023–2025 · Version 1.0</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// SPRÅK & I18N
+// ═══════════════════════════════════════════════════
+const LANG = {
+  sv: {
+    // Navigation
+    nav_dag: 'Dag',
+    nav_vecka: 'Vecka',
+    nav_mnd: 'Månad',
+    nav_inst: 'Inställningar',
+
+    // Day names
+    dag_söndag: 'Söndag',
+    dag_måndag: 'Måndag',
+    dag_tisdag: 'Tisdag',
+    dag_onsdag: 'Onsdag',
+    dag_torsdag: 'Torsdag',
+    dag_fredag: 'Fredag',
+    dag_lördag: 'Lördag',
+    dag_son_short: 'sön',
+    dag_man_short: 'mån',
+    dag_tis_short: 'tis',
+    dag_ons_short: 'ons',
+    dag_tor_short: 'tor',
+    dag_fre_short: 'fre',
+    dag_lor_short: 'lör',
+
+    // Month names
+    mnd_jan: 'jan',
+    mnd_feb: 'feb',
+    mnd_mar: 'mar',
+    mnd_apr: 'apr',
+    mnd_maj: 'maj',
+    mnd_jun: 'jun',
+    mnd_jul: 'jul',
+    mnd_aug: 'aug',
+    mnd_sep: 'sep',
+    mnd_okt: 'okt',
+    mnd_nov: 'nov',
+    mnd_dec: 'dec',
+    mnd_januari: 'Januari',
+    mnd_februari: 'Februari',
+    mnd_mars: 'Mars',
+    mnd_april: 'April',
+    mnd_maj_lang: 'Maj',
+    mnd_juni: 'Juni',
+    mnd_juli: 'Juli',
+    mnd_augusti: 'Augusti',
+    mnd_september: 'September',
+    mnd_oktober: 'Oktober',
+    mnd_november: 'November',
+    mnd_december: 'December',
+
+    // Employment form
+    anstallningsform: 'Anställningsform',
+    dagsanstallning: 'Dagsanställd',
+    dagsanstallning_sub: 'Dag 1/2/3+ sats',
+    manadsanstallning: 'Månadsanställd',
+    manadsanstallning_sub: 'OT = 1/94 · 1/82',
+
+    // Salary sections
+    dagslön: 'Dagslön',
+    manadslon: 'Månadslön',
+    dag_i_produktion: 'Dag i produktion',
+    dag_i_produktion_sub: 'Dag 1, 2 eller 3+ (minimum)',
+    dagslön_sek: 'Dagslön (SEK)',
+    dagslön_sub: 'Minimum jfr avtal — kan vara högre',
+    timlön: 'Timlön',
+    timlön_sub: '= dagslön ÷ 8',
+    manadslon_sek: 'Månadslön (SEK)',
+    manadslon_sub: 'Minimum 35 191 kr/mån (2025)',
+    ot_vardagar: 'OT-sats vardagar 07–21',
+    ot_vardagar_sub: '= månadslön ÷ 94',
+    ot_ovrig: 'OT-sats övriga tider',
+    ot_ovrig_sub: '= månadslön ÷ 82',
+
+    // Time labels
+    inspelning_start: 'Inspelning start',
+    inspelning_slut: 'Inspelning slut',
+    timmar: 'Timmar',
+    kvart: 'Kvart',
+
+    // Results
+    daglön_lbl: 'Daglön',
+    manadslon_lbl: 'Månadslön',
+
+    // OT breakdown
+    ot_vardagar_breakdown: 'ÖT vardagar',
+    ot_ovrig_tid: 'ÖT övrig tid',
+    ob_tillagg: 'OB-tillägg',
+    pausavdrag: 'Pausavdrag',
+
+    // Day type
+    dagtype: 'Dagtype',
+    vardag: 'Vardag',
+    lordag: 'Lördag',
+    sondag: 'Söndag',
+
+    // Note label
+    anteckning: 'Anteckning',
+
+    // Buttons
+    spara_dag: 'SPARA DAG',
+    sparat: 'Sparat',
+    radera_dag: 'Radera dag',
+    skicka_dag: 'Skicka dag',
+    visa: 'Visa',
+    stang: 'Stäng',
+    visa_spec: 'Visa spec',
+    stang_spec: 'Stäng spec',
+    avbryt: 'Avbryt',
+    ok: 'OK',
+
+    // Week/Month/Year
+    vecka: 'Vecka',
+    aar_oversikt: 'Årsöversikt',
+    ingen_registrering: 'Ingen registrering',
+
+    // Settings
+    inställningar: 'Inställningar',
+    produktioner: 'Produktioner',
+    personuppgifter: 'Personuppgifter',
+    namn: 'Namn',
+    email_produktion: 'E-post produktion',
+    aktuell_produktion: 'Aktuell produktion',
+    standard_dagslön: 'Standarddagslön',
+    standard_manadslon: 'Standard månadslön',
+    spara_inställningar: 'Spara inställningar',
+    säkerhetskopia: 'Säkerhetskopia',
+    exportera: 'Exportera',
+    importera: 'Importera',
+    om_appen: 'Om appen',
+    ny_produktion: 'Ny produktion',
+    aktiv: 'Aktiv',
+    radera: 'Radera',
+    valj_start_och_slut_forst: 'Välj start och slut först',
+    spara_dagen_forst: 'Spara dagen först',
+    bara_en_produktion: 'Bara en produktion',
+    minst_en_produktion: 'Minst en produktion krävs',
+    radera_denna_produktion: 'Radera denna produktion?',
+    dag_sparad: 'Dag sparad',
+    dag_raderad: 'Dag raderad',
+
+    // Modal titles
+    valj_tid: 'Välj tid',
+
+    // Toast messages
+    test_banner: 'Alla X tester godkända — beräkningsmotor OK',
+
+    // Avtalsregler section
+    avtalsregler: 'Avtalsregler',
+    normaltid: 'Normaltid',
+    pausfradrag: 'Pausfradrag',
+  },
+  da: {
+    // Navigation
+    nav_dag: 'Dag',
+    nav_vecka: 'Uge',
+    nav_mnd: 'Måned',
+    nav_inst: 'Indstillinger',
+
+    // Day names
+    dag_söndag: 'Søndag',
+    dag_måndag: 'Mandag',
+    dag_tisdag: 'Tirsdag',
+    dag_onsdag: 'Onsdag',
+    dag_torsdag: 'Torsdag',
+    dag_fredag: 'Fredag',
+    dag_lördag: 'Lørdag',
+    dag_son_short: 'søn',
+    dag_man_short: 'man',
+    dag_tis_short: 'tir',
+    dag_ons_short: 'ons',
+    dag_tor_short: 'tor',
+    dag_fre_short: 'fre',
+    dag_lor_short: 'lør',
+
+    // Month names
+    mnd_jan: 'jan',
+    mnd_feb: 'feb',
+    mnd_mar: 'mar',
+    mnd_apr: 'apr',
+    mnd_maj: 'maj',
+    mnd_jun: 'jun',
+    mnd_jul: 'jul',
+    mnd_aug: 'aug',
+    mnd_sep: 'sep',
+    mnd_okt: 'okt',
+    mnd_nov: 'nov',
+    mnd_dec: 'dec',
+    mnd_januar: 'Januar',
+    mnd_februar: 'Februar',
+    mnd_mars: 'Marts',
+    mnd_april: 'April',
+    mnd_maj_lang: 'Maj',
+    mnd_juni: 'Juni',
+    mnd_juli: 'Juli',
+    mnd_augusti: 'August',
+    mnd_september: 'September',
+    mnd_oktober: 'Oktober',
+    mnd_november: 'November',
+    mnd_december: 'December',
+
+    // Employment form
+    anstallningsform: 'Ansættelsesform',
+    dagsanstallning: 'Dagsansat',
+    dagsanstallning_sub: 'Dag 1/2/3+ sats',
+    manadsanstallning: 'Månadsansat',
+    manadsanstallning_sub: 'OT = 1/94 · 1/82',
+
+    // Salary sections
+    dagslön: 'Dagslön',
+    manadslon: 'Månadslön',
+    dag_i_produktion: 'Dag i produktion',
+    dag_i_produktion_sub: 'Dag 1, 2 eller 3+ (minimum)',
+    dagslön_sek: 'Dagslön (SEK)',
+    dagslön_sub: 'Minimum jfr avtal — kan være højere',
+    timlön: 'Timlön',
+    timlön_sub: '= dagslön ÷ 8',
+    manadslon_sek: 'Månadslön (SEK)',
+    manadslon_sub: 'Minimum 35 191 kr/mån (2025)',
+    ot_vardagar: 'OT-sats hverdage 07–21',
+    ot_vardagar_sub: '= månadslön ÷ 94',
+    ot_ovrig: 'OT-sats øvrig tid',
+    ot_ovrig_sub: '= månadslön ÷ 82',
+
+    // Time labels
+    inspelning_start: 'Optagelse start',
+    inspelning_slut: 'Optagelse slut',
+    timmar: 'Timer',
+    kvart: 'Kvart',
+
+    // Results
+    daglön_lbl: 'Daglön',
+    manadslon_lbl: 'Månadslön',
+
+    // OT breakdown
+    ot_vardagar_breakdown: 'ÖT hverdage',
+    ot_ovrig_tid: 'ÖT øvrig tid',
+    ob_tillagg: 'OB-tillägg',
+    pausavdrag: 'Pausfradrag',
+
+    // Day type
+    dagtype: 'Dagtype',
+    vardag: 'Hverdag',
+    lordag: 'Lørdag',
+    sondag: 'Søndag',
+
+    // Note label
+    anteckning: 'Note',
+
+    // Buttons
+    spara_dag: 'GEM DAG',
+    sparat: 'Gemt',
+    radera_dag: 'Slet dag',
+    skicka_dag: 'Send dag',
+    visa: 'Vis',
+    stang: 'Luk',
+    visa_spec: 'Vis spec',
+    stang_spec: 'Luk spec',
+    avbryt: 'Annuller',
+    ok: 'OK',
+
+    // Week/Month/Year
+    vecka: 'Uge',
+    aar_oversikt: 'Årsoversigt',
+    ingen_registrering: 'Ingen registrering',
+
+    // Settings
+    inställningar: 'Indstillinger',
+    produktioner: 'Produktioner',
+    personuppgifter: 'Personligt',
+    namn: 'Navn',
+    email_produktion: 'Email produktion',
+    aktuell_produktion: 'Aktuel produktion',
+    standard_dagslön: 'Standard dagløn',
+    standard_manadslon: 'Standard månedsløn',
+    spara_inställningar: 'Gem indstillinger',
+    säkerhetskopia: 'Sikkerhedskopi',
+    exportera: 'Eksporter',
+    importera: 'Importer',
+    om_appen: 'Om appen',
+    ny_produktion: 'Ny produktion',
+    aktiv: 'Aktiv',
+    radera: 'Slet',
+    valj_start_och_slut_forst: 'Vælg start og slut først',
+    spara_dagen_forst: 'Gem dagen først',
+    bara_en_produktion: 'Kun én produktion',
+    minst_en_produktion: 'Mindst en produktion krævs',
+    radera_denna_produktion: 'Slet denne produktion?',
+    dag_sparad: 'Dag gemt',
+    dag_raderad: 'Dag slettet',
+
+    // Modal titles
+    valj_tid: 'Vælg tid',
+
+    // Toast messages
+    test_banner: 'Alle X tests bestået — beregningsmotor OK',
+
+    // Avtalsregler section
+    avtalsregler: 'Avtalsregler',
+    normaltid: 'Normaltid',
+    pausfradrag: 'Pausfradrag',
+  }
+};
+
+let lang = localStorage.getItem('se-ftv-lang') || 'sv';
+
+function T(key) {
+  return LANG[lang]?.[key] || LANG.sv[key] || key;
+}
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('se-ftv-lang', l);
+  document.documentElement.lang = l;
+  updateI18nElements();
+  updateLangButton();
+  rendDag();
+  rendVecka();
+  rendMaaned();
+  rendAar();
+}
+
+function toggleLang() {
+  setLang(lang === 'sv' ? 'da' : 'sv');
+}
+
+function updateLangButton() {
+  const btn = document.getElementById('lang-btn');
+  if (btn) {
+    btn.textContent = lang === 'sv' ? '🇸🇪' : '🇩🇰';
+  }
+}
+
+function updateI18nElements() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (key && LANG[lang]?.[key]) {
+      el.textContent = LANG[lang][key];
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// KONSTANTER
+// ═══════════════════════════════════════════════════
+
+// Dynamic getters for language-aware day/month names
+const DAGAR_GETTER = () => [
+  T('dag_söndag'), T('dag_måndag'), T('dag_tisdag'), T('dag_onsdag'),
+  T('dag_torsdag'), T('dag_fredag'), T('dag_lördag')
+];
+const DAGAR_S_GETTER = () => [
+  T('dag_son_short'), T('dag_man_short'), T('dag_tis_short'), T('dag_ons_short'),
+  T('dag_tor_short'), T('dag_fre_short'), T('dag_lor_short')
+];
+const MND_GETTER = () => [
+  T('mnd_jan'), T('mnd_feb'), T('mnd_mar'), T('mnd_apr'),
+  T('mnd_maj'), T('mnd_jun'), T('mnd_jul'), T('mnd_aug'),
+  T('mnd_sep'), T('mnd_okt'), T('mnd_nov'), T('mnd_dec')
+];
+const MND_LANG_GETTER = () => [
+  T('mnd_januari'), T('mnd_februari'), T('mnd_mars'), T('mnd_april'),
+  T('mnd_maj_lang'), T('mnd_juni'), T('mnd_juli'), T('mnd_augusti'),
+  T('mnd_september'), T('mnd_oktober'), T('mnd_november'), T('mnd_december')
+];
+
+// Backwards compatibility - use getters
+Object.defineProperty(window, 'DAGAR', { get: DAGAR_GETTER });
+Object.defineProperty(window, 'DAGAR_S', { get: DAGAR_S_GETTER });
+Object.defineProperty(window, 'MND', { get: MND_GETTER });
+Object.defineProperty(window, 'MND_LANG', { get: MND_LANG_GETTER });
+
+const KVARTER = [0, 15, 30, 45];
+
+// Minimumsdagssatser 2023-2025
+const DAGLON_MIN = { 1: 5984, 2: 5502, 3: 3645 };
+
+// OB-satser (obekvämlighetstillägg) SEK/time
+const OB = {
+  lordag_dag:  44,   // lördag 07-21
+  kvall:       71,   // mån-lör 21-24
+  natt:       148,   // mån-lör 00-07
+  sondag:     148,   // söndag + helgdag (hela dygnet)
+};
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let aktivDag    = new Date();
+let veckaOffset = 0;
+let manadOffset = 0;
+let aarOffset   = 0;
+let model       = 'dag';    // 'dag' eller 'man'
+let dagtype     = 'hdag';   // 'hdag', 'lordag', 'sondag'
+let otVis       = false;
+let modalFelt   = null;
+let valgtH = 8, valgtM = 0;
+let tidStart = null;
+let tidSlut  = null;
+
+let cfg = { namn:'', email:'', prod:'', stdDaglon:5984, stdManlon:40000 };
+let produktioner  = [];
+let aktivProdId   = null;
+let visAlleProduktioner = false;
+
+// ═══════════════════════════════════════════════════
+// HJÄLPARE
+// ═══════════════════════════════════════════════════
+function p2(n) { return String(n).padStart(2,'0'); }
+function tidTilH(t) { return t ? t.h + t.m / 60 : null; }
+function hFmt(h) {
+  if (h === null || h === undefined || h === 0) return '0t';
+  const hh = Math.floor(h);
+  const mm = Math.round((h - hh) * 60);
+  return mm > 0 ? `${hh}t ${mm}m` : `${hh}t`;
+}
+function fmtSEK(kr) { return Math.round(kr).toLocaleString('sv-SE') + ' kr'; }
+function tidStreng(t) { return t ? `${p2(t.h)}:${p2(t.m)}` : ''; }
+function tidStrTilObj(s) { if (!s) return null; const [h,m] = s.split(':').map(Number); return {h,m}; }
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// Toast
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('on');
+  setTimeout(() => el.classList.remove('on'), 2500);
+}
+
+// ═══════════════════════════════════════════════════
+// VIEW SWITCH
+// ═══════════════════════════════════════════════════
+function visView(v) {
+  ['dag','vecka','mnd','aar','inst'].forEach(x => {
+    const el = document.getElementById('view-' + x);
+    if (el) el.classList.toggle('on', x === v);
+  });
+  ['dag','vecka','mnd'].forEach(x => {
+    const tab = document.getElementById('tab-' + x);
+    if (tab) tab.classList.toggle('on', x === v);
+  });
+  document.getElementById('gear-btn').classList.toggle('on', v === 'inst');
+  if (v === 'dag') rendDag();
+  if (v === 'vecka') rendVecka();
+  if (v === 'mnd') rendMaaned();
+  if (v === 'aar') rendAar();
+}
+
+// ═══════════════════════════════════════════════════
+// INDEXEDDB BACKUP
+// ═══════════════════════════════════════════════════
+const IDB_NAME = 'timeapp-backup-se';
+const IDB_STORE = 'kv';
+const IDB_VERSION = 1;
+function idbOpen(){return new Promise((r,j)=>{const q=indexedDB.open(IDB_NAME,IDB_VERSION);q.onupgradeneeded=()=>q.result.createObjectStore(IDB_STORE);q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
+function idbPut(k,v){return idbOpen().then(db=>new Promise((r,j)=>{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).put(v,k);tx.oncomplete=()=>{db.close();r()};tx.onerror=()=>{db.close();j(tx.error)}}))}
+function idbGet(k){return idbOpen().then(db=>new Promise((r,j)=>{const tx=db.transaction(IDB_STORE,'readonly');const q=tx.objectStore(IDB_STORE).get(k);q.onsuccess=()=>{db.close();r(q.result)};q.onerror=()=>{db.close();j(q.error)}}))}
+let _idbTimer=null;
+function idbMirrorAll(){clearTimeout(_idbTimer);_idbTimer=setTimeout(()=>{idbOpen().then(db=>{const tx=db.transaction(IDB_STORE,'readwrite');const st=tx.objectStore(IDB_STORE);const snap={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);snap[k]=localStorage.getItem(k)}st.put(snap,'_snapshot');st.put(Date.now(),'_snapshotTime');st.put(Object.keys(snap).length,'_snapshotCount');tx.oncomplete=()=>{db.close();idbUpdateIcon('synced')};tx.onerror=()=>{db.close();idbUpdateIcon('error')}}).catch(()=>idbUpdateIcon('error'))},2000)}
+async function idbRestore(){try{const snap=await idbGet('_snapshot');if(!snap||typeof snap!=='object')return false;const c=Object.keys(snap).length;if(c===0)return false;Object.entries(snap).forEach(([k,v])=>localStorage.setItem(k,v));return c}catch{return false}}
+async function idbCheckRestore(){try{let seKeys=0;for(let i=0;i<localStorage.length;i++){if(localStorage.key(i).startsWith('se-ftv-'))seKeys++}if(seKeys>5){idbUpdateIcon('synced');return}const cnt=await idbGet('_snapshotCount');const t=await idbGet('_snapshotTime');if(!cnt||cnt<=5){idbUpdateIcon('none');return}const d=Math.floor((Date.now()-(t||0))/86400000);const s=d>0?`${d} dagar sedan`:'idag';if(confirm(`⚠️ Din data verkar ha försvunnit!\n\nDet finns en säkerhetskopia med ${cnt} poster (sparad ${s}).\n\nVill du återställa?`)){const r=await idbRestore();if(r){toast(`✓ ${r} poster återställda`);setTimeout(()=>location.reload(),1500)}}idbUpdateIcon('synced')}catch{idbUpdateIcon('error')}}
+function idbUpdateIcon(s){const el=document.getElementById('backup-icon');if(!el)return;if(s==='synced'){el.textContent='☁️';el.style.opacity='0.5'}else if(s==='error'){el.textContent='⚠️';el.style.opacity='1'}else{el.textContent='☁️';el.style.opacity='0.25'}}
+
+// STORAGE
+// ═══════════════════════════════════════════════════
+function nyckel(d) {
+  return `se-ftv-${aktivProdId}-${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+}
+function hentDag(d) {
+  try {
+    const s = JSON.parse(localStorage.getItem(nyckel(d)));
+    if (!s || !s.start) return null;
+    return s;
+  } catch { return null; }
+}
+function gemDagData(d, v) { localStorage.setItem(nyckel(d), JSON.stringify(v)); idbMirrorAll(); }
+
+function hentDagMedProd(d) {
+  if (!visAlleProduktioner) return hentDag(d);
+  const datoStr = `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
+  for (const prod of produktioner) {
+    try {
+      const data = JSON.parse(localStorage.getItem(`se-ftv-${prod.id}-${datoStr}`));
+      if (data?.start) return data;
+    } catch {}
+  }
+  return null;
+}
+
+// ═══════════════════════════════════════════════════
+// PRODUKTIONER
+// ═══════════════════════════════════════════════════
+function hentProduktioner() {
+  try { return JSON.parse(localStorage.getItem('se-ftv-produktioner')) || []; } catch { return []; }
+}
+function gemProduktionerStore() { localStorage.setItem('se-ftv-produktioner', JSON.stringify(produktioner)); idbMirrorAll(); }
+
+function nyProduktion() {
+  const nyt = { id: genId(), namn: cfg.namn || '', email: cfg.email || '', prod: 'Ny produktion', stdDaglon: cfg.stdDaglon || 5984, stdManlon: cfg.stdManlon || 40000 };
+  produktioner.push(nyt);
+  gemProduktionerStore();
+  skiftProduktion(nyt.id);
+}
+
+function skiftProduktion(id) {
+  aktivProdId = id;
+  localStorage.setItem('se-ftv-aktiv-prod', id);
+  const p = produktioner.find(p => p.id === id);
+  if (p) cfg = { ...cfg, ...p };
+  inladdaCfgIForm();
+  rendProdListe();
+  rendProdSwitcher();
+  rendDag();
+}
+
+function sletProduktion(id) {
+  if (produktioner.length <= 1) { toast(T('minst_en_produktion')); return; }
+  if (!confirm(T('radera_denna_produktion'))) return;
+  produktioner = produktioner.filter(p => p.id !== id);
+  gemProduktionerStore();
+  if (aktivProdId === id) skiftProduktion(produktioner[0].id);
+  else rendProdListe();
+}
+
+function rendProdListe() {
+  const liste = document.getElementById('prod-liste');
+  if (!liste) return;
+  liste.innerHTML = '';
+  produktioner.forEach(p => {
+    const erAktiv = p.id === aktivProdId;
+    const div = document.createElement('div');
+    div.className = 'prod-item' + (erAktiv ? ' aktiv' : '');
+    div.innerHTML = `
+      <div class="prod-item-info" onclick="skiftProduktion('${p.id}')">
+        <div class="prod-item-namn">${p.prod || '(ingen titel)'}</div>
+        <div class="prod-item-sub">${(p.stdDaglon||5984).toLocaleString('sv-SE')} kr/dag</div>
+      </div>
+      ${erAktiv ? '<span class="prod-item-badge">Aktiv</span>' : `<button class="prod-del" onclick="event.stopPropagation();sletProduktion('${p.id}')" title="Radera">×</button>`}
+    `;
+    liste.appendChild(div);
+  });
+}
+
+function rendProdSwitcher() {
+  const bar = document.getElementById('prod-sw-bar');
+  if (!bar) return;
+  bar.innerHTML = '';
+  if (produktioner.length <= 1) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  const alle = document.createElement('button');
+  alle.className = 'prod-sw-pill' + (visAlleProduktioner ? ' on' : '');
+  alle.textContent = 'Alla';
+  alle.onclick = () => { visAlleProduktioner = !visAlleProduktioner; rendProdSwitcher(); rendVecka(); rendMaaned(); rendAar(); };
+  bar.appendChild(alle);
+  produktioner.forEach(p => {
+    const pill = document.createElement('button');
+    pill.className = 'prod-sw-pill' + (p.id === aktivProdId && !visAlleProduktioner ? ' on' : '');
+    pill.textContent = p.prod || '(ingen titel)';
+    pill.onclick = () => { visAlleProduktioner = false; skiftProduktion(p.id); rendVecka(); rendMaaned(); rendAar(); };
+    bar.appendChild(pill);
+  });
+}
+
+function inladdaCfgIForm() {
+  document.getElementById('s-namn').value    = cfg.namn  || '';
+  document.getElementById('s-email').value   = cfg.email || '';
+  document.getElementById('s-prod').value    = cfg.prod  || '';
+  document.getElementById('s-std-daglon').value = cfg.stdDaglon || 5984;
+  document.getElementById('s-std-manlon').value = cfg.stdManlon || 40000;
+}
+
+function hentCfg() {
+  produktioner = hentProduktioner();
+  if (produktioner.length === 0) {
+    const forsta = { id: genId(), namn: '', email: '', prod: 'Min första produktion', stdDaglon: 5984, stdManlon: 40000 };
+    produktioner.push(forsta);
+    gemProduktionerStore();
+  }
+  const gemt = localStorage.getItem('se-ftv-aktiv-prod');
+  const p = produktioner.find(p => p.id === gemt) || produktioner[0];
+  aktivProdId = p.id;
+  cfg = { ...cfg, ...p };
+  inladdaCfgIForm();
+  rendProdListe();
+  rendProdSwitcher();
+}
+
+function sparaInst() {
+  cfg.namn      = document.getElementById('s-namn').value.trim();
+  cfg.email     = document.getElementById('s-email').value.trim();
+  cfg.prod      = document.getElementById('s-prod').value.trim();
+  cfg.stdDaglon = parseFloat(document.getElementById('s-std-daglon').value) || 5984;
+  cfg.stdManlon = parseFloat(document.getElementById('s-std-manlon').value) || 40000;
+  const idx = produktioner.findIndex(p => p.id === aktivProdId);
+  if (idx !== -1) produktioner[idx] = { ...cfg, id: aktivProdId };
+  gemProduktionerStore();
+  rendProdListe();
+  rendProdSwitcher();
+  toast(T('sparat') + ' ✓');
+}
+
+// Fold/unfold
+function togCard(bodyId, chId) {
+  const body = document.getElementById(bodyId);
+  const ch   = document.getElementById(chId);
+  if (!body) return;
+  const lukker = body.style.display !== 'none';
+  const showAs = body.dataset.display || 'block';
+  body.style.display = lukker ? 'none' : showAs;
+  if (ch) ch.textContent = lukker ? '▾ Visa' : '▴ Stäng';
+}
+
+function togInfo() {
+  const body = document.getElementById('info-body');
+  const ch = document.getElementById('info-ch');
+  const vis = body.style.display === 'none';
+  body.style.display = vis ? 'block' : 'none';
+  ch.textContent = vis ? '▴ Stäng' : '▾ Visa';
+}
+
+function togOT() {
+  if (!tidStart || !tidSlut) return;
+  otVis = !otVis;
+  document.getElementById('ot-boks').classList.toggle('vis', otVis);
+  document.getElementById('res-expand').textContent =
+    otVis ? '▴ Stäng spec' : '▾ Visa spec';
+}
+
+// ═══════════════════════════════════════════════════
+// MODEL & DAGTYPE
+// ═══════════════════════════════════════════════════
+function skiftModel(m) {
+  model = m;
+  document.getElementById('mseg-dag').classList.toggle('on', m === 'dag');
+  document.getElementById('mseg-man').classList.toggle('on', m === 'man');
+  document.getElementById('dag-sektion').style.display = m === 'dag' ? 'block' : 'none';
+  document.getElementById('man-sektion').style.display = m === 'man' ? 'block' : 'none';
+  beregn();
+}
+function skiftDagtype(dt) {
+  dagtype = dt;
+  ['hdag','lordag','sondag'].forEach(d => {
+    document.getElementById('mseg-'+d)?.classList.toggle('on', d === dt);
+  });
+  beregn();
+}
+function skiftDagNr() {
+  const val = parseInt(document.getElementById('s-dagnr').value);
+  if (val > 0) document.getElementById('s-daglon').value = DAGLON_MIN[val];
+  beregn();
+}
+
+// ═══════════════════════════════════════════════════
+// TID MODAL
+// ═══════════════════════════════════════════════════
+function byggModal() {
+  const hEl = document.getElementById('ts-timer');
+  const mEl = document.getElementById('ts-min');
+  hEl.innerHTML = ''; mEl.innerHTML = '';
+  for (let h = 0; h < 24; h++) {
+    const el = document.createElement('div');
+    el.className = 'tscroll-item' + (h === valgtH ? ' sel' : '');
+    el.textContent = p2(h);
+    el.onclick = () => { valgtH = h; opdaterModal(); };
+    hEl.appendChild(el);
+  }
+  KVARTER.forEach(m => {
+    const el = document.createElement('div');
+    el.className = 'tscroll-item' + (m === valgtM ? ' sel' : '');
+    el.textContent = p2(m);
+    el.onclick = () => { valgtM = m; opdaterModal(); };
+    mEl.appendChild(el);
+  });
+  const selH = hEl.querySelector('.sel');
+  if (selH) selH.scrollIntoView({ block: 'center' });
+}
+function opdaterModal() {
+  document.querySelectorAll('#ts-timer .tscroll-item').forEach((el,i) => el.classList.toggle('sel', i === valgtH));
+  document.querySelectorAll('#ts-min .tscroll-item').forEach((el,i) => el.classList.toggle('sel', KVARTER[i] === valgtM));
+  document.getElementById('mv-h').textContent = p2(valgtH);
+  document.getElementById('mv-m').textContent = p2(valgtM);
+}
+function öppnaModal(felt) {
+  modalFelt = felt;
+  const ekst = felt === 'start' ? tidStart : tidSlut;
+  valgtH = ekst ? ekst.h : (felt === 'start' ? 7 : 17);
+  valgtM = ekst ? ekst.m : 0;
+  document.getElementById('tmodal-ttl').textContent = felt === 'start' ? T('inspelning_start') : T('inspelning_slut');
+  document.getElementById('mv-h').textContent = p2(valgtH);
+  document.getElementById('mv-m').textContent = p2(valgtM);
+  document.getElementById('tmodal-bg').classList.remove('skjult');
+  byggModal();
+}
+function lukkModal(e) {
+  if (e === null || e.target === document.getElementById('tmodal-bg'))
+    document.getElementById('tmodal-bg').classList.add('skjult');
+}
+function bekräftaTid() {
+  if (modalFelt === 'start') tidStart = { h: valgtH, m: valgtM };
+  else tidSlut = { h: valgtH, m: valgtM };
+  opdaterTidDisplay();
+  document.getElementById('tmodal-bg').classList.add('skjult');
+  beregn();
+}
+function opdaterTidDisplay() {
+  const dS = document.getElementById('disp-start');
+  const dE = document.getElementById('disp-slut');
+  if (tidStart) { dS.textContent = `${p2(tidStart.h)}:${p2(tidStart.m)}`; dS.classList.remove('tom'); }
+  else { dS.textContent = '––:––'; dS.classList.add('tom'); }
+  if (tidSlut) { dE.textContent = `${p2(tidSlut.h)}:${p2(tidSlut.m)}`; dE.classList.remove('tom'); }
+  else { dE.textContent = '––:––'; dE.classList.add('tom'); }
+}
+
+// ═══════════════════════════════════════════════════
+// BEREGNING — Scen & Film Film-TV-Video 2023–2025
+// ═══════════════════════════════════════════════════
+function calcOB(start, slut, dt) {
+  const s = tidTilH(start), e = tidTilH(slut);
+  if (s === null || e === null) return 0;
+  const segmenter = e > s ? [[s, e]] : [[s, 24], [0, e]];
+  let obKr = 0;
+  segmenter.forEach(([a, b]) => {
+    if (dt === 'sondag') {
+      obKr += (b - a) * OB.sondag;
+    } else if (dt === 'lordag') {
+      const dag_s = Math.max(a, 7), dag_e = Math.min(b, 21);
+      if (dag_e > dag_s) obKr += (dag_e - dag_s) * OB.lordag_dag;
+      const kv_s = Math.max(a, 21), kv_e = Math.min(b, 24);
+      if (kv_e > kv_s) obKr += (kv_e - kv_s) * OB.kvall;
+      const nat_s = Math.max(a, 0), nat_e = Math.min(b, 7);
+      if (nat_e > nat_s) obKr += (nat_e - nat_s) * OB.natt;
+    } else {
+      const kv_s = Math.max(a, 21), kv_e = Math.min(b, 24);
+      if (kv_e > kv_s) obKr += (kv_e - kv_s) * OB.kvall;
+      const nat_s = Math.max(a, 0), nat_e = Math.min(b, 7);
+      if (nat_e > nat_s) obKr += (nat_e - nat_s) * OB.natt;
+    }
+  });
+  return obKr;
+}
+
+function calcSeFTV(start, slut, md, daglon, manlon, dt) {
+  const s = tidTilH(start), e = tidTilH(slut);
+  if (s === null || e === null) return null;
+  const totalH = e > s ? e - s : e - s + 24;
+
+  // Paus: 30 min vid ≥6t, 45 min vid ≥9t
+  let paus = 0;
+  if (totalH >= 9) paus = 0.75;
+  else if (totalH >= 6) paus = 0.5;
+  const arbH = Math.max(0, totalH - paus);
+
+  let normal = 0, ot1 = 0, ot2 = 0, obKr = 0;
+  let ot1H = 0, ot2H = 0;
+
+  if (md === 'dag') {
+    const ts = daglon / 8;
+    normal = Math.min(arbH, 8) * ts;
+    const otH = Math.max(0, arbH - 8);
+    if (otH > 0) {
+      const otStartH = s + 8 + paus;
+      if (dt === 'hdag') {
+        const otDayEnd = Math.min(otStartH + otH, 21);
+        const otDayStart = Math.max(otStartH, 7);
+        ot1H = Math.max(0, otDayEnd - otDayStart);
+        ot2H = Math.max(0, otH - ot1H);
+      } else {
+        ot2H = otH;
+      }
+      ot1 = ot1H * (ts * 1.5);
+      ot2 = ot2H * (ts * 1.75);
+    }
+  } else {
+    const otSats94 = manlon / 94;
+    const otSats82 = manlon / 82;
+    const tsMan = manlon / 173;
+    normal = Math.min(arbH, 8) * tsMan;
+    const otH = Math.max(0, arbH - 8);
+    if (otH > 0) {
+      const otStartH = s + 8 + paus;
+      if (dt === 'hdag') {
+        const otDayEnd = Math.min(otStartH + otH, 21);
+        ot1H = Math.max(0, otDayEnd - Math.max(otStartH, 7));
+        ot2H = Math.max(0, otH - ot1H);
+        ot1 = ot1H * otSats94;
+        ot2 = ot2H * otSats82;
+      } else {
+        ot2H = otH;
+        ot2 = otH * otSats82;
+      }
+    }
+  }
+
+  obKr = calcOB(start, slut, dt);
+  const total = normal + ot1 + ot2 + obKr;
+
+  return { arbH, totalH, paus, normal, ot1, ot2, obKr, total, ot1H, ot2H };
+}
+
+// ═══════════════════════════════════════════════════
+// BEREGN UI
+// ═══════════════════════════════════════════════════
+function beregn() {
+  const daglon = parseFloat(document.getElementById('s-daglon').value) || 5984;
+  const manlon = parseFloat(document.getElementById('s-manlon').value) || 40000;
+
+  document.getElementById('timlon-vis').textContent = Math.round(daglon / 8).toLocaleString('sv-SE') + ' kr';
+  document.getElementById('otlon-94').textContent = Math.round(manlon / 94).toLocaleString('sv-SE') + ' kr/t';
+  document.getElementById('otlon-82').textContent = Math.round(manlon / 82).toLocaleString('sv-SE') + ' kr/t';
+
+  const exp = document.getElementById('res-expand');
+  if (!tidStart || !tidSlut) {
+    document.getElementById('res-t').textContent = '– –';
+    document.getElementById('res-pay').textContent = '0 kr';
+    document.getElementById('res-sub').textContent = '';
+    document.getElementById('ot-boks').classList.remove('vis');
+    if (exp) exp.textContent = '';
+    otVis = false;
+    return;
+  }
+
+  const r = calcSeFTV(tidStart, tidSlut, model, daglon, manlon, dagtype);
+  if (!r) return;
+
+  document.getElementById('res-t').textContent = hFmt(r.arbH);
+  document.getElementById('res-pay').textContent = fmtSEK(r.total);
+  document.getElementById('res-pay-lbl').textContent = model === 'dag' ? T('daglön_lbl') : T('manadslon_lbl');
+  document.getElementById('res-sub').textContent =
+    model === 'dag'
+      ? `${T('dagslön')} ${daglon.toLocaleString('sv-SE')} · ts ${Math.round(daglon/8)} kr/t`
+      : `${T('manadslon')} ${manlon.toLocaleString('sv-SE')} · OT ÷94/÷82`;
+  if (exp) exp.textContent = otVis ? '▴ ' + T('stang_spec') : '▾ ' + T('visa_spec');
+
+  // Breakdown
+  document.getElementById('o-normal-lbl').textContent = `Normaltid · ${hFmt(Math.min(r.arbH, 8))}`;
+  document.getElementById('o-normal').textContent = fmtSEK(r.normal);
+
+  const ot1Row = document.getElementById('o-ot1-row');
+  const ot2Row = document.getElementById('o-ot2-row');
+  const obRow  = document.getElementById('o-ob-row');
+  const pausRow = document.getElementById('o-pause-row');
+
+  ot1Row.style.display = r.ot1 > 0 ? 'flex' : 'none';
+  ot2Row.style.display = r.ot2 > 0 ? 'flex' : 'none';
+  obRow.style.display  = r.obKr > 0 ? 'flex' : 'none';
+  pausRow.style.display = r.paus > 0 ? 'flex' : 'none';
+
+  if (r.ot1 > 0) {
+    document.getElementById('o-ot1-lbl').textContent = model === 'man'
+      ? `ÖT vardagar 07–21 (÷94) · ${hFmt(r.ot1H)}` : `ÖT vardagar · ${hFmt(r.ot1H)}`;
+    document.getElementById('o-ot1').textContent = fmtSEK(r.ot1);
+  }
+  if (r.ot2 > 0) {
+    document.getElementById('o-ot2-lbl').textContent = model === 'man'
+      ? `ÖT övrig tid (÷82) · ${hFmt(r.ot2H)}` : `ÖT övrig tid · ${hFmt(r.ot2H)}`;
+    document.getElementById('o-ot2').textContent = fmtSEK(r.ot2);
+  }
+  if (r.obKr > 0) document.getElementById('o-ob').textContent = fmtSEK(r.obKr);
+  if (r.paus > 0) document.getElementById('o-pause').textContent = `-${Math.round(r.paus * 60)} min`;
+
+  if (otVis) document.getElementById('ot-boks').classList.add('vis');
+  else document.getElementById('ot-boks').classList.remove('vis');
+}
+
+// ═══════════════════════════════════════════════════
+// GEM DAG
+// ═══════════════════════════════════════════════════
+function gemDag() {
+  if (!tidStart || !tidSlut) { toast(T('valj_start_och_slut_forst')); return; }
+  const daglon = parseFloat(document.getElementById('s-daglon').value) || 5984;
+  const manlon = parseFloat(document.getElementById('s-manlon').value) || 40000;
+  const r = calcSeFTV(tidStart, tidSlut, model, daglon, manlon, dagtype);
+  if (!r) return;
+  const note = document.getElementById('i-note').value;
+
+  gemDagData(aktivDag, {
+    start: tidStreng(tidStart), slut: tidStreng(tidSlut),
+    tidStart, tidSlut, note,
+    model, dagtype, daglon, manlon,
+    h: r.arbH, lon: Math.round(r.total), totalH: r.totalH, paus: r.paus,
+    normal: Math.round(r.normal), ot1: Math.round(r.ot1), ot2: Math.round(r.ot2), obKr: Math.round(r.obKr),
+    ot1H: r.ot1H, ot2H: r.ot2H,
+    prod: cfg.prod || '', prodId: aktivProdId
+  });
+
+  const btn = document.getElementById('gem-btn');
+  btn.textContent = '✓ ' + T('sparat').toUpperCase() + '!'; btn.classList.add('ok');
+  setTimeout(() => { btn.textContent = T('spara_dag') + ' →'; btn.classList.remove('ok'); }, 2000);
+  toast(T('dag_sparad') + ' ✓');
+  document.getElementById('dag-actions').style.display = 'grid';
+}
+
+function raderaDag() {
+  if (!confirm(`Radera ${DAGAR[aktivDag.getDay()]} ${aktivDag.getDate()}/${aktivDag.getMonth()+1}?`)) return;
+  localStorage.removeItem(nyckel(aktivDag));
+  tidStart = null; tidSlut = null;
+  model = 'dag'; dagtype = 'hdag';
+  document.getElementById('i-note').value = '';
+  document.getElementById('dag-actions').style.display = 'none';
+  opdaterTidDisplay();
+  skiftModel('dag'); skiftDagtype('hdag');
+  beregn();
+  toast(T('dag_raderad'));
+}
+
+// ═══════════════════════════════════════════════════
+// DAG NAVIGATION
+// ═══════════════════════════════════════════════════
+function skiftDag(dir) {
+  aktivDag = new Date(aktivDag);
+  aktivDag.setDate(aktivDag.getDate() + dir);
+  rendDag();
+}
+
+function nästaProduktion() {
+  if (produktioner.length <= 1) { toast('Bara en produktion — lägg till fler i ⚙️'); return; }
+  const idx = produktioner.findIndex(p => p.id === aktivProdId);
+  const nasta = produktioner[(idx + 1) % produktioner.length];
+  skiftProduktion(nasta.id);
+  visView('dag');
+  toast(`➜ ${nasta.prod || 'Namnlös'}`);
+}
+
+function rendDag() {
+  const d = aktivDag;
+  document.getElementById('dag-namn').textContent = DAGAR[d.getDay()];
+  document.getElementById('dag-dato').textContent = `${d.getDate()} ${MND[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
+  const v = veckoNr(d);
+  document.getElementById('dag-vecka').textContent = `V${v}`;
+
+  const s = hentDag(d);
+  const ttl = document.getElementById('prod-pill');
+  if (ttl) ttl.textContent = s?.prod || cfg.prod || '—';
+
+  // Ladda sparade värden
+  if (s) {
+    tidStart = s.tidStart || tidStrTilObj(s.start);
+    tidSlut  = s.tidSlut || tidStrTilObj(s.slut);
+    model    = s.model || 'dag';
+    dagtype  = s.dagtype || 'hdag';
+    document.getElementById('i-note').value = s.note || '';
+    document.getElementById('s-daglon').value = s.daglon || cfg.stdDaglon || 5984;
+    document.getElementById('s-manlon').value = s.manlon || cfg.stdManlon || 40000;
+    if (s.model === 'dag') {
+      // Försök matcha dagnr
+      const dl = s.daglon || 5984;
+      const match = Object.entries(DAGLON_MIN).find(([k,v]) => v === dl);
+      if (match) document.getElementById('s-dagnr').value = match[0];
+      else document.getElementById('s-dagnr').value = '0';
+    }
+  } else {
+    tidStart = null; tidSlut = null;
+    model = 'dag'; dagtype = 'hdag';
+    document.getElementById('i-note').value = '';
+    document.getElementById('s-daglon').value = cfg.stdDaglon || 5984;
+    document.getElementById('s-manlon').value = cfg.stdManlon || 40000;
+    document.getElementById('s-dagnr').value = '1';
+  }
+
+  otVis = false;
+  document.getElementById('dag-actions').style.display = s ? 'grid' : 'none';
+  opdaterTidDisplay();
+  skiftModel(model);
+  skiftDagtype(dagtype);
+  beregn();
+}
+
+// ═══════════════════════════════════════════════════
+// VECKA VIEW
+// ═══════════════════════════════════════════════════
+function veckaDatoer(off) {
+  const now = new Date(), dow = now.getDay();
+  const diff = (dow === 0 ? -6 : 1) - dow;
+  const man = new Date(now);
+  man.setDate(now.getDate() + diff + off * 7);
+  return Array.from({ length:7 }, (_, i) => {
+    const d = new Date(man); d.setDate(man.getDate() + i); return d;
+  });
+}
+function veckoNr(d) {
+  const dt = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dn = dt.getUTCDay() || 7;
+  dt.setUTCDate(dt.getUTCDate() + 4 - dn);
+  const ys = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
+  return Math.ceil((((dt - ys) / 86400000) + 1) / 7);
+}
+function skiftVecka(dir) { veckaOffset += dir; rendVecka(); }
+
+function rendVecka() {
+  const dagar = veckaDatoer(veckaOffset);
+  const vn = veckoNr(dagar[0]);
+  document.getElementById('vecka-ttl').textContent = `${T('vecka')} ${vn}`;
+  const m0 = MND[dagar[0].getMonth()], m6 = MND[dagar[6].getMonth()];
+  document.getElementById('vecka-yr').textContent = `${dagar[0].getDate()} ${m0} – ${dagar[6].getDate()} ${m6} ${dagar[0].getFullYear()}`;
+
+  let totH = 0, totL = 0, totOT = 0, totD = 0;
+  const liste = document.getElementById('vecka-liste');
+  liste.innerHTML = '';
+
+  dagar.forEach((d, i) => {
+    const s = hentDagMedProd(d);
+    const div = document.createElement('div');
+    div.className = `dk c${i}` + (!s ? ' tom' : '');
+
+    if (s) {
+      totH += s.h || 0; totL += s.lon || 0; totD++;
+      const otH = Math.max(0, (s.h || 0) - 8);
+      totOT += otH;
+      const badges = [];
+      if (s.dagtype === 'lordag') badges.push(`<span class="badge blor">${T('lordag').substring(0,3)}</span>`);
+      if (s.dagtype === 'sondag') badges.push(`<span class="badge bson">${T('sondag').substring(0,3)}</span>`);
+      if (s.obKr > 0) badges.push('<span class="badge bob">OB</span>');
+
+      div.innerHTML = `
+        <div class="dk-dag"><div class="dk-namn">${DAGAR_S[d.getDay()]}</div><div class="dk-dato">${d.getDate()}/${d.getMonth()+1}</div></div>
+        <div class="dk-info">
+          <div class="dk-prod-ttl">${s.prod || cfg.prod || '—'}</div>
+          <div class="dk-lon">${(s.lon||0).toLocaleString('sv-SE')} kr</div>
+          <div class="dk-badges">${badges.join('')}</div>
+        </div>
+        <div class="dk-timer">
+          <div class="dk-tider-stor">${s.start}<span class="dk-pil">→</span>${s.slut}</div>
+          <div class="dk-timer-h">${hFmt(s.h)}</div>
+        </div>`;
+    } else {
+      div.innerHTML = `
+        <div class="dk-dag"><div class="dk-namn">${DAGAR_S[d.getDay()]}</div><div class="dk-dato">${d.getDate()}/${d.getMonth()+1}</div></div>
+        <div class="dk-info"><div class="dk-prod-ttl" style="color:var(--mut);font-weight:400;font-size:13px">${T('ingen_registrering')}</div></div>
+        <div class="dk-timer"><div class="dk-timer-h">—</div></div>`;
+    }
+    div.onclick = () => { aktivDag = new Date(d); visView('dag'); };
+    liste.appendChild(div);
+  });
+
+  document.getElementById('us-t').innerHTML = totH ? hFmt(totH) : '0<small style="font-size:14px;color:var(--mut)">t</small>';
+  document.getElementById('us-l').textContent = totL ? totL.toLocaleString('sv-SE') : '0';
+  document.getElementById('us-o').innerHTML = totOT ? hFmt(totOT) : '0<small style="font-size:14px;color:var(--mut)">t</small>';
+  document.getElementById('us-d').textContent = totD;
+}
+
+// ═══════════════════════════════════════════════════
+// MÅNAD VIEW
+// ═══════════════════════════════════════════════════
+function skiftMaaned(dir) { manadOffset += dir; rendMaaned(); }
+
+function rendMaaned() {
+  const nu = new Date();
+  const m = nu.getMonth() + manadOffset;
+  const ar = nu.getFullYear() + Math.floor(m / 12);
+  const mIdx = ((m % 12) + 12) % 12;
+
+  document.getElementById('mnd-ttl').textContent = MND_LANG[mIdx];
+  document.getElementById('mnd-yr').textContent = `${ar}`;
+
+  const forstaDag = new Date(ar, mIdx, 1);
+  const sistaDag = new Date(ar, mIdx + 1, 0);
+
+  // Gruppera per vecka
+  const veckor = {};
+  for (let d = new Date(forstaDag); d <= sistaDag; d.setDate(d.getDate()+1)) {
+    const dd = new Date(d);
+    const vn = veckoNr(dd);
+    if (!veckor[vn]) veckor[vn] = { dagar: [], vn };
+    veckor[vn].dagar.push(dd);
+  }
+
+  let totH = 0, totL = 0, totOT = 0, totD = 0;
+  const liste = document.getElementById('mnd-liste');
+  liste.innerHTML = '';
+
+  Object.values(veckor).forEach(v => {
+    let vH = 0, vL = 0;
+    v.dagar.forEach(d => {
+      const s = hentDagMedProd(d);
+      if (!s) return;
+      vH += s.h || 0; vL += s.lon || 0;
+      totH += s.h || 0; totL += s.lon || 0; totD++;
+      totOT += Math.max(0, (s.h || 0) - 8);
+    });
+    const div = document.createElement('div');
+    div.className = 'mnd-uge' + (vH === 0 ? ' mnd-uge-tom' : '');
+    const fd = v.dagar[0], ld = v.dagar[v.dagar.length-1];
+    div.innerHTML = `
+      <div class="mnd-uge-nr">V${v.vn}</div>
+      <div class="mnd-uge-dato">${fd.getDate()}/${fd.getMonth()+1} – ${ld.getDate()}/${ld.getMonth()+1}</div>
+      <div class="mnd-uge-t">${vH ? hFmt(vH) : '—'}</div>
+      <div class="mnd-uge-l">${vL ? vL.toLocaleString('sv-SE') : '—'}</div>`;
+    div.onclick = () => {
+      const now = new Date();
+      const diff = (now.getDay() === 0 ? -6 : 1) - now.getDay();
+      const curMan = new Date(now); curMan.setDate(now.getDate() + diff);
+      const weekDiff = Math.round((fd - curMan) / (7*86400000));
+      veckaOffset = weekDiff;
+      visView('vecka');
+    };
+    liste.appendChild(div);
+  });
+
+  document.getElementById('mnd-t').innerHTML = totH ? hFmt(totH) : '0<small style="font-size:14px;color:var(--mut)">t</small>';
+  document.getElementById('mnd-l').textContent = totL ? totL.toLocaleString('sv-SE') : '0';
+  document.getElementById('mnd-o').innerHTML = totOT ? hFmt(totOT) : '0<small style="font-size:14px;color:var(--mut)">t</small>';
+  document.getElementById('mnd-d').textContent = totD;
+}
+
+// ═══════════════════════════════════════════════════
+// ÅR VIEW
+// ═══════════════════════════════════════════════════
+function skiftAar(dir) { aarOffset += dir; rendAar(); }
+
+function rendAar() {
+  const ar = new Date().getFullYear() + aarOffset;
+  document.getElementById('aar-ttl').textContent = ar;
+
+  const mndData = Array.from({length:12}, () => ({h:0, l:0, ot:0, d:0}));
+  let totH=0,totL=0,totOT=0,totD=0;
+
+  for (let m = 0; m < 12; m++) {
+    const sista = new Date(ar, m+1, 0);
+    for (let dag = 1; dag <= sista.getDate(); dag++) {
+      const d = new Date(ar, m, dag);
+      const s = hentDagMedProd(d);
+      if (!s?.h) continue;
+      const h = s.h, l = s.lon || 0, ot = Math.max(0, h - 8);
+      mndData[m].h += h; mndData[m].l += l; mndData[m].ot += ot; mndData[m].d++;
+      totH += h; totL += l; totOT += ot; totD++;
+    }
+  }
+
+  document.getElementById('aar-t').innerHTML = totH ? hFmt(totH) : '—';
+  document.getElementById('aar-l').textContent = totL ? totL.toLocaleString('sv-SE') : '—';
+  document.getElementById('aar-o').innerHTML = totOT ? hFmt(totOT) : '—';
+  document.getElementById('aar-d').textContent = totD || '—';
+
+  const liste = document.getElementById('aar-liste');
+  liste.innerHTML = '';
+  MND_LANG.forEach((namn, m) => {
+    const md = mndData[m];
+    const el = document.createElement('div');
+    el.className = 'aar-mnd' + (md.d === 0 ? ' aar-mnd-tom' : '');
+    el.innerHTML = `
+      <div class="aar-mnd-namn">${namn}</div>
+      <div class="aar-mnd-l">${md.l ? md.l.toLocaleString('sv-SE') + ' kr' : '—'}</div>
+      <div class="aar-mnd-t">${md.h ? hFmt(md.h) : ''}${md.d ? ` · ${md.d}d` : ''}${md.ot ? ` · <span style="color:var(--red)">${hFmt(md.ot)} ÖT</span>` : ''}</div>`;
+    el.onclick = () => {
+      const nu = new Date();
+      manadOffset = (ar - nu.getFullYear()) * 12 + m - nu.getMonth();
+      visView('mnd');
+    };
+    liste.appendChild(el);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// MAIL & PDF
+// ═══════════════════════════════════════════════════
+function doMailDag() {
+  const d = hentDag(aktivDag);
+  if (!d) { toast(T('spara_dagen_forst')); return; }
+  const dagStr = `${DAGAR[aktivDag.getDay()]} ${aktivDag.getDate()} ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
+  const lines = [
+    `${cfg.prod || 'Tidrapport'} — ${dagStr}`,
+    '',
+    `${d.start} → ${d.slut}  ·  ${hFmt(d.h)}`,
+    `${T('dagtype')}: ${d.dagtype === 'lordag' ? T('lordag') : d.dagtype === 'sondag' ? T('sondag') : T('vardag')}`,
+    `${T('anstallningsform')}: ${d.model === 'man' ? T('manadsanstallning') : T('dagsanstallning')}`,
+    '',
+    `${T('normaltid')}: ${fmtSEK(d.normal)}`,
+    d.ot1 > 0 ? `${T('ot_vardagar_breakdown')}: ${fmtSEK(d.ot1)}` : '',
+    d.ot2 > 0 ? `${T('ot_ovrig_tid')}: ${fmtSEK(d.ot2)}` : '',
+    d.obKr > 0 ? `${T('ob_tillagg')}: ${fmtSEK(d.obKr)}` : '',
+    '',
+    `TOTAL: ${fmtSEK(d.lon)}`,
+    d.note ? `\n${T('anteckning')}: ${d.note}` : '',
+    '',
+    cfg.namn || '',
+    'Film·TV·Video · Scen & Film 2023–2025'
+  ].filter(l => l !== '').join('\n');
+  const subj = encodeURIComponent(`${cfg.prod ? cfg.prod + ' · ' : ''}${dagStr}`);
+  window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${encodeURIComponent(lines)}`;
+}
+
+function doPDFDag() {
+  const d = hentDag(aktivDag);
+  if (!d) { toast(T('spara_dagen_forst')); return; }
+  const dagStr = `${DAGAR[aktivDag.getDay()]} ${aktivDag.getDate()} ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
+  const rader = [];
+  if (d.normal) rader.push(`<tr><td>${T('normaltid')}</td><td class="num">${fmtSEK(d.normal)}</td></tr>`);
+  if (d.ot1 > 0) rader.push(`<tr><td>${T('ot_vardagar_breakdown')} (÷94)</td><td class="num">${fmtSEK(d.ot1)}</td></tr>`);
+  if (d.ot2 > 0) rader.push(`<tr><td>${T('ot_ovrig_tid')} (÷82)</td><td class="num">${fmtSEK(d.ot2)}</td></tr>`);
+  if (d.obKr > 0) rader.push(`<tr><td>${T('ob_tillagg')}</td><td class="num">${fmtSEK(d.obKr)}</td></tr>`);
+  const html = `<div class="pdf-body">
+    <div class="pdf-h1">${d.prod || cfg.prod || 'Tidrapport'} — ${dagStr}</div>
+    <div class="pdf-meta">
+      <span><strong>${cfg.namn||'—'}</strong>${T('namn')}</span>
+      <span><strong>${d.start}–${d.slut}</strong>Arbetstid</span>
+      <span><strong>${hFmt(d.h)}</strong>${T('timmar')}</span>
+      <span><strong>${fmtSEK(d.lon)}</strong>${T('daglön_lbl')}</span>
+    </div>
+    <div class="pdf-sect">Lönspecifikation</div>
+    <table class="pdf-tbl"><thead><tr><th>Post</th><th class="num">Belopp</th></tr></thead><tbody>${rader.join('')}</tbody></table>
+    <table class="pdf-tillagg"><tr class="total"><td>Totalt</td><td class="num">${fmtSEK(d.lon)}</td></tr></table>
+    ${d.note ? `<div class="pdf-sect">${T('anteckning')}</div><div style="font-size:12px;padding:8px 0;color:#555">${d.note}</div>` : ''}
+    <div class="pdf-footer">Time App · SE Film · Scen & Film 2023–2025 · ${new Date().toLocaleDateString(lang === 'sv' ? 'sv-SE' : 'da-DK')}</div>
+  </div>`;
+  const frame = document.getElementById('pdf-frame');
+  frame.innerHTML = html; frame.classList.add('vis');
+  setTimeout(() => { window.print(); frame.classList.remove('vis'); }, 300);
+}
+
+function doMail() {
+  const dagar = veckaDatoer(veckaOffset);
+  const vn = veckoNr(dagar[0]);
+  let lines = [`Vecka ${vn} — Tidrapport\n`];
+  let totH = 0, totL = 0;
+  dagar.forEach(d => {
+    const s = hentDagMedProd(d);
+    if (!s) return;
+    totH += s.h || 0; totL += s.lon || 0;
+    lines.push(`${DAGAR_S[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}: ${s.start}→${s.slut} · ${hFmt(s.h)} · ${fmtSEK(s.lon)}`);
+  });
+  lines.push(`\nTotalt: ${hFmt(totH)} · ${fmtSEK(totL)}`);
+  lines.push(`\n${cfg.namn || ''}\nFilm·TV·Video · Scen & Film 2023–2025`);
+  const subj = encodeURIComponent(`${cfg.prod ? cfg.prod + ' · ' : ''}Vecka ${vn}`);
+  window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${encodeURIComponent(lines.join('\n'))}`;
+}
+
+function doPDF() {
+  const dagar = veckaDatoer(veckaOffset);
+  const vn = veckoNr(dagar[0]);
+  let rader = '', totH = 0, totL = 0;
+  dagar.forEach(d => {
+    const s = hentDagMedProd(d);
+    if (!s) {
+      rader += `<tr class="fri"><td>${DAGAR_S[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</td><td>—</td><td>—</td><td>—</td><td class="num">—</td></tr>`;
+      return;
+    }
+    totH += s.h || 0; totL += s.lon || 0;
+    rader += `<tr><td>${DAGAR_S[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</td><td>${s.start}</td><td>${s.slut}</td><td>${hFmt(s.h)}</td><td class="num">${fmtSEK(s.lon)}</td></tr>`;
+  });
+  const html = `<div class="pdf-body">
+    <div class="pdf-h1">${cfg.prod || 'Tidrapport'} — Vecka ${vn}</div>
+    <div class="pdf-meta">
+      <span><strong>${cfg.namn||'—'}</strong>Namn</span>
+      <span><strong>${hFmt(totH)}</strong>Timmar</span>
+      <span><strong>${fmtSEK(totL)}</strong>Total</span>
+    </div>
+    <table class="pdf-tbl"><thead><tr><th>Dag</th><th>Start</th><th>Slut</th><th>Timmar</th><th class="num">Lön</th></tr></thead><tbody>${rader}</tbody></table>
+    <table class="pdf-tillagg"><tr class="total"><td>Totalt vecka ${vn}</td><td class="num">${fmtSEK(totL)}</td></tr></table>
+    <div class="pdf-footer">Time App · SE Film · Scen & Film 2023–2025 · ${new Date().toLocaleDateString('sv-SE')}</div>
+  </div>`;
+  const frame = document.getElementById('pdf-frame');
+  frame.innerHTML = html; frame.classList.add('vis');
+  setTimeout(() => { window.print(); frame.classList.remove('vis'); }, 300);
+}
+
+function doMail_mnd() {
+  const nu = new Date();
+  const m = nu.getMonth() + manadOffset;
+  const ar = nu.getFullYear() + Math.floor(m / 12);
+  const mIdx = ((m % 12) + 12) % 12;
+  const subj = encodeURIComponent(`${cfg.prod ? cfg.prod + ' · ' : ''}${MND_LANG[mIdx]} ${ar}`);
+  let lines = [`${MND_LANG[mIdx]} ${ar} — Tidrapport\n`];
+  let totH = 0, totL = 0;
+  const sista = new Date(ar, mIdx + 1, 0);
+  for (let dag = 1; dag <= sista.getDate(); dag++) {
+    const d = new Date(ar, mIdx, dag);
+    const s = hentDagMedProd(d);
+    if (!s) continue;
+    totH += s.h || 0; totL += s.lon || 0;
+    lines.push(`${DAGAR_S[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}: ${s.start}→${s.slut} · ${hFmt(s.h)} · ${fmtSEK(s.lon)}`);
+  }
+  lines.push(`\nTotalt: ${hFmt(totH)} · ${fmtSEK(totL)}`);
+  lines.push(`\n${cfg.namn || ''}\nFilm·TV·Video · Scen & Film 2023–2025`);
+  window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${encodeURIComponent(lines.join('\n'))}`;
+}
+
+function doPDF_mnd() {
+  const nu = new Date();
+  const m = nu.getMonth() + manadOffset;
+  const ar = nu.getFullYear() + Math.floor(m / 12);
+  const mIdx = ((m % 12) + 12) % 12;
+  let rader = '', totH = 0, totL = 0;
+  const sista = new Date(ar, mIdx + 1, 0);
+  for (let dag = 1; dag <= sista.getDate(); dag++) {
+    const d = new Date(ar, mIdx, dag);
+    const s = hentDagMedProd(d);
+    if (!s) continue;
+    totH += s.h || 0; totL += s.lon || 0;
+    rader += `<tr><td>${DAGAR_S[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</td><td>${s.start}</td><td>${s.slut}</td><td>${hFmt(s.h)}</td><td class="num">${fmtSEK(s.lon)}</td></tr>`;
+  }
+  const html = `<div class="pdf-body">
+    <div class="pdf-h1">${cfg.prod || 'Tidrapport'} — ${MND_LANG[mIdx]} ${ar}</div>
+    <div class="pdf-meta">
+      <span><strong>${cfg.namn||'—'}</strong>Namn</span>
+      <span><strong>${hFmt(totH)}</strong>Timmar</span>
+      <span><strong>${fmtSEK(totL)}</strong>Total</span>
+    </div>
+    <table class="pdf-tbl"><thead><tr><th>Dag</th><th>Start</th><th>Slut</th><th>Timmar</th><th class="num">Lön</th></tr></thead><tbody>${rader}</tbody></table>
+    <table class="pdf-tillagg"><tr class="total"><td>Totalt ${MND_LANG[mIdx]}</td><td class="num">${fmtSEK(totL)}</td></tr></table>
+    <div class="pdf-footer">Time App · SE Film · Scen & Film 2023–2025 · ${new Date().toLocaleDateString('sv-SE')}</div>
+  </div>`;
+  const frame = document.getElementById('pdf-frame');
+  frame.innerHTML = html; frame.classList.add('vis');
+  setTimeout(() => { window.print(); frame.classList.remove('vis'); }, 300);
+}
+
+// ═══════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════
+function exporteraData() {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.startsWith('se-ftv-')) data[k] = localStorage.getItem(k);
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `se-ftv-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('Exporterat ✓');
+}
+
+function importeraData(evt) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      Object.entries(data).forEach(([k, v]) => localStorage.setItem(k, v));
+      toast('Importerat ✓ — laddar om');
+      setTimeout(() => location.reload(), 1000);
+    } catch { toast('Fel vid import'); }
+  };
+  reader.readAsText(file);
+}
+
+// ═══════════════════════════════════════════════════
+// AUTOMATISK TEST — 200+ scenarier
+// ═══════════════════════════════════════════════════
+function körTests() {
+  let ok = 0, fel = 0, warns = [];
+  function assert(bet, msg) { if (bet) ok++; else { fel++; warns.push(msg); } }
+  const tid = (h, m) => ({ h, m });
+
+  // ── GRUNDLÄGGANDE DAGSANSTÄLLD ──
+  // S1–S4: Normal 8t dag
+  let r = calcSeFTV(tid(7,0), tid(15,30), 'dag', 5984, 40000, 'hdag');
+  assert(r !== null, 'S1: resultat inte null');
+  assert(Math.abs(r.arbH - 8) < 0.01, `S2: 8t normaldag, fick ${r.arbH}`);
+  assert(Math.abs(r.normal - 5984) < 10, `S3: total ≈ dagslön vid 8t, fick ${r.normal}`);
+  assert(r.ot1 === 0 && r.ot2 === 0, `S4: ingen OT vid 8t`);
+
+  // S5: Dag 2 minimum
+  r = calcSeFTV(tid(7,0), tid(15,30), 'dag', 5502, 40000, 'hdag');
+  assert(Math.abs(r.normal - 5502) < 10, `S5: dag 2 dagslön ${r.normal}`);
+
+  // S6: Dag 3+
+  r = calcSeFTV(tid(7,0), tid(15,30), 'dag', 3645, 40000, 'hdag');
+  assert(Math.abs(r.normal - 3645) < 10, `S6: dag 3 dagslön ${r.normal}`);
+
+  // S7–S9: OT vid >8t
+  r = calcSeFTV(tid(7,0), tid(17,30), 'dag', 5984, 40000, 'hdag');
+  assert(r.arbH > 9, `S7: >9t arbete`);
+  assert(r.ot1 > 0 || r.ot2 > 0, `S8: OT vid >8t`);
+  assert(r.total > 5984, `S9: total > dagslön vid OT`);
+
+  // ── MÅNADSANSTÄLLD ──
+  // S10: Normal 8t
+  r = calcSeFTV(tid(7,0), tid(15,30), 'man', 5984, 40000, 'hdag');
+  const normExp = 8 * (40000/173);
+  assert(Math.abs(r.normal - normExp) < 10, `S10: månadsanst normal ${r.normal.toFixed(0)} exp ${normExp.toFixed(0)}`);
+
+  // S11–S12: OT
+  r = calcSeFTV(tid(7,0), tid(20,0), 'man', 5984, 40000, 'hdag');
+  assert(r.ot1 > 0 || r.ot2 > 0, `S11: OT vid 12t dag`);
+  assert(r.total > normExp, `S12: total > normaldag vid OT`);
+
+  // S13: OT ÷94
+  r = calcSeFTV(tid(7,0), tid(18,0), 'man', 5984, 40000, 'hdag');
+  const otSats94 = 40000 / 94;
+  if (r.ot1 > 0) {
+    assert(Math.abs(r.ot1 - r.ot1H * otSats94) < 5, `S13: OT ÷94 riktig`);
+  } else ok++;
+
+  // ── OB-TILLÄGG ──
+  // S14–S15: Lördag
+  r = calcSeFTV(tid(8,0), tid(17,0), 'dag', 5984, 40000, 'lordag');
+  assert(r.obKr > 0, `S14: OB lördag > 0`);
+  assert(r.obKr > 0 && r.obKr < 1000, `S15: OB lördag rimlig ${r.obKr.toFixed(0)}`);
+
+  // S16–S17: Söndag
+  r = calcSeFTV(tid(8,0), tid(16,30), 'dag', 5984, 40000, 'sondag');
+  assert(r.obKr > 0, `S16: OB söndag > 0`);
+  const obSon = r.totalH * OB.sondag;
+  assert(Math.abs(r.obKr - obSon) < 1, `S17: OB söndag = ${obSon.toFixed(0)}, fick ${r.obKr.toFixed(0)}`);
+
+  // S18: OB vardag kväll
+  r = calcSeFTV(tid(16,0), tid(24,0), 'dag', 5984, 40000, 'hdag');
+  assert(r.obKr > 0, `S18: OB kväll vardag`);
+
+  // S19: OB vardag natt
+  r = calcSeFTV(tid(0,0), tid(7,0), 'dag', 5984, 40000, 'hdag');
+  const obNatExp = 7 * OB.natt;
+  assert(Math.abs(r.obKr - obNatExp) < 1, `S19: OB natt ${obNatExp} fick ${r.obKr.toFixed(0)}`);
+
+  // S20: Minimum dagssatser
+  Object.entries(DAGLON_MIN).forEach(([dagnr, minLon]) => {
+    const res = calcSeFTV(tid(7,0), tid(15,30), 'dag', minLon, 40000, 'hdag');
+    assert(Math.abs(res.normal - minLon) < 15, `S20.${dagnr}: min dagslön dag ${dagnr}`);
+  });
+
+  // S21–S23: Total >= normal
+  [[tid(6,0),tid(14,30),5984,40000,'hdag'],
+   [tid(8,0),tid(20,0),5984,40000,'hdag'],
+   [tid(22,0),tid(7,0),5984,40000,'hdag'],
+   [tid(7,0),tid(15,30),3645,40000,'lordag'],
+   [tid(7,0),tid(15,30),5502,40000,'sondag']
+  ].forEach(([s,e,dl,ml,dt], i) => {
+    const res = calcSeFTV(s, e, 'dag', dl, ml, dt);
+    assert(res !== null, `S21.${i}: inte null`);
+    assert(res.total >= res.normal, `S22.${i}: total >= normal`);
+    assert(res.normal > 0, `S23.${i}: normal > 0`);
+  });
+
+  // S24: Månadsanst OT kväll
+  r = calcSeFTV(tid(14,0), tid(24,0), 'man', 5984, 40000, 'hdag');
+  assert(r.ot2 > 0 || r.ot1 > 0, `S24: OT kväll`);
+
+  // ── PAUS ──
+  // S25: Under 6t → ingen paus
+  r = calcSeFTV(tid(9,0), tid(13,30), 'dag', 5984, 40000, 'hdag');
+  assert(Math.abs(r.paus - 0) < 0.01, `S25: <6t → ingen paus`);
+  // S26: 6–9t → 30min
+  r = calcSeFTV(tid(9,0), tid(15,30), 'dag', 5984, 40000, 'hdag');
+  assert(Math.abs(r.paus - 0.5) < 0.01, `S26: 6-9t → 30min`);
+  // S27: >9t → 45min
+  r = calcSeFTV(tid(7,0), tid(17,0), 'dag', 5984, 40000, 'hdag');
+  assert(Math.abs(r.paus - 0.75) < 0.01, `S27: >9t → 45min`);
+
+  // ── MIDNATT ──
+  // S28–S30: Midnatsövergång
+  r = calcSeFTV(tid(20,0), tid(4,0), 'dag', 5984, 40000, 'hdag');
+  assert(r !== null, `S28: midnatt inte null`);
+  assert(r.arbH > 7, `S29: midnatt arbetstid ${r.arbH}`);
+  assert(r.obKr > 700, `S30: midnatt OB > 700, fick ${r.obKr.toFixed(0)}`);
+
+  // S31–S32: Lång dag 16t
+  r = calcSeFTV(tid(6,0), tid(22,0), 'dag', 6000, 40000, 'hdag');
+  assert(r.ot1 > 0 || r.ot2 > 0, `S31: OT vid 16t`);
+  assert(r.total > 6000, `S32: total > dagslön vid 16t`);
+
+  // S33–S35: Olika månadslöner
+  [30000, 40000, 60000, 80000].forEach((ml, i) => {
+    const res = calcSeFTV(tid(7,0), tid(20,0), 'man', 5984, ml, 'hdag');
+    assert(res !== null, `S33.${i}: månadsanst ${ml}`);
+    assert(res.total > 0, `S34.${i}: total > 0`);
+    const res2 = calcSeFTV(tid(7,0), tid(20,0), 'man', 5984, ml * 1.5, 'hdag');
+    if (res.ot1 > 0) assert(res2.ot1 >= res.ot1 * 1.4, `S35.${i}: högre lön → högre OT`);
+    else ok++;
+  });
+
+  // S36: total = sum av delar
+  [[tid(7,0),tid(20,0),'dag',5984,40000,'hdag'],
+   [tid(8,0),tid(22,0),'man',5984,45000,'lordag'],
+   [tid(0,0),tid(12,0),'dag',5502,40000,'sondag']
+  ].forEach(([s,e,md,dl,ml,dt], i) => {
+    const res = calcSeFTV(s, e, md, dl, ml, dt);
+    const sum = res.normal + res.ot1 + res.ot2 + res.obKr;
+    assert(Math.abs(res.total - sum) < 1, `S36.${i}: total=sum (diff ${(res.total-sum).toFixed(1)})`);
+  });
+
+  // ── STRESS TESTS ──
+  // S40: Extrem kort dag (15 min)
+  r = calcSeFTV(tid(10,0), tid(10,15), 'dag', 5984, 40000, 'hdag');
+  assert(r !== null && r.arbH >= 0, `S40: 15min dag OK`);
+  assert(r.total >= 0, `S41: 15min total >= 0`);
+
+  // S42: 23:45t dag
+  r = calcSeFTV(tid(0,0), tid(23,45), 'dag', 5984, 40000, 'hdag');
+  assert(r.arbH > 22, `S42: 23.75t arbete ${r.arbH}`);
+  assert(r.total > 0, `S43: total > 0 vid extrem dag`);
+
+  // S44–S47: Alla dagtyper med alla modeller
+  ['hdag','lordag','sondag'].forEach((dt, di) => {
+    ['dag','man'].forEach((md, mi) => {
+      const res = calcSeFTV(tid(8,0), tid(18,0), md, 5984, 40000, dt);
+      assert(res !== null, `S44.${di}.${mi}: ${dt}+${md} inte null`);
+      assert(res.total > 0, `S45.${di}.${mi}: total > 0`);
+      assert(res.arbH > 0, `S46.${di}.${mi}: arbH > 0`);
+    });
+  });
+
+  // S50: OB natt exakt 00:00–07:00
+  r = calcSeFTV(tid(0,0), tid(7,0), 'dag', 5984, 40000, 'hdag');
+  assert(Math.abs(r.obKr - 7*148) < 1, `S50: OB natt exakt`);
+
+  // S51: OB kväll exakt 21:00–24:00
+  r = calcSeFTV(tid(21,0), tid(24,0), 'dag', 5984, 40000, 'hdag');
+  assert(Math.abs(r.obKr - 3*71) < 1, `S51: OB kväll exakt`);
+
+  // S52: Lördag OB blandning
+  r = calcSeFTV(tid(5,0), tid(23,0), 'dag', 5984, 40000, 'lordag');
+  const expOBLor = 2*148 + 14*44 + 2*71; // 00-07: 2t(5-7)natt, 07-21: 14t dag, 21-23: 2t kväll
+  assert(Math.abs(r.obKr - expOBLor) < 1, `S52: lördag OB mix ${r.obKr.toFixed(0)} exp ${expOBLor}`);
+
+  // S53: 0 dagslön → 0 total
+  r = calcSeFTV(tid(8,0), tid(16,30), 'dag', 0, 40000, 'hdag');
+  assert(r.normal === 0, `S53: 0 dagslön → 0 normal`);
+
+  // S54: Extrem hög lön
+  r = calcSeFTV(tid(7,0), tid(20,0), 'man', 5984, 200000, 'hdag');
+  assert(r.total > 10000, `S54: extrem lön → hög total`);
+  assert(r.ot1 > 0, `S55: OT med hög lön`);
+
+  // S56–S60: Massa kvarterstider
+  [[tid(7,15),tid(16,45)],[tid(6,30),tid(15,0)],[tid(8,45),tid(17,15)],
+   [tid(9,0),tid(21,30)],[tid(22,30),tid(6,0)]
+  ].forEach(([s,e], i) => {
+    const res = calcSeFTV(s, e, 'dag', 5984, 40000, 'hdag');
+    assert(res !== null, `S56.${i}: kvarter-tid inte null`);
+    assert(res.total >= 0, `S57.${i}: total >= 0`);
+  });
+
+  // S60: Start = Slut
+  r = calcSeFTV(tid(8,0), tid(8,0), 'dag', 5984, 40000, 'hdag');
+  // Bör ge 24t (eller 0t beroende på impl) — i vår impl e>s ger midnatscykel
+  assert(r !== null, `S60: start=slut hanteras`);
+
+  // S61–S70: OB integration med OT
+  r = calcSeFTV(tid(18,0), tid(4,0), 'man', 5984, 50000, 'hdag');
+  assert(r !== null, `S61: kväll-natt man`);
+  assert(r.obKr > 0, `S62: OB på kvällsskift`);
+  assert(r.total > r.normal, `S63: total > normal med OB`);
+
+  r = calcSeFTV(tid(6,0), tid(22,0), 'man', 5984, 45000, 'lordag');
+  assert(r.obKr > 0, `S64: OB lördag med man`);
+  assert(r.ot2 > 0, `S65: OT övrig tid på lördag`);
+
+  r = calcSeFTV(tid(8,0), tid(20,0), 'dag', 5984, 40000, 'sondag');
+  assert(r.obKr > 0, `S66: OB söndag med dag`);
+
+  // S67–S70: Månadsanst med olika löner, kontrollera OT-proportioner
+  const r1 = calcSeFTV(tid(7,0), tid(18,0), 'man', 5984, 35191, 'hdag');
+  const r2 = calcSeFTV(tid(7,0), tid(18,0), 'man', 5984, 70000, 'hdag');
+  assert(r2.total > r1.total, `S67: dubbel lön → högre total`);
+  if (r1.ot1 > 0) assert(r2.ot1 / r1.ot1 > 1.9, `S68: OT proportionell`);
+  else ok++;
+
+  // S70: Kort dag söndag
+  r = calcSeFTV(tid(10,0), tid(14,0), 'dag', 5984, 40000, 'sondag');
+  assert(r.obKr === 4 * 148, `S70: sön 4t OB = ${4*148}, fick ${r.obKr}`);
+
+  // S71–S80: Stresstest OB-beräkning med alla dagstyper
+  for (let h = 0; h < 24; h += 3) {
+    const slut = (h + 10) % 24;
+    ['hdag','lordag','sondag'].forEach(dt => {
+      const res = calcSeFTV(tid(h,0), tid(slut,0), 'dag', 5984, 40000, dt);
+      assert(res !== null && res.total >= 0, `S71+: ${h}-${slut} ${dt} OK`);
+    });
+  }
+
+  // S80–S90: Consistency — beregn aldrig negativ
+  for (let i = 0; i < 50; i++) {
+    const sH = Math.floor(Math.random()*24);
+    const sM = KVARTER[Math.floor(Math.random()*4)];
+    const eH = Math.floor(Math.random()*24);
+    const eM = KVARTER[Math.floor(Math.random()*4)];
+    const dl = 3000 + Math.floor(Math.random()*7000);
+    const ml = 30000 + Math.floor(Math.random()*70000);
+    const dts = ['hdag','lordag','sondag'];
+    const dt = dts[Math.floor(Math.random()*3)];
+    const md = Math.random() > 0.5 ? 'dag' : 'man';
+    const res = calcSeFTV(tid(sH,sM), tid(eH,eM), md, dl, ml, dt);
+    assert(res !== null, `S80+.${i}: random OK`);
+    assert(res.total >= 0, `S81+.${i}: total >= 0`);
+    assert(res.normal >= 0, `S82+.${i}: normal >= 0`);
+    assert(res.ot1 >= 0, `S83+.${i}: ot1 >= 0`);
+    assert(res.ot2 >= 0, `S84+.${i}: ot2 >= 0`);
+    assert(res.obKr >= 0, `S85+.${i}: ob >= 0`);
+  }
+
+  console.log(`\n=== SE FTV TEST RESULTATER ===\n✅ Bestått: ${ok}\n❌ Felat: ${fel}`);
+  if (warns.length > 0) console.warn('Fel:\n' + warns.join('\n'));
+  return { ok, fel, warns };
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+window.addEventListener('load', async () => {
+  await idbCheckRestore();
+
+  // Initialize language UI
+  document.documentElement.lang = lang;
+  updateI18nElements();
+  updateLangButton();
+
+  hentCfg();
+  rendDag();
+
+  // Kör automatiska tester
+  const resultater = körTests();
+  const banner = document.createElement('div');
+  banner.style.cssText = `
+    background:${resultater.fel === 0 ? 'rgba(52,211,153,.15)' : 'rgba(248,113,113,.15)'};
+    border:1px solid ${resultater.fel === 0 ? 'var(--grn)' : 'var(--red)'};
+    border-radius:var(--r);padding:12px 16px;margin-bottom:14px;font-size:12px;
+    color:${resultater.fel === 0 ? 'var(--grn)' : 'var(--red)'};line-height:1.6
+  `;
+  banner.innerHTML = resultater.fel === 0
+    ? `✅ ${T('test_banner').replace('X', resultater.ok)}`
+    : `⚠️ ${resultater.fel} test(er) misslyckades · ${resultater.ok} godkända<br><small style="opacity:.7">${resultater.warns.slice(0,8).join('<br>')}</small>`;
+  const dagView = document.getElementById('view-dag');
+  dagView.insertBefore(banner, dagView.firstChild);
+});
+</script>
+</body>
+</html>

@@ -352,6 +352,7 @@ textarea::placeholder{color:var(--mut)}
       <button class="tab" id="tab-uge" onclick="visView('uge')">Uge</button>
       <button class="tab" id="tab-mnd" onclick="visView('mnd')">Måned</button>
     </div>
+    <span id="backup-icon" style="font-size:16px;cursor:pointer;opacity:0.25" title="Backup" onclick="idbMirrorAll();toast('Backup startet...')">☁️</span>
     <button class="gear-btn" id="gear-btn" onclick="visView('inst')" title="Indstillinger">⚙️</button>
   </div>
 </div>
@@ -865,6 +866,137 @@ function tidStreng(t) {
 }
 
 // ═══════════════════════════════════════════════════
+// INDEXEDDB BACKUP — sikkerhedskopi af al data
+// ═══════════════════════════════════════════════════
+const IDB_NAME = 'timeapp-backup';
+const IDB_STORE = 'kv';
+const IDB_VERSION = 1;
+
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = () => req.result.createObjectStore(IDB_STORE);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+function idbPut(key, value) {
+  return idbOpen().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(value, key);
+    tx.oncomplete = () => { db.close(); resolve(); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+  }));
+}
+
+function idbGet(key) {
+  return idbOpen().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readonly');
+    const req = tx.objectStore(IDB_STORE).get(key);
+    req.onsuccess = () => { db.close(); resolve(req.result); };
+    req.onerror = () => { db.close(); reject(req.error); };
+  }));
+}
+
+function idbGetAll() {
+  return idbOpen().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE, 'readonly');
+    const store = tx.objectStore(IDB_STORE);
+    const keys = [], vals = [];
+    const cur = store.openCursor();
+    cur.onsuccess = () => {
+      const c = cur.result;
+      if (c) { keys.push(c.key); vals.push(c.value); c.continue(); }
+      else { db.close(); resolve({ keys, vals }); }
+    };
+    cur.onerror = () => { db.close(); reject(cur.error); };
+  }));
+}
+
+// Mirror hele localStorage til IndexedDB (debounced)
+let _idbSyncTimer = null;
+function idbMirrorAll() {
+  clearTimeout(_idbSyncTimer);
+  _idbSyncTimer = setTimeout(() => {
+    idbOpen().then(db => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      const store = tx.objectStore(IDB_STORE);
+      // Gem snapshot med tidsstempel
+      const snapshot = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        snapshot[k] = localStorage.getItem(k);
+      }
+      store.put(snapshot, '_snapshot');
+      store.put(Date.now(), '_snapshotTime');
+      store.put(Object.keys(snapshot).length, '_snapshotCount');
+      tx.oncomplete = () => {
+        db.close();
+        idbUpdateIcon('synced');
+      };
+      tx.onerror = () => { db.close(); idbUpdateIcon('error'); };
+    }).catch(() => idbUpdateIcon('error'));
+  }, 2000); // 2s debounce — undgår spam ved hurtig navigation
+}
+
+// Gendan fra IndexedDB → localStorage
+async function idbRestore() {
+  try {
+    const snapshot = await idbGet('_snapshot');
+    if (!snapshot || typeof snapshot !== 'object') return false;
+    const count = Object.keys(snapshot).length;
+    if (count === 0) return false;
+
+    // Overskriv localStorage med snapshot
+    Object.entries(snapshot).forEach(([k, v]) => localStorage.setItem(k, v));
+    return count;
+  } catch { return false; }
+}
+
+// Tjek om localStorage er tom men IDB har data
+async function idbCheckRestore() {
+  try {
+    const fafKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      if (localStorage.key(i).startsWith('faf-')) fafKeys.push(localStorage.key(i));
+    }
+    // Kun tjek restore hvis der er INGEN faf-data
+    if (fafKeys.length > 5) { idbUpdateIcon('synced'); return; }
+
+    const snapshotCount = await idbGet('_snapshotCount');
+    const snapshotTime = await idbGet('_snapshotTime');
+    if (!snapshotCount || snapshotCount <= 5) { idbUpdateIcon('none'); return; }
+
+    const alder = Date.now() - (snapshotTime || 0);
+    const dage = Math.floor(alder / 86400000);
+    const tStr = dage > 0 ? `${dage} dage siden` : 'i dag';
+
+    // Vis restore-dialog
+    if (confirm(`⚠️ Din data ser ud til at være forsvundet!\n\nDer findes en sikkerhedskopi med ${snapshotCount} poster (gemt ${tStr}).\n\nVil du gendanne?`)) {
+      const restored = await idbRestore();
+      if (restored) {
+        toast(`✓ ${restored} poster gendannet fra backup`);
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        toast('Gendannelse mislykkedes');
+      }
+    }
+    idbUpdateIcon('synced');
+  } catch { idbUpdateIcon('error'); }
+}
+
+// Opdater backup-ikon i topbar
+function idbUpdateIcon(state) {
+  const el = document.getElementById('backup-icon');
+  if (!el) return;
+  if (state === 'synced')  { el.textContent = '☁️'; el.title = 'Backup OK'; el.style.opacity = '0.5'; }
+  else if (state === 'syncing') { el.textContent = '⏳'; el.title = 'Gemmer backup...'; el.style.opacity = '1'; }
+  else if (state === 'error')   { el.textContent = '⚠️'; el.title = 'Backup fejl'; el.style.opacity = '1'; }
+  else { el.textContent = '☁️'; el.title = 'Ingen backup endnu'; el.style.opacity = '0.25'; }
+}
+
+// ═══════════════════════════════════════════════════
 // STORAGE
 // ═══════════════════════════════════════════════════
 function nøgle(d) {
@@ -879,7 +1011,7 @@ function hentDag(d) {
     return s;
   } catch { return null; }
 }
-function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); }
+function gemDagData(d, v) { localStorage.setItem(nøgle(d), JSON.stringify(v)); idbMirrorAll(); }
 
 // Hent dag fra aktiv produktion — eller scan alle produktioner
 let visAlleProduktioner = false;
@@ -942,6 +1074,7 @@ function hentProduktioner() {
 }
 function gemProduktionerStore() {
   localStorage.setItem('faf-produktioner', JSON.stringify(produktioner));
+  idbMirrorAll();
 }
 
 function nyProduktion() {
@@ -2874,12 +3007,14 @@ function toast(msg) {
 }
 
 // INIT
-hentCfg();
-rendDag();
-initTillæg();
-initCard('lon-body', 'lon-ch', true);
-initCard('sik-body', 'sik-ch', false);
-initCard('prod-body', 'prod-ch', false);
+idbCheckRestore().then(() => {
+  hentCfg();
+  rendDag();
+  initTillæg();
+  initCard('lon-body', 'lon-ch', true);
+  initCard('sik-body', 'sik-ch', false);
+  initCard('prod-body', 'prod-ch', false);
+});
 </script>
 
 <!-- INSTALL BANNER (Android/Chrome) -->

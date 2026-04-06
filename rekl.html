@@ -280,6 +280,7 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
       <button class="tab" id="tab-uge" onclick="visView('uge')">Uge</button>
       <button class="tab" id="tab-mnd" onclick="visView('mnd')">Måned</button>
     </div>
+    <span id="backup-icon" style="font-size:16px;cursor:pointer;opacity:0.25" title="Backup" onclick="idbMirrorAll();toast('Backup startet...')">☁️</span>
     <button class="gear-btn" id="gear-btn" onclick="visView('inst')">⚙️</button>
   </div>
 </div>
@@ -738,6 +739,20 @@ const GR_SATSER = { 1: 0, 2: 4100, 3: 3300, 4: 2750, 5: 1540 };
 const GR_NAVNE = { 1: 'Fri forhandling', 2: '4.100 kr/dag', 3: '3.300 kr/dag', 4: '2.750 kr/dag', 5: '1.540 kr/dag' };
 
 // ═══════════════════════════════════════════════════════════
+// INDEXEDDB BACKUP
+// ═══════════════════════════════════════════════════════════
+const IDB_NAME = 'timeapp-backup-rekl';
+const IDB_STORE = 'kv';
+const IDB_VERSION = 1;
+function idbOpen(){return new Promise((r,j)=>{const q=indexedDB.open(IDB_NAME,IDB_VERSION);q.onupgradeneeded=()=>q.result.createObjectStore(IDB_STORE);q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)})}
+function idbPut(k,v){return idbOpen().then(db=>new Promise((r,j)=>{const tx=db.transaction(IDB_STORE,'readwrite');tx.objectStore(IDB_STORE).put(v,k);tx.oncomplete=()=>{db.close();r()};tx.onerror=()=>{db.close();j(tx.error)}}))}
+function idbGet(k){return idbOpen().then(db=>new Promise((r,j)=>{const tx=db.transaction(IDB_STORE,'readonly');const q=tx.objectStore(IDB_STORE).get(k);q.onsuccess=()=>{db.close();r(q.result)};q.onerror=()=>{db.close();j(q.error)}}))}
+let _idbTimer=null;
+function idbMirrorAll(){clearTimeout(_idbTimer);_idbTimer=setTimeout(()=>{idbOpen().then(db=>{const tx=db.transaction(IDB_STORE,'readwrite');const st=tx.objectStore(IDB_STORE);const snap={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);snap[k]=localStorage.getItem(k)}st.put(snap,'_snapshot');st.put(Date.now(),'_snapshotTime');st.put(Object.keys(snap).length,'_snapshotCount');tx.oncomplete=()=>{db.close();idbUpdateIcon('synced')};tx.onerror=()=>{db.close();idbUpdateIcon('error')}}).catch(()=>idbUpdateIcon('error'))},2000)}
+async function idbRestore(){try{const snap=await idbGet('_snapshot');if(!snap||typeof snap!=='object')return false;const c=Object.keys(snap).length;if(c===0)return false;Object.entries(snap).forEach(([k,v])=>localStorage.setItem(k,v));return c}catch{return false}}
+async function idbCheckRestore(){try{let reklKeys=0;for(let i=0;i<localStorage.length;i++){if(localStorage.key(i).startsWith('rekl-'))reklKeys++}if(reklKeys>2){idbUpdateIcon('synced');return}const cnt=await idbGet('_snapshotCount');const t=await idbGet('_snapshotTime');if(!cnt||cnt<=2){idbUpdateIcon('none');return}const d=Math.floor((Date.now()-(t||0))/86400000);const s=d>0?`${d} dage siden`:'i dag';if(confirm(`⚠️ Din data ser ud til at være forsvundet!\n\nDer findes en sikkerhedskopi med ${cnt} poster (gemt ${s}).\n\nVil du gendanne?`)){const r=await idbRestore();if(r){toast(`✓ ${r} poster gendannet`);setTimeout(()=>location.reload(),1500)}}idbUpdateIcon('synced')}catch{idbUpdateIcon('error')}}
+function idbUpdateIcon(s){const el=document.getElementById('backup-icon');if(!el)return;if(s==='synced'){el.textContent='☁️';el.style.opacity='0.5'}else if(s==='error'){el.textContent='⚠️';el.style.opacity='1'}else{el.textContent='☁️';el.style.opacity='0.25'}}
+
 // STORAGE
 // ═══════════════════════════════════════════════════════════
 function loadData() {
@@ -751,10 +766,10 @@ function loadData() {
   } catch(e) {}
 }
 function saveData() {
-  try { localStorage.setItem(LS_DAGE, JSON.stringify(S.dage)); } catch(e) {}
+  try { localStorage.setItem(LS_DAGE, JSON.stringify(S.dage)); idbMirrorAll(); } catch(e) {}
 }
 function saveInst() {
-  try { localStorage.setItem(LS_INST, JSON.stringify(S.inst)); } catch(e) {}
+  try { localStorage.setItem(LS_INST, JSON.stringify(S.inst)); idbMirrorAll(); } catch(e) {}
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1900,16 +1915,15 @@ function doMail_mnd() {
 // ═══════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════
-loadData();
-
-// Brug standard-indstillinger
-S.gruppe = S.inst.gruppe;
-S.dagssats = S.inst.dagssats;
-S.dagtype = S.inst.dagtype || 'optagelse';
-
-renderInst();
-initFagValgt();
-visView('dag');
+idbCheckRestore().then(() => {
+  loadData();
+  S.gruppe = S.inst.gruppe;
+  S.dagssats = S.inst.dagssats;
+  S.dagtype = S.inst.dagtype || 'optagelse';
+  renderInst();
+  initFagValgt();
+  visView('dag');
+});
 
 </script>
 </body>

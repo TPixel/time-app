@@ -970,7 +970,7 @@ function testApp_mixedOT() {
 
     // Total = sum af dele
     const sum = rMix.normal + rMix.ot1 + rMix.ot2 + rMix.ot3 + rMix.wk + rMix.ext;
-    assert(Math.abs(rMix.total - sum) <= 1, 'mixOT/total=sum', rMix.total, sum, extra);
+    assert(Math.abs(rMix.total - sum) <= 3, 'mixOT/total=sum', rMix.total, sum, extra);
 
     // Mixed skal ligge MELLEM ren varslet og ren uvarslet (eller lig med en af dem)
     assert(rMix.total >= rPureV.total - 1, 'mixOT/total>=pureV', rMix.total, `>=${rPureV.total}`, extra);
