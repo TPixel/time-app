@@ -455,6 +455,23 @@ textarea::placeholder{color:var(--mut)}
       Uvarslet OT
       <span class="xb-sub">+75% +100% +135%</span>
     </button>
+  </div>
+  <div id="mixed-ot-row" style="display:none;margin:-6px 0 12px;background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:10px 14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--yel)">⚡ MIXED OT</div>
+        <div style="font-size:10px;color:var(--mut);margin-top:2px">Hvor mange OT-timer var varslet?</div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="xb" id="vt-0" onclick="setVarsletTimer(0)" style="padding:6px 10px;min-width:32px;font-size:11px">0</button>
+        <button class="xb" id="vt-0.5" onclick="setVarsletTimer(0.5)" style="padding:6px 10px;min-width:32px;font-size:11px">30m</button>
+        <button class="xb" id="vt-1" onclick="setVarsletTimer(1)" style="padding:6px 10px;min-width:32px;font-size:11px">1t</button>
+        <button class="xb" id="vt-1.5" onclick="setVarsletTimer(1.5)" style="padding:6px 10px;min-width:32px;font-size:11px">1½t</button>
+        <button class="xb" id="vt-2" onclick="setVarsletTimer(2)" style="padding:6px 10px;min-width:32px;font-size:11px">2t</button>
+      </div>
+    </div>
+  </div>
+  <div class="bgrid" style="margin-top:0">
     <button class="xb" id="bn-h" onclick="tog('h')">
       Weekend
       <span class="xb-sub">+75% min 4t §8</span>
@@ -735,7 +752,7 @@ const KVARTER = [0, 15, 30, 45];
 // ═══════════════════════════════════════════════════
 let aktivDag    = new Date();
 let ugeOffset   = 0;
-let knapper     = { v:false, u:false, f:false, p:false, h:false, r:false, e:false };
+let knapper     = { v:false, u:false, f:false, p:false, h:false, r:false, e:false, varsletTimer:0 };
 let cfg         = { navn:'', email:'', prod:'', ugelon:10380, pers:0, tillæg:false, model:'5dag', fridag:'fre', dagLon:0 };
 let produktioner  = [];   // Array af cfg-objekter
 let aktivProdId   = null; // ID for aktiv produktion
@@ -1339,7 +1356,7 @@ function hentWkRate(dato) {
 function calcLon(h, opt, wkAutoH = 0, wkRate = 0.75) {
   if (!h || h <= 0) return { total:0, normal:0, ot1:0, ot2:0, ot3:0, wk:0, ext:0 };
   const ts = timesats();
-  const { varslet, uvarslet, helligdag, frokost, pause10 } = opt;
+  const { varslet, uvarslet, helligdag, frokost, pause10, varsletTimer } = opt;
   const dMax = dagMax();
 
   const normalH = Math.min(dMax, h);
@@ -1368,7 +1385,24 @@ function calcLon(h, opt, wkAutoH = 0, wkRate = 0.75) {
     normal = tsNorm * normalH;
     // §8 auto-detekteret overlap med weekend-periode (kun overlap-timer, ingen min. 4t)
     if (wkAutoH > 0) wk = tsWk * wkRate * wkAutoH;
-    if (varslet) {
+
+    // ── MIXED OT: varslet + uvarslet på samme dag ──
+    // opt.varsletTimer angiver hvor mange OT-timer der er varslet (0, 1 eller 2)
+    // De varslet-timer bruger lavere satser, resten bruger uvarslet-satser
+    // 3.+ time er ALTID +135% uanset type
+    const vt = (varslet && uvarslet && typeof opt.varsletTimer === 'number') ? opt.varsletTimer : null;
+
+    if (vt !== null) {
+      // Mixed mode: varslet-timer kan være delvis (fx 0.5 = 30 min)
+      // Splitter varslet/uvarslet INDEN for hvert OT-band
+      const v1 = Math.min(vt, ot1H);               // varslet del af 1. time
+      const u1 = ot1H - v1;                          // uvarslet del af 1. time
+      const v2 = Math.min(Math.max(0, vt - 1), ot2H); // varslet del af 2. time
+      const u2 = ot2H - v2;                          // uvarslet del af 2. time
+      ot1 = v1 * tsWk * 1.50 + u1 * tsWk * 1.75;
+      ot2 = v2 * tsWk * 1.60 + u2 * tsWk * 2.00;
+      ot3 = tsWk * 2.35 * ot3H;
+    } else if (varslet) {
       // §3.10: 10% enkeltdag indgår i OT-grundlaget (tsWk = tsGrund × enkeltdag)
       ot1 = tsWk * 1.50 * ot1H;
       ot2 = tsWk * 1.60 * ot2H;
@@ -1424,7 +1458,7 @@ function beregn() {
   }
 
   const wkAutoH = (!knapper.h) ? calcWeekendTimer(tidStart, tidSlut, idx) : 0;
-  const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e };
+  const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e, varsletTimer:knapper.varsletTimer };
   const wkRate = (knapper.h || idx === 0 || idx === 6) ? hentWkRate(aktivDag) : 0.75;
   const l   = calcLon(h, opt, wkAutoH, wkRate);
   const tot = l.total + fskKr;
@@ -1453,10 +1487,30 @@ function beregn() {
 
   const harOT = h > dMax;
   const ingenType = harOT && !knapper.v && !knapper.u;
+  const isMixed = knapper.v && knapper.u;
+  const vt = knapper.varsletTimer || 0;
 
-  // Labels med timer-antal
+  // Labels med timer-antal — tydeligt hvilken sats der bruges
   let ot1lbl, ot2lbl;
-  if (knapper.v) {
+  if (isMixed) {
+    // Mixed mode: vis præcis split per OT-band
+    const v1 = Math.min(vt, l.ot1H), u1 = l.ot1H - v1;
+    const v2 = Math.min(Math.max(0, vt - 1), l.ot2H), u2 = l.ot2H - v2;
+    if (v1 > 0 && u1 > 0) {
+      ot1lbl = `OT 1. time: ${hFmt(v1)} varslet +50% / ${hFmt(u1)} uvarslet +75%`;
+    } else if (v1 > 0) {
+      ot1lbl = `OT 1. time (varslet +50%) · ${hFmt(l.ot1H)}`;
+    } else {
+      ot1lbl = `OT 1. time (uvarslet +75%) · ${hFmt(l.ot1H)}`;
+    }
+    if (v2 > 0 && u2 > 0) {
+      ot2lbl = `OT 2. time: ${hFmt(v2)} varslet +60% / ${hFmt(u2)} uvarslet +100%`;
+    } else if (v2 > 0) {
+      ot2lbl = `OT 2. time (varslet +60%) · ${hFmt(l.ot2H)}`;
+    } else {
+      ot2lbl = `OT 2. time (uvarslet +100%) · ${hFmt(l.ot2H)}`;
+    }
+  } else if (knapper.v) {
     ot1lbl = `OT 1. time (varslet +50%) · ${hFmt(l.ot1H)}`;
     ot2lbl = `OT 2. time (varslet +60%) · ${hFmt(l.ot2H)}`;
   } else if (knapper.u || ingenType) {
@@ -1525,17 +1579,42 @@ function hFmt(h) {
 // ═══════════════════════════════════════════════════
 function tog(k) {
   knapper[k] = !knapper[k];
-  if (k === 'v' && knapper.v) knapper.u = false;
-  if (k === 'u' && knapper.u) knapper.v = false;
+  // Varslet + Uvarslet kan nu BEGGE være aktive (mixed OT)
+  // Slukning af én nulstiller ikke den anden
+  // Hvis kun én er aktiv → klassisk mode (ingen varsletTimer needed)
+  if (knapper.v && knapper.u) {
+    // Mixed mode — vis varsletTimer selector
+    if (knapper.varsletTimer === 0 && k === 'v') knapper.varsletTimer = 0.5; // default 30m
+  } else {
+    knapper.varsletTimer = 0;
+  }
+  opdaterKnapper();
+  beregn();
+}
+function setVarsletTimer(n) {
+  knapper.varsletTimer = n;
   opdaterKnapper();
   beregn();
 }
 function opdaterKnapper() {
   const kl = { v:'von', u:'uon', f:'fon', p:'pon', h:'hon', r:'ron', e:'eon' };
   Object.keys(knapper).forEach(k => {
+    if (k === 'varsletTimer') return;
     const el = document.getElementById('bn-' + k);
     if (el) el.className = 'xb' + (knapper[k] ? ' ' + kl[k] : '');
   });
+  // Mixed OT row visibility
+  const mixRow = document.getElementById('mixed-ot-row');
+  if (mixRow) {
+    const isMixed = knapper.v && knapper.u;
+    mixRow.style.display = isMixed ? 'block' : 'none';
+    if (isMixed) {
+      [0, 0.5, 1, 1.5, 2].forEach(n => {
+        const el = document.getElementById('vt-' + n);
+        if (el) el.className = 'xb' + (knapper.varsletTimer === n ? ' von' : '');
+      });
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -1547,7 +1626,7 @@ function gemDag() {
   const fsk    = calcForskudt(tidStart, tidSlut, idx);
   const fskKr  = Math.round(fsk * 110);
   const wkAutoH = (!knapper.h && h !== null) ? calcWeekendTimer(tidStart, tidSlut, idx) : 0;
-  const opt    = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e };
+  const opt    = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e, varsletTimer:knapper.varsletTimer };
   const wkRate = (knapper.h || idx === 0 || idx === 6) ? hentWkRate(aktivDag) : 0.75;
   const l      = calcLon(h, opt, wkAutoH, wkRate);
   const note   = document.getElementById('i-note').value;
@@ -1580,7 +1659,7 @@ function sletDag() {
   if (!confirm(`Slet ${DAGE[aktivDag.getDay()]} ${aktivDag.getDate()}/${aktivDag.getMonth()+1}?`)) return;
   localStorage.removeItem(nøgle(aktivDag));
   tidStart = null; tidSlut = null;
-  knapper  = { v:false, u:false, f:false, p:false, h:false, r:false, e:false };
+  knapper  = { v:false, u:false, f:false, p:false, h:false, r:false, e:false, varsletTimer:0 };
   document.getElementById('i-note').value = '';
   document.getElementById('dag-actions').style.display = 'none';
   opdaterTidDisplay();
@@ -1597,21 +1676,27 @@ function doPDF_dag() {
   if (!d) { toast('Gem dagen først'); return; }
   const dagNavn = DAGE[aktivDag.getDay()];
   const dagStr = `${dagNavn} ${aktivDag.getDate()}. ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
-  const otType = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : null;
+  const dMixed = d.knapper?.v && d.knapper?.u;
+  const dVt = d.knapper?.varsletTimer || 0;
+  function otLabel(time, vSats, uSats) {
+    if (dMixed) return `OT ${time}. time (${dVt >= time ? 'varslet '+vSats : 'uvarslet '+uSats})`;
+    if (d.knapper?.v) return `OT ${time}. time (varslet ${vSats})`;
+    return `OT ${time}. time (uvarslet ${uSats})`;
+  }
   const rækker = [];
   if (d.manuelLon) {
     rækker.push(`<tr><td>Manuel aftalt dagssats</td><td class="num">${d.manuelLon.toLocaleString('da-DK')} kr.</td></tr>`);
   } else {
     if (d.normal) rækker.push(`<tr><td>Normal arbejdstid</td><td class="num">${d.normal.toLocaleString('da-DK')} kr.</td></tr>`);
-    if (d.ot1)    rækker.push(`<tr><td>OT 1. time (${otType==='Varslet'?'+50%':'+75%'})</td><td class="num">${d.ot1.toLocaleString('da-DK')} kr.</td></tr>`);
-    if (d.ot2)    rækker.push(`<tr><td>OT 2. time (${otType==='Varslet'?'+60%':'+100%'})</td><td class="num">${d.ot2.toLocaleString('da-DK')} kr.</td></tr>`);
+    if (d.ot1)    rækker.push(`<tr><td>${otLabel(1,'+50%','+75%')}</td><td class="num">${d.ot1.toLocaleString('da-DK')} kr.</td></tr>`);
+    if (d.ot2)    rækker.push(`<tr><td>${otLabel(2,'+60%','+100%')}</td><td class="num">${d.ot2.toLocaleString('da-DK')} kr.</td></tr>`);
     if (d.ot3)    rækker.push(`<tr><td>OT 3.+ time (+135%)</td><td class="num">${d.ot3.toLocaleString('da-DK')} kr.</td></tr>`);
     if (d.wk)     rækker.push(`<tr><td>Weekendtillæg §8</td><td class="num">${d.wk.toLocaleString('da-DK')} kr.</td></tr>`);
     if (d.fskKr)  rækker.push(`<tr><td>Forskudt §7</td><td class="num">${d.fskKr.toLocaleString('da-DK')} kr.</td></tr>`);
   }
   const badges = [
-    d.knapper?.v ? 'Varslet OT' : null,
-    d.knapper?.u ? 'Uvarslet OT' : null,
+    dMixed ? `Mixed OT (${dVt}t varslet)` : (d.knapper?.v ? 'Varslet OT' : null),
+    dMixed ? null : (d.knapper?.u ? 'Uvarslet OT' : null),
     d.knapper?.h ? 'Helligdag §8' : null,
     d.knapper?.f ? 'Sen frokost' : null,
     d.knapper?.r ? 'Kørsel m. udstyr' : null,
@@ -1646,7 +1731,13 @@ function sendEnkeltDag() {
   if (!d) { toast('Gem dagen først'); return; }
 
   const dagStr = `${DAGE[aktivDag.getDay()]} ${aktivDag.getDate()}. ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
-  const otType = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : null;
+  const mMixed = d.knapper?.v && d.knapper?.u;
+  const mVt = d.knapper?.varsletTimer || 0;
+  function mOtLbl(time, vS, uS) {
+    if (mMixed) return `OT ${time}. time (${mVt >= time ? 'varslet '+vS : 'uvarslet '+uS})`;
+    if (d.knapper?.v) return `OT ${time}. time (varslet ${vS})`;
+    return `OT ${time}. time (uvarslet ${uS})`;
+  }
 
   // ── Spec linjer ─────────────────────────────────────────────────
   const specRækker = [];
@@ -1654,16 +1745,16 @@ function sendEnkeltDag() {
     specRækker.push({ lbl: 'Manuel aftalt dagssats', kr: d.manuelLon });
   } else {
     if (d.normal) specRækker.push({ lbl: 'Normal arbejdstid', kr: d.normal });
-    if (d.ot1)    specRækker.push({ lbl: `OT 1. time (${otType==='Varslet'?'+50%':'+75%'})`, kr: d.ot1 });
-    if (d.ot2)    specRækker.push({ lbl: `OT 2. time (${otType==='Varslet'?'+60%':'+100%'})`, kr: d.ot2 });
+    if (d.ot1)    specRækker.push({ lbl: mOtLbl(1,'+50%','+75%'), kr: d.ot1 });
+    if (d.ot2)    specRækker.push({ lbl: mOtLbl(2,'+60%','+100%'), kr: d.ot2 });
     if (d.ot3)    specRækker.push({ lbl: 'OT 3.+ time (+135%)', kr: d.ot3 });
     if (d.wk)     specRækker.push({ lbl: 'Weekendtillæg §8', kr: d.wk });
     if (d.fskKr)  specRækker.push({ lbl: 'Forskudt §7', kr: d.fskKr });
   }
 
   const badgeTxt = [
-    d.knapper?.v ? '◆ Varslet OT' : null,
-    d.knapper?.u ? '◆ Uvarslet OT' : null,
+    mMixed ? `◆ Mixed OT (${mVt}t varslet)` : (d.knapper?.v ? '◆ Varslet OT' : null),
+    mMixed ? null : (d.knapper?.u ? '◆ Uvarslet OT' : null),
     d.knapper?.h ? '◆ Weekend / helligdag §8' : null,
     d.knapper?.f ? '◆ Sen frokost' : null,
     d.knapper?.r ? '◆ Kørsel m. udstyr' : null,
@@ -1772,7 +1863,7 @@ function rendDag() {
       ttl.title = produktioner.length > 1 ? 'Tryk for at skifte aktiv produktion' : '';
     }
   }
-  knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,r:false,e:false, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, r:false, e:false };
+  knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,r:false,e:false,varsletTimer:0, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, r:false, e:false, varsletTimer:0 };
   tidStart = s?.tidStart || null;
   tidSlut  = s?.tidSlut  || null;
   otVis    = false; // nulstil OT-visning ved dagskift
@@ -1841,7 +1932,7 @@ function rendAar() {
       if (s.prod) prodSet.add(s.prod);
       const idx = d.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
-      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
+      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
       const dagLon = visAlleProduktioner ? (s.lon ?? (l.total + (s.fskKr ?? 0))) : (s.manuelLon ?? (l.total + (s.fskKr ?? 0)));
@@ -1940,7 +2031,7 @@ function _rendMaaned() {
       if (!s?.h) return;
       const idx = d.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
-      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
+      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
       const dagLon = visAlleProduktioner ? (s.lon ?? (l.total + (s.fskKr ?? 0))) : (s.manuelLon ?? (l.total + (s.fskKr ?? 0)));
@@ -2000,7 +2091,7 @@ function rendUge() {
     const wkAutoH = (s && !s.knapper?.h && s.start && s.slut)
       ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
     const opt  = { varslet:s?.knapper?.v, uvarslet:s?.knapper?.u, helligdag:s?.knapper?.h,
-                   frokost:s?.knapper?.f, pause10:s?.knapper?.p, enkeltdag:s?.knapper?.e };
+                   frokost:s?.knapper?.f, pause10:s?.knapper?.p, enkeltdag:s?.knapper?.e, varsletTimer:s?.knapper?.varsletTimer||0 };
     const wkRate = (s?.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
     const l    = h ? calcLon(h, opt, wkAutoH, wkRate) : null;
     const lonBeregnet = l ? l.total + (s?.fskKr ?? 0) : 0;
@@ -2060,7 +2151,7 @@ function ugeData() {
       : 0;
     const opt = { varslet: s.knapper?.v, uvarslet: s.knapper?.u,
                   helligdag: s.knapper?.h, frokost: s.knapper?.f,
-                  pause10: s.knapper?.p, enkeltdag: s.knapper?.e };
+                  pause10: s.knapper?.p, enkeltdag: s.knapper?.e, varsletTimer: s.knapper?.varsletTimer||0 };
     const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
     const l = calcLon(h, opt, wkAutoH, wkRate);
     const lonBeregnet = l.total + (s.fskKr ?? 0);
@@ -2525,7 +2616,7 @@ function _mndData() {
     if (!s?.h) { dageData.push({d:new Date(d), s:null, lon:0, h:0, ot:0}); continue; }
     const idx = d.getDay();
     const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
-    const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
+    const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
     const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
     const l = calcLon(s.h, opt, wkAutoH, wkRate);
     const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0));
@@ -2626,7 +2717,7 @@ function _aarData() {
       const dObj = new Date(dato);
       const idx = dObj.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
-      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e};
+      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(dObj) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
       const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0));
