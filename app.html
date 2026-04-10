@@ -3018,6 +3018,31 @@ idbCheckRestore().then(() => {
 </script>
 
 <!-- INSTALL BANNER (Android/Chrome) -->
+<!-- UPDATE BANNER -->
+<div id="update-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1C1C2A;border-top:2px solid var(--acc);padding:14px 20px;gap:12px;align-items:center;justify-content:space-between">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:18px">⬆</span>
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px">Ny version klar</div>
+      <div style="font-size:12px;color:var(--mut)">Opdater for at få de seneste rettelser</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button onclick="applyUpdate()" style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;padding:9px 18px;border-radius:50px;background:var(--acc);color:#fff;border:none;cursor:pointer">Opdater nu</button>
+    <button onclick="dismissUpdate()" style="font-size:18px;background:none;border:none;color:var(--mut);cursor:pointer;padding:4px 8px">✕</button>
+  </div>
+</div>
+
+<!-- CHANGELOG MODAL -->
+<div id="changelog-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#1C1C2A;border:1.5px solid var(--brd);border-radius:20px;padding:28px 24px;max-width:420px;width:100%">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:2px;color:var(--mut);margin-bottom:6px">Ny version <span id="cl-version"></span> · <span id="cl-dato"></span></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:16px">Hvad er nyt ✦</div>
+    <ul id="cl-liste" style="padding-left:18px;margin:0 0 24px;font-size:14px;line-height:1.6;color:var(--txt)"></ul>
+    <button onclick="lukChangelog()" style="width:100%;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;padding:13px;border-radius:50px;background:var(--acc);color:#fff;border:none;cursor:pointer">Forstået →</button>
+  </div>
+</div>
+
 <div id="install-banner" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:398px;background:var(--card);border:1px solid var(--acc);border-radius:var(--r);padding:14px 16px;z-index:500;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.4)">
   <div style="flex:1">
     <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px">Tilføj til hjemmeskærm</div>
@@ -3037,32 +3062,77 @@ idbCheckRestore().then(() => {
 </div>
 
 <script>
-// ── SERVICE WORKER (PWA offline) ──
+// ── VERSION & CHANGELOG ──
+const APP_VERSION = '30';
+const CHANGELOG = {
+  '30': {
+    dato: '10. april 2026',
+    nyt: [
+      '§3.10 Rettet: Minimum 4 timers kald ved enkeltdagsengagementer — arbejder du 2 timer som enkeltdagsansat betales der nu korrekt for 4 timer.',
+    ]
+  }
+};
+
+// ── SERVICE WORKER ──
+let _swReg = null;
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // Inline SW via blob URL
-    const swCode = `
-const CACHE = 'timeapp-v29';
-const ASSETS = [location.href];
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-});
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
-  );
-});
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
-  );
-});`;
-    const blob = new Blob([swCode], {type:'application/javascript'});
-    const swUrl = URL.createObjectURL(blob);
-    navigator.serviceWorker.register(swUrl).catch(()=>{});
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      _swReg = reg;
+
+      // Vis update-banner hvis der allerede venter en ny SW
+      if (reg.waiting && navigator.serviceWorker.controller) {
+        visUpdateBanner();
+      }
+
+      // Lyt efter ny SW der installerer sig
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+            visUpdateBanner();
+          }
+        });
+      });
+
+      // Når ny SW overtager kontrollen → reload for at hente ny version
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
+    } catch(e) {}
   });
+}
+
+function visUpdateBanner() {
+  const b = document.getElementById('update-banner');
+  if (b) b.style.display = 'flex';
+}
+function applyUpdate() {
+  if (_swReg?.waiting) {
+    _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+  }
+}
+function dismissUpdate() {
+  const b = document.getElementById('update-banner');
+  if (b) b.style.display = 'none';
+}
+
+// ── VERSION CHECK → CHANGELOG MODAL ──
+window.addEventListener('load', () => {
+  const gemt = localStorage.getItem('app-version');
+  if (gemt && gemt !== APP_VERSION && CHANGELOG[APP_VERSION]) {
+    const log = CHANGELOG[APP_VERSION];
+    document.getElementById('cl-dato').textContent = log.dato;
+    document.getElementById('cl-version').textContent = APP_VERSION;
+    const ul = document.getElementById('cl-liste');
+    ul.innerHTML = log.nyt.map(t => `<li style="margin-bottom:8px">${t}</li>`).join('');
+    document.getElementById('changelog-modal').style.display = 'flex';
+  }
+  localStorage.setItem('app-version', APP_VERSION);
+});
+function lukChangelog() {
+  document.getElementById('changelog-modal').style.display = 'none';
 }
 
 // ── INSTALL PROMPT ──

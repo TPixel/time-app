@@ -1925,6 +1925,93 @@ idbCheckRestore().then(() => {
   visView('dag');
 });
 
+
+// ── VERSION & CHANGELOG ──
+const APP_VERSION = '1';
+const CHANGELOG = {
+  '1': {
+    dato: '10. april 2026',
+    nyt: [
+      'Reklamefilm-appen er nu live med fuld support for Reklamefilmsoverenskomsten 2024.',
+      'Optagelse og Forbered/Afrig med korrekte OT-satser, nat-gene §5, weekend §6 og transport ×1,75.',
+      'Minimum 4 timers kald på forberedelses- og afrignsdage.',
+      'Dagsløngaranti på optagelsesdage.',
+    ]
+  }
+};
+
+// ── SERVICE WORKER ──
+let _swReg = null;
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      _swReg = reg;
+      if (reg.waiting && navigator.serviceWorker.controller) visUpdateBanner();
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) visUpdateBanner();
+        });
+      });
+      navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+    } catch(e) {}
+  });
+}
+function visUpdateBanner() {
+  const b = document.getElementById('update-banner');
+  if (b) b.style.display = 'flex';
+}
+function applyUpdate() {
+  if (_swReg?.waiting) _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+}
+function dismissUpdate() {
+  const b = document.getElementById('update-banner');
+  if (b) b.style.display = 'none';
+}
+
+// ── VERSION CHECK → CHANGELOG MODAL ──
+window.addEventListener('load', () => {
+  const gemt = localStorage.getItem('rekl-version');
+  if (gemt !== APP_VERSION && CHANGELOG[APP_VERSION]) {
+    const log = CHANGELOG[APP_VERSION];
+    document.getElementById('cl-dato').textContent = log.dato;
+    document.getElementById('cl-version').textContent = APP_VERSION;
+    const ul = document.getElementById('cl-liste');
+    ul.innerHTML = log.nyt.map(t => `<li style="margin-bottom:8px">${t}</li>`).join('');
+    document.getElementById('changelog-modal').style.display = 'flex';
+  }
+  localStorage.setItem('rekl-version', APP_VERSION);
+});
+function lukChangelog() {
+  document.getElementById('changelog-modal').style.display = 'none';
+}
 </script>
+
+<!-- UPDATE BANNER -->
+<div id="update-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1C1C2A;border-top:2px solid var(--acc);padding:14px 20px;gap:12px;align-items:center;justify-content:space-between">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:18px">⬆</span>
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px">Ny version klar</div>
+      <div style="font-size:12px;color:var(--mut)">Opdater for at få de seneste rettelser</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button onclick="applyUpdate()" style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;padding:9px 18px;border-radius:50px;background:var(--acc);color:#fff;border:none;cursor:pointer">Opdater nu</button>
+    <button onclick="dismissUpdate()" style="font-size:18px;background:none;border:none;color:var(--mut);cursor:pointer;padding:4px 8px">✕</button>
+  </div>
+</div>
+
+<!-- CHANGELOG MODAL -->
+<div id="changelog-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#1C1C2A;border:1.5px solid var(--brd);border-radius:20px;padding:28px 24px;max-width:420px;width:100%">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:2px;color:var(--mut);margin-bottom:6px">Ny version <span id="cl-version"></span> · <span id="cl-dato"></span></div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:16px">Hvad er nyt ✦</div>
+    <ul id="cl-liste" style="padding-left:18px;margin:0 0 24px;font-size:14px;line-height:1.6;color:var(--txt)"></ul>
+    <button onclick="lukChangelog()" style="width:100%;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;padding:13px;border-radius:50px;background:var(--acc);color:#fff;border:none;cursor:pointer">Forstået →</button>
+  </div>
+</div>
+
 </body>
 </html>
