@@ -1492,7 +1492,7 @@ function calcLon(h, opt, wkAutoH = 0, wkRate = 0.75) {
   const { varslet, uvarslet, helligdag, frokost, pause10, varsletTimer } = opt;
   const dMax = dagMax();
 
-  const normalH = Math.min(dMax, h);
+  const normalH = Math.min(dMax, harEnkeltdag ? Math.max(4, h) : h);
   const otH     = Math.max(0, h - dMax);
   const ot1H    = Math.min(1, otH);
   const ot2H    = Math.min(1, Math.max(0, otH - 1));
