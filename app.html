@@ -355,7 +355,7 @@ textarea::placeholder{color:var(--mut)}
       <button class="tab" id="tab-uge" onclick="visView('uge')">Uge</button>
       <button class="tab" id="tab-mnd" onclick="visView('mnd')">Måned</button>
     </div>
-    <span id="backup-icon" style="font-size:16px;cursor:pointer;opacity:0.25" title="Backup" onclick="idbMirrorAll();toast('Backup startet...')">☁️</span>
+    <span id="backup-icon" style="font-size:16px;cursor:pointer;opacity:0.25" title="Gem backup-fil til Filer" onclick="gemBackupFil()">☁️</span>
     <button class="gear-btn" id="gear-btn" onclick="visView('inst')" title="Indstillinger">⚙️</button>
   </div>
 </div>
@@ -397,6 +397,7 @@ textarea::placeholder{color:var(--mut)}
       <div class="dag-navn" id="dag-navn"></div>
       <div class="dag-dato" id="dag-dato"></div>
       <div class="dag-uge" id="dag-uge"></div>
+      <div id="dag-gem-status" style="font-size:10px;color:var(--grn);margin-top:3px;opacity:0;transition:opacity .4s;font-family:'DM Mono',monospace"></div>
     </div>
     <div class="dag-nav">
       <button class="nbtn" onclick="skiftDag(-1)">‹</button>
@@ -711,17 +712,18 @@ textarea::placeholder{color:var(--mut)}
   <button class="gem-btn" onclick="gemInst()">GEM INDSTILLINGER</button>
 
   <div class="s-card" style="margin-top:20px">
-    <div class="s-hd" onclick="togCard('sik-body','sik-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-      Sikkerhedskopi <span id="sik-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
-    </div>
-    <div id="sik-body" data-display="flex" style="padding:14px 16px;flex-direction:column;gap:10px;display:none">
-      <div style="font-size:12px;color:var(--mut);margin-bottom:2px">Eksporter alle dine data som en JSON-fil. Importer for at gendanne.</div>
-      <button class="gem-btn" onclick="exporterData()" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt)">⬇ EKSPORTER DATA</button>
-      <label class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-align:center;cursor:pointer">
-        ⬆ IMPORTER DATA
-        <input type="file" accept=".json" style="display:none" onchange="importerData(event)">
-      </label>
-      <button class="gem-btn" onclick="nødscan()" style="background:var(--surf);border:1.5px solid var(--red);color:var(--red)">🔍 NØDSCAN — VIS DATA</button>
+    <div class="s-hd">Sikkerhedskopi</div>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+      <div id="sidst-backup-lbl" style="font-size:12px;font-family:'DM Mono',monospace;padding:10px 12px;background:var(--surf);border-radius:var(--rs);border:1px solid var(--brd)">Henter…</div>
+      <div style="font-size:12px;color:var(--mut);line-height:1.5">Gem en kopi af alle dine data til din Filer-app. Brug den hvis du skifter telefon eller appen mister data.</div>
+      <button class="gem-btn" onclick="gemBackupFil()" style="font-size:16px;letter-spacing:0">☁️ &nbsp;GEM BACKUP TIL FILER</button>
+      <div style="border-top:1px solid var(--brd);padding-top:12px">
+        <div style="font-size:11px;color:var(--mut);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Gendan fra tidligere backup</div>
+        <label class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-align:center;cursor:pointer;font-size:13px">
+          📂 &nbsp;HENT BACKUP FRA FIL
+          <input type="file" accept=".json" style="display:none" onchange="importerData(event)">
+        </label>
+      </div>
     </div>
   </div>
 
@@ -997,6 +999,37 @@ function idbUpdateIcon(state) {
   else if (state === 'syncing') { el.textContent = '⏳'; el.title = 'Gemmer backup...'; el.style.opacity = '1'; }
   else if (state === 'error')   { el.textContent = '⚠️'; el.title = 'Backup fejl'; el.style.opacity = '1'; }
   else { el.textContent = '☁️'; el.title = 'Ingen backup endnu'; el.style.opacity = '0.25'; }
+}
+
+function opdaterGemStatus() {
+  const gs = document.getElementById('dag-gem-status');
+  if (!gs) return;
+  gs.textContent = '✓ gemt';
+  gs.style.opacity = '1';
+}
+
+function gemBackupFil() {
+  // Eksporter fil + intern IDB-kopi
+  exporterData();
+  idbMirrorAll();
+  // Gem tidsstempel
+  const nu = new Date();
+  const str = nu.toLocaleString('da-DK', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
+  localStorage.setItem('backup-sidst-dato', str);
+  // Opdater UI
+  const el = document.getElementById('backup-icon');
+  if (el) { el.textContent = '✅'; el.style.opacity = '1'; el.title = 'Backup gemt — find filen i Filer-appen'; }
+  setTimeout(() => idbUpdateIcon('synced'), 3000);
+  opdaterSidstBackup();
+  toast('✓ Backup-fil gemt — åbn Filer-appen for at se den');
+}
+
+function opdaterSidstBackup() {
+  const el = document.getElementById('sidst-backup-lbl');
+  if (!el) return;
+  const dato = localStorage.getItem('backup-sidst-dato');
+  el.textContent = dato ? `Sidst gemt: ${dato}` : 'Aldrig gemt — tryk knappen nedenfor';
+  el.style.color = dato ? 'var(--grn)' : 'var(--red)';
 }
 
 // ═══════════════════════════════════════════════════
@@ -1770,7 +1803,7 @@ function opdaterKnapper() {
 // ═══════════════════════════════════════════════════
 // GEM DAG
 // ═══════════════════════════════════════════════════
-function gemDag() {
+function gemDag(stille = false) {
   const h      = calcTimer(tidStart, tidSlut);
   const idx    = aktivDag.getDay();
   const fsk    = calcForskudt(tidStart, tidSlut, idx);
@@ -1793,13 +1826,15 @@ function gemDag() {
     prod: cfg.prod || '', prodId: aktivProdId
   });
 
-  const btn = document.getElementById('gem-btn');
-  btn.textContent = '✓ GEMT!'; btn.classList.add('ok');
-  setTimeout(() => { btn.textContent = 'GEM DAG →'; btn.classList.remove('ok'); }, 2000);
-  toast('Dag gemt ✓');
-
-  // Vis slet/send knapper
+  if (!stille) {
+    const btn = document.getElementById('gem-btn');
+    btn.textContent = '✓ GEMT!'; btn.classList.add('ok');
+    setTimeout(() => { btn.textContent = 'GEM DAG →'; btn.classList.remove('ok'); }, 2000);
+    toast('Dag gemt ✓');
+  }
+  // Vis slet/send knapper + gem-status
   document.getElementById('dag-actions').style.display = 'grid';
+  opdaterGemStatus();
 }
 
 // ═══════════════════════════════════════════════════
@@ -1972,6 +2007,7 @@ function sendEnkeltDag() {
 // DAG NAVIGATION
 // ═══════════════════════════════════════════════════
 function skiftDag(dir) {
+  if (tidStart !== null) gemDag(true); // Auto-gem stille inden dagsskift
   brugerValgteProduktion = false;
   aktivDag = new Date(aktivDag);
   aktivDag.setDate(aktivDag.getDate() + dir);
@@ -2028,6 +2064,17 @@ function rendDag() {
   }
   document.getElementById('i-note').value = s?.note || '';
   document.getElementById('dag-actions').style.display = s ? 'grid' : 'none';
+  // Vis gem-status
+  const gs = document.getElementById('dag-gem-status');
+  if (gs) {
+    if (s) {
+      gs.textContent = '✓ gemt';
+      gs.style.opacity = '1';
+    } else {
+      gs.textContent = '';
+      gs.style.opacity = '0';
+    }
+  }
   opdaterTidDisplay();
   opdaterKnapper();
   opdaterSaertidBadge();
@@ -3031,6 +3078,7 @@ idbCheckRestore().then(() => {
   initCard('lon-body', 'lon-ch', true);
   initCard('sik-body', 'sik-ch', false);
   initCard('prod-body', 'prod-ch', false);
+  opdaterSidstBackup();
 });
 </script>
 
@@ -3080,8 +3128,16 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '32';
+const APP_VERSION = '33';
 const CHANGELOG = {
+  '33': {
+    dato: '12. april 2026',
+    nyt: [
+      'Auto-gem: Dine data gemmes nu automatisk når du skifter dag med ‹ og ›. Du behøver ikke huske at trykke GEM DAG.',
+      '✓ gemt vises under datoen så du altid kan se om en dag er registreret.',
+      'Backup forenklet: ☁️ knappen gemmer nu en rigtig backup-fil til din Filer-app. Indstillinger → Sikkerhedskopi viser hvornår du sidst gemte.',
+    ]
+  },
   '32': {
     dato: '12. april 2026',
     nyt: [
