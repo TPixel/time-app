@@ -1650,15 +1650,18 @@ function beregn() {
   const erManuel = cfg.dagLon > 0;
   const visLon = erManuel ? cfg.dagLon : tot;
 
-  document.getElementById('res-t').textContent   = hFmt(h);
+  // §3.10: vis betalte timer (normalH) når enkeltdag-minimum er højere end faktiske timer
+  const enkeltdagMin = l.normalH > h;
+  document.getElementById('res-t').textContent   = hFmt(enkeltdagMin ? l.normalH : h);
   document.getElementById('res-pay').textContent = `${visLon.toLocaleString('da-DK')} kr.`;
   const payLbl = document.getElementById('res-pay-lbl');
-  if (payLbl) payLbl.textContent = erManuel ? 'Manuel dagssats ✎' : 'Dagsløn';
+  if (payLbl) payLbl.textContent = erManuel ? 'Manuel dagssats ✎' : enkeltdagMin ? 'Enkeltdag §3.10' : 'Dagsløn';
   // OT-type advarsel opdateres nedenfor, sættes efter ingenType er beregnet
 
   const dMax = dagMax();
   let sub = [];
-  if (h > dMax) sub.push(`${hFmt(h - dMax)} OT`);
+  if (enkeltdagMin) sub.push(`${hFmt(h)} registreret · minimum ${hFmt(l.normalH)}`);
+  else if (h > dMax) sub.push(`${hFmt(h - dMax)} OT`);
   if (fsk > 0)  sub.push(`${hFmt(fsk)} forskudt`);
   document.getElementById('res-sub').textContent = sub.join('  ·  ');
 
@@ -3128,8 +3131,14 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '33';
+const APP_VERSION = '34';
 const CHANGELOG = {
+  '34': {
+    dato: '12. april 2026',
+    nyt: [
+      '§3.10 display rettet: Appen viser nu 4t (betalte timer) i stedet for 2t (registrerede timer) når enkeltdag-minimum gælder. Label skifter til "Enkeltdag §3.10" og underteksten viser fx "2t registreret · minimum 4t".',
+    ]
+  },
   '33': {
     dato: '12. april 2026',
     nyt: [
