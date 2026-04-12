@@ -32,10 +32,10 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto}
 
-.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:12px 18px}
-.logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:9px 14px}
+.logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;letter-spacing:-.3px;display:flex;align-items:center;gap:5px}
 .logo em{color:var(--acc);font-style:normal}
-.logo-flag{font-size:20px;line-height:1}
+.logo-flag{font-size:15px;line-height:1}
 .tabs{display:flex;background:var(--surf);border-radius:50px;padding:3px;gap:2px}
 .tab{padding:6px 10px;border-radius:50px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s}
 .tab.on{background:var(--acc);color:#fff}
@@ -282,6 +282,9 @@ textarea::placeholder{color:var(--mut)}
 .prod-item-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:50px;background:var(--acc);color:#fff;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0}
 .prod-del{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--red);background:transparent;color:var(--red);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
 .prod-del:active{background:var(--red-d)}
+.prod-skjul{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--brd);background:transparent;color:var(--mut);font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
+.prod-skjul.er-skjult{border-color:var(--acc);color:var(--acc);opacity:.6}
+.prod-skjul:active{opacity:.5}
 .ny-prod-btn{width:100%;padding:13px;border-radius:var(--rs);border:1.5px dashed var(--brd);background:transparent;color:var(--mut);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px}
 .ny-prod-btn:active{border-color:var(--acc);color:var(--acc)}
 
@@ -1049,8 +1052,8 @@ function rendProdSwitcher() {
   };
   bar.appendChild(alle);
 
-  // En pill per produktion
-  produktioner.forEach(p => {
+  // En pill per produktion (kun synlige)
+  produktioner.filter(p => !p.skjult).forEach(p => {
     const pill = document.createElement('button');
     const isActive = p.id === aktivProdId && !visAlleProduktioner;
     pill.className = 'prod-sw-pill' + (isActive ? ' on' : '');
@@ -1109,6 +1112,19 @@ function sletProduktion(id) {
   }
 }
 
+function toggleSkjulProduktion(id) {
+  const p = produktioner.find(x => x.id === id);
+  if (!p) return;
+  if (!p.skjult && p.id === aktivProdId) {
+    toast('Skift til en anden produktion først');
+    return;
+  }
+  p.skjult = !p.skjult;
+  gemProduktionerStore();
+  rendProdSwitcher();
+  rendProdListe();
+}
+
 function rendProdListe() {
   const liste = document.getElementById('prod-liste');
   if (!liste) return;
@@ -1119,12 +1135,14 @@ function rendProdListe() {
     const dTimer = p.model === 'saertid' ? 10 : 8;
     const dagLon = Math.round((p.ugelon + (p.pers||0)) * (p.tillæg?1.1:1) / dage);
     const div = document.createElement('div');
-    div.className = 'prod-item' + (erAktiv ? ' aktiv' : '');
+    div.className = 'prod-item' + (erAktiv ? ' aktiv' : '') + (p.skjult ? ' skjult-prod' : '');
+    div.style.opacity = p.skjult ? '0.55' : '';
     div.innerHTML = `
       <div class="prod-item-info" onclick="skiftProduktion('${p.id}')">
         <div class="prod-item-navn">${p.prod || '(ingen titel)'}</div>
-        <div class="prod-item-sub">${dagLon.toLocaleString('da-DK')} kr/dag · ${dTimer}t · ${p.model === 'saertid' ? 'Særtid §5' : 'Normal §4'}</div>
+        <div class="prod-item-sub">${dagLon.toLocaleString('da-DK')} kr/dag · ${dTimer}t · ${p.model === 'saertid' ? 'Særtid §5' : 'Normal §4'}${p.skjult ? ' · <em style="color:var(--acc);font-style:normal">skjult</em>' : ''}</div>
       </div>
+      <button class="prod-skjul${p.skjult ? ' er-skjult' : ''}" onclick="event.stopPropagation();toggleSkjulProduktion('${p.id}')" title="${p.skjult ? 'Vis knap i bar' : 'Skjul knap fra bar'}">👁</button>
       ${erAktiv ? '<span class="prod-item-badge">Aktiv</span>' : `<button class="prod-del" onclick="event.stopPropagation();sletProduktion('${p.id}')" title="Slet">×</button>`}
     `;
     liste.appendChild(div);
@@ -3062,8 +3080,15 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '31';
+const APP_VERSION = '32';
 const CHANGELOG = {
+  '32': {
+    dato: '12. april 2026',
+    nyt: [
+      'Topbar: TIME·APP teksten er gjort mindre så ☁️ og ⚙️ altid er synlige uden at scrolle.',
+      'Skjul produktionsknapper: Tryk 👁 i Indstillinger → Produktioner for at skjule en knap fra baren. Data slettes ikke — knappen kan altid vises igen.',
+    ]
+  },
   '31': {
     dato: '12. april 2026',
     nyt: [
