@@ -1,5 +1,5 @@
 // ── Time App Service Worker ──
-const CACHE = 'timeapp-v30';
+const CACHE = 'timeapp-v31';
 const ASSETS = ['/app.html', '/rekl.html'];
 
 self.addEventListener('install', e => {

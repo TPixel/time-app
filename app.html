@@ -3062,8 +3062,15 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '30';
+const APP_VERSION = '31';
 const CHANGELOG = {
+  '31': {
+    dato: '12. april 2026',
+    nyt: [
+      '§3.10 Rettet: Minimum 4 timers kald ved enkeltdagsengagementer — arbejder du 2 timer som enkeltdagsansat betales der nu korrekt for 4 timer.',
+      'Opdateringssystem: Du ser nu automatisk besked når der er en ny version klar.',
+    ]
+  },
   '30': {
     dato: '10. april 2026',
     nyt: [
@@ -3120,7 +3127,7 @@ function dismissUpdate() {
 // ── VERSION CHECK → CHANGELOG MODAL ──
 window.addEventListener('load', () => {
   const gemt = localStorage.getItem('app-version');
-  if (gemt && gemt !== APP_VERSION && CHANGELOG[APP_VERSION]) {
+  if (gemt !== APP_VERSION && CHANGELOG[APP_VERSION]) {
     const log = CHANGELOG[APP_VERSION];
     document.getElementById('cl-dato').textContent = log.dato;
     document.getElementById('cl-version').textContent = APP_VERSION;
