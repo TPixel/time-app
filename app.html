@@ -26,8 +26,7 @@
   --btn-u:#E02020;   /* Uvarslet — rød */
   --btn-f:#D4A017;   /* Frokost — gul */
   --btn-p:#E8784A;   /* Pause — laks */
-  --btn-h:#1AACDD;   /* Weekend — cyan */
-  --btn-r:#1DB954;   /* Kørsel — grøn */
+  --btn-h:#1AACDD;   /* Weekend — cyan */   /* Kørsel — grøn */
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto}
@@ -161,7 +160,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-
 .xb[id="bn-f"]{border:2px solid rgba(212,160,23,.3)}
 .xb[id="bn-p"]{border:2px solid rgba(232,120,74,.3)}
 .xb[id="bn-h"]{border:2px solid rgba(26,172,221,.3)}
-.xb[id="bn-r"]{border:2px solid rgba(29,185,84,.3)}
+
 
 /* Aktiv — fyldt farve */
 .xb.von{background:var(--btn-v)!important;border-color:var(--btn-v)!important;color:#fff!important}
@@ -489,10 +488,6 @@ textarea::placeholder{color:var(--mut)}
       Ingen pause
       <span class="xb-sub">Efter 10t §7</span>
     </button>
-    <button class="xb" id="bn-r" onclick="tog('r')">
-      Kørsel
-      <span class="xb-sub">= arbejdstid §13</span>
-    </button>
     <button class="xb" id="bn-e" onclick="tog('e')">
       10% enkeltdag
       <span class="xb-sub">Dagsbeskæftiget §3.10</span>
@@ -758,7 +753,7 @@ const KVARTER = [0, 15, 30, 45];
 // ═══════════════════════════════════════════════════
 let aktivDag    = new Date();
 let ugeOffset   = 0;
-let knapper     = { v:false, u:false, f:false, p:false, h:false, r:false, e:false, varsletTimer:0 };
+let knapper     = { v:false, u:false, f:false, p:false, h:false, e:false, varsletTimer:0 };
 let cfg         = { navn:'', email:'', prod:'', ugelon:10380, pers:0, tillæg:false, model:'5dag', fridag:'fre', dagLon:0 };
 let produktioner  = [];   // Array af cfg-objekter
 let aktivProdId   = null; // ID for aktiv produktion
@@ -1862,7 +1857,7 @@ function sletDag() {
   if (!confirm(`Slet ${DAGE[aktivDag.getDay()]} ${aktivDag.getDate()}/${aktivDag.getMonth()+1}?`)) return;
   localStorage.removeItem(nøgle(aktivDag));
   tidStart = null; tidSlut = null;
-  knapper  = { v:false, u:false, f:false, p:false, h:false, r:false, e:false, varsletTimer:0 };
+  knapper  = { v:false, u:false, f:false, p:false, h:false, e:false, varsletTimer:0 };
   document.getElementById('i-note').value = '';
   document.getElementById('dag-actions').style.display = 'none';
   opdaterTidDisplay();
@@ -1902,7 +1897,6 @@ function doPDF_dag() {
     dMixed ? null : (d.knapper?.u ? 'Uvarslet OT' : null),
     d.knapper?.h ? 'Helligdag §8' : null,
     d.knapper?.f ? 'Sen frokost' : null,
-    d.knapper?.r ? 'Kørsel m. udstyr' : null,
     d.knapper?.e ? '10% Enkeltdag' : null,
   ].filter(Boolean).map(b => `<span style="background:var(--acc);color:#fff;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700">${b}</span>`).join(' ');
   const pension = Math.round(d.lon * 0.095);
@@ -1960,7 +1954,6 @@ function sendEnkeltDag() {
     mMixed ? null : (d.knapper?.u ? '◆ Uvarslet OT' : null),
     d.knapper?.h ? '◆ Weekend / helligdag §8' : null,
     d.knapper?.f ? '◆ Sen frokost' : null,
-    d.knapper?.r ? '◆ Kørsel m. udstyr' : null,
   ].filter(Boolean);
 
   // ── Formatering ──────────────────────────────────────────────────
@@ -2067,7 +2060,7 @@ function rendDag() {
       ttl.title = produktioner.length > 1 ? 'Tryk for at skifte aktiv produktion' : '';
     }
   }
-  knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,r:false,e:false,varsletTimer:0, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, r:false, e:false, varsletTimer:0 };
+  knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,e:false,varsletTimer:0, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, e:false, varsletTimer:0 };
   tidStart = s?.tidStart || null;
   tidSlut  = s?.tidSlut  || null;
   otVis    = false; // nulstil OT-visning ved dagskift
@@ -2766,7 +2759,6 @@ function doMail() {
     const extras = [
       d.knapper?.h ? 'Weekend' : '',
       d.knapper?.f ? 'Sen frokost' : '',
-      d.knapper?.r ? 'Kørsel m. udstyr' : '',
       otType,
     ].filter(Boolean).join(', ');
     dagLinjer += `${dagNavn(d.dato)} ${d.dato.getDate()}/${d.dato.getMonth()+1}${n}`;
