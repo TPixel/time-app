@@ -1467,19 +1467,26 @@ function calcTimer(start, slut) {
 
 // §7: Forskudt tid = timer uden for 06-19 på hverdage (man-fre)
 // §7.4: Timer i weekend-perioden (fre 20:00–man 06:00) giver IKKE §7 — det er §8
+// Overnight-vagter håndteres ved at tildele hvert segment sin korrekte dag
 function calcForskudt(start, slut, dagIdx) {
-  if (dagIdx === 0 || dagIdx === 6) return 0; // Lørdag/søndag: ingen §7 (alt er §8 weekend)
   const s = tidTilH(start), e = tidTilH(slut);
   if (s === null || e === null) return 0;
   let fsk = 0;
-  const seg = (e >= s) ? [[s, e]] : [[s, 24], [0, e]];
-  seg.forEach(([a, b]) => {
-    // Fredag natvagt der krydser midnat: [0,e]-segmentet er lørdag = §8 weekend, ikke §7
-    if (dagIdx === 5 && a === 0) return;
-    // Mandag: 00:00–06:00 er weekend-periode → §8, ikke §7
-    const aFsk = (dagIdx === 1) ? Math.max(a, 6) : a;
+
+  // Segmenter: overnight-vagt giver to segmenter med hver sin dagIdx
+  const segs = (e >= s)
+    ? [[s, e, dagIdx]]
+    : [[s, 24, dagIdx], [0, e, (dagIdx + 1) % 7]];
+
+  segs.forEach(([a, b, dIdx]) => {
+    // Lørdag (6) og søndag (0): ingen §7 — alt er §8 weekend
+    if (dIdx === 0 || dIdx === 6) return;
+    // Fredag natvagt der krydser midnat: efter-midnat-segmentet er lørdag = §8, ikke §7
+    // (allerede håndteret ovenfor: dIdx === 6 → return)
+    // Mandag: 00:00–06:00 er stadig weekend-periode → §8, ikke §7
+    const aFsk = (dIdx === 1) ? Math.max(a, 6) : a;
     // Fredag: 20:00–24:00 er weekend-periode → §8, ikke §7
-    const bFsk = (dagIdx === 5) ? Math.min(b, 20) : b;
+    const bFsk = (dIdx === 5) ? Math.min(b, 20) : b;
     if (aFsk >= bFsk) return;
     if (aFsk < 6) fsk += Math.min(bFsk, 6) - aFsk;
     if (bFsk > 19) fsk += bFsk - Math.max(aFsk, 19);
