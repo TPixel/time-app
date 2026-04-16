@@ -731,7 +731,7 @@ textarea::placeholder{color:var(--mut)}
       <a href="index.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
         <span>🌐 Om Time App</span><span style="color:var(--acc)">→</span>
       </a>
-      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 38</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 40</div>
     </div>
   </div>
 </div>
@@ -3138,8 +3138,15 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '34';
+const APP_VERSION = '40';
 const CHANGELOG = {
+  '40': {
+    dato: '16. april 2026',
+    nyt: [
+      'Kørsel-knap §13 fjernet — brug note-feltet til at markere kørselsdag. Kørsel med udstyrsbil registreres via start/slut tidspunkt som normal arbejdstid.',
+      'Beregningsfejl rettet: Overnight-vagter (fx søndag 23:30 → mandag 08:00) beregner nu §7 og §8 korrekt for hvert dagsegment separat.',
+    ]
+  },
   '34': {
     dato: '12. april 2026',
     nyt: [
@@ -3212,6 +3219,17 @@ function visUpdateBanner() {
   if (b) b.style.display = 'flex';
 }
 function applyUpdate() {
+  const harTider = tidStart !== null || tidSlut !== null;
+  const dagGemt  = !!hentDag(aktivDag);
+  const harNote  = (document.getElementById('i-note')?.value || '').trim().length > 0;
+  if ((harTider || harNote) && !dagGemt) {
+    const gem = confirm(
+      '⚠️ Du har ugemte ændringer på denne dag.\n\n' +
+      'Tryk OK for at gemme og derefter opdatere.\n' +
+      'Tryk Annuller for at opdatere uden at gemme.'
+    );
+    if (gem) gemDag(true);
+  }
   if (_swReg?.waiting) {
     _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
   }
