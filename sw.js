@@ -1,8 +1,9 @@
 // ── Time App Service Worker ──
-const CACHE = 'timeapp-v40';
-const ASSETS = ['/app.html', '/rekl.html'];
+const CACHE = 'timeapp-v50';
+const ASSETS = ['/app.html', '/rekl.html', '/se-ftv.html', '/icon.png'];
 
 self.addEventListener('install', e => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE).then(c => c.addAll(ASSETS).catch(() => {}))
   );

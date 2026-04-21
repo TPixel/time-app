@@ -541,7 +541,10 @@ textarea::placeholder{color:var(--mut)}
 
 <!-- INSTÄLLNINGAR VIEW -->
 <div class="view" id="view-inst">
-  <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px" data-i18n="inställningar">Inställningar</div>
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:4px">
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800" data-i18n="inställningar">Inställningar</div>
+    <div id="inst-version" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:var(--mut);letter-spacing:.5px"></div>
+  </div>
   <div style="font-size:12px;color:var(--mut);margin-bottom:20px">Scen & Film · Film·TV·Video 2023–2025</div>
 
   <!-- PRODUKTIONER -->
@@ -608,6 +611,31 @@ textarea::placeholder{color:var(--mut)}
     <div style="padding:14px 16px">
       <div style="font-size:11px;color:var(--mut);margin-top:4px">Scen & Film · Film·TV·Video 2023–2025 · Version 1.0</div>
     </div>
+  </div>
+</div>
+
+<!-- UPDATE BANNER -->
+<div id="update-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1C1C2A;border-top:2px solid var(--acc);padding:14px 20px;gap:12px;align-items:center;justify-content:space-between">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:18px">⬆</span>
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px">Ny version klar</div>
+      <div style="font-size:12px;color:var(--mut)">Uppdatera för att få de senaste ändringarna</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button onclick="applyUpdate()" style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;padding:9px 18px;border-radius:50px;background:var(--acc);color:#fff;border:none;cursor:pointer">Uppdatera nu</button>
+    <button onclick="dismissUpdate()" style="font-size:18px;background:none;border:none;color:var(--mut);cursor:pointer;padding:4px 8px">✕</button>
+  </div>
+</div>
+
+<!-- CHANGELOG MODAL -->
+<div id="changelog-modal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#1C1C2A;border:1.5px solid var(--brd);border-radius:20px;padding:28px 24px;max-width:420px;width:100%">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:2px;color:var(--mut);margin-bottom:6px" id="cl-header"></div>
+    <div id="cl-title" style="font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:16px"></div>
+    <ul id="cl-liste" style="padding-left:18px;margin:0 0 24px;font-size:14px;line-height:1.6;color:var(--txt)"></ul>
+    <button id="cl-ok-btn" onclick="lukChangelog()" style="width:100%;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;padding:13px;border-radius:50px;background:var(--acc);color:#fff;border:none;cursor:pointer"></button>
   </div>
 </div>
 
@@ -765,6 +793,11 @@ const LANG = {
     avtalsregler: 'Avtalsregler',
     normaltid: 'Normaltid',
     pausfradrag: 'Pausfradrag',
+
+    // Changelog modal
+    cl_ny_version: 'Ny version',
+    cl_vad_ar_nytt: 'Vad är nytt ✦',
+    cl_ok: 'Förstått →',
   },
   da: {
     // Navigation
@@ -915,6 +948,11 @@ const LANG = {
     avtalsregler: 'Avtalsregler',
     normaltid: 'Normaltid',
     pausfradrag: 'Pausfradrag',
+
+    // Changelog modal
+    cl_ny_version: 'Ny version',
+    cl_vad_ar_nytt: 'Hvad er nyt ✦',
+    cl_ok: 'Forstået →',
   }
 };
 
@@ -1056,6 +1094,7 @@ function visView(v) {
     if (tab) tab.classList.toggle('on', x === v);
   });
   document.getElementById('gear-btn').classList.toggle('on', v === 'inst');
+  if (v === 'inst') { const iv = document.getElementById('inst-version'); if (iv) iv.textContent = `v${APP_VERSION}`; }
   if (v === 'dag') rendDag();
   if (v === 'vecka') rendVecka();
   if (v === 'mnd') rendMaaned();
@@ -2203,10 +2242,73 @@ function körTests() {
 }
 
 // ═══════════════════════════════════════════════════
+// VERSION & CHANGELOG
+// ═══════════════════════════════════════════════════
+const APP_VERSION = '1';
+const CHANGELOG = {
+  '1': {
+    dato: '17 april 2026',
+    nyt: [
+      'Versionsnummer visas nu längst upp på inställningssidan — du ser alltid vilken version som körs.',
+      'Automatisk uppdateringsnotis: när en ny version är redo visas en uppdateringsruta.',
+    ]
+  }
+};
+
+// ── SERVICE WORKER ──
+let _swReg = null;
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      _swReg = reg;
+      if (reg.waiting && navigator.serviceWorker.controller) visUpdateBanner();
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) visUpdateBanner();
+        });
+      });
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        window.location.reload();
+      });
+    } catch(e) {}
+  });
+}
+
+function visUpdateBanner() {
+  const b = document.getElementById('update-banner');
+  if (b) b.style.display = 'flex';
+}
+function applyUpdate() {
+  if (_swReg?.waiting) _swReg.waiting.postMessage({ type: 'SKIP_WAITING' });
+}
+function dismissUpdate() {
+  const b = document.getElementById('update-banner');
+  if (b) b.style.display = 'none';
+}
+function lukChangelog() {
+  document.getElementById('changelog-modal').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════
 window.addEventListener('load', async () => {
   await idbCheckRestore();
+
+  // ── VERSION CHECK → CHANGELOG MODAL ──
+  const _gemt = localStorage.getItem('se-ftv-app-version');
+  if (_gemt !== APP_VERSION && CHANGELOG[APP_VERSION]) {
+    const _log = CHANGELOG[APP_VERSION];
+    document.getElementById('cl-header').textContent = `${T('cl_ny_version')} ${APP_VERSION} · ${_log.dato}`;
+    document.getElementById('cl-title').textContent = T('cl_vad_ar_nytt');
+    document.getElementById('cl-ok-btn').textContent = T('cl_ok');
+    const ul = document.getElementById('cl-liste');
+    ul.innerHTML = _log.nyt.map(t => `<li style="margin-bottom:8px">${t}</li>`).join('');
+    document.getElementById('changelog-modal').style.display = 'flex';
+  }
+  localStorage.setItem('se-ftv-app-version', APP_VERSION);
 
   // Initialize language UI
   document.documentElement.lang = lang;
