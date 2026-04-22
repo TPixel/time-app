@@ -510,6 +510,11 @@ textarea::placeholder{color:var(--mut)}
       10% enkeltdag
       <span class="xb-sub">Dagsbeskæftiget §3.10</span>
     </button>
+    <button class="xb" id="bn-møde" onclick="tog('møde')">
+      Ugeprograms møde
+      <span class="xb-sub">Mødetid §15</span>
+    </button>
+
   </div>
 
   <div class="slbl">Note</div>
@@ -1213,6 +1218,8 @@ function indlæsCfgIForm() {
   document.getElementById('s-prod').value   = cfg.prod  || '';
   document.getElementById('s-ugelon').value = cfg.ugelon || 10380;
   document.getElementById('s-pers').value   = cfg.pers   || 0;
+  document.getElementById('s-talsmand').value = cfg.talsmand || 0;
+  document.getElementById('s-arbjmrep').value = cfg.arbjmrep || 0;
   const sdl = document.getElementById('s-daglon');
   if (sdl) sdl.value = cfg.dagLon || '';
   setSw('tillæg', cfg.tillæg);
@@ -1351,6 +1358,8 @@ function gemInst() {
   cfg.prod   = document.getElementById('s-prod').value.trim();
   cfg.ugelon = parseFloat(document.getElementById('s-ugelon').value) || 10380;
   cfg.pers   = parseFloat(document.getElementById('s-pers').value) || 0;
+  cfg.talsmand = parseFloat(document.getElementById('s-talsmand').value) || 0;
+  cfg.arbjmrep = parseFloat(document.getElementById('s-arbjmrep').value) || 0;
   cfg.fridag = document.getElementById('s-fridag').value;
   const dlEl = document.getElementById('s-daglon');
   cfg.dagLon = dlEl && dlEl.value ? (parseInt(dlEl.value) || 0) : 0;
@@ -1478,6 +1487,8 @@ function timesatsMedTillæg() {
   // §3.10: 10% enkeltdagstillæg gælder KUN for mindsteløn — ikke for personligt tillæg
   const mindstelønTs = cfg.ugelon / 40 * (cfg.tillæg ? 1.1 : 1.0);
   const persTs       = (cfg.pers || 0) / 40;
+  const talsmandDag  = (cfg.talsmand || 0) / 5;  // 5 work days
+  const arbjmrepDag  = (cfg.arbjmrep || 0) / 5;  // 5 work days
   return mindstelønTs + persTs;
 }
 
