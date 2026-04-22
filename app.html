@@ -3385,5 +3385,14 @@ window.addEventListener('load', () => {
   }
 });
 </script>
+  <script>
+    // Populate version info when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      const buildDisplay = document.getElementById('build-display');
+      if (buildDisplay && typeof APP_VERSION !== 'undefined') {
+        buildDisplay.textContent = APP_VERSION;
+      }
+    });
+  </script>
 </body>
 </html>
