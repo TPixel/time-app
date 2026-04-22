@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="da"><head><meta charset="UTF-8">
+<title>Ugespecifikation — Uge 15, 2026</title><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@400;500;600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:#0a0a14;min-height:100vh;}
+@media print{body{background:#fff!important;} .page{box-shadow:none!important;}}
+
+.page{max-width:760px;margin:0 auto;background:#fff;box-shadow:0 0 60px rgba(0,0,0,.7);}
+
+/* ── HEADER ── */
+.hdr{background:#1A1A2E;}
+.hdr-strip{height:20px;overflow:hidden;}
+.hdr-strip svg{width:100%;height:20px;display:block;}
+.hdr-main{padding:24px 32px 20px;display:flex;align-items:flex-start;justify-content:space-between;}
+.hdr-logo{font-family:'DM Mono',monospace;font-size:10px;color:#aaa;letter-spacing:.15em;margin-bottom:5px;text-transform:uppercase;}
+.hdr-prod{font-size:20px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:3px;}
+.hdr-sub{font-size:12px;color:#E8B94F;font-weight:600;letter-spacing:.04em;}
+.hdr-meta{text-align:right;}
+.hdr-navn{font-size:15px;font-weight:700;color:#fff;margin-bottom:3px;}
+.hdr-dato{font-size:12px;color:#ccc;font-family:'DM Mono',monospace;}
+.hdr-overens{font-size:10px;color:#aaa;margin-top:6px;}
+
+/* ── METRICS ── */
+.metric-grid{display:grid;gap:1px;background:#0a0a14;}
+.metric-box{background:#16213E;padding:16px 20px;text-align:center;}
+.metric-val{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;color:#E8B94F;line-height:1;}
+.metric-lbl{font-size:10px;color:#aaa;margin-top:5px;text-transform:uppercase;letter-spacing:.08em;}
+.metric-sub{font-size:11px;color:#00C897;margin-top:3px;}
+
+/* ── BODY ── */
+.body{background:#fff;padding:28px 32px;}
+
+/* ── SEKTION ── */
+.sect{font-size:11px;font-weight:700;color:#1A1A2E;letter-spacing:.08em;text-transform:uppercase;
+      margin:24px 0 12px;padding-bottom:6px;border-bottom:2px solid #1A1A2E;}
+.sect:first-child{margin-top:0;}
+
+/* ── TABEL ── */
+.spec-tbl{width:100%;border-collapse:collapse;}
+.spec-tbl thead tr{background:#1A1A2E;}
+.spec-tbl th{color:#fff;font-size:10px;font-weight:600;padding:9px 12px;
+             letter-spacing:.06em;text-transform:uppercase;text-align:left;}
+.spec-tbl th.r{text-align:right;}
+.spec-tbl td{padding:9px 12px;font-size:13px;color:#111;border-bottom:1px solid #eee;}
+.spec-tbl td.r{text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:#111;}
+.spec-tbl tbody tr:nth-child(even) td{background:#f7f8fc;}
+.spec-tbl tr.ot1 td{color:#c47000;}
+.spec-tbl tr.ot2 td{color:#c03800;}
+.spec-tbl tr.ot3 td{color:#c0202a;}
+.spec-tbl tr.sum td{font-weight:800;font-size:14px;border-top:2px solid #1A1A2E;
+                     border-bottom:none;color:#111;background:#eef0f8 !important;}
+.spec-tbl tr.pen td{font-size:12px;color:#555;background:#f7f8fc !important;}
+
+/* ── BADGE ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;
+       margin:0;letter-spacing:.03em;}
+.badge.v{background:#fff0d0;color:#a06800;}
+.badge.e{background:#e8eaf6;color:#3040a0;}
+
+/* ── TIDSLINJE SVG container ── */
+.tids-wrap{margin:4px 0 8px;border-radius:6px;overflow:hidden;}
+
+/* ── CHART (søjler) ── */
+.chart-wrap{background:#0f0f24;border-radius:6px;padding:14px 14px 10px;margin:4px 0;}
+.chart-title{font-size:10px;color:#E8B94F;font-weight:700;letter-spacing:.1em;
+             text-transform:uppercase;margin-bottom:10px;font-family:'DM Mono',monospace;}
+
+/* ── FOOTER ── */
+.footer{background:#1A1A2E;padding:12px 32px;display:flex;justify-content:space-between;align-items:center;}
+.footer-txt{font-size:10px;color:#aaa;font-family:'DM Mono',monospace;}
+.footer-acc{color:#E8B94F;}
+</style></head><body><div class="page">
+
+<div class="hdr">
+  <div class="hdr-strip"><svg width="760" height="20" xmlns="http://www.w3.org/2000/svg">
+    <rect width="760" height="20" fill="#1A1A2E"/>
+    <rect x="32" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="84" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="136" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="188" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="240" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="292" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="344" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="396" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="448" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="500" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="552" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="604" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="656" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="708" y="2" width="20" height="16" rx="3" fill="#222244"/>
+  </svg></div>
+  <div class="hdr-main">
+    <div>
+      <div class="hdr-logo">Time App · Ugespecifikation</div>
+      <div class="hdr-prod">Nordisk Film — Dramatikken</div>
+      <div class="hdr-sub">Uge 15 · 6.–10. april 2026</div>
+    </div>
+    <div class="hdr-meta">
+      <div class="hdr-navn">Thomas Ditzel</div>
+      <div class="hdr-dato">Ugeløn 12.380 kr.</div>
+      <div class="hdr-overens">Fiktionsoverenskomst 2025–2027</div>
+    </div>
+  </div>
+  <div class="hdr-strip" style="transform:scaleY(-1)"><svg width="760" height="20" xmlns="http://www.w3.org/2000/svg">
+    <rect width="760" height="20" fill="#1A1A2E"/>
+    <rect x="32" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="84" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="136" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="188" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="240" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="292" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="344" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="396" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="448" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="500" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="552" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="604" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="656" y="2" width="20" height="16" rx="3" fill="#222244"/><rect x="708" y="2" width="20" height="16" rx="3" fill="#222244"/>
+  </svg></div>
+</div>
+
+<div style="background:#0a0a14;">
+  <div class="metric-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="metric-box"><div class="metric-val">40t</div><div class="metric-lbl">Timer i alt</div></div>
+    <div class="metric-box"><div class="metric-val">6t</div><div class="metric-lbl">OT-timer</div></div>
+    <div class="metric-box"><div class="metric-val">14.376</div><div class="metric-lbl">Ugeløn kr.</div></div>
+    <div class="metric-box"><div class="metric-val">1.366</div><div class="metric-lbl">Pension 9,5%</div></div>
+  </div>
+</div>
+
+<div class="body">
+
+  <div class="sect">Dagsoversigt — Uge 15</div>
+  <table class="spec-tbl">
+    <thead><tr>
+      <th>Dag</th><th>Tid</th><th class="r">Timer</th>
+      <th class="r">OT kr.</th><th class="r">Dagsløn</th><th>Note</th>
+    </tr></thead>
+    <tbody>
+      <tr class="ot1">
+    <td style="font-weight:600">Mandag</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px">7:00–16:00</td>
+    <td class="r">8t 30m</td>
+    <td class="r">232 kr.</td>
+    <td class="r" style="font-weight:600">2.708 kr.</td>
+    <td><span class="badge v">OT varslet</span> </td>
+  </tr><tr class="ot2">
+    <td style="font-weight:600">Tirsdag</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px">7:00–17:30</td>
+    <td class="r">10t</td>
+    <td class="r">959 kr.</td>
+    <td class="r" style="font-weight:600">3.435 kr.</td>
+    <td><span class="badge v">OT varslet</span> </td>
+  </tr><tr class="ot1">
+    <td style="font-weight:600">Onsdag</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px">6:00–15:00</td>
+    <td class="r">8t 30m</td>
+    <td class="r">232 kr.</td>
+    <td class="r" style="font-weight:600">2.708 kr.</td>
+    <td><span class="badge v">OT varslet</span> </td>
+  </tr><tr class="ot3">
+    <td style="font-weight:600">Torsdag</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px">7:00–18:30</td>
+    <td class="r">11t</td>
+    <td class="r">1.686 kr.</td>
+    <td class="r" style="font-weight:600">4.163 kr.</td>
+    <td><span class="badge v">OT varslet</span> </td>
+  </tr><tr class="">
+    <td style="font-weight:600">Fredag</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px">13:00–15:30</td>
+    <td class="r">2t</td>
+    <td class="r">—</td>
+    <td class="r" style="font-weight:600">1.362 kr.</td>
+    <td> <span class="badge e">§3.10</span></td>
+  </tr>
+      <tr class="sum">
+        <td colspan="2">Uge i alt</td>
+        <td class="r">40t</td>
+        <td class="r">3.109 kr.</td>
+        <td class="r">14.376 kr.</td>
+        <td></td>
+      </tr>
+      <tr class="pen">
+        <td colspan="4">Pension 9,5% (vejledende)</td>
+        <td class="r">1.366 kr.</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="sect">Tidslinje</div>
+  <div class="tids-wrap">
+    <svg width="696" height="182" xmlns="http://www.w3.org/2000/svg"
+    style="display:block;background:#111122;border-radius:6px;"><text x="35" y="20" font-size="11" fill="#ddd"
+      text-anchor="end" font-family="'DM Mono',monospace" font-weight="600">MAN</text><rect x="40" y="5" width="541" height="22" rx="3" fill="#1a1a35"/><rect x="112.1" y="5" width="305.5"
+        height="22" fill="#00C897"/><rect x="417.6" y="5" width="19.1"
+        height="22" fill="#FF9500"/><text x="116.13333333333333" y="19" font-size="8"
+      fill="rgba(255,255,255,0.65)" font-family="'DM Mono',monospace">
+      7:00</text><text x="588" y="16" font-size="10" fill="#fff"
+      font-family="'DM Mono',monospace" font-weight="600">8t 30m</text><text x="588" y="29" font-size="9"
+      fill="#E8B94F" font-family="'DM Mono',monospace">2.708 kr</text><text x="35" y="52" font-size="11" fill="#ddd"
+      text-anchor="end" font-family="'DM Mono',monospace" font-weight="600">TIR</text><rect x="40" y="37" width="541" height="22" rx="3" fill="#1a1a35"/><rect x="112.1" y="37" width="303.0"
+        height="22" fill="#00C897"/><rect x="415.1" y="37" width="37.9"
+        height="22" fill="#FF9500"/><rect x="453.0" y="37" width="37.9"
+        height="22" fill="#FF5E00"/><text x="116.13333333333333" y="51" font-size="8"
+      fill="rgba(255,255,255,0.65)" font-family="'DM Mono',monospace">
+      7:00</text><text x="588" y="48" font-size="10" fill="#fff"
+      font-family="'DM Mono',monospace" font-weight="600">10t</text><text x="588" y="61" font-size="9"
+      fill="#E8B94F" font-family="'DM Mono',monospace">3.435 kr</text><text x="35" y="84" font-size="11" fill="#ddd"
+      text-anchor="end" font-family="'DM Mono',monospace" font-weight="600">ONS</text><rect x="40" y="69" width="541" height="22" rx="3" fill="#1a1a35"/><rect x="76.1" y="69" width="36.1"
+        height="22" fill="#9B59B6"/><rect x="112.1" y="69" width="269.4"
+        height="22" fill="#00C897"/><rect x="381.6" y="69" width="19.1"
+        height="22" fill="#FF9500"/><text x="80.06666666666666" y="83" font-size="8"
+      fill="rgba(255,255,255,0.65)" font-family="'DM Mono',monospace">
+      6:00</text><text x="588" y="80" font-size="10" fill="#fff"
+      font-family="'DM Mono',monospace" font-weight="600">8t 30m</text><text x="588" y="93" font-size="9"
+      fill="#E8B94F" font-family="'DM Mono',monospace">2.708 kr</text><text x="35" y="116" font-size="11" fill="#ddd"
+      text-anchor="end" font-family="'DM Mono',monospace" font-weight="600">TOR</text><rect x="40" y="101" width="541" height="22" rx="3" fill="#1a1a35"/><rect x="112.1" y="101" width="301.6"
+        height="22" fill="#00C897"/><rect x="413.8" y="101" width="37.7"
+        height="22" fill="#FF9500"/><rect x="451.5" y="101" width="37.7"
+        height="22" fill="#FF5E00"/><rect x="489.2" y="101" width="37.7"
+        height="22" fill="#E63946"/><text x="116.13333333333333" y="115" font-size="8"
+      fill="rgba(255,255,255,0.65)" font-family="'DM Mono',monospace">
+      7:00</text><text x="588" y="112" font-size="10" fill="#fff"
+      font-family="'DM Mono',monospace" font-weight="600">11t</text><text x="588" y="125" font-size="9"
+      fill="#E8B94F" font-family="'DM Mono',monospace">4.163 kr</text><text x="35" y="148" font-size="11" fill="#ddd"
+      text-anchor="end" font-family="'DM Mono',monospace" font-weight="600">FRE</text><rect x="40" y="133" width="541" height="22" rx="3" fill="#1a1a35"/><rect x="328.5" y="133" width="90.2"
+        height="22" fill="#4A90D9"/><text x="332.5333333333333" y="147" font-size="8"
+      fill="rgba(255,255,255,0.65)" font-family="'DM Mono',monospace">
+      13:00</text><text x="588" y="144" font-size="10" fill="#fff"
+      font-family="'DM Mono',monospace" font-weight="600">2t</text><text x="588" y="157" font-size="9"
+      fill="#E8B94F" font-family="'DM Mono',monospace">1.362 kr</text><line x1="40" y1="162" x2="581" y2="162" stroke="#333" stroke-width="1"/><line x1="76.1" y1="162" x2="76.1" y2="166" stroke="#555" stroke-width="1"/><text x="76.1" y="176" font-size="9" fill="#aaa"
+      text-anchor="middle" font-family="'DM Mono',monospace">6:00</text><line x1="148.2" y1="162" x2="148.2" y2="166" stroke="#555" stroke-width="1"/><text x="148.2" y="176" font-size="9" fill="#aaa"
+      text-anchor="middle" font-family="'DM Mono',monospace">8:00</text><line x1="220.3" y1="162" x2="220.3" y2="166" stroke="#555" stroke-width="1"/><text x="220.3" y="176" font-size="9" fill="#aaa"
+      text-anchor="middle" font-family="'DM Mono',monospace">10:00</text><line x1="292.5" y1="162" x2="292.5" y2="166" stroke="#555" stroke-width="1"/><text x="292.5" y="176" font-size="9" fill="#aaa"
+      text-anchor="middle" font-family="'DM Mono',monospace">12:00</text><line x1="364.6" y1="162" x2="364.6" y2="166" stroke="#555" stroke-width="1"/><text x="364.6" y="176" font-size="9" fill="#aaa"
+      text-anchor="middle" font-family="'DM Mono',monospace">14:00</text><line x1="436.7" y1="162" x2="436.7" y2="166" stroke="#555" stroke-width="1"/><text x="436.7" y="176" font-size="9" fill="#aaa"
+      text-anchor="middle" font-family="'DM Mono',monospace">16:00</text><line x1="508.9" y1="162" x2="508.9" y2="166" stroke="#555" stroke-width="1"/><text x="508.9" y="176" font-size="9" fill="#aaa"
+      text-anchor="middle" font-family="'DM Mono',monospace">18:00</text><line x1="581.0" y1="162" x2="581.0" y2="166" stroke="#555" stroke-width="1"/><text x="581.0" y="176" font-size="9" fill="#aaa"
+      text-anchor="middle" font-family="'DM Mono',monospace">20:00</text></svg>
+  </div>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;">
+    <span style="font-size:10px;color:#00C897;font-weight:700;">■ Normal (100%)</span><span style="font-size:10px;color:#FF9500;font-weight:700;">■ OT 1.t +50%</span><span style="font-size:10px;color:#FF5E00;font-weight:700;">■ OT 2.t +60%</span><span style="font-size:10px;color:#E63946;font-weight:700;">■ OT 3.t+ +135%</span><span style="font-size:10px;color:#9B59B6;font-weight:700;">■ Mørketimer</span><span style="font-size:10px;color:#4A90D9;font-weight:700;">■ Enkeltdag §3.10</span>
+  </div>
+
+  <div class="sect">Dagsløn fordeling</div>
+  <div class="chart-wrap">
+    <div class="chart-title">▌ Kr. per dag · Uge 15</div>
+    <svg width="700" height="130" xmlns="http://www.w3.org/2000/svg">
+    <rect width="700" height="130" fill="#111122"/>
+    <line x1="50" y1="85" x2="700" y2="85" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/><text x="45" y="89" font-size="8" fill="#555" text-anchor="end" font-family="Arial">1.0k</text><line x1="50" y1="60" x2="700" y2="60" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/><text x="45" y="64" font-size="8" fill="#555" text-anchor="end" font-family="Arial">2.1k</text><line x1="50" y1="35" x2="700" y2="35" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/><text x="45" y="39" font-size="8" fill="#555" text-anchor="end" font-family="Arial">3.1k</text><line x1="50" y1="10" x2="700" y2="10" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/><text x="45" y="14" font-size="8" fill="#555" text-anchor="end" font-family="Arial">4.2k</text><rect x="50" y="51" width="60" height="59" fill="#00C897" rx="2"/><rect x="50" y="45" width="60" height="6" fill="#FF9500"/><rect x="134" y="50" width="60" height="60" fill="#00C897" rx="2"/><rect x="134" y="39" width="60" height="11" fill="#FF9500"/><rect x="134" y="27" width="60" height="12" fill="#FF5E00"/><rect x="218" y="51" width="60" height="59" fill="#00C897" rx="2"/><rect x="218" y="45" width="60" height="6" fill="#FF9500"/><rect x="302" y="51" width="60" height="59" fill="#00C897" rx="2"/><rect x="302" y="40" width="60" height="11" fill="#FF9500"/><rect x="302" y="28" width="60" height="12" fill="#FF5E00"/><rect x="302" y="10" width="60" height="18" fill="#E63946"/><rect x="386" y="77" width="60" height="33" fill="#00C897" rx="2"/><text x="80" y="125" font-size="10" fill="#888" text-anchor="middle" font-family="Arial" font-weight="bold">Man</text><text x="164" y="125" font-size="10" fill="#888" text-anchor="middle" font-family="Arial" font-weight="bold">Tir</text><text x="248" y="125" font-size="10" fill="#888" text-anchor="middle" font-family="Arial" font-weight="bold">Ons</text><text x="332" y="125" font-size="10" fill="#888" text-anchor="middle" font-family="Arial" font-weight="bold">Tor</text><text x="416" y="125" font-size="10" fill="#888" text-anchor="middle" font-family="Arial" font-weight="bold">Fre</text><text x="80" y="41" font-size="9" fill="#E8B94F" text-anchor="middle" font-family="Arial" font-weight="bold">2.7k</text><text x="164" y="23" font-size="9" fill="#E8B94F" text-anchor="middle" font-family="Arial" font-weight="bold">3.4k</text><text x="248" y="41" font-size="9" fill="#E8B94F" text-anchor="middle" font-family="Arial" font-weight="bold">2.7k</text><text x="332" y="6" font-size="9" fill="#E8B94F" text-anchor="middle" font-family="Arial" font-weight="bold">4.2k</text><text x="416" y="73" font-size="9" fill="#E8B94F" text-anchor="middle" font-family="Arial" font-weight="bold">1.4k</text>
+  </svg>
+  </div>
+
+</div>
+<div class="footer">
+  <span class="footer-txt">TIME APP · Nordisk Film — Dramatikken · Thomas Ditzel</span>
+  <span class="footer-txt footer-acc">Fiktionsoverenskomst 2025–2027</span>
+  <span class="footer-txt">Udskrevet 12.4.2026</span>
+</div>
+</div></body></html>

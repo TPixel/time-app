@@ -1,0 +1,53 @@
+v1.0 (v40): Time App 1.0 release
+
+- APP_VERSION sat til 1.0
+- Opdateret landing page, SE Fiktionsoverenskomst-visning
+- DharmaGothic font, logo og ikoner tilføjet
+- Service worker opdateret
+- FORBEDRINGER.md tilføjet
+
+# Conflicts:
+#	app.html
+#	sw.js
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# interactive rebase in progress; onto e02082b
+# Last commands done (2 commands done):
+#    pick 8832568 # test: Tilføj test-1000.js (781 tests) + udskrift-generator
+#    pick 315ce39 # v1.0 (v40): Time App 1.0 release
+# No commands remaining.
+# You are currently rebasing branch 'main' on 'e02082b'.
+#
+# Changes to be committed:
+#	new file:   DharmaGothicE-ExBold.otf
+#	new file:   FORBEDRINGER.md
+#	modified:   app.html
+#	new file:   icon.jpg
+#	new file:   icon.png
+#	modified:   index.html
+#	new file:   logo_transparent.png
+#	modified:   se-ftv.html
+#	modified:   sw.js
+#
+# Untracked files:
+#	.DS_Store
+#	"Time App \302\267 SE Fiktions.md"
+#	Time-App logo stor hvid baggrund.png
+#	app.html.bak
+#	comprehensive-test.js
+#	icon_hvid.png
+#	icon_sort.png
+#	splash.mp4
+#	test-full.js
+#	test_fiktions.js
+#	test_gem_hent.js
+#	test_rekl.js
+#	udskrifter/pdf-3dag-cool.html
+#	udskrifter/pdf-dag-cool.html
+#	udskrifter/pdf-uge-cool.html
+#	udskrifter/timeapp-ugeseddel-cool.xlsx
+#	uge1_2000.html
+#	uge1_2000.png
+#

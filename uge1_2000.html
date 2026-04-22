@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=430px">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#13141a;color:#ffffff;width:430px;padding:0 0 32px 0}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 12px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:5px}
+.nav-pills{display:flex;gap:4px;background:rgba(255,255,255,0.06);border-radius:20px;padding:3px}
+.nav-pill{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;padding:5px 14px;border-radius:16px;color:rgba(255,255,255,0.45)}
+.nav-pill.active{background:#6c63f5;color:#fff}
+.gear{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:16px}
+.uge-header{padding:22px 20px 8px;display:flex;align-items:flex-start;justify-content:space-between}
+.uge-ttl{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;letter-spacing:-2px;line-height:1}
+.uge-yr{font-family:'DM Mono',monospace;font-size:13px;color:rgba(255,255,255,0.4);margin-top:3px}
+.nav-btns{display:flex;gap:8px;margin-top:4px}
+.nav-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.08);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sum-card{margin:8px 16px 12px;background:#1e1f2d;border-radius:18px;padding:20px}
+.sum-row{display:flex;gap:0;margin-bottom:16px}
+.sum-row:last-child{margin-bottom:0}
+.sum-col{flex:1}
+.sum-divider{width:1px;background:rgba(255,255,255,0.08);margin:0 16px}
+.sum-divider-h{height:1px;background:rgba(255,255,255,0.08);margin:12px 0}
+.sum-val{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;letter-spacing:-2px;line-height:1}
+.sum-val.green{color:#4ade80}
+.sum-val.red{color:#ff6b6b}
+.sum-val.purple{color:#818cf8}
+.sum-lbl{font-family:'DM Sans',sans-serif;font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.dag-list{padding:0 16px;display:flex;flex-direction:column;gap:8px}
+.dag-card{background:#1e1f2d;border-radius:14px;display:flex;align-items:center;overflow:hidden;min-height:76px}
+.dag-bar{width:4px;min-height:76px;align-self:stretch;flex-shrink:0}
+.dag-left{padding:10px 10px 10px 12px;min-width:52px;text-align:center}
+.dag-navn-s{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:rgba(255,255,255,0.9);text-transform:uppercase;letter-spacing:.5px;line-height:1}
+.dag-dato-s{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.35);margin-top:3px}
+.dag-mid{flex:1;padding:10px 8px}
+.dag-prod{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.3px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:195px}
+.dag-lon{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#4ade80;margin-top:3px}
+.dag-tags{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.tag{font-family:'DM Mono',monospace;font-size:9px;font-weight:500;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.3px}
+.tag-v{background:#7c3f1a;color:#f97316}
+.tag-u{background:#3a1a1a;color:#ef4444}
+.tag-wk{background:#1a3040;color:#38bdf8}
+.tag-p{background:#2d2040;color:#a78bfa}
+.dag-right{padding:10px 14px 10px 6px;text-align:right;min-width:104px}
+.dag-tider{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:rgba(255,255,255,0.7);white-space:nowrap}
+.dag-tider .sep{color:rgba(255,255,255,0.3);font-size:10px}
+.dag-timer{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:rgba(255,255,255,0.55);margin-top:4px}
+.dag-timer.hot{color:#ff6b6b}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><span style="font-size:16px">🇩🇰</span> TIME · APP</div>
+  <div class="nav-pills">
+    <div class="nav-pill">Dag</div>
+    <div class="nav-pill active">Uge</div>
+    <div class="nav-pill">Måned</div>
+  </div>
+  <div class="gear">⚙️</div>
+</div>
+<div class="uge-header">
+  <div><div class="uge-ttl">Uge 1</div><div class="uge-yr">2000</div></div>
+  <div class="nav-btns">
+    <button class="nav-btn">‹</button>
+    <button class="nav-btn">›</button>
+  </div>
+</div>
+<div class="sum-card">
+  <div class="sum-row">
+    <div class="sum-col"><div class="sum-val">85t</div><div class="sum-lbl">Timer</div></div>
+    <div class="sum-divider"></div>
+    <div class="sum-col"><div class="sum-val green">38.335</div><div class="sum-lbl">Kr.</div></div>
+  </div>
+  <div class="sum-divider-h"></div>
+  <div class="sum-row">
+    <div class="sum-col"><div class="sum-val red" style="font-size:30px">30t 30m</div><div class="sum-lbl">Overtid</div></div>
+    <div class="sum-divider"></div>
+    <div class="sum-col"><div class="sum-val purple">7</div><div class="sum-lbl">Dage</div></div>
+  </div>
+</div>
+<div class="dag-list">
+
+  <!-- MAN: Edderkoppen -->
+  <div class="dag-card">
+    <div class="dag-bar" style="background:#7c6af5"></div>
+    <div class="dag-left"><div class="dag-navn-s">MAN</div><div class="dag-dato-s">3/1</div></div>
+    <div class="dag-mid">
+      <div class="dag-prod">Edderkoppen</div>
+      <div class="dag-lon">3.795 kr.</div>
+      <div class="dag-tags"><span class="tag tag-v">VARSLET</span></div>
+    </div>
+    <div class="dag-right"><div class="dag-tider">06:00<span class="sep"> → </span>18:00</div><div class="dag-timer">11t 30m</div></div>
+  </div>
+
+  <!-- TIR: Adams Æbler -->
+  <div class="dag-card">
+    <div class="dag-bar" style="background:#4ade80"></div>
+    <div class="dag-left"><div class="dag-navn-s">TIR</div><div class="dag-dato-s">4/1</div></div>
+    <div class="dag-mid">
+      <div class="dag-prod">Adams Æbler</div>
+      <div class="dag-lon">3.964 kr.</div>
+      <div class="dag-tags"><span class="tag tag-u">UVARSLET</span></div>
+    </div>
+    <div class="dag-right"><div class="dag-tider">08:00<span class="sep"> → </span>20:00</div><div class="dag-timer">11t 30m</div></div>
+  </div>
+
+  <!-- ONS: Kinamand -->
+  <div class="dag-card">
+    <div class="dag-bar" style="background:#60a5fa"></div>
+    <div class="dag-left"><div class="dag-navn-s">ONS</div><div class="dag-dato-s">5/1</div></div>
+    <div class="dag-mid">
+      <div class="dag-prod">Kinamand</div>
+      <div class="dag-lon">3.795 kr.</div>
+      <div class="dag-tags"><span class="tag tag-v">VARSLET</span></div>
+    </div>
+    <div class="dag-right"><div class="dag-tider">07:00<span class="sep"> → </span>19:00</div><div class="dag-timer">11t 30m</div></div>
+  </div>
+
+  <!-- TOR: Sprængfarlig Bombe -->
+  <div class="dag-card">
+    <div class="dag-bar" style="background:#fbbf24"></div>
+    <div class="dag-left"><div class="dag-navn-s">TOR</div><div class="dag-dato-s">6/1</div></div>
+    <div class="dag-mid">
+      <div class="dag-prod" style="font-size:14px">Sprængfarlig Bombe</div>
+      <div class="dag-lon">5.248 kr.</div>
+      <div class="dag-tags"><span class="tag tag-u">UVARSLET</span><span class="tag tag-p">INGEN PAUSE</span></div>
+    </div>
+    <div class="dag-right"><div class="dag-tider">08:00<span class="sep"> → </span>22:00</div><div class="dag-timer">13t 30m</div></div>
+  </div>
+
+  <!-- FRE: Sorte Kugler -->
+  <div class="dag-card">
+    <div class="dag-bar" style="background:#f472b6"></div>
+    <div class="dag-left"><div class="dag-navn-s">FRE</div><div class="dag-dato-s">7/1</div></div>
+    <div class="dag-mid">
+      <div class="dag-prod">Sorte Kugler</div>
+      <div class="dag-lon">1.946 kr.</div>
+      <div class="dag-tags"></div>
+    </div>
+    <div class="dag-right"><div class="dag-tider">09:30<span class="sep"> → </span>17:30</div><div class="dag-timer">7t 30m</div></div>
+  </div>
+
+  <!-- LØR: Sover Dolly På Ryggen -->
+  <div class="dag-card">
+    <div class="dag-bar" style="background:#2dd4bf"></div>
+    <div class="dag-left"><div class="dag-navn-s">LØR</div><div class="dag-dato-s">8/1</div></div>
+    <div class="dag-mid">
+      <div class="dag-prod" style="font-size:13px">Sover Dolly På Ryggen</div>
+      <div class="dag-lon">3.179 kr.</div>
+      <div class="dag-tags"><span class="tag tag-wk">WEEKEND</span></div>
+    </div>
+    <div class="dag-right"><div class="dag-tider">08:00<span class="sep"> → </span>15:30</div><div class="dag-timer">7t</div></div>
+  </div>
+
+  <!-- SØN: 1864 -->
+  <div class="dag-card" style="background:#1f1515">
+    <div class="dag-bar" style="background:#f43f5e"></div>
+    <div class="dag-left"><div class="dag-navn-s">SØN</div><div class="dag-dato-s">9/1</div></div>
+    <div class="dag-mid">
+      <div class="dag-prod" style="color:#f87171;font-size:22px">1864</div>
+      <div class="dag-lon" style="color:#f87171">16.403 kr.</div>
+      <div class="dag-tags"><span class="tag tag-wk">WEEKEND</span><span class="tag tag-p">INGEN PAUSE</span></div>
+    </div>
+    <div class="dag-right">
+      <div class="dag-tider" style="color:rgba(248,113,113,0.8)">05:30<span class="sep"> → </span>04:30</div>
+      <div class="dag-timer hot">22t 30m</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
