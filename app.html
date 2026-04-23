@@ -271,6 +271,9 @@ textarea::placeholder{color:var(--mut)}
 .s-desc{font-size:11px;color:var(--mut);margin-top:2px}
 .s-inp{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:var(--txt);font-family:'Tahoma',monospace;font-size:14px;outline:none}
 .s-inp:focus{border-color:var(--acc)}
+.s-tog-btn{background:var(--surf);border:1.5px solid var(--brd);border-radius:8px;padding:8px 14px;color:var(--mut);font-family:'Tahoma',sans-serif;font-weight:bold;font-size:13px;cursor:pointer;transition:all .18s;letter-spacing:.3px;white-space:nowrap}
+.s-tog-btn.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.s-tog-btn:active{transform:scale(.96)}
 .sw{width:46px;height:26px;background:var(--brd);border-radius:50px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
 .sw.on{background:var(--acc)}
 .sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
@@ -415,6 +418,30 @@ textarea::placeholder{color:var(--mut)}
   </div>
 </div>
 
+<!-- MØDE VARIGHED MODAL — §12 Stk.1 -->
+<div class="tmodal-bg skjult" id="møde-modal-bg" onclick="lukMødeModal(event)">
+  <div class="tmodal" onclick="event.stopPropagation()" style="max-width:330px">
+    <div class="tmodal-ttl">Ugeprogrammøde §12 Stk.1</div>
+    <div style="font-size:12px;color:var(--mut);text-align:center;margin:-8px 0 16px;line-height:1.4;padding:0 8px">
+      Mødetid der falder i pausen tæller som arbejdstid
+    </div>
+    <div id="møde-dur-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+      <button class="s-tog-btn" data-dur="15" onclick="vælgMødeDur(15)">15 min</button>
+      <button class="s-tog-btn" data-dur="30" onclick="vælgMødeDur(30)">30 min</button>
+      <button class="s-tog-btn" data-dur="45" onclick="vælgMødeDur(45)">45 min</button>
+      <button class="s-tog-btn" data-dur="60" onclick="vælgMødeDur(60)">60 min</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px">
+      <label style="font-size:12px;color:var(--mut);flex:1">Eller indtast:</label>
+      <input type="number" id="møde-dur-custom" min="1" max="240" step="1" placeholder="min" style="width:80px;background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:8px;color:var(--txt);font-family:'Tahoma',monospace;font-size:14px;text-align:right">
+    </div>
+    <div class="tmodal-btns">
+      <button class="tmodal-btn annul" onclick="lukMødeModal(null)">Annuller</button>
+      <button class="tmodal-btn ok" onclick="bekræftMøde()">OK</button>
+    </div>
+  </div>
+</div>
+
 <!-- DAG VIEW -->
 <div class="view on" id="view-dag">
   <div class="dag-hd">
@@ -522,9 +549,9 @@ textarea::placeholder{color:var(--mut)}
       10% enkeltdag
       <span class="xb-sub">Dagsbeskæftiget §3.10</span>
     </button>
-    <button class="xb" id="bn-møde" onclick="tog('møde')">
-      Møde
-      <span class="xb-sub">Ugeprogram §15</span>
+    <button class="xb" id="bn-møde" onclick="mødeClick()">
+      <span id="møde-ttl">Møde</span>
+      <span class="xb-sub" id="møde-sub">Ugeprogram §12</span>
     </button>
   </div>
 
@@ -721,12 +748,11 @@ textarea::placeholder{color:var(--mut)}
         <input class="s-inp" type="number" id="s-pers" value="0" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
       </div>
       <div class="s-row">
-        <div><div class="s-lbl">Talsmand</div><div class="s-desc">§15 Stk.3 — fast beløb pr. uge</div></div>
-        <input class="s-inp" type="number" id="s-talsmand" value="0" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
-      </div>
-      <div class="s-row">
-        <div><div class="s-lbl">Arbejdsmiljørepræsentant</div><div class="s-desc">§15 Stk.3 — fast beløb pr. uge</div></div>
-        <input class="s-inp" type="number" id="s-arbjmrep" value="0" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
+        <div><div class="s-lbl">Tillidshverv §15 Stk.3</div><div class="s-desc">Fast 500 kr/uge — vælg én eller ingen</div></div>
+        <div class="s-tillid-toggles" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+          <button type="button" class="s-tog-btn" id="btn-talsmand" onclick="setTillidshverv('talsmand')">Talsmand</button>
+          <button type="button" class="s-tog-btn" id="btn-arbjmrep" onclick="setTillidshverv('arbjmrep')">Arbejdsmiljørep</button>
+        </div>
       </div>
       <div class="s-row" id="lon-total-row">
         <div><div class="s-lbl">Samlet ugeløn</div><div class="s-desc" id="lon-total-desc">OT beregnes på mindsteløn §3</div></div>
@@ -802,7 +828,7 @@ const KVARTER = [0, 15, 30, 45];
 // ═══════════════════════════════════════════════════
 let aktivDag    = new Date();
 let ugeOffset   = 0;
-let knapper     = { v:false, u:false, f:false, p:false, h:false, r:false, e:false, møde:false, varsletTimer:0 };
+let knapper     = { v:false, u:false, f:false, p:false, h:false, r:false, e:false, møde:0, varsletTimer:0 };
 let cfg         = { navn:'', email:'', prod:'', selskab:'', ugelon:10380, pers:0, tillæg:false, model:'5dag', fridag:'fre', dagLon:0 };
 let produktioner  = [];   // Array af cfg-objekter
 let aktivProdId   = null; // ID for aktiv produktion
@@ -1237,7 +1263,37 @@ function indlæsCfgIForm() {
   if (sdl) sdl.value = cfg.dagLon || '';
   setSw('tillæg', cfg.tillæg);
   opdaterModelUI();
+  opdaterTillidshvervUI();
   opdaterLonTotal();
+}
+
+// §15 Stk.3 — Tillidshverv: fast 500 kr/uge (Talsmand ELLER Arbejdsmiljørep, ikke begge)
+const TILLIDSHVERV_UGE = 500;
+function setTillidshverv(type) {
+  if (type === 'talsmand') {
+    const nu = !cfg.talsmand;
+    cfg.talsmand = nu;
+    if (nu) cfg.arbjmrep = false;
+  } else if (type === 'arbjmrep') {
+    const nu = !cfg.arbjmrep;
+    cfg.arbjmrep = nu;
+    if (nu) cfg.talsmand = false;
+  }
+  opdaterTillidshvervUI();
+  opdaterLonTotal();
+  gemInst();
+}
+function opdaterTillidshvervUI() {
+  const bt = document.getElementById('btn-talsmand');
+  const ba = document.getElementById('btn-arbjmrep');
+  if (bt) bt.classList.toggle('on', !!cfg.talsmand);
+  if (ba) ba.classList.toggle('on', !!cfg.arbjmrep);
+}
+function tillidshvervUge() { return (cfg.talsmand || cfg.arbjmrep) ? TILLIDSHVERV_UGE : 0; }
+function tillidshvervLabel() {
+  if (cfg.talsmand) return 'Talsmand §15 Stk.3';
+  if (cfg.arbjmrep) return 'Arbejdsmiljørepræsentant §15 Stk.3';
+  return '';
 }
 
 function hentCfg() {
@@ -1346,13 +1402,15 @@ function opdaterLonTotal() {
   const pers   = parseFloat(document.getElementById('s-pers').value) || 0;
   const total  = base + pers;
   const tillæg = cfg.tillæg;
-  const vis    = total * (tillæg ? 1.1 : 1.0);
+  const tillid = tillidshvervUge();   // §15 Stk.3 — fast 500/uge, indgår IKKE i OT-grundlag
+  const vis    = total * (tillæg ? 1.1 : 1.0) + tillid;
   document.getElementById('lon-total').textContent = `${vis.toLocaleString('da-DK')} kr.`;
   const persDagly = (pers / 40 * 8).toLocaleString('da-DK', {maximumFractionDigits:0});
+  const parts = [];
+  if (pers > 0) parts.push(`Pers. tillæg +${persDagly} kr/dag`);
+  if (tillid > 0) parts.push(`${tillidshvervLabel()} +500 kr/uge`);
   document.getElementById('lon-total-desc').textContent =
-    pers > 0
-      ? `OT på mindsteløn §3 · Pers. tillæg +${persDagly} kr/dag`
-      : 'OT beregnes på mindsteløn §3';
+    parts.length ? `OT på mindsteløn §3 · ${parts.join(' · ')}` : 'OT beregnes på mindsteløn §3';
 
   // Normaldagsløn — deles på dagMax (8t eller 10t), ikke 40
   const model    = cfg.model || '5dag';
@@ -1510,6 +1568,10 @@ function calcTimer(start, slut) {
   const h = (e >= s) ? e - s : e - s + 24;
   return Math.max(0, h - 0.5); // minus 30 min unpaid pause
 }
+// §12 Stk.1: Mødetid i pause → tæller som arbejdstid (op til hele pausen)
+function mødeTimer(min) {
+  return Math.min(Math.max(parseInt(min) || 0, 0), 30) / 60;
+}
 
 // §7: Forskudt tid = timer uden for 06-19 på hverdage (man-fre)
 // §7.4: Timer i weekend-perioden (fre 20:00–man 06:00) giver IKKE §7 — det er §8
@@ -1663,7 +1725,9 @@ function calcLon(h, opt, wkAutoH = 0, wkRate = 0.75) {
 // BEREGN UI
 // ═══════════════════════════════════════════════════
 function beregn() {
-  const h   = calcTimer(tidStart, tidSlut);
+  const hRaw = calcTimer(tidStart, tidSlut);
+  const mødeH = mødeTimer(knapper.møde);
+  const h   = (hRaw !== null) ? hRaw + mødeH : null; // §12 Stk.1 — mødetid tæller som arbejdstid
   const idx = aktivDag.getDay();
   const fsk = (h !== null) ? calcForskudt(tidStart, tidSlut, idx) : 0;
   const fskKr = Math.round(fsk * 110);
@@ -1848,6 +1912,47 @@ function setVarsletTimer(n) {
   opdaterKnapper();
   beregn();
 }
+
+// §12 Stk.1 — Ugeprogrammøde (mødetid der falder i pausen = arbejdstid)
+let mødeValgt = 0; // midlertidig i modal
+function mødeClick() {
+  if (knapper.møde > 0) {
+    // Allerede aktiv — klik slukker
+    knapper.møde = 0;
+    opdaterKnapper();
+    beregn();
+  } else {
+    åbnMødeModal();
+  }
+}
+function åbnMødeModal() {
+  mødeValgt = 15; // default
+  document.getElementById('møde-dur-custom').value = '';
+  document.getElementById('møde-modal-bg').classList.remove('skjult');
+  visMødeValg();
+}
+function lukMødeModal(ev) {
+  if (ev && ev.target.id !== 'møde-modal-bg') return;
+  document.getElementById('møde-modal-bg').classList.add('skjult');
+}
+function vælgMødeDur(n) {
+  mødeValgt = n;
+  document.getElementById('møde-dur-custom').value = '';
+  visMødeValg();
+}
+function visMødeValg() {
+  document.querySelectorAll('#møde-dur-grid .s-tog-btn').forEach(b => {
+    b.classList.toggle('on', parseInt(b.dataset.dur) === mødeValgt);
+  });
+}
+function bekræftMøde() {
+  const c = parseInt(document.getElementById('møde-dur-custom').value);
+  const min = (c && c > 0) ? c : mødeValgt;
+  knapper.møde = min;
+  document.getElementById('møde-modal-bg').classList.add('skjult');
+  opdaterKnapper();
+  beregn();
+}
 function opdaterKnapper() {
   const kl = { v:'von', u:'uon', f:'fon', p:'pon', h:'hon', r:'ron', e:'eon', 'møde':'møde-on' };
   Object.keys(knapper).forEach(k => {
@@ -1855,6 +1960,18 @@ function opdaterKnapper() {
     const el = document.getElementById('bn-' + k);
     if (el) el.className = 'xb' + (knapper[k] ? ' ' + kl[k] : '');
   });
+  // §12 Stk.1 — møde har varighed (minutter), vis valgt tid i sub
+  const mødeSub = document.getElementById('møde-sub');
+  const mødeTtl = document.getElementById('møde-ttl');
+  if (mødeSub && mødeTtl) {
+    if (knapper.møde > 0) {
+      mødeTtl.textContent = 'Møde ' + knapper.møde + ' min';
+      mødeSub.textContent = 'Ugeprogram §12';
+    } else {
+      mødeTtl.textContent = 'Møde';
+      mødeSub.textContent = 'Ugeprogram §12';
+    }
+  }
   // Mixed OT row visibility
   const mixRow = document.getElementById('mixed-ot-row');
   if (mixRow) {
@@ -1873,7 +1990,9 @@ function opdaterKnapper() {
 // GEM DAG
 // ═══════════════════════════════════════════════════
 function gemDag(stille = false) {
-  const h      = calcTimer(tidStart, tidSlut);
+  const hRaw   = calcTimer(tidStart, tidSlut);
+  const mødeH  = mødeTimer(knapper.møde);
+  const h      = (hRaw !== null) ? hRaw + mødeH : null; // §12 Stk.1 — mødetid tæller som arbejdstid
   const idx    = aktivDag.getDay();
   const fsk    = calcForskudt(tidStart, tidSlut, idx);
   const fskKr  = Math.round(fsk * 110);
@@ -1913,7 +2032,7 @@ function sletDag() {
   if (!confirm(`Slet ${DAGE[aktivDag.getDay()]} ${aktivDag.getDate()}/${aktivDag.getMonth()+1}?`)) return;
   localStorage.removeItem(nøgle(aktivDag));
   tidStart = null; tidSlut = null;
-  knapper  = { v:false, u:false, f:false, p:false, h:false, r:false, e:false, møde:false, varsletTimer:0 };
+  knapper  = { v:false, u:false, f:false, p:false, h:false, r:false, e:false, møde:0, varsletTimer:0 };
   document.getElementById('i-note').value = '';
   document.getElementById('dag-actions').style.display = 'none';
   opdaterTidDisplay();
@@ -1937,6 +2056,8 @@ function doPDF_dag() {
     if (d.knapper?.v) return `OT ${time}. time (varslet ${vSats})`;
     return `OT ${time}. time (uvarslet ${uSats})`;
   }
+  const mødeMin = parseInt(d.knapper?.møde) || 0;
+  const tillidDag = (cfg.talsmand || cfg.arbjmrep) ? Math.round(500 / 5) : 0; // 100 kr/dag ved 5-dages uge
   const rækker = [];
   if (d.manuelLon) {
     rækker.push({lbl:'Manuel aftalt dagssats', kr:d.manuelLon});
@@ -1955,6 +2076,7 @@ function doPDF_dag() {
     d.knapper?.f ? 'Sen frokost' : null,
     d.knapper?.r ? 'Kørsel m. udstyr' : null,
     d.knapper?.e ? '10% Enkeltdag' : null,
+    mødeMin > 0 ? `Møde ${mødeMin} min` : null,
   ].filter(Boolean).map(b => `<span style="background:var(--acc);color:#fff;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700">${b}</span>`).join(' ');
   const pension = d.knapper?.e ? 0 : Math.round(d.lon * 0.095);
   const html = `<div class="pdf-body">
@@ -1967,10 +2089,12 @@ function doPDF_dag() {
     <div class="pdf-sect">Lønspecifikation</div>
     <div class="pdf-lonspec">
       ${rækker.map(r=>`<div class="pdf-lon-row"><span>${r.lbl}</span><span class="amt">${krFmt(r.kr)}</span></div>`).join('')}
+      ${mødeMin > 0 ? `<div class="pdf-lon-row muted"><span>Ugeprogrammøde §12 Stk.1 (${mødeMin} min)</span><span class="amt">indgår i arbejdstid</span></div>` : ''}
       <hr class="pdf-thin">
       <div class="pdf-lon-row bold"><span>Dagsløn</span><span class="amt">${krFmt(d.lon)}</span></div>
+      ${tillidDag > 0 ? `<div class="pdf-lon-row"><span>${tillidshvervLabel()} (500 kr/uge)</span><span class="amt">${krFmt(tillidDag)}</span></div>` : ''}
       ${pension > 0 ? `<div class="pdf-lon-row muted"><span>Pension 9,5% §3.4</span><span class="amt">${krFmt(pension)}</span></div>` : ''}
-      ${pension > 0 ? `<div class="pdf-lon-row bold"><span>Samlet inkl. pension</span><span class="amt">${krFmt(d.lon+pension)}</span></div>` : ''}
+      ${(tillidDag > 0 || pension > 0) ? `<div class="pdf-lon-row bold"><span>Samlet${pension > 0 ? ' inkl. pension' : ''}${tillidDag > 0 ? ' + tillidshverv' : ''}</span><span class="amt">${krFmt(d.lon + tillidDag + pension)}</span></div>` : ''}
     </div>
     ${d.note ? `<div class="pdf-sect">Note</div><div style="font-size:12px;padding:8px 0;color:#555">${d.note}</div>` : ''}
     <div class="pdf-footer"><span>time-app.dk</span><span>Udskrevet ${new Date().toLocaleDateString('da-DK')}</span></div>
@@ -2111,7 +2235,7 @@ function rendDag() {
     ttl.classList.toggle('anden-prod', !!erAndenProd);
     ttl.title = '';
   }
-  knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,r:false,e:false,varsletTimer:0, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, r:false, e:false, møde:false, varsletTimer:0 };
+  knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,r:false,e:false,varsletTimer:0, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, r:false, e:false, møde:0, varsletTimer:0 };
   tidStart = s?.tidStart || null;
   tidSlut  = s?.tidSlut  || null;
   otVis    = false; // nulstil OT-visning ved dagskift
@@ -2505,13 +2629,15 @@ function doPDF() {
   const til = dateFmt(datoer[6]);
 
   // Saml tillæg på tværs af ugen
-  let sumNormal=0, sumOt1=0, sumOt2=0, sumOt3=0, sumWk=0, sumExt=0, sumFsk=0, sumFskKr=0;
+  let sumNormal=0, sumOt1=0, sumOt2=0, sumOt3=0, sumWk=0, sumExt=0, sumFsk=0, sumFskKr=0, sumMødeMin=0;
   dage.forEach(d => {
     if (d.fri) return;
     sumNormal += d.normal; sumOt1 += d.ot1; sumOt2 += d.ot2;
     sumOt3 += d.ot3; sumWk += d.wk; sumExt += d.ext;
     sumFsk += d.fsk; sumFskKr += d.fskKr;
+    sumMødeMin += (parseInt(d.knapper?.møde) || 0);
   });
+  const tillidUge = tillidshvervUge(); // 500 eller 0
 
   const otType = dage.some(d => !d.fri && d.knapper?.v) ? 'Varslet' :
                  dage.some(d => !d.fri && d.knapper?.u) ? 'Uvarslet' : '—';
@@ -2581,10 +2707,12 @@ function doPDF() {
       ${lonRow('Weekend §8 (+75%)', sumWk, 'Min. 4 timer')}
       ${lonRow('Forskudt tid §7 (+110 kr/t)', sumFskKr, `${sumFsk.toFixed(2)} t × 110 kr`)}
       ${lonRow('Sen frokost §12', sumExt, `${DIÆT} kr/tillæg`)}
+      ${sumMødeMin > 0 ? `<div class="pdf-lon-row muted"><span>Ugeprogrammøde §12 Stk.1 (${sumMødeMin} min i alt)</span><span class="amt">indgår i arbejdstid</span></div>` : ''}
       <hr class="pdf-thin">
       ${lonRow('Bruttoløn', totL, '', 'bold')}
+      ${tillidUge > 0 ? lonRow(tillidshvervLabel(), tillidUge, 'Fast 500 kr/uge') : ''}
       ${lonRow('Pension 9,5% §3', pension, 'Arbejdsgiverbetalt', 'muted')}
-      ${lonRow('Samlet inkl. pension', totL+pension, '', 'bold')}
+      ${lonRow('Samlet' + (tillidUge > 0 ? ' inkl. tillidshverv' : '') + (pension > 0 ? ' + pension' : ''), totL + tillidUge + pension, '', 'bold')}
     </div>
     <div class="pdf-footer">
       <span>time-app.dk</span>
@@ -3235,7 +3363,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.46';
+const APP_VERSION = '1.47';
 
 // ── SPLASH ──
 (function(){
@@ -3273,6 +3401,13 @@ const APP_VERSION = '1.46';
 
 
 const CHANGELOG = {
+  '1.47': {
+    dato: '23. april 2026',
+    nyt: [
+      'Talsmand / Arbejdsmiljørepræsentant (§15 Stk.3) er nu to gensidigt udelukkende toggle-knapper i Indstillinger — fast 500 kr/uge lægges ovenpå ugelønnen (indgår ikke i OT-grundlaget). Vises som separat linje på dag- og ugeseddel.',
+      'Ugeprogrammøde (§12 Stk.1): Møde-knappen spørger nu om varighed (15/30/45/60 min eller fri indtastning, default 15 min). Mødetid der falder i pausen tæller som arbejdstid og indgår i OT + tillæg. Vises som separat linje på dag- og ugeseddel.',
+    ]
+  },
   '1.46': {
     dato: '23. april 2026',
     nyt: [
