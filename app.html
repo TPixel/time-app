@@ -2101,7 +2101,9 @@ function doPDF_dag() {
   </div>`;
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = html; frame.classList.add('vis');
-  setTimeout(() => { window.print(); frame.classList.remove('vis'); }, 300);
+  void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
+  window.print();
+  setTimeout(() => { frame.classList.remove('vis'); }, 800);
 }
 
 function sendEnkeltDag() {
@@ -2723,10 +2725,9 @@ function doPDF() {
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = html;
   frame.classList.add('vis');
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => { frame.classList.remove('vis'); frame.innerHTML = ''; }, 1000);
-  }, 150);
+  void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
+  window.print();
+  setTimeout(() => { frame.classList.remove('vis'); frame.innerHTML = ''; }, 1000);
 }
 
 // ═══════════════════════════════════════════════════
@@ -3082,7 +3083,9 @@ function doPDF_mnd() {
   </div>`;
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = html; frame.classList.add('vis');
-  setTimeout(() => { window.print(); frame.classList.remove('vis'); }, 300);
+  void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
+  window.print();
+  setTimeout(() => { frame.classList.remove('vis'); }, 800);
 }
 
 function doXLSX_mnd() {
@@ -3186,7 +3189,9 @@ function doPDF_aar() {
   </div>`;
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = html; frame.classList.add('vis');
-  setTimeout(() => { window.print(); frame.classList.remove('vis'); }, 300);
+  void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
+  window.print();
+  setTimeout(() => { frame.classList.remove('vis'); }, 800);
 }
 
 function doXLSX_aar() {
@@ -3363,7 +3368,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.47';
+const APP_VERSION = '1.48';
 
 // ── SPLASH ──
 (function(){
@@ -3401,6 +3406,12 @@ const APP_VERSION = '1.47';
 
 
 const CHANGELOG = {
+  '1.48': {
+    dato: '23. april 2026',
+    nyt: [
+      'Fix: Udskrivning af dag-, uge- og måned-PDF fungerer nu korrekt på iOS Safari. Tidligere blev printet blokeret som "automatisk udskrivning" fordi kaldet lå bag en setTimeout — nu sker layout og print synkront inden for klikket.',
+    ]
+  },
   '1.47': {
     dato: '23. april 2026',
     nyt: [
