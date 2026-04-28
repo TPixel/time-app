@@ -545,6 +545,10 @@ textarea::placeholder{color:var(--mut)}
       Kørsel
       <span class="xb-sub">= arbejdstid §13</span>
     </button>
+    <button class="xb" id="bn-d" onclick="tog('d')">
+      Diæt
+      <span class="xb-sub" id="bn-d-sub">+597 kr §14</span>
+    </button>
     <button class="xb" id="bn-e" onclick="tog('e')">
       10% enkeltdag
       <span class="xb-sub">Dagsbeskæftiget §3.10</span>
@@ -748,6 +752,10 @@ textarea::placeholder{color:var(--mut)}
         <input class="s-inp" type="number" id="s-pers" value="0" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
       </div>
       <div class="s-row">
+        <div><div class="s-lbl">Diæt-sats §14</div><div class="s-desc">Kr/dag (MK-cirkulære, 2025: 597)</div></div>
+        <input class="s-inp" type="number" id="s-diaet" value="597" style="width:110px;text-align:right" oninput="gemInst()">
+      </div>
+      <div class="s-row">
         <div><div class="s-lbl">Tillidshverv §15 Stk.3</div><div class="s-desc">Fast 500 kr/uge — vælg én eller ingen</div></div>
         <div class="s-tillid-toggles" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
           <button type="button" class="s-tog-btn" id="btn-talsmand" onclick="setTillidshverv('talsmand')">Talsmand</button>
@@ -829,7 +837,7 @@ const KVARTER = [0, 15, 30, 45];
 let aktivDag    = new Date();
 let ugeOffset   = 0;
 let knapper     = { v:false, u:false, f:false, p:false, h:false, r:false, e:false, møde:0, varsletTimer:0 };
-let cfg         = { navn:'', email:'', prod:'', selskab:'', ugelon:10380, pers:0, tillæg:false, model:'5dag', fridag:'fre', dagLon:0 };
+let cfg         = { navn:'', email:'', prod:'', selskab:'', ugelon:10380, pers:0, tillæg:false, model:'5dag', fridag:'fre', dagLon:0, diaet:597 };
 let produktioner  = [];   // Array af cfg-objekter
 let aktivProdId   = null; // ID for aktiv produktion
 let otVis         = false; // OT breakdown åben/lukket
@@ -1259,6 +1267,8 @@ function indlæsCfgIForm() {
   document.getElementById('s-selskab').value = cfg.selskab || '';
   document.getElementById('s-ugelon').value  = cfg.ugelon  || 10380;
   document.getElementById('s-pers').value   = cfg.pers   || 0;
+  const sd = document.getElementById('s-diaet');
+  if (sd) sd.value = cfg.diaet || 597;
   const sdl = document.getElementById('s-daglon');
   if (sdl) sdl.value = cfg.dagLon || '';
   setSw('tillæg', cfg.tillæg);
@@ -1431,6 +1441,8 @@ function gemInst() {
   cfg.ugelon  = parseFloat(document.getElementById('s-ugelon').value) || 10380;
   cfg.pers   = parseFloat(document.getElementById('s-pers').value) || 0;
   cfg.fridag = document.getElementById('s-fridag').value;
+  const dEl = document.getElementById('s-diaet');
+  cfg.diaet = dEl ? (parseFloat(dEl.value) || 597) : 597;
   const dlEl = document.getElementById('s-daglon');
   cfg.dagLon = dlEl && dlEl.value ? (parseInt(dlEl.value) || 0) : 0;
 
@@ -1763,7 +1775,8 @@ function beregn() {
   const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e, varsletTimer:knapper.varsletTimer };
   const wkRate = (knapper.h || idx === 0 || idx === 6) ? hentWkRate(aktivDag) : 0.75;
   const l   = calcLon(h, opt, wkAutoH, wkRate);
-  const tot = l.total + fskKr;
+  const diaetKr = knapper.d ? Math.round(cfg.diaet || 0) : 0;
+  const tot = l.total + fskKr + diaetKr;
 
   // Manuel dagløn fra indstillinger — overskriver beregnet hvis sat
   const erManuel = cfg.dagLon > 0;
@@ -1970,7 +1983,10 @@ function opdaterKnapper() {
   const bnH = document.getElementById('bn-h');
   if (bnH) bnH.style.display = erWeekend ? 'none' : '';
 
-  const kl = { v:'von', u:'uon', f:'fon', p:'pon', h:'hon', r:'ron', e:'eon', 'møde':'møde-on' };
+  const kl = { v:'von', u:'uon', f:'fon', p:'pon', h:'hon', r:'ron', e:'eon', d:'don', 'møde':'møde-on' };
+  // Opdater diæt-sub med aktuel sats fra cfg
+  const dSub = document.getElementById('bn-d-sub');
+  if (dSub) dSub.textContent = `+${(cfg.diaet || 597).toLocaleString('da-DK')} kr §14`;
   Object.keys(knapper).forEach(k => {
     if (k === 'varsletTimer') return;
     const el = document.getElementById('bn-' + k);
@@ -2016,15 +2032,16 @@ function gemDag(stille = false) {
   const opt    = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e, varsletTimer:knapper.varsletTimer };
   const wkRate = (knapper.h || idx === 0 || idx === 6) ? hentWkRate(aktivDag) : 0.75;
   const l      = calcLon(h, opt, wkAutoH, wkRate);
+  const diaetKr = knapper.d ? Math.round(cfg.diaet || 0) : 0;
   const note   = document.getElementById('i-note').value;
-  const lonGem = cfg.dagLon > 0 ? cfg.dagLon : (l.total + fskKr);
+  const lonGem = cfg.dagLon > 0 ? cfg.dagLon : (l.total + fskKr + diaetKr);
 
   gemDagData(aktivDag, {
     start: tidStreng(tidStart),
     slut:  tidStreng(tidSlut),
     tidStart, tidSlut, note,
     knapper: { ...knapper },
-    h, lon: lonGem, fsk, fskKr,
+    h, lon: lonGem, fsk, fskKr, diaetKr,
     manuelLon: cfg.dagLon > 0 ? cfg.dagLon : null,
     normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3, wk: l.wk,
     prod: cfg.prod || '', prodId: aktivProdId
@@ -2084,6 +2101,7 @@ function doPDF_dag() {
     if (d.ot3)    rækker.push({lbl:'OT 3.+ time (+135%)', kr:d.ot3});
     if (d.wk)     rækker.push({lbl:'Weekendtillæg §8', kr:d.wk});
     if (d.fskKr)  rækker.push({lbl:'Forskudt §7', kr:d.fskKr});
+    if (d.diaetKr) rækker.push({lbl:'Diæt §14', kr:d.diaetKr});
   }
   const badges = [
     dMixed ? `Mixed OT (${dVt}t varslet)` : (d.knapper?.v ? 'Varslet OT' : null),
@@ -2146,6 +2164,7 @@ function sendEnkeltDag() {
     if (d.ot3)    specRækker.push({ lbl: 'OT 3.+ time (+135%)', kr: d.ot3 });
     if (d.wk)     specRækker.push({ lbl: 'Weekendtillæg §8', kr: d.wk });
     if (d.fskKr)  specRækker.push({ lbl: 'Forskudt §7', kr: d.fskKr });
+    if (d.diaetKr) specRækker.push({ lbl: 'Diæt §14', kr: d.diaetKr });
   }
 
   const badgeTxt = [
@@ -2253,7 +2272,7 @@ function rendDag() {
     ttl.classList.toggle('anden-prod', !!erAndenProd);
     ttl.title = '';
   }
-  knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,r:false,e:false,varsletTimer:0, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, r:false, e:false, møde:0, varsletTimer:0 };
+  knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,r:false,e:false,d:false,varsletTimer:0, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, r:false, e:false, d:false, møde:0, varsletTimer:0 };
   tidStart = s?.tidStart || null;
   tidSlut  = s?.tidSlut  || null;
   otVis    = false; // nulstil OT-visning ved dagskift
@@ -2336,7 +2355,8 @@ function rendAar() {
       const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
-      const dagLon = visAlleProduktioner ? (s.lon ?? (l.total + (s.fskKr ?? 0))) : (s.manuelLon ?? (l.total + (s.fskKr ?? 0)));
+      const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
+      const dagLon = visAlleProduktioner ? (s.lon ?? (l.total + (s.fskKr ?? 0) + diaetKr)) : (s.manuelLon ?? (l.total + (s.fskKr ?? 0) + diaetKr));
       alleDage.push({d, m, s, h:s.h, lon:dagLon, ot:Math.max(0, s.h - dagMax()), prod:s.prod||''});
     }
   }
@@ -2437,9 +2457,11 @@ function _rendMaaned() {
       const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
-      const dagLon = visAlleProduktioner ? (s.lon ?? (l.total + (s.fskKr ?? 0))) : (s.manuelLon ?? (l.total + (s.fskKr ?? 0)));
+      const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
+      const dagLon = visAlleProduktioner ? (s.lon ?? (l.total + (s.fskKr ?? 0) + diaetKr)) : (s.manuelLon ?? (l.total + (s.fskKr ?? 0) + diaetKr));
       ugeH += s.h; ugeL += dagLon;
-      if (!s.knapper?.e) totPensionL += dagLon; // §3.10: kun ikke-enkeltdag
+      // §3.4: pension af normalløn — ekskluder enkeltdag og diæter
+      if (!s.knapper?.e) totPensionL += (dagLon - diaetKr);
       ugeOt += Math.max(0, s.h - dagMax()); ugeD++;
     });
 
@@ -2559,7 +2581,8 @@ function ugeData() {
                   pause10: s.knapper?.p, enkeltdag: s.knapper?.e, varsletTimer: s.knapper?.varsletTimer||0 };
     const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
     const l = calcLon(h, opt, wkAutoH, wkRate);
-    const lonBeregnet = l.total + (s.fskKr ?? 0);
+    const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
+    const lonBeregnet = l.total + (s.fskKr ?? 0) + diaetKr;
     const lon = s.manuelLon ?? lonBeregnet;
     return {
       dato: d, fri: false,
@@ -2568,14 +2591,17 @@ function ugeData() {
       manuelLon: s.manuelLon ?? null,
       normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3,
       wk: l.wk, ext: l.ext,
-      fsk: s.fsk ?? 0, fskKr: s.fskKr ?? 0,
+      fsk: s.fsk ?? 0, fskKr: s.fskKr ?? 0, diaetKr,
       knapper: s.knapper ?? {}, note: s.note ?? ''
     };
   });
   const totH   = dage.reduce((a, d) => a + (d.fri ? 0 : d.h), 0);
   const totL   = dage.reduce((a, d) => a + (d.fri ? 0 : d.lon), 0);
+  // §3.4: Pensionsbidrag 9,5% af normallønnen
   // §3.10: Enkeltdagsengagementer er ikke pensionsberettigede
-  const pensionBase = dage.filter(d => !d.fri && !d.knapper?.e).reduce((a,d) => a+d.lon, 0);
+  // §14: Diæter er udlæg, ikke løn → ikke pensionspligtigt
+  const pensionBase = dage.filter(d => !d.fri && !d.knapper?.e)
+    .reduce((a,d) => a + d.lon - (d.diaetKr || 0), 0);
   const pension = Math.round(pensionBase * 0.095);
   return { datoer, uge, ts, dMax, dage, totH, totL, pension };
 }
@@ -2647,12 +2673,13 @@ function doPDF() {
   const til = dateFmt(datoer[6]);
 
   // Saml tillæg på tværs af ugen
-  let sumNormal=0, sumOt1=0, sumOt2=0, sumOt3=0, sumWk=0, sumExt=0, sumFsk=0, sumFskKr=0, sumMødeMin=0;
+  let sumNormal=0, sumOt1=0, sumOt2=0, sumOt3=0, sumWk=0, sumExt=0, sumFsk=0, sumFskKr=0, sumDiaet=0, sumMødeMin=0;
   dage.forEach(d => {
     if (d.fri) return;
     sumNormal += d.normal; sumOt1 += d.ot1; sumOt2 += d.ot2;
     sumOt3 += d.ot3; sumWk += d.wk; sumExt += d.ext;
     sumFsk += d.fsk; sumFskKr += d.fskKr;
+    sumDiaet += (d.diaetKr || 0);
     sumMødeMin += (parseInt(d.knapper?.møde) || 0);
   });
   const tillidUge = tillidshvervUge(); // 500 eller 0
@@ -2725,6 +2752,7 @@ function doPDF() {
       ${lonRow('Weekend §8 (+75%)', sumWk, 'Min. 4 timer')}
       ${lonRow('Forskudt tid §7 (+110 kr/t)', sumFskKr, `${sumFsk.toFixed(2)} t × 110 kr`)}
       ${lonRow('Sen frokost §12', sumExt, `${DIÆT} kr/tillæg`)}
+      ${lonRow('Diæt §14', sumDiaet, `${cfg.diaet || 597} kr/dag`)}
       ${sumMødeMin > 0 ? `<div class="pdf-lon-row muted"><span>Ugeprogrammøde §12 Stk.1 (${sumMødeMin} min i alt)</span><span class="amt">indgår i arbejdstid</span></div>` : ''}
       <hr class="pdf-thin">
       ${lonRow('Bruttoløn', totL, '', 'bold')}
@@ -3054,11 +3082,13 @@ function _mndData() {
     const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
     const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
     const l = calcLon(s.h, opt, wkAutoH, wkRate);
-    const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0));
+    const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
+    const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0) + diaetKr);
     const ot = Math.max(0, s.h - dagMax());
     totH+=s.h; totL+=dagLon; totOt+=ot; totD++;
-    if (!s.knapper?.e) totPensionL+=dagLon; // §3.10: kun ikke-enkeltdag
-    dageData.push({d:new Date(d), s, lon:dagLon, h:s.h, ot});
+    // §3.4: pension af normalløn — ekskluder enkeltdag og diæter
+    if (!s.knapper?.e) totPensionL += (dagLon - diaetKr);
+    dageData.push({d:new Date(d), s, lon:dagLon, h:s.h, ot, diaetKr});
   }
   return {mndNavn, år, mnd, totH, totL, totPensionL, totOt, totD, dageData, DAGE_LANG};
 }
@@ -3168,9 +3198,11 @@ function _aarData() {
       const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(dObj) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
-      const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0));
+      const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
+      const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0) + diaetKr);
       mH+=s.h; mL+=dagLon; mOt+=Math.max(0, s.h - dagMax()); mD++;
-      if (!s.knapper?.e) mPensionL+=dagLon; // §3.10: kun ikke-enkeltdag
+      // §3.4: pension af normalløn — ekskluder enkeltdag og diæter
+      if (!s.knapper?.e) mPensionL += (dagLon - diaetKr);
     }
     totH+=mH; totL+=mL; totPensionL+=mPensionL; totOt+=mOt; totD+=mD;
     mndr.push({m, navn:MND_LANG[m], mH, mL, mOt, mD});
@@ -3384,7 +3416,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.51';
+const APP_VERSION = '1.52';
 
 // ── SPLASH ──
 (function(){
@@ -3422,6 +3454,15 @@ const APP_VERSION = '1.51';
 
 
 const CHANGELOG = {
+  '1.52': {
+    dato: '28. april 2026',
+    nyt: [
+      'Ny diæt-knap §14: Aktivér på en dag og få 597 kr (2025-sats) tilføjet til dagslønnen — efter Medarbejder- og Kompetencestyrelsens cirkulære om tjenesterejser.',
+      'Diæt-sats kan ændres i Indstillinger (rates ændres årligt — fx 2026-sats kan tilføjes når den udmeldes).',
+      'Diæter regnes IKKE med i pension §3.4 (det er udlæg, ikke løn) eller i pensionsgrundlaget — verificeret med tests.',
+      'Diæter vises på dagseddel, ugeseddel og månedsoversigt-PDF som separat linje.',
+    ]
+  },
   '1.51': {
     dato: '28. april 2026',
     nyt: [
