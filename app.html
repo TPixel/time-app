@@ -1596,24 +1596,33 @@ function calcForskudt(start, slut, dagIdx) {
 }
 
 // §8: Weekend-periode fre 20:00 → man 06:00
-// Returnerer timer der overlapper med weekend-perioden
+// Returnerer ARBEJDSTIMER der overlapper med weekend-perioden
+// (clock-time minus proportional andel af 30 min ubetalt spisepause)
+// §8.2: weekendtillæg betales "pr. time" = pr. arbejdstime, jf. §6 om
+// arbejdsdagens definition (15 min betalt pause + 30 min ubetalt spisepause)
 function calcWeekendTimer(start, slut, dagIdx) {
   const s = tidTilH(start), e = tidTilH(slut);
   if (s === null || e === null) return 0;
   const eAdj = (e > s) ? e : e + 24; // håndter nat-skift
-  let wkH = 0;
+  const totalClockH = eAdj - s;
+  let wkClockH = 0;
   if (dagIdx === 6 || dagIdx === 0) {
     // Lørdag / søndag: hele vagten er i weekend-perioden
-    wkH = eAdj - s;
+    wkClockH = totalClockH;
   } else if (dagIdx === 5) {
     // Fredag: fra kl. 20:00 og frem
-    if (s >= 20)        wkH = eAdj - s;
-    else if (eAdj > 20) wkH = eAdj - 20;
+    if (s >= 20)        wkClockH = totalClockH;
+    else if (eAdj > 20) wkClockH = eAdj - 20;
   } else if (dagIdx === 1) {
     // Mandag: til kl. 06:00
-    if (s < 6) wkH = Math.min(eAdj, 6) - s;
+    if (s < 6) wkClockH = Math.min(eAdj, 6) - s;
   }
-  return Math.max(0, wkH);
+  if (wkClockH <= 0 || totalClockH <= 0) return 0;
+  // Træk 30 min spisepause proportionalt fra weekend-andelen
+  // Hvis hele vagten er weekend → fuld pause trækkes fra; halv vagt → halv pause
+  // Dog kun når vagten er > 0.5 timer (ellers er der ingen pause)
+  const pauseAndel = (totalClockH > 0.5) ? (wkClockH / totalClockH) * 0.5 : 0;
+  return Math.max(0, wkClockH - pauseAndel);
 }
 
 // §5 Forskudt særtid:
@@ -3375,7 +3384,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.50';
+const APP_VERSION = '1.51';
 
 // ── SPLASH ──
 (function(){
@@ -3413,6 +3422,13 @@ const APP_VERSION = '1.50';
 
 
 const CHANGELOG = {
+  '1.51': {
+    dato: '28. april 2026',
+    nyt: [
+      '§8 weekendtillæg beregnes nu pr. ARBEJDSTIME (ikke clock-time): 30 min ubetalt spisepause trækkes proportionalt fra weekend-andelen. Eksempel: lørdag 08–16 betaler nu 7,5 t × 0,75 i stedet for 8 t × 0,75 — i overensstemmelse med §6 og §8.2.',
+      'Konsistens: auto-mode (lør/søn) og helligdag-knap giver nu identisk resultat. Tidligere var der op til ~97 kr forskel pr. dag i favør af auto-mode.',
+    ]
+  },
   '1.50': {
     dato: '28. april 2026',
     nyt: [
