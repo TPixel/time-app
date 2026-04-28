@@ -530,7 +530,7 @@ textarea::placeholder{color:var(--mut)}
   </div>
   <div class="bgrid" style="margin-top:0">
     <button class="xb" id="bn-h" onclick="tog('h')">
-      Weekend
+      Helligdag
       <span class="xb-sub">+75% min 4t §8</span>
     </button>
     <button class="xb" id="bn-f" onclick="tog('f')">
@@ -1842,7 +1842,7 @@ function beregn() {
   if (l.wk > 0) {
     document.getElementById('o-wk').textContent = kr(l.wk);
     const wkLbl = document.getElementById('o-wk-lbl');
-    if (wkLbl) wkLbl.textContent = knapper.h ? 'Weekend/helligdag §8' : `Weekend §8 auto (${hFmt(wkAutoH)})`;
+    if (wkLbl) wkLbl.textContent = knapper.h ? 'Helligdag §8' : `Weekend §8 auto (${hFmt(wkAutoH)})`;
   }
   // Weekend auto-badge
   const wkBadge = document.getElementById('wk-auto-badge');
@@ -1954,6 +1954,13 @@ function bekræftMøde() {
   beregn();
 }
 function opdaterKnapper() {
+  // §8 auto: lør/søn håndteres automatisk — Helligdag-knap er kun for hverdags-helligdage (jul, påske, nytår, etc.)
+  const idx = aktivDag.getDay();
+  const erWeekend = (idx === 0 || idx === 6);
+  if (erWeekend && knapper.h) knapper.h = false; // sikkerhed: ryd hvis ved fejl gemt
+  const bnH = document.getElementById('bn-h');
+  if (bnH) bnH.style.display = erWeekend ? 'none' : '';
+
   const kl = { v:'von', u:'uon', f:'fon', p:'pon', h:'hon', r:'ron', e:'eon', 'møde':'møde-on' };
   Object.keys(knapper).forEach(k => {
     if (k === 'varsletTimer') return;
@@ -2135,7 +2142,7 @@ function sendEnkeltDag() {
   const badgeTxt = [
     mMixed ? `◆ Mixed OT (${mVt}t varslet)` : (d.knapper?.v ? '◆ Varslet OT' : null),
     mMixed ? null : (d.knapper?.u ? '◆ Uvarslet OT' : null),
-    d.knapper?.h ? '◆ Weekend / helligdag §8' : null,
+    d.knapper?.h ? '◆ Helligdag §8' : null,
     d.knapper?.f ? '◆ Sen frokost' : null,
     d.knapper?.r ? '◆ Kørsel m. udstyr' : null,
   ].filter(Boolean);
@@ -2495,7 +2502,7 @@ function rendUge() {
       s?.knapper?.u ? '<span class="badge bu">Uvarslet</span>' : '',
       s?.knapper?.f ? '<span class="badge bf">Frokost</span>'  : '',
       s?.knapper?.p ? '<span class="badge bp">Pause</span>'    : '',
-      s?.knapper?.h ? '<span class="badge bh">Weekend</span>'  : '',
+      s?.knapper?.h ? '<span class="badge bh">Helligdag</span>'  : '',
       s?.knapper?.e ? '<span class="badge be">10%</span>'      : '',
     ].join('');
     el.innerHTML = `
@@ -2649,7 +2656,7 @@ function doPDF() {
     const tillæg = [
       d.knapper?.v ? 'Varslet OT' : '',
       d.knapper?.u ? 'Uvarslet OT' : '',
-      d.knapper?.h ? 'Weekend §8' : '',
+      d.knapper?.h ? 'Helligdag §8' : '',
       d.knapper?.f ? 'Sen frokost' : '',
       cfg.tillæg   ? '10% enkeltdag' : '',
     ].filter(Boolean).join(' · ');
@@ -2780,7 +2787,7 @@ function _genXLSX() {
       aoa.push([dagNavn(d.dato), `${d.dato.getDate()}/${d.dato.getMonth()+1}/${d.dato.getFullYear()}`,
         '—','—', 0, 0, '— fri —', 0, 0, 0, 0, 0, 0, '']);
     } else {
-      const ot = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : d.knapper?.h ? 'Weekend' : '—';
+      const ot = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : d.knapper?.h ? 'Helligdag' : '—';
       aoa.push([
         dagNavn(d.dato),
         `${d.dato.getDate()}/${d.dato.getMonth()+1}/${d.dato.getFullYear()}`,
@@ -2917,7 +2924,7 @@ function doKalender() {
       `Arbejdstid: ${d.start} → ${d.slut} (${d.h.toFixed(2)} t)`,
       `Dagløn: ${krFmt(d.lon)}`,
       d.knapper?.v ? 'Varslet OT' : d.knapper?.u ? 'Uvarslet OT' : '',
-      d.knapper?.h ? 'Weekend/helligdag §8' : '',
+      d.knapper?.h ? 'Helligdag §8' : '',
       d.note ? `Note: ${d.note}` : '',
       'Importeret fra Time App'
     ].filter(Boolean).join('\\n');
@@ -2968,7 +2975,7 @@ function doMail() {
     if (d.fri) return;
     const otType = d.knapper?.v ? 'Varslet OT' : d.knapper?.u ? 'Uvarslet OT' : '';
     const extras = [
-      d.knapper?.h ? 'Weekend' : '',
+      d.knapper?.h ? 'Helligdag' : '',
       d.knapper?.f ? 'Sen frokost' : '',
       d.knapper?.r ? 'Kørsel m. udstyr' : '',
       otType,
@@ -3368,7 +3375,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.49';
+const APP_VERSION = '1.50';
 
 // ── SPLASH ──
 (function(){
@@ -3406,6 +3413,14 @@ const APP_VERSION = '1.49';
 
 
 const CHANGELOG = {
+  '1.50': {
+    dato: '28. april 2026',
+    nyt: [
+      'Weekend-knappen er omdøbt til "Helligdag" — det er kun her den gør gavn (jul, påske, nytår m.v. der falder på en hverdag). Lørdag og søndag detekteres automatisk via §8.',
+      'Knappen skjules nu på lørdag og søndag — så du undgår at trykke den ved en fejl og få mindre i løn (auto-mode er allerede aktiv).',
+      'Etiketterne "Weekend / helligdag" er strammet op: viser nu "Helligdag §8" når knappen er aktiv, "Weekend §8 auto" når lør/søn detekteres automatisk.',
+    ]
+  },
   '1.49': {
     dato: '28. april 2026',
     nyt: [
