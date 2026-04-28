@@ -334,14 +334,14 @@ textarea::placeholder{color:var(--mut)}
   #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important;height:auto!important;min-height:0!important}
 }
 .pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;width:794px;box-sizing:border-box;padding:40px 50px 32px;}
-.pdf-top{display:flex;align-items:flex-start;margin-bottom:18px;}
+.pdf-top{display:flex;align-items:flex-start;margin-bottom:22px;}
 .pdf-top-left{flex:1 1 auto;min-width:0;overflow:hidden;}
-.pdf-top-right{flex:0 0 160px;text-align:center;padding-left:8px;padding-top:2px;}
-.pdf-top-right img{width:148px;height:148px;display:block;margin:0 auto 5px;}
-.pdf-top-right .pdf-brand{font-family:'Tahoma',Arial,sans-serif;font-size:25px;letter-spacing:2px;color:#111;line-height:1;}
-.pdf-doc-type,.pdf-prod-name{font-family:'Tahoma',Arial Black,sans-serif;font-weight:800;line-height:0.88;letter-spacing:-2px;color:#111;white-space:nowrap;display:block;}
-.pdf-prod-name{margin-top:6px;}
-.pdf-prod-co{font-size:13px;font-weight:700;color:#444;margin-top:10px;}
+.pdf-top-right{flex:0 0 150px;text-align:center;padding-left:8px;padding-top:2px;}
+.pdf-top-right img{width:138px;height:138px;display:block;margin:0 auto 5px;}
+.pdf-top-right .pdf-brand{font-family:'Tahoma',Arial,sans-serif;font-size:24px;letter-spacing:2px;color:#111;line-height:1;}
+.pdf-doc-type,.pdf-prod-name{font-family:'Tahoma',Arial Black,sans-serif;font-weight:800;line-height:0.9;letter-spacing:-2px;color:#111;white-space:nowrap;display:block;}
+.pdf-prod-name{margin-top:10px;}
+.pdf-prod-co{font-size:22px;font-weight:800;color:#222;margin-top:14px;letter-spacing:.5px;text-transform:uppercase;}
 .pdf-hr{border:none;border-top:2px solid #111;margin:0 0 14px;}
 .pdf-period-ttl{font-family:'Tahoma',sans-serif;font-weight:800;font-size:28px;letter-spacing:-0.3px;color:#111;margin-bottom:2px;}
 .pdf-period-sub{font-size:14px;font-weight:700;color:#333;margin-bottom:14px;}
@@ -2194,7 +2194,7 @@ function sendEnkeltDag() {
   lines.push('  Fiktionsoverenskomst 2025–2027');
 
   const body = lines.join('\n');
-  const subj = encodeURIComponent(`${cfg.prod ? cfg.prod + ' · ' : ''}${dagStr}`);
+  const subj = encodeURIComponent(`${cfg.navn || 'Time App'} · ${dagStr}`);
   window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${encodeURIComponent(body)}`;
 }
 
@@ -2589,13 +2589,13 @@ function isoDate(d) {
 // ═══════════════════════════════════════════════════
 // PDF helpers
 function pdfHeaderFs(docType, prodName) {
-  const colW = 520, base = 62, avgW = 71;
+  const colW = 560, base = 96, avgW = 58;
   function maxFs(t) {
     const lines = t.split('\n'), worst = lines.reduce((a,b)=>a.length>b.length?a:b);
     const n = worst.length;
     return (colW + (n-1)*2) * base / (n * avgW);
   }
-  return Math.max(28, Math.floor(Math.min(maxFs(docType), maxFs(prodName), base) * 0.94));
+  return Math.max(46, Math.floor(Math.min(maxFs(docType), maxFs(prodName), base) * 0.96));
 }
 function pdfTop(docType, prodName, prodCo) {
   const fs = pdfHeaderFs(docType, prodName);
@@ -2991,7 +2991,7 @@ function doMail() {
   if (sumWk)      lonspec += `  Weekend §8:${sp}${sumWk.toLocaleString('da-DK')} kr.${n}`;
   if (sumFskKr)   lonspec += `  Forskudt §7:${sp}${sumFskKr.toLocaleString('da-DK')} kr.${n}`;
 
-  const subj = encodeURIComponent(`Time App uge ${uge}/${år} — ${cfg.navn || ''}${cfg.prod ? ' · ' + cfg.prod : ''}`);
+  const subj = encodeURIComponent(`${cfg.navn || 'Time App'} · Uge ${uge}/${år}`);
   const body =
     `Produktion: ${cfg.prod || '—'}${n}` +
     `Navn: ${cfg.navn || '—'}${n}` +
@@ -3116,7 +3116,7 @@ function doXLSX_mnd() {
 function doMail_mnd() {
   const {mndNavn, år, totH, totL, totPensionL, totOt, totD} = _mndData();
   const n = '%0D%0A';
-  const subj = encodeURIComponent(`Timeopgørelse ${mndNavn} ${år} — ${cfg.navn||cfg.prod||''}`);
+  const subj = encodeURIComponent(`${cfg.navn || 'Time App'} · ${mndNavn} ${år}`);
   const pension = Math.round(totPensionL * 0.095);
   const body = encodeURIComponent(`Timeopgørelse — ${mndNavn} ${år}`) + n + n +
     encodeURIComponent(`Produktion: ${cfg.prod||'—'}`) + n +
@@ -3220,7 +3220,7 @@ function doXLSX_aar() {
 function doMail_aar() {
   const {år, totH, totL, totPensionL, totOt, totD, mndr} = _aarData();
   const n = '%0D%0A';
-  const subj = encodeURIComponent(`Årsopgørelse ${år} — ${cfg.navn||cfg.prod||''}`);
+  const subj = encodeURIComponent(`${cfg.navn || 'Time App'} · År ${år}`);
   const pension = Math.round(totPensionL * 0.095);
   let mndLinjer = mndr.filter(x=>x.mD>0).map(({navn,mH,mL,mD}) =>
     encodeURIComponent(`  ${navn}: ${hFmt(mH)} · ${mL.toLocaleString('da-DK')} kr. (${mD}d)`)
@@ -3368,7 +3368,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.48';
+const APP_VERSION = '1.49';
 
 // ── SPLASH ──
 (function(){
@@ -3406,6 +3406,13 @@ const APP_VERSION = '1.48';
 
 
 const CHANGELOG = {
+  '1.49': {
+    dato: '28. april 2026',
+    nyt: [
+      'PDF-header (dagseddel, ugeseddel, månedsoversigt) er nu betydeligt større og tydeligere — titel, produktionsnavn og selskabsnavn fylder hele toppen og er let læselige.',
+      'Mail-emnefelt: Alle udskrifter starter nu med dit fulde navn efterfulgt af relevant periode (dato for dagseddel, ugenummer for uge, måned/år for månedsoversigt, år for årsopgørelse).',
+    ]
+  },
   '1.48': {
     dato: '23. april 2026',
     nyt: [
