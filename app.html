@@ -2204,11 +2204,13 @@ function _pdfDag() {
 
 function doPDF_dag() {
   const r = _pdfDag(); if (!r) return;
+  const filnavn = `TimeApp_${(cfg.navn||'dag').replace(/\s+/g,'_')}_${r.dagISO}`;
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = r.html; frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
+  const orgTitle = document.title; document.title = filnavn;
   window.print();
-  setTimeout(() => { frame.classList.remove('vis'); }, 800);
+  setTimeout(() => { frame.classList.remove('vis'); document.title = orgTitle; }, 800);
 }
 
 function sendEnkeltDag() {
@@ -2841,12 +2843,14 @@ function _pdfUge() {
 
 function doPDF() {
   const r = _pdfUge();
+  const filnavn = `TimeApp_${(cfg.navn||'uge').replace(/\s+/g,'_')}_Uge${String(r.uge).padStart(2,'0')}-${r.år}`;
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = r.html;
   frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
+  const orgTitle = document.title; document.title = filnavn;
   window.print();
-  setTimeout(() => { frame.classList.remove('vis'); frame.innerHTML = ''; }, 1000);
+  setTimeout(() => { frame.classList.remove('vis'); frame.innerHTML = ''; document.title = orgTitle; }, 1000);
 }
 
 // ═══════════════════════════════════════════════════
@@ -3152,11 +3156,13 @@ function _pdfMnd() {
 
 function doPDF_mnd() {
   const r = _pdfMnd();
+  const filnavn = `TimeApp_${(cfg.navn||'mnd').replace(/\s+/g,'_')}_${r.mndNavn}-${r.år}`;
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = r.html; frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
+  const orgTitle = document.title; document.title = filnavn;
   window.print();
-  setTimeout(() => { frame.classList.remove('vis'); }, 800);
+  setTimeout(() => { frame.classList.remove('vis'); document.title = orgTitle; }, 800);
 }
 
 function doXLSX_mnd() {
@@ -3259,11 +3265,13 @@ function _pdfAar() {
 
 function doPDF_aar() {
   const r = _pdfAar();
+  const filnavn = `TimeApp_${(cfg.navn||'aar').replace(/\s+/g,'_')}_${r.år}`;
   const frame = document.getElementById('pdf-frame');
   frame.innerHTML = r.html; frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
+  const orgTitle = document.title; document.title = filnavn;
   window.print();
-  setTimeout(() => { frame.classList.remove('vis'); }, 800);
+  setTimeout(() => { frame.classList.remove('vis'); document.title = orgTitle; }, 800);
 }
 
 function doXLSX_aar() {
@@ -3425,7 +3433,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.55';
+const APP_VERSION = '1.56';
 
 // ── SPLASH ──
 (function(){
@@ -3463,6 +3471,13 @@ const APP_VERSION = '1.55';
 
 
 const CHANGELOG = {
+  '1.56': {
+    dato: '29. april 2026',
+    nyt: [
+      'PDF-knappen: Default filnavn i "Gem som PDF"-dialogen er nu det samme som mail-flowet bruger — fx "TimeApp_Thomas_Ditzel_2026-04-29" for dag, "TimeApp_Thomas_Ditzel_Uge18-2026" for uge, "TimeApp_Thomas_Ditzel_April-2026" for måned, "TimeApp_Thomas_Ditzel_2026" for år.',
+      'document.title sættes midlertidigt under print() og resettes bagefter — så browser-fanen vender tilbage til "Time App · Ditzel" så snart dialogen lukker.',
+    ]
+  },
   '1.55': {
     dato: '29. april 2026',
     nyt: [
