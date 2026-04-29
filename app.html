@@ -339,33 +339,33 @@ textarea::placeholder{color:var(--mut)}
 .pdf-top-right{flex:0 0 150px;text-align:center;padding-left:8px;padding-top:2px;}
 .pdf-top-right img{width:138px;height:138px;display:block;margin:0 auto 5px;}
 .pdf-top-right .pdf-brand{font-family:'Tahoma',Arial,sans-serif;font-size:24px;letter-spacing:2px;color:#111;line-height:1;}
-.pdf-doc-type,.pdf-prod-name{font-family:'Tahoma',Arial Black,sans-serif;font-weight:800;line-height:0.9;letter-spacing:-2px;color:#111;white-space:nowrap;display:block;}
-.pdf-prod-name{margin-top:10px;}
-.pdf-prod-co{font-size:22px;font-weight:800;color:#222;margin-top:14px;letter-spacing:.5px;text-transform:uppercase;}
+.pdf-doc-type,.pdf-prod-name{font-family:'Tahoma',Arial Black,sans-serif;font-weight:800;line-height:0.95;letter-spacing:1px;color:#000;white-space:nowrap;display:block;}
+.pdf-prod-name{margin-top:14px;}
+.pdf-prod-co{font-size:24px;font-weight:800;color:#111;margin-top:16px;letter-spacing:1.5px;text-transform:uppercase;}
 .pdf-hr{border:none;border-top:2px solid #111;margin:0 0 14px;}
-.pdf-period-ttl{font-family:'Tahoma',sans-serif;font-weight:800;font-size:28px;letter-spacing:-0.3px;color:#111;margin-bottom:2px;}
-.pdf-period-sub{font-size:14px;font-weight:700;color:#333;margin-bottom:14px;}
-.pdf-emp-row{display:flex;gap:28px;padding:8px 0;border-top:1px solid #ddd;border-bottom:1px solid #ddd;margin-bottom:18px;}
-.pdf-emp-col .pdf-lbl{font-size:11px;color:#999;margin-bottom:2px;}
-.pdf-emp-col .pdf-val{font-size:14px;font-weight:700;}
-.pdf-sect{font-size:10px;font-weight:700;color:#777;letter-spacing:.12em;text-transform:uppercase;margin:0 0 6px;}
-.pdf-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;}
-.pdf-tbl thead tr{background:#111;color:#fff;}
-.pdf-tbl thead th{padding:7px 10px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.pdf-period-ttl{font-family:'Tahoma',sans-serif;font-weight:800;font-size:32px;letter-spacing:1px;color:#000;margin-bottom:4px;}
+.pdf-period-sub{font-size:15px;font-weight:700;color:#111;margin-bottom:16px;}
+.pdf-emp-row{display:flex;gap:28px;padding:10px 0;border-top:1.5px solid #111;border-bottom:1.5px solid #111;margin-bottom:18px;}
+.pdf-emp-col .pdf-lbl{font-size:11px;font-weight:700;color:#222;margin-bottom:3px;letter-spacing:.04em;text-transform:uppercase;}
+.pdf-emp-col .pdf-val{font-size:15px;font-weight:800;color:#000;}
+.pdf-sect{font-size:11px;font-weight:800;color:#111;letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px;}
+.pdf-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;color:#111;}
+.pdf-tbl thead tr{background:#000;color:#fff;}
+.pdf-tbl thead th{padding:8px 10px;text-align:left;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}
 .pdf-tbl thead th.r{text-align:right;}
-.pdf-tbl tbody td{padding:6px 10px;border-bottom:1px solid #eee;}
+.pdf-tbl tbody td{padding:7px 10px;border-bottom:1px solid #ccc;color:#111;font-weight:500;}
 .pdf-tbl tbody td.r{text-align:right;}
 .pdf-tbl tbody td.mono{font-family:monospace;}
-.pdf-tbl tr.fri td{color:#bbb;font-style:italic;}
-.pdf-tbl tr.tot td{font-weight:700;border-top:2px solid #111;border-bottom:none;background:#f7f7f7;}
-.pdf-lonspec{font-size:13px;margin-bottom:16px;}
-.pdf-lon-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #eee;}
-.pdf-lon-row .note{color:#999;font-size:12px;margin-left:8px;}
-.pdf-lon-row .amt{font-weight:600;white-space:nowrap;}
-.pdf-lon-row.bold{font-weight:700;border-bottom:2px solid #111;padding-bottom:7px;}
-.pdf-lon-row.muted{color:#666;}
-.pdf-thin{border:none;border-top:1px solid #ddd;margin:8px 0;}
-.pdf-footer{margin-top:auto;padding-top:14px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:10px;color:#bbb;}
+.pdf-tbl tr.fri td{color:#666;font-style:italic;}
+.pdf-tbl tr.tot td{font-weight:800;border-top:2px solid #000;border-bottom:none;background:#eee;color:#000;}
+.pdf-lonspec{font-size:13px;margin-bottom:16px;color:#111;}
+.pdf-lon-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #ccc;color:#111;}
+.pdf-lon-row .note{color:#444;font-size:12px;margin-left:8px;font-weight:500;}
+.pdf-lon-row .amt{font-weight:700;white-space:nowrap;color:#000;}
+.pdf-lon-row.bold{font-weight:800;border-bottom:2px solid #000;padding-bottom:8px;color:#000;}
+.pdf-lon-row.muted{color:#222;}
+.pdf-thin{border:none;border-top:1px solid #888;margin:8px 0;}
+.pdf-footer{margin-top:auto;padding-top:14px;border-top:1px solid #888;display:flex;justify-content:space-between;font-size:10px;color:#444;}
 </style>
 
 <style id="splash-css">
@@ -2196,7 +2196,7 @@ function _pdfDag() {
       ${pension > 0 ? `<div class="pdf-lon-row muted"><span>Pension 9,5% §3.4</span><span class="amt">${krFmt(pension)}</span></div>` : ''}
       ${(tillidDag > 0 || pension > 0) ? `<div class="pdf-lon-row bold"><span>Samlet${pension > 0 ? ' inkl. pension' : ''}${tillidDag > 0 ? ' + tillidshverv' : ''}</span><span class="amt">${krFmt(d.lon + tillidDag + pension)}</span></div>` : ''}
     </div>
-    ${d.note ? `<div class="pdf-sect">Note</div><div style="font-size:12px;padding:8px 0;color:#555">${d.note}</div>` : ''}
+    ${d.note ? `<div class="pdf-sect">Note</div><div style="font-size:13px;padding:8px 0;color:#111;font-weight:500">${d.note}</div>` : ''}
     <div class="pdf-footer"><span>time-app.dk</span><span>Udskrevet ${new Date().toLocaleDateString('da-DK')}</span></div>
   </div>`;
   return { html, dagStr, dagISO };
@@ -2700,13 +2700,13 @@ async function _pdfDel(html, filnavn, emne) {
 }
 
 function pdfHeaderFs(docType, prodName) {
-  const colW = 560, base = 96, avgW = 58;
+  const colW = 560, base = 110, avgW = 62;
   function maxFs(t) {
     const lines = t.split('\n'), worst = lines.reduce((a,b)=>a.length>b.length?a:b);
     const n = worst.length;
-    return (colW + (n-1)*2) * base / (n * avgW);
+    return (colW - (n-1)*1) * base / (n * avgW);
   }
-  return Math.max(46, Math.floor(Math.min(maxFs(docType), maxFs(prodName), base) * 0.96));
+  return Math.max(54, Math.floor(Math.min(maxFs(docType), maxFs(prodName), base) * 0.96));
 }
 function pdfTop(docType, prodName, prodCo) {
   const fs = pdfHeaderFs(docType, prodName);
@@ -3425,7 +3425,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.54';
+const APP_VERSION = '1.55';
 
 // ── SPLASH ──
 (function(){
@@ -3463,6 +3463,15 @@ const APP_VERSION = '1.54';
 
 
 const CHANGELOG = {
+  '1.55': {
+    dato: '29. april 2026',
+    nyt: [
+      'Tydeligere PDF: Større overskrift og produktionsnavn med mere mellemrum mellem bogstaverne (letter-spacing fra -2px til +1px).',
+      'Tekst-titler (labels, sektionsoverskrifter, lønspecifikation) er nu næsten sorte i stedet for lysegrå — meget bedre læsbarhed på print og skærm.',
+      'Tabeller: Mørkere tekst, kraftigere overskrift, tydeligere total-linje.',
+      'Fælles farve-opstramning: Alle "muted" elementer er gået fra #999/#bbb til #222/#444.',
+    ]
+  },
   '1.54': {
     dato: '29. april 2026',
     nyt: [
