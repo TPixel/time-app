@@ -2141,11 +2141,12 @@ function sletDag() {
 // ═══════════════════════════════════════════════════
 // SEND ENKELT DAG
 // ═══════════════════════════════════════════════════
-function doPDF_dag() {
+function _pdfDag() {
   const d = hentDag(aktivDag);
-  if (!d) { toast('Gem dagen først'); return; }
+  if (!d) { toast('Gem dagen først'); return null; }
   const dagNavn = DAGE[aktivDag.getDay()];
   const dagStr = `${dagNavn} ${aktivDag.getDate()}. ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
+  const dagISO = `${aktivDag.getFullYear()}-${String(aktivDag.getMonth()+1).padStart(2,'0')}-${String(aktivDag.getDate()).padStart(2,'0')}`;
   const dMixed = d.knapper?.v && d.knapper?.u;
   const dVt = d.knapper?.varsletTimer || 0;
   function otLabel(time, vSats, uSats) {
@@ -2198,105 +2199,23 @@ function doPDF_dag() {
     ${d.note ? `<div class="pdf-sect">Note</div><div style="font-size:12px;padding:8px 0;color:#555">${d.note}</div>` : ''}
     <div class="pdf-footer"><span>time-app.dk</span><span>Udskrevet ${new Date().toLocaleDateString('da-DK')}</span></div>
   </div>`;
+  return { html, dagStr, dagISO };
+}
+
+function doPDF_dag() {
+  const r = _pdfDag(); if (!r) return;
   const frame = document.getElementById('pdf-frame');
-  frame.innerHTML = html; frame.classList.add('vis');
+  frame.innerHTML = r.html; frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
   window.print();
   setTimeout(() => { frame.classList.remove('vis'); }, 800);
 }
 
 function sendEnkeltDag() {
-  const d = hentDag(aktivDag);
-  if (!d) { toast('Gem dagen først'); return; }
-
-  const dagStr = `${DAGE[aktivDag.getDay()]} ${aktivDag.getDate()}. ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
-  const mMixed = d.knapper?.v && d.knapper?.u;
-  const mVt = d.knapper?.varsletTimer || 0;
-  function mOtLbl(time, vS, uS) {
-    if (mMixed) return `OT ${time}. time (${mVt >= time ? 'varslet '+vS : 'uvarslet '+uS})`;
-    if (d.knapper?.v) return `OT ${time}. time (varslet ${vS})`;
-    return `OT ${time}. time (uvarslet ${uS})`;
-  }
-
-  // ── Spec linjer ─────────────────────────────────────────────────
-  const specRækker = [];
-  if (d.manuelLon) {
-    specRækker.push({ lbl: 'Manuel aftalt dagssats', kr: d.manuelLon });
-  } else {
-    if (d.normal) specRækker.push({ lbl: 'Normal arbejdstid', kr: d.normal });
-    if (d.ot1)    specRækker.push({ lbl: mOtLbl(1,'+50%','+75%'), kr: d.ot1 });
-    if (d.ot2)    specRækker.push({ lbl: mOtLbl(2,'+60%','+100%'), kr: d.ot2 });
-    if (d.ot3)    specRækker.push({ lbl: 'OT 3.+ time (+135%)', kr: d.ot3 });
-    if (d.wk)     specRækker.push({ lbl: 'Weekendtillæg §8', kr: d.wk });
-    if (d.fskKr)  specRækker.push({ lbl: 'Forskudt §7', kr: d.fskKr });
-    if (d.saertidKr) specRækker.push({ lbl: 'Særtid §5 (+100%)', kr: d.saertidKr });
-    if (d.diaetKr) specRækker.push({ lbl: 'Diæt §14', kr: d.diaetKr });
-  }
-
-  const badgeTxt = [
-    mMixed ? `◆ Mixed OT (${mVt}t varslet)` : (d.knapper?.v ? '◆ Varslet OT' : null),
-    mMixed ? null : (d.knapper?.u ? '◆ Uvarslet OT' : null),
-    d.knapper?.h ? '◆ Helligdag §8' : null,
-    d.knapper?.f ? '◆ Sen frokost' : null,
-    d.knapper?.r ? '◆ Kørsel m. udstyr' : null,
-  ].filter(Boolean);
-
-  // ── Formatering ──────────────────────────────────────────────────
-  const W   = 44;
-  const SEP = '─'.repeat(W);
-  const TOP = '═'.repeat(W);
-  const fKr = kr => kr.toLocaleString('da-DK', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' kr.';
-
-  // Unicode bold (A-Z, a-z, 0-9 — ø æ å beholder normal stil)
-  const bold = s => s.split('').map(c => {
-    const n = c.charCodeAt(0);
-    if (n >= 65 && n <= 90)  return String.fromCodePoint(0x1D400 + n - 65);
-    if (n >= 97 && n <= 122) return String.fromCodePoint(0x1D41A + n - 97);
-    if (n >= 48 && n <= 57)  return String.fromCodePoint(0x1D7CE + n - 48);
-    return c;
-  }).join('');
-
-  const specLinje = (lbl, krStr) => {
-    const dots = W - 2 - lbl.length - krStr.length;
-    return '  ' + lbl + ' '.repeat(Math.max(1, dots)) + krStr;
-  };
-
-  // ── Header ───────────────────────────────────────────────────────
-  const lines = [
-    TOP,
-    `  ${bold(cfg.prod || 'Time App')}`,
-    `  ${bold(dagStr)}`,
-    TOP,
-    '',
-    `  ${d.start}  →  ${d.slut}     ${hFmt(d.h)}`,
-  ];
-
-  if (badgeTxt.length) {
-    lines.push('');
-    lines.push('  ' + badgeTxt.join('   '));
-  }
-
-  if (d.note) {
-    lines.push('');
-    lines.push('  Note: ' + d.note);
-  }
-
-  lines.push('');
-  lines.push(SEP);
-  lines.push('  LØNSPECIFIKATION');
-  lines.push(SEP);
-  for (const r of specRækker) lines.push(specLinje(r.lbl, fKr(r.kr)));
-  lines.push(SEP);
-  lines.push(specLinje('DAGSLØN', fKr(d.lon)));
-  lines.push(TOP);
-  lines.push('');
-  if (cfg.navn) lines.push('  ' + cfg.navn);
-  lines.push('  Importeret fra Time App');
-  lines.push('  Fiktionsoverenskomst 2025–2027');
-
-  const body = lines.join('\n');
-  const subj = encodeURIComponent(`${cfg.navn || 'Time App'} · ${dagStr}`);
-  window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${encodeURIComponent(body)}`;
+  const r = _pdfDag(); if (!r) return;
+  const emne = `${cfg.navn || 'Time App'} · ${r.dagStr}`;
+  const filnavn = `TimeApp_${(cfg.navn||'dag').replace(/\s+/g,'_')}_${r.dagISO}.pdf`;
+  _pdfDel(r.html, filnavn, emne);
 }
 
 // ═══════════════════════════════════════════════════
@@ -2710,6 +2629,76 @@ function isoDate(d) {
 
 // ═══════════════════════════════════════════════════
 // PDF helpers
+// ═══════════════════════════════════════════════════
+// PDF DEL — generér PDF blob og del via Web Share API
+// (eller fallback: download + åbn mail med korrekt emne)
+// ═══════════════════════════════════════════════════
+function _loadHtml2Pdf() {
+  if (window.html2pdf) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+
+async function _pdfDel(html, filnavn, emne) {
+  const frame = document.getElementById('pdf-frame');
+  toast('Bygger PDF…');
+  // Render PDF-frame off-screen så det ikke flasher op for brugeren
+  const orgStyle = frame.getAttribute('style') || '';
+  frame.setAttribute('style', 'display:block;position:fixed;left:-9999px;top:0;background:#fff;z-index:-1;');
+  try {
+    await _loadHtml2Pdf();
+    frame.innerHTML = html;
+    void frame.offsetHeight;
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch(_){} }
+
+    const opt = {
+      margin: 0,
+      filename: filnavn,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    const blob = await window.html2pdf().set(opt).from(frame.firstElementChild || frame).outputPdf('blob');
+    frame.innerHTML = '';
+    frame.setAttribute('style', orgStyle);
+
+    const file = new File([blob], filnavn, { type: 'application/pdf' });
+
+    // Web Share API med filer (iOS Safari, macOS Safari 16+, Chrome mobil)
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: emne });
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return; // bruger annullerede
+        // ellers fald gennem til download-fallback
+      }
+    }
+
+    // Fallback: download PDF og åbn mailto med emnefelt
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filnavn;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    toast('PDF hentet — vedhæft den i mailen');
+    setTimeout(() => {
+      window.location.href = `mailto:${cfg.email||''}?subject=${encodeURIComponent(emne)}`;
+    }, 600);
+  } catch (e) {
+    console.error('PDF-del fejlede:', e);
+    frame.innerHTML = '';
+    frame.setAttribute('style', orgStyle);
+    toast('Kunne ikke bygge PDF');
+  }
+}
+
 function pdfHeaderFs(docType, prodName) {
   const colW = 560, base = 96, avgW = 58;
   function maxFs(t) {
@@ -2746,7 +2735,7 @@ function pdfEmpRow(navn, ugelon, pers, otsats, arbtid) {
 // ═══════════════════════════════════════════════════
 // PDF
 // ═══════════════════════════════════════════════════
-function doPDF() {
+function _pdfUge() {
   const { datoer, uge, ts, dage, totH, totL, pension } = ugeData();
   const år = datoer[0].getFullYear();
   const fra = dateFmt(datoer[0]);
@@ -2847,9 +2836,13 @@ function doPDF() {
       <span>Udskrevet ${new Date().toLocaleDateString('da-DK')}</span>
     </div>
   </div>`;
+  return { html, uge, år };
+}
 
+function doPDF() {
+  const r = _pdfUge();
   const frame = document.getElementById('pdf-frame');
-  frame.innerHTML = html;
+  frame.innerHTML = r.html;
   frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
   window.print();
@@ -3074,69 +3067,10 @@ function doKalender() {
   toast('Kalender downloadet — åbn filen ✓');
 }
 function doMail() {
-  const { dage, uge, ts, totH, totL, pension } = ugeData();
-  const år = new Date().getFullYear();
-
-  // Saml ugensummer
-  let sumNormal=0, sumOt1=0, sumOt2=0, sumOt3=0, sumWk=0, sumFskKr=0;
-  dage.forEach(d => {
-    if (d.fri) return;
-    sumNormal += d.normal; sumOt1 += d.ot1; sumOt2 += d.ot2;
-    sumOt3 += d.ot3; sumWk += d.wk; sumFskKr += d.fskKr;
-  });
-
-  const n  = '%0D%0A';  // linjeskift i mailto
-  const sp = '          ';
-
-  // Daglinjer
-  let dagLinjer = '';
-  dage.forEach(d => {
-    if (d.fri) return;
-    const otType = d.knapper?.v ? 'Varslet OT' : d.knapper?.u ? 'Uvarslet OT' : '';
-    const extras = [
-      d.knapper?.h ? 'Helligdag' : '',
-      d.knapper?.f ? 'Sen frokost' : '',
-      d.knapper?.r ? 'Kørsel m. udstyr' : '',
-      otType,
-    ].filter(Boolean).join(', ');
-    dagLinjer += `${dagNavn(d.dato)} ${d.dato.getDate()}/${d.dato.getMonth()+1}${n}`;
-    dagLinjer += `  ${d.start}–${d.slut}  (${hFmt(d.h)})${n}`;
-    if (extras) dagLinjer += `  ${extras}${n}`;
-    dagLinjer += `  Dagsløn: ${d.lon.toLocaleString('da-DK')} kr.${n}`;
-    dagLinjer += `${n}`;
-  });
-
-  // Lønspec
-  const otType = dage.some(d => !d.fri && d.knapper?.v) ? 'Varslet' :
-                 dage.some(d => !d.fri && d.knapper?.u) ? 'Uvarslet' : 'Uvarslet';
-  let lonspec = '';
-  if (sumNormal)  lonspec += `  Normal arbejdstid:${sp}${sumNormal.toLocaleString('da-DK')} kr.${n}`;
-  if (sumOt1)     lonspec += `  OT 1. time (${otType === 'Varslet' ? '+50%' : '+75%'}):${sp}${sumOt1.toLocaleString('da-DK')} kr.${n}`;
-  if (sumOt2)     lonspec += `  OT 2. time (${otType === 'Varslet' ? '+60%' : '+100%'}):${sp}${sumOt2.toLocaleString('da-DK')} kr.${n}`;
-  if (sumOt3)     lonspec += `  OT 3.+ time (+135%):${sp}${sumOt3.toLocaleString('da-DK')} kr.${n}`;
-  if (sumWk)      lonspec += `  Weekend §8:${sp}${sumWk.toLocaleString('da-DK')} kr.${n}`;
-  if (sumFskKr)   lonspec += `  Forskudt §7:${sp}${sumFskKr.toLocaleString('da-DK')} kr.${n}`;
-
-  const subj = encodeURIComponent(`${cfg.navn || 'Time App'} · Uge ${uge}/${år}`);
-  const body =
-    `Produktion: ${cfg.prod || '—'}${n}` +
-    `Navn: ${cfg.navn || '—'}${n}` +
-    `Uge: ${uge}/${år}${n}` +
-    `${n}` +
-    `━━━━━━━━━━━━━━━━━━━━━${n}` +
-    `${dagLinjer}` +
-    `━━━━━━━━━━━━━━━━━━━━━${n}` +
-    `${n}` +
-    `LØNSPECIFIKATION${n}` +
-    `${lonspec}` +
-    `${n}` +
-    `Total: ${hFmt(totH)} / ${totL.toLocaleString('da-DK')} kr.${n}` +
-    `Pension 9,5%25: ${pension.toLocaleString('da-DK')} kr.${n}` +
-    `${n}` +
-    `Time App · Ditzel${n}` +
-    `Beregnet iht. Fiktionsoverenskomst 2025–2027`;
-
-  window.location.href = `mailto:${cfg.email || ''}?subject=${subj}&body=${body}`;
+  const r = _pdfUge();
+  const emne = `${cfg.navn || 'Time App'} · Uge ${r.uge}/${r.år}`;
+  const filnavn = `TimeApp_${(cfg.navn||'uge').replace(/\s+/g,'_')}_Uge${String(r.uge).padStart(2,'0')}-${r.år}.pdf`;
+  _pdfDel(r.html, filnavn, emne);
 }
 
 // ═══════════════════════════════════════════════════
@@ -3179,8 +3113,8 @@ function _mndData() {
   return {mndNavn, år, mnd, totH, totL, totPensionL, totOt, totD, dageData, DAGE_LANG};
 }
 
-function doPDF_mnd() {
-  const {mndNavn, år, totH, totL, totPensionL, totOt, totD, dageData, DAGE_LANG} = _mndData();
+function _pdfMnd() {
+  const {mndNavn, år, mnd, totH, totL, totPensionL, totOt, totD, dageData, DAGE_LANG} = _mndData();
   const pension = Math.round(totPensionL * 0.095);
   const rækker = dageData.filter(({s}) => s).map(({d,s,lon,h}) => {
     const otType = s.knapper?.v ? 'V' : s.knapper?.u ? 'U' : '';
@@ -3213,8 +3147,13 @@ function doPDF_mnd() {
     </div>
     <div class="pdf-footer"><span>time-app.dk</span><span>Udskrevet ${new Date().toLocaleDateString('da-DK')}</span></div>
   </div>`;
+  return { html, mndNavn, år, mnd };
+}
+
+function doPDF_mnd() {
+  const r = _pdfMnd();
   const frame = document.getElementById('pdf-frame');
-  frame.innerHTML = html; frame.classList.add('vis');
+  frame.innerHTML = r.html; frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
   window.print();
   setTimeout(() => { frame.classList.remove('vis'); }, 800);
@@ -3246,20 +3185,10 @@ function doXLSX_mnd() {
 }
 
 function doMail_mnd() {
-  const {mndNavn, år, totH, totL, totPensionL, totOt, totD} = _mndData();
-  const n = '%0D%0A';
-  const subj = encodeURIComponent(`${cfg.navn || 'Time App'} · ${mndNavn} ${år}`);
-  const pension = Math.round(totPensionL * 0.095);
-  const body = encodeURIComponent(`Timeopgørelse — ${mndNavn} ${år}`) + n + n +
-    encodeURIComponent(`Produktion: ${cfg.prod||'—'}`) + n +
-    encodeURIComponent(`Navn: ${cfg.navn||'—'}`) + n + n +
-    encodeURIComponent(`Arbejdsdage: ${totD}`) + n +
-    encodeURIComponent(`Timer i alt: ${hFmt(totH)}`) + n +
-    (totOt ? encodeURIComponent(`Overtid: ${hFmt(totOt)}`) + n : '') +
-    encodeURIComponent(`Løn i alt: ${totL.toLocaleString('da-DK')} kr.`) + n +
-    encodeURIComponent(`Pension 9,5%: ${pension.toLocaleString('da-DK')} kr.`) + n + n +
-    encodeURIComponent(`Time App · Fiktionsoverenskomst 2025–2027`);
-  window.location.href = `mailto:${cfg.email||''}?subject=${subj}&body=${body}`;
+  const r = _pdfMnd();
+  const emne = `${cfg.navn || 'Time App'} · ${r.mndNavn} ${r.år}`;
+  const filnavn = `TimeApp_${(cfg.navn||'mnd').replace(/\s+/g,'_')}_${r.mndNavn}-${r.år}.pdf`;
+  _pdfDel(r.html, filnavn, emne);
 }
 
 // ═══════════════════════════════════════════════════
@@ -3301,7 +3230,7 @@ function _aarData() {
   return {år, totH, totL, totPensionL, totOt, totD, mndr, prodLabel};
 }
 
-function doPDF_aar() {
+function _pdfAar() {
   const {år, totH, totL, totPensionL, totOt, totD, mndr, prodLabel} = _aarData();
   const pension = Math.round(totPensionL * 0.095);
   const rækker = mndr.map(({navn,mH,mL,mOt,mD}) =>
@@ -3325,8 +3254,13 @@ function doPDF_aar() {
     </table>
     <div class="pdf-footer">Time App · Fiktionsoverenskomst 2025–2027 · Udskrevet ${new Date().toLocaleDateString('da-DK')}</div>
   </div>`;
+  return { html, år };
+}
+
+function doPDF_aar() {
+  const r = _pdfAar();
   const frame = document.getElementById('pdf-frame');
-  frame.innerHTML = html; frame.classList.add('vis');
+  frame.innerHTML = r.html; frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
   window.print();
   setTimeout(() => { frame.classList.remove('vis'); }, 800);
@@ -3356,25 +3290,10 @@ function doXLSX_aar() {
 }
 
 function doMail_aar() {
-  const {år, totH, totL, totPensionL, totOt, totD, mndr} = _aarData();
-  const n = '%0D%0A';
-  const subj = encodeURIComponent(`${cfg.navn || 'Time App'} · År ${år}`);
-  const pension = Math.round(totPensionL * 0.095);
-  let mndLinjer = mndr.filter(x=>x.mD>0).map(({navn,mH,mL,mD}) =>
-    encodeURIComponent(`  ${navn}: ${hFmt(mH)} · ${mL.toLocaleString('da-DK')} kr. (${mD}d)`)
-  ).join(n);
-  const body = encodeURIComponent(`Årsopgørelse ${år}`) + n + n +
-    encodeURIComponent(`Produktion: ${cfg.prod||'—'}`) + n +
-    encodeURIComponent(`Navn: ${cfg.navn||'—'}`) + n + n +
-    mndLinjer + n + n +
-    encodeURIComponent(`─────────────────────`) + n +
-    encodeURIComponent(`Arbejdsdage: ${totD}`) + n +
-    encodeURIComponent(`Timer i alt: ${hFmt(totH)}`) + n +
-    (totOt ? encodeURIComponent(`Overtid: ${hFmt(totOt)}`) + n : '') +
-    encodeURIComponent(`Løn i alt: ${totL.toLocaleString('da-DK')} kr.`) + n +
-    encodeURIComponent(`Pension 9,5%: ${pension.toLocaleString('da-DK')} kr.`) + n + n +
-    encodeURIComponent(`Time App · Fiktionsoverenskomst 2025–2027`);
-  window.location.href = `mailto:${cfg.email||''}?subject=${subj}&body=${body}`;
+  const r = _pdfAar();
+  const emne = `${cfg.navn || 'Time App'} · År ${r.år}`;
+  const filnavn = `TimeApp_${(cfg.navn||'aar').replace(/\s+/g,'_')}_${r.år}.pdf`;
+  _pdfDel(r.html, filnavn, emne);
 }
 
 // ═══════════════════════════════════════════════════
@@ -3506,7 +3425,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.53';
+const APP_VERSION = '1.54';
 
 // ── SPLASH ──
 (function(){
@@ -3544,6 +3463,15 @@ const APP_VERSION = '1.53';
 
 
 const CHANGELOG = {
+  '1.54': {
+    dato: '29. april 2026',
+    nyt: [
+      'Mail-knappen sender nu altid en PDF — ikke længere en lang udskrift i selve mailen.',
+      'Emnefelt indeholder dit fulde navn + relevant periode (dag-dato, ugenummer, måned eller år).',
+      'PDF\'en vedhæftes automatisk via iOS/macOS-delemenu (Web Share API). På browsere der ikke understøtter direkte deling: PDF\'en downloades og dit mailprogram åbnes med korrekt emne — du vedhæfter selv den hentede fil.',
+      'Samme PDF-design som PDF-knappen — så modtager får et clean dokument i stedet for en formateret tekstmail.',
+    ]
+  },
   '1.53': {
     dato: '28. april 2026',
     nyt: [
