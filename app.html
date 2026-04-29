@@ -329,11 +329,12 @@ textarea::placeholder{color:var(--mut)}
 #pdf-frame.vis{display:block}
 @media print {
   @page{size:A4 portrait;margin:0}
-  html,body{background:#fff!important;max-width:none!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important}
+  html,body{background:#fff!important;max-width:none!important;margin:0!important;padding:0!important;min-height:0!important;height:auto!important;width:auto!important}
   body>*{display:none!important}
-  #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important;height:auto!important;min-height:0!important}
+  #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:auto!important;padding:0!important;margin:0!important;z-index:auto!important;height:auto!important;min-height:0!important;overflow:visible!important}
+  .pdf-body{width:210mm!important;padding:12mm 14mm 10mm!important;margin:0!important;page-break-inside:auto;}
 }
-.pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;width:794px;box-sizing:border-box;padding:40px 50px 32px;}
+.pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;width:210mm;box-sizing:border-box;padding:12mm 14mm 10mm;margin:0 auto;}
 .pdf-top{display:flex;align-items:flex-start;margin-bottom:22px;}
 .pdf-top-left{flex:1 1 auto;min-width:0;overflow:hidden;}
 .pdf-top-right{flex:0 0 150px;text-align:center;padding-left:8px;padding-top:2px;}
@@ -2661,9 +2662,9 @@ async function _pdfDel(html, filnavn, emne) {
       margin: 0,
       filename: filnavn,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-      jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 794 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
+      pagebreak: { mode: ['css', 'legacy'] }
     };
 
     const blob = await window.html2pdf().set(opt).from(frame.firstElementChild || frame).outputPdf('blob');
@@ -3433,7 +3434,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.56';
+const APP_VERSION = '1.57';
 
 // ── SPLASH ──
 (function(){
@@ -3471,6 +3472,14 @@ const APP_VERSION = '1.56';
 
 
 const CHANGELOG = {
+  '1.57': {
+    dato: '29. april 2026',
+    nyt: [
+      'Fix: PDF havde stort tomt område øverst og kunne afskære indhold (fx Lønspecifikation). Skiftede .pdf-body fra 794px til 210mm (eksakt A4-bredde) — print-engines mapper nu millimeter direkte til papir uden auto-skalering.',
+      '@media print: tilføjede explicit width-override og overflow:visible på #pdf-frame så hele dokumentet vises uden afskæring.',
+      'html2pdf-flow: bedre defaults (mm-units, windowWidth:794, fjernet avoid-all pagebreak der kunne anbringe indhold forkert).',
+    ]
+  },
   '1.56': {
     dato: '29. april 2026',
     nyt: [
