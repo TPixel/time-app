@@ -443,6 +443,22 @@ textarea::placeholder{color:var(--mut)}
   </div>
 </div>
 
+<!-- QR KODE MODAL -->
+<div class="tmodal-bg skjult" id="qr-modal-bg" onclick="lukQRModal(event)">
+  <div class="tmodal" onclick="event.stopPropagation()" style="max-width:300px;padding:16px 16px 20px;text-align:center">
+    <div class="tmodal-ttl" style="margin-bottom:10px">Del Time App</div>
+    <div style="background:#fff;padding:10px;border-radius:12px;display:inline-block;margin-bottom:12px;line-height:0">
+      <canvas id="qr-canvas" width="240" height="240" style="display:block;width:240px;height:240px"></canvas>
+    </div>
+    <div style="font-size:11px;color:var(--mut);margin-bottom:12px;font-family:'Tahoma',monospace">time-app.dk</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+      <button class="tmodal-btn ok" onclick="delQR()" style="background:var(--acc);font-size:13px;padding:11px">📤 Del</button>
+      <button class="tmodal-btn ok" onclick="gemQRBillede()" style="background:var(--grn);font-size:13px;padding:11px">💾 Gem</button>
+    </div>
+    <button class="tmodal-btn annul" onclick="lukQRModal(null)" style="width:100%;margin-top:6px;font-size:13px;padding:10px">Luk</button>
+  </div>
+</div>
+
 <!-- DAG VIEW -->
 <div class="view on" id="view-dag">
   <div class="dag-hd">
@@ -803,6 +819,14 @@ textarea::placeholder{color:var(--mut)}
           <input type="file" accept=".json" style="display:none" onchange="importerData(event)">
         </label>
       </div>
+    </div>
+  </div>
+
+  <div class="s-card" style="margin-top:8px">
+    <div class="s-hd">Del appen</div>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;color:var(--mut);line-height:1.5">Del Time App med kolleger via QR-kode. De scanner og kommer direkte til time-app.dk.</div>
+      <button class="gem-btn" onclick="åbnQRModal()" style="font-size:16px;letter-spacing:0">📱 &nbsp;VIS QR-KODE</button>
     </div>
   </div>
 
@@ -2035,6 +2059,137 @@ function bekræftMøde() {
   document.getElementById('møde-modal-bg').classList.add('skjult');
   opdaterKnapper();
   beregn();
+}
+
+// ═══════════════════════════════════════════════════
+// QR KODE — del Time App
+// ═══════════════════════════════════════════════════
+const QR_URL = 'https://time-app.dk';
+
+function åbnQRModal() {
+  document.getElementById('qr-modal-bg').classList.remove('skjult');
+  // Lazy-load qrcode-generator (kazuhikoarase) hvis ikke allerede indlæst
+  if (typeof qrcode === 'undefined') {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js';
+    s.onload = () => byggQRKode();
+    s.onerror = () => toast('Kunne ikke indlæse QR-bibliotek');
+    document.head.appendChild(s);
+  } else {
+    byggQRKode();
+  }
+}
+
+function lukQRModal(ev) {
+  if (ev && ev.target.id !== 'qr-modal-bg') return;
+  document.getElementById('qr-modal-bg').classList.add('skjult');
+}
+
+function byggQRKode() {
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  const size = 240;
+  canvas.width = size;
+  canvas.height = size;
+
+  // Generer QR med høj fejlkorrektion (H = ~30%) — gør plads til logo i midten
+  const qr = qrcode(0, 'H');
+  qr.addData(QR_URL);
+  qr.make();
+  const n = qr.getModuleCount();
+  const cell = size / n;
+
+  // Hvid baggrund + sorte moduler
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#000000';
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      if (qr.isDark(r, c)) {
+        ctx.fillRect(Math.floor(c * cell), Math.floor(r * cell), Math.ceil(cell), Math.ceil(cell));
+      }
+    }
+  }
+
+  // Hvid afrundet plade i midten + logo ovenpå
+  const logoBox = Math.round(size * 0.24);  // 24% — sikkert under H-grænsen på ~30%
+  const cx = size / 2, cy = size / 2;
+  const pad = 6;
+  const x = cx - logoBox/2 - pad, y = cy - logoBox/2 - pad;
+  const w = logoBox + pad*2, h = logoBox + pad*2;
+  const rad = 10;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(x+rad, y);
+  ctx.lineTo(x+w-rad, y);
+  ctx.quadraticCurveTo(x+w, y, x+w, y+rad);
+  ctx.lineTo(x+w, y+h-rad);
+  ctx.quadraticCurveTo(x+w, y+h, x+w-rad, y+h);
+  ctx.lineTo(x+rad, y+h);
+  ctx.quadraticCurveTo(x, y+h, x, y+h-rad);
+  ctx.lineTo(x, y+rad);
+  ctx.quadraticCurveTo(x, y, x+rad, y);
+  ctx.closePath();
+  ctx.fill();
+
+  const logo = new Image();
+  logo.onload = () => {
+    ctx.drawImage(logo, cx - logoBox/2, cy - logoBox/2, logoBox, logoBox);
+  };
+  logo.onerror = () => { /* QR uden logo er stadig brugbar */ };
+  logo.src = 'logo_transparent.png';
+}
+
+function qrCanvasTilBlob() {
+  return new Promise(resolve => {
+    document.getElementById('qr-canvas').toBlob(b => resolve(b), 'image/png');
+  });
+}
+
+async function delQR() {
+  try {
+    const blob = await qrCanvasTilBlob();
+    if (!blob) { toast('Kunne ikke generere billede'); return; }
+    const file = new File([blob], 'TimeApp-QR.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: 'Time App',
+        text: 'Time App — lønberegning til filmteknikere · ' + QR_URL
+      });
+    } else if (navigator.share) {
+      await navigator.share({ title: 'Time App', text: 'Time App — lønberegning til filmteknikere', url: QR_URL });
+    } else {
+      // Fallback: download
+      gemQRBillede();
+    }
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    toast('Kunne ikke dele');
+  }
+}
+
+async function gemQRBillede() {
+  const blob = await qrCanvasTilBlob();
+  if (!blob) { toast('Kunne ikke generere billede'); return; }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'TimeApp-QR.png';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('QR gemt');
+}
+
+async function kopierQRLink() {
+  try {
+    await navigator.clipboard.writeText(QR_URL);
+    toast('Link kopieret');
+  } catch (e) {
+    toast('Kunne ikke kopiere link');
+  }
 }
 function opdaterKnapper() {
   // §8 auto: lør/søn håndteres automatisk — Helligdag-knap er kun for hverdags-helligdage (jul, påske, nytår, etc.)
@@ -3434,7 +3589,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.57';
+const APP_VERSION = '1.58';
 
 // ── SPLASH ──
 (function(){
@@ -3472,6 +3627,15 @@ const APP_VERSION = '1.57';
 
 
 const CHANGELOG = {
+  '1.58': {
+    dato: '30. april 2026',
+    nyt: [
+      'Ny "Del appen"-funktion i Indstillinger: Generer en QR-kode der peger på time-app.dk — perfekt til at vise kolleger på set hvor de finder appen.',
+      'Time App-logoet sidder pænt i midten af QR-koden (high error correction så koden stadig scanner sikkert).',
+      'Tre delemuligheder: 📤 Del (iOS/macOS share-sheet med PNG vedhæftet), 💾 Gem (download som PNG-fil), 🔗 Kopier link.',
+      'QR-biblioteket loades først ved første brug — påvirker ikke app-start.',
+    ]
+  },
   '1.57': {
     dato: '29. april 2026',
     nyt: [
