@@ -2804,27 +2804,54 @@ function _loadHtml2Pdf() {
 async function _pdfDel(html, filnavn, emne) {
   const frame = document.getElementById('pdf-frame');
   toast('Bygger PDF…');
-  // Render PDF-frame off-screen så det ikke flasher op for brugeren
+  // Render PDF-frame ved viewport-top — position:fixed/-9999px forårsager html2canvas
+  // bugs hvor indholdet placeres med ~110mm tomt felt øverst og afskæres nederst.
+  // Position:absolute + opacity:0 + scroll til top = ren capture uden offset-fejl.
   const orgStyle = frame.getAttribute('style') || '';
-  frame.setAttribute('style', 'display:block;position:fixed;left:-9999px;top:0;background:#fff;z-index:-1;');
+  const scrollX = window.scrollX, scrollY = window.scrollY;
+  frame.setAttribute('style', 'display:block;position:absolute;left:0;top:0;width:210mm;background:#fff;opacity:0;pointer-events:none;z-index:-1;');
+  window.scrollTo(0, 0);
   try {
     await _loadHtml2Pdf();
     frame.innerHTML = html;
     void frame.offsetHeight;
     if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch(_){} }
+    // Vent på at billeder (logo) er fuldt loaded — ellers kan canvas blive tom
+    const imgs = Array.from(frame.querySelectorAll('img'));
+    await Promise.all(imgs.map(img => img.complete && img.naturalHeight ? Promise.resolve() : new Promise(r => {
+      const t = setTimeout(r, 3000);
+      img.addEventListener('load', () => { clearTimeout(t); r(); }, { once: true });
+      img.addEventListener('error', () => { clearTimeout(t); r(); }, { once: true });
+    })));
+
+    const target = frame.firstElementChild || frame;
+    const targetH = target.scrollHeight;
 
     const opt = {
       margin: 0,
       filename: filnavn,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 794 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        windowWidth: 794,
+        windowHeight: targetH,
+        scrollX: 0,
+        scrollY: 0,
+        x: 0,
+        y: 0,
+        width: 794,
+        height: targetH
+      },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
       pagebreak: { mode: ['css', 'legacy'] }
     };
 
-    const blob = await window.html2pdf().set(opt).from(frame.firstElementChild || frame).outputPdf('blob');
+    const blob = await window.html2pdf().set(opt).from(target).outputPdf('blob');
     frame.innerHTML = '';
     frame.setAttribute('style', orgStyle);
+    window.scrollTo(scrollX, scrollY);
 
     const file = new File([blob], filnavn, { type: 'application/pdf' });
 
@@ -2853,6 +2880,7 @@ async function _pdfDel(html, filnavn, emne) {
     console.error('PDF-del fejlede:', e);
     frame.innerHTML = '';
     frame.setAttribute('style', orgStyle);
+    window.scrollTo(scrollX, scrollY);
     toast('Kunne ikke bygge PDF');
   }
 }
@@ -3589,7 +3617,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.58';
+const APP_VERSION = '1.59';
 
 // ── SPLASH ──
 (function(){
@@ -3627,6 +3655,15 @@ const APP_VERSION = '1.58';
 
 
 const CHANGELOG = {
+  '1.59': {
+    dato: '1. maj 2026',
+    nyt: [
+      'Stort fix: Mail-PDF\'en (delt via mailknappen) havde ~110 mm tomt felt øverst og fik indhold afskåret nederst — pga. en kendt html2canvas-bug med position:fixed elementer. Skiftede til position:absolute ved viewport-top + opacity:0.',
+      'PDF-mail venter nu eksplicit på at logoet er færdig-loaded inden capture, så billedet aldrig mangler i den genererede PDF.',
+      'Eksplicit windowHeight, x:0, y:0, scrollX:0, scrollY:0 sendt til html2canvas for at undgå offset-fejl.',
+      'Scroll-position gemmes/genskabes omkring PDF-genereringen så viewet ikke hopper.',
+    ]
+  },
   '1.58': {
     dato: '30. april 2026',
     nyt: [
