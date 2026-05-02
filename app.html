@@ -2371,7 +2371,10 @@ function doPDF_dag() {
 
 function sendEnkeltDag() {
   const r = _pdfDag(); if (!r) return;
-  const emne = `${cfg.navn || 'Time App'} · ${r.dagStr}`;
+  const navn = cfg.navn || 'Time App';
+  const år = r.dagISO.slice(0,4);
+  const prod = cfg.prod ? ` · ${cfg.prod}` : '';
+  const emne = `${navn} · ${r.dagStr} · ${år}${prod}`;
   const filnavn = `TimeApp_${(cfg.navn||'dag').replace(/\s+/g,'_')}_${r.dagISO}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -3274,7 +3277,9 @@ function doKalender() {
 }
 function doMail() {
   const r = _pdfUge();
-  const emne = `${cfg.navn || 'Time App'} · Uge ${r.uge}/${r.år}`;
+  const navn = cfg.navn || 'Time App';
+  const prod = cfg.prod ? ` · ${cfg.prod}` : '';
+  const emne = `${navn} · Uge ${r.uge} · ${r.år}${prod}`;
   const filnavn = `TimeApp_${(cfg.navn||'uge').replace(/\s+/g,'_')}_Uge${String(r.uge).padStart(2,'0')}-${r.år}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -3393,7 +3398,9 @@ function doXLSX_mnd() {
 
 function doMail_mnd() {
   const r = _pdfMnd();
-  const emne = `${cfg.navn || 'Time App'} · ${r.mndNavn} ${r.år}`;
+  const navn = cfg.navn || 'Time App';
+  const prod = cfg.prod ? ` · ${cfg.prod}` : '';
+  const emne = `${navn} · ${r.mndNavn} · ${r.år}${prod}`;
   const filnavn = `TimeApp_${(cfg.navn||'mnd').replace(/\s+/g,'_')}_${r.mndNavn}-${r.år}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -3499,7 +3506,9 @@ function doXLSX_aar() {
 
 function doMail_aar() {
   const r = _pdfAar();
-  const emne = `${cfg.navn || 'Time App'} · År ${r.år}`;
+  const navn = cfg.navn || 'Time App';
+  const prod = cfg.prod ? ` · ${cfg.prod}` : '';
+  const emne = `${navn} · År ${r.år}${prod}`;
   const filnavn = `TimeApp_${(cfg.navn||'aar').replace(/\s+/g,'_')}_${r.år}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -3633,7 +3642,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.61';
+const APP_VERSION = '1.62';
 
 // ── SPLASH ──
 (function(){
@@ -3671,6 +3680,14 @@ const APP_VERSION = '1.61';
 
 
 const CHANGELOG = {
+  '1.62': {
+    dato: '2. maj 2026',
+    nyt: [
+      'Mail-emne indeholder nu navn · periode · år · produktion. Eksempel uge: "Thomas Ditzel · Uge 18 · 2026 · Den Lukkede Bog".',
+      'Format pr. type: dag = "Navn · Onsdag 29/4 · 2026 · Prod"; uge = "Navn · Uge 18 · 2026 · Prod"; måned = "Navn · April · 2026 · Prod"; år = "Navn · År 2026 · Prod".',
+      'Produktion vises kun hvis udfyldt — ellers udelades den.',
+    ]
+  },
   '1.61': {
     dato: '2. maj 2026',
     nyt: [
