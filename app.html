@@ -2365,8 +2365,7 @@ function doPDF_dag() {
   frame.innerHTML = r.html; frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
   const orgTitle = document.title; document.title = filnavn;
-  window.print();
-  setTimeout(() => { frame.classList.remove('vis'); document.title = orgTitle; }, 800);
+  _doPrintAndCleanup(frame, orgTitle);
 }
 
 function sendEnkeltDag() {
@@ -2885,6 +2884,25 @@ async function _pdfDel(html, filnavn, emne) {
   }
 }
 
+// Hjælper: kør window.print() og ryd pdf-frame FØRST når print er færdig.
+// iOS Safari: printdialogen er langsom, så fast 800/1000ms timeout kan rydde framet
+// MENS PDF'en gemmes → tom side. afterprint-event er den korrekte måde.
+function _doPrintAndCleanup(frame, orgTitle) {
+  let cleaned = false;
+  const cleanup = () => {
+    if (cleaned) return;
+    cleaned = true;
+    frame.classList.remove('vis');
+    frame.innerHTML = '';
+    document.title = orgTitle;
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  // Fallback: ryd efter 30s hvis afterprint aldrig fyrer (sjældne browsere)
+  setTimeout(cleanup, 30000);
+  window.print();
+}
+
 function pdfHeaderFs(docType, prodName) {
   const colW = 560, base = 110, avgW = 62;
   function maxFs(t) {
@@ -3033,8 +3051,7 @@ function doPDF() {
   frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
   const orgTitle = document.title; document.title = filnavn;
-  window.print();
-  setTimeout(() => { frame.classList.remove('vis'); frame.innerHTML = ''; document.title = orgTitle; }, 1000);
+  _doPrintAndCleanup(frame, orgTitle);
 }
 
 // ═══════════════════════════════════════════════════
@@ -3345,8 +3362,7 @@ function doPDF_mnd() {
   frame.innerHTML = r.html; frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
   const orgTitle = document.title; document.title = filnavn;
-  window.print();
-  setTimeout(() => { frame.classList.remove('vis'); document.title = orgTitle; }, 800);
+  _doPrintAndCleanup(frame, orgTitle);
 }
 
 function doXLSX_mnd() {
@@ -3454,8 +3470,7 @@ function doPDF_aar() {
   frame.innerHTML = r.html; frame.classList.add('vis');
   void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
   const orgTitle = document.title; document.title = filnavn;
-  window.print();
-  setTimeout(() => { frame.classList.remove('vis'); document.title = orgTitle; }, 800);
+  _doPrintAndCleanup(frame, orgTitle);
 }
 
 function doXLSX_aar() {
@@ -3617,7 +3632,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.59';
+const APP_VERSION = '1.60';
 
 // ── SPLASH ──
 (function(){
@@ -3655,6 +3670,14 @@ const APP_VERSION = '1.59';
 
 
 const CHANGELOG = {
+  '1.60': {
+    dato: '2. maj 2026',
+    nyt: [
+      'iOS Safari fix: PDF blev tom (kun URL/dato/sidenummer) når man brugte Print → Gem som PDF. Årsag: setTimeout(800-1000ms) ryddede pdf-framet INDEN iOS-printdialogen var færdig med at gemme. Skiftet til afterprint-event så framet først ryddes når print faktisk er færdigt.',
+      'Fallback-timeout sat til 30s i tilfælde af at afterprint ikke fyrer (sjældne browsere).',
+      'Gælder dag-, uge-, måneds- og årseddel.',
+    ]
+  },
   '1.59': {
     dato: '1. maj 2026',
     nyt: [
