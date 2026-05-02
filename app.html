@@ -2371,10 +2371,10 @@ function doPDF_dag() {
 
 function sendEnkeltDag() {
   const r = _pdfDag(); if (!r) return;
-  const navn = cfg.navn || 'Time App';
+  const navnPrefix = cfg.navn ? `${cfg.navn} · ` : '';
   const år = r.dagISO.slice(0,4);
   const prod = cfg.prod ? ` · ${cfg.prod}` : '';
-  const emne = `${navn} · ${r.dagStr} · ${år}${prod}`;
+  const emne = `${navnPrefix}${r.dagStr} · ${år}${prod}`;
   const filnavn = `TimeApp_${(cfg.navn||'dag').replace(/\s+/g,'_')}_${r.dagISO}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -2827,6 +2827,8 @@ async function _pdfDel(html, filnavn, emne) {
       img.addEventListener('error', () => { clearTimeout(t); r(); }, { once: true });
     })));
 
+    // Garanteret 1 side: shrink hvis indhold overstiger A4-højde
+    _ensureOnePage(frame);
     const target = frame.firstElementChild || frame;
     const targetH = target.scrollHeight;
 
@@ -2893,10 +2895,27 @@ async function _pdfDel(html, filnavn, emne) {
   }
 }
 
+// Garanterer at PDF aldrig fylder mere end 1 A4-side. Måler indholdshøjde og
+// anvender CSS zoom hvis indhold overstiger 297mm. WebKit + Chromium understøtter
+// zoom og det shrink'er både layout og visuel — så html2canvas/print fanger korrekt.
+function _ensureOnePage(frame) {
+  const body = frame.querySelector('.pdf-body');
+  if (!body) return;
+  body.style.zoom = 1;
+  void body.offsetHeight;
+  const h = body.scrollHeight;
+  const maxHpx = 1123; // 297mm × 3.7795 px/mm (96dpi)
+  if (h > maxHpx) {
+    // 0.985 = ekstra sikkerhedsmargin så afrundinger ikke skubber til side 2
+    body.style.zoom = (maxHpx / h * 0.985).toFixed(3);
+  }
+}
+
 // Hjælper: kør window.print() og ryd pdf-frame FØRST når print er færdig.
 // iOS Safari: printdialogen er langsom, så fast 800/1000ms timeout kan rydde framet
 // MENS PDF'en gemmes → tom side. afterprint-event er den korrekte måde.
 function _doPrintAndCleanup(frame, orgTitle) {
+  _ensureOnePage(frame);
   let cleaned = false;
   const cleanup = () => {
     if (cleaned) return;
@@ -2970,8 +2989,8 @@ function _pdfUge() {
   const otType = dage.some(d => !d.fri && d.knapper?.v) ? 'Varslet' :
                  dage.some(d => !d.fri && d.knapper?.u) ? 'Uvarslet' : '—';
 
-  let dagRk = dage.map(d => {
-    if (d.fri) return `<tr class="fri"><td>${dagNavn(d.dato)} ${d.dato.getDate()}/${d.dato.getMonth()+1}</td><td class="mono">— fri —</td><td></td><td></td><td></td></tr>`;
+  // Vis kun dage med arbejde — fri dage skjules helt for et tydeligere overblik
+  let dagRk = dage.filter(d => !d.fri).map(d => {
     const tillæg = [
       d.knapper?.v ? 'Varslet OT' : '',
       d.knapper?.u ? 'Uvarslet OT' : '',
@@ -3282,9 +3301,9 @@ function doKalender() {
 }
 function doMail() {
   const r = _pdfUge();
-  const navn = cfg.navn || 'Time App';
+  const navnPrefix = cfg.navn ? `${cfg.navn} · ` : '';
   const prod = cfg.prod ? ` · ${cfg.prod}` : '';
-  const emne = `${navn} · Uge ${r.uge} · ${r.år}${prod}`;
+  const emne = `${navnPrefix}Uge ${r.uge} · ${r.år}${prod}`;
   const filnavn = `TimeApp_${(cfg.navn||'uge').replace(/\s+/g,'_')}_Uge${String(r.uge).padStart(2,'0')}-${r.år}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -3403,9 +3422,9 @@ function doXLSX_mnd() {
 
 function doMail_mnd() {
   const r = _pdfMnd();
-  const navn = cfg.navn || 'Time App';
+  const navnPrefix = cfg.navn ? `${cfg.navn} · ` : '';
   const prod = cfg.prod ? ` · ${cfg.prod}` : '';
-  const emne = `${navn} · ${r.mndNavn} · ${r.år}${prod}`;
+  const emne = `${navnPrefix}${r.mndNavn} · ${r.år}${prod}`;
   const filnavn = `TimeApp_${(cfg.navn||'mnd').replace(/\s+/g,'_')}_${r.mndNavn}-${r.år}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -3511,9 +3530,9 @@ function doXLSX_aar() {
 
 function doMail_aar() {
   const r = _pdfAar();
-  const navn = cfg.navn || 'Time App';
+  const navnPrefix = cfg.navn ? `${cfg.navn} · ` : '';
   const prod = cfg.prod ? ` · ${cfg.prod}` : '';
-  const emne = `${navn} · År ${r.år}${prod}`;
+  const emne = `${navnPrefix}År ${r.år}${prod}`;
   const filnavn = `TimeApp_${(cfg.navn||'aar').replace(/\s+/g,'_')}_${r.år}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -3647,7 +3666,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.63';
+const APP_VERSION = '1.64';
 
 // ── SPLASH ──
 (function(){
@@ -3685,6 +3704,14 @@ const APP_VERSION = '1.63';
 
 
 const CHANGELOG = {
+  '1.64': {
+    dato: '2. maj 2026',
+    nyt: [
+      'Ugeseddel: fri dage skjules helt fra dagsoversigten — kun reelt arbejdede dage vises. Mere overskueligt og fylder mindre.',
+      'PDF garanteret 1 side: ny auto-shrink hvis indholdet alligevel overstiger A4-højde (sjældne tilfælde med 7 arbejdsdage og masser af tillæg). Aldrig 2 sider.',
+      'Mail-emne: "Time App"-prefix fjernet når navn ikke er udfyldt — emnet starter nu med periode + produktion. Med navn: "Thomas · Uge 18 · 2026 · Produktion". Uden navn: "Uge 18 · 2026 · Produktion".',
+    ]
+  },
   '1.63': {
     dato: '2. maj 2026',
     nyt: [
