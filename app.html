@@ -2858,10 +2858,15 @@ async function _pdfDel(html, filnavn, emne) {
 
     const file = new File([blob], filnavn, { type: 'application/pdf' });
 
-    // Web Share API med filer (iOS Safari, macOS Safari 16+, Chrome mobil)
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    // iOS Safari Mail har en bug: når Web Share API kaldes med en fil OG title,
+    // ender title-strengen ofte i mail-brødteksten i stedet for emnefeltet.
+    // Workaround: skip Web Share API på iOS — brug mailto: + download i stedet
+    // (giver garanteret korrekt emne; bruger vedhæfter PDF'en manuelt).
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    if (!isIOS && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: emne });
+        await navigator.share({ files: [file], title: emne, text: '' });
         return;
       } catch (e) {
         if (e.name === 'AbortError') return; // bruger annullerede
@@ -2869,13 +2874,13 @@ async function _pdfDel(html, filnavn, emne) {
       }
     }
 
-    // Fallback: download PDF og åbn mailto med emnefelt
+    // iOS / fallback: download PDF + åbn mailto med emnefelt korrekt udfyldt
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = filnavn;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1500);
-    toast('PDF hentet — vedhæft den i mailen');
+    toast(isIOS ? 'PDF gemt i Filer — vedhæft i mailen' : 'PDF hentet — vedhæft den i mailen');
     setTimeout(() => {
       window.location.href = `mailto:${cfg.email||''}?subject=${encodeURIComponent(emne)}`;
     }, 600);
@@ -3642,7 +3647,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.62';
+const APP_VERSION = '1.63';
 
 // ── SPLASH ──
 (function(){
@@ -3680,6 +3685,14 @@ const APP_VERSION = '1.62';
 
 
 const CHANGELOG = {
+  '1.63': {
+    dato: '2. maj 2026',
+    nyt: [
+      'iOS Mail: emne kommer nu korrekt i emnefeltet (var før placeret i brødteksten pga. en kendt iOS-bug i Web Share API når man deler filer + title).',
+      'iPhone/iPad-flow: PDF\'en gemmes til Filer/Downloads + Mail åbnes med emne udfyldt — du vedhæfter selv PDF\'en (1 tap på vedhæftnings-ikonet → seneste PDF).',
+      'Andre platforme (macOS, Android, desktop): uændret auto-vedhæftning via Web Share API.',
+    ]
+  },
   '1.62': {
     dato: '2. maj 2026',
     nyt: [
