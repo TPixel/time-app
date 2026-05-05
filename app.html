@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#0C0C12">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" type="image/png" href="icon.png">
+<link rel="preload" as="image" href="logo_transparent.png">
 <link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Time%20App%20%C2%B7%20Ditzel%22%2C%22short_name%22%3A%22Time%20App%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230C0C12%22%2C%22theme_color%22%3A%22%230C0C12%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%2527http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%3D%25270%25200%2520100%2520100%2527%253E%253Crect%2520width%3D%2527100%2527%2520height%3D%2527100%2527%2520rx%3D%252722%2527%2520fill%3D%2527%25230C0C12%2527%2F%253E%253Ctext%2520y%3D%252768%2527%2520x%3D%252750%2527%2520text-anchor%3D%2527middle%2527%2520font-size%3D%252752%2527%253E%25E2%258F%25B1%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
 <title>Time App · Ditzel</title>
 <!-- Tahoma Bold som standard font -->
@@ -2814,10 +2815,11 @@ async function _pdfBuild(html, filnavn) {
     frame.innerHTML = html;
     void frame.offsetHeight;
     if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch(_){} }
-    // Vent på at billeder (logo) er fuldt loaded — ellers kan canvas blive tom
+    // Vent på at billeder (logo) er fuldt loaded — ellers kan canvas blive tom.
+    // 8s timeout giver iOS Safari over en langsom forbindelse god margin.
     const imgs = Array.from(frame.querySelectorAll('img'));
     await Promise.all(imgs.map(img => img.complete && img.naturalHeight ? Promise.resolve() : new Promise(r => {
-      const t = setTimeout(r, 3000);
+      const t = setTimeout(r, 8000);
       img.addEventListener('load', () => { clearTimeout(t); r(); }, { once: true });
       img.addEventListener('error', () => { clearTimeout(t); r(); }, { once: true });
     })));
@@ -3658,7 +3660,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.66';
+const APP_VERSION = '1.67';
 
 // ── SPLASH ──
 (function(){
@@ -3696,6 +3698,14 @@ const APP_VERSION = '1.66';
 
 
 const CHANGELOG = {
+  '1.67': {
+    dato: '5. maj 2026',
+    nyt: [
+      'Logo-fix på PDF: logo_transparent.png var 1.4MB (1024×1102 pixels) — alt for stor til en 138×138 visning. iOS Safari nåede ikke at loade billedet inden html2canvas captured framet, så logoet blev tomt. Reduceret til 400×400 (240KB), 6× mindre.',
+      'Tilføjet <link rel="preload"> for logoet så browseren henter det med det samme ved app-start — er allerede cached når du klikker PDF.',
+      'Image-load timeout i PDF-build hævet fra 3s til 8s som ekstra sikkerhed på langsomme forbindelser.',
+    ]
+  },
   '1.66': {
     dato: '5. maj 2026',
     nyt: [
