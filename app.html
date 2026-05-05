@@ -812,8 +812,14 @@ textarea::placeholder{color:var(--mut)}
     <div class="s-hd">Sikkerhedskopi</div>
     <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
       <div id="sidst-backup-lbl" style="font-size:12px;font-family:'Tahoma',monospace;padding:10px 12px;background:var(--surf);border-radius:var(--rs);border:1px solid var(--brd)">Henter…</div>
-      <div style="font-size:12px;color:var(--mut);line-height:1.5">Gem en kopi af alle dine data til din Filer-app. Brug den hvis du skifter telefon eller appen mister data.</div>
+      <div style="font-size:13px;color:var(--mut);line-height:1.55">Gem en sikkerhedskopi af alle dine data. Brug filen hvis du skifter telefon eller mister data.</div>
       <button class="gem-btn" onclick="gemBackupFil()" style="font-size:16px;letter-spacing:0">☁️ &nbsp;GEM BACKUP TIL FILER</button>
+      <div style="font-size:12px;color:var(--mut);background:var(--surf);border:1px solid var(--brd);border-radius:var(--rs);padding:11px 13px;line-height:1.55">
+        <div style="font-weight:700;color:var(--txt);margin-bottom:4px">📍 Hvor lander filen?</div>
+        På iPhone får du et iOS share sheet — vælg <strong style="color:var(--txt)">Gem i Filer</strong> og bestem mappen selv (fx <em>På min iPhone</em> eller <em>iCloud Drive</em>).<br>
+        På computer/Android lander den i din <strong style="color:var(--txt)">Hentede filer</strong>-mappe.<br>
+        Filnavn: <span style="font-family:'Tahoma',monospace;font-size:11px;color:var(--txt)">timeapp-backup-DATO_KL.json</span>
+      </div>
       <div style="border-top:1px solid var(--brd);padding-top:12px">
         <div style="font-size:11px;color:var(--mut);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Gendan fra tidligere backup</div>
         <label class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-align:center;cursor:pointer;font-size:13px">
@@ -1113,20 +1119,62 @@ function opdaterGemStatus() {
   gs.style.opacity = '1';
 }
 
-function gemBackupFil() {
-  // Eksporter fil + intern IDB-kopi
-  exporterData();
-  idbMirrorAll();
-  // Gem tidsstempel
+async function gemBackupFil() {
+  // Byg backup-blob (al localStorage som JSON)
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    data[k] = localStorage.getItem(k);
+  }
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+
+  // Filnavn med dato + klokkeslæt — så flere backups samme dag ikke overskriver
   const nu = new Date();
+  const dato = nu.toISOString().slice(0,10);
+  const tid = `${p2(nu.getHours())}-${p2(nu.getMinutes())}`;
+  const filnavn = `timeapp-backup-${dato}_${tid}.json`;
+
+  // Sync intern IDB-kopi (uafhængig af om filen gemmes ud)
+  idbMirrorAll();
+
+  // 1) iOS / moderne browsere: share sheet — brugeren vælger eksplicit "Gem i Filer"
+  try {
+    const fil = new File([blob], filnavn, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [fil] })) {
+      await navigator.share({ files: [fil], title: 'Time App backup', text: filnavn });
+      registrerBackup(nu, true);
+      return;
+    }
+  } catch (err) {
+    if (err && err.name === 'AbortError') {
+      toast('Backup annulleret');
+      return;
+    }
+    // Anden fejl → fald igennem til download-fallback
+  }
+
+  // 2) Fallback: klassisk download (browser viser "Vil du hente"-dialog)
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filnavn; a.click();
+  URL.revokeObjectURL(url);
+  registrerBackup(nu, false);
+}
+
+// Opdater UI efter backup-forsøg.
+// bekræftet=true betyder share sheet returnerede success (brugeren valgte en destination).
+// bekræftet=false betyder vi har trigget en download — vi kan ikke vide om brugeren trykkede Hent.
+function registrerBackup(nu, bekræftet) {
   const str = nu.toLocaleString('da-DK', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
   localStorage.setItem('backup-sidst-dato', str);
-  // Opdater UI
   const el = document.getElementById('backup-icon');
-  if (el) { el.textContent = '✅'; el.style.opacity = '1'; el.title = 'Backup gemt — find filen i Filer-appen'; }
+  if (el) { el.textContent = '✅'; el.style.opacity = '1'; el.title = bekræftet ? 'Backup gemt' : 'Backup-fil sendt til download'; }
   setTimeout(() => idbUpdateIcon('synced'), 3000);
   opdaterSidstBackup();
-  toast('✓ Backup-fil gemt — åbn Filer-appen for at se den');
+  toast(bekræftet
+    ? '✓ Backup gemt i Filer-appen'
+    : '✓ Tryk Hent — filen lander i Filer → Hentede filer');
 }
 
 function opdaterSidstBackup() {
@@ -3534,23 +3582,9 @@ function doMail_aar() {
 // ═══════════════════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════════════════
-function exporterData() {
-  const data = {};
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    data[k] = localStorage.getItem(k);
-  }
-  const json = JSON.stringify(data, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  const dato = new Date().toISOString().slice(0,10);
-  a.href     = url;
-  a.download = `timeapp-backup-${dato}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  toast('Data eksporteret ✓');
-}
+// Bevaret som genvej til manuel eksport (fx fra console). gemBackupFil() er
+// den der bruges i UI'et og håndterer share sheet + ærlig feedback.
+function exporterData() { gemBackupFil(); }
 function importerData(evt) {
   const fil = evt.target.files[0];
   if (!fil) return;
@@ -3660,7 +3694,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.67';
+const APP_VERSION = '1.68';
 
 // ── SPLASH ──
 (function(){
@@ -3698,6 +3732,15 @@ const APP_VERSION = '1.67';
 
 
 const CHANGELOG = {
+  '1.68': {
+    dato: '5. maj 2026',
+    nyt: [
+      'Backup-flow gjort ærligt: ingen "gemt"-besked før dialogen er lukket. Toast og status afventer reelt valg.',
+      'iOS share sheet bruges nu: Tryk GEM BACKUP og vælg "Gem i Filer" — du bestemmer selv mappen.',
+      'Tydelig info-boks i Indstillinger → Sikkerhedskopi der forklarer hvor filen lander.',
+      'Filnavn inkluderer klokkeslæt (timeapp-backup-2026-05-05_05-42.json) så samme dag ikke overskriver.',
+    ]
+  },
   '1.67': {
     dato: '5. maj 2026',
     nyt: [
