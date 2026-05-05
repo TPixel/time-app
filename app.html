@@ -2361,12 +2361,8 @@ function _pdfDag() {
 
 function doPDF_dag() {
   const r = _pdfDag(); if (!r) return;
-  const filnavn = `TimeApp_${(cfg.navn||'dag').replace(/\s+/g,'_')}_${r.dagISO}`;
-  const frame = document.getElementById('pdf-frame');
-  frame.innerHTML = r.html; frame.classList.add('vis');
-  void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
-  const orgTitle = document.title; document.title = filnavn;
-  _doPrintAndCleanup(frame, orgTitle);
+  const filnavn = `TimeApp_${(cfg.navn||'dag').replace(/\s+/g,'_')}_${r.dagISO}.pdf`;
+  _pdfDownload(r.html, filnavn);
 }
 
 function sendEnkeltDag() {
@@ -2804,12 +2800,11 @@ function _loadHtml2Pdf() {
   });
 }
 
-async function _pdfDel(html, filnavn, emne) {
+// Byg PDF-blob via html2pdf — fælles for både PDF-knappen og mail-knappen.
+// Returnerer Blob eller smider exception. Renderer pdf-frame ved viewport-top
+// (position:absolute, opacity:0) for at undgå html2canvas position:fixed bugs.
+async function _pdfBuild(html, filnavn) {
   const frame = document.getElementById('pdf-frame');
-  toast('Bygger PDF…');
-  // Render PDF-frame ved viewport-top — position:fixed/-9999px forårsager html2canvas
-  // bugs hvor indholdet placeres med ~110mm tomt felt øverst og afskæres nederst.
-  // Position:absolute + opacity:0 + scroll til top = ren capture uden offset-fejl.
   const orgStyle = frame.getAttribute('style') || '';
   const scrollX = window.scrollX, scrollY = window.scrollY;
   frame.setAttribute('style', 'display:block;position:absolute;left:0;top:0;width:210mm;background:#fff;opacity:0;pointer-events:none;z-index:-1;');
@@ -2850,49 +2845,75 @@ async function _pdfDel(html, filnavn, emne) {
         height: targetH
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
-      pagebreak: { mode: ['css', 'legacy'] }
+      pagebreak: { mode: ['avoid-all'] }
     };
 
     const blob = await window.html2pdf().set(opt).from(target).outputPdf('blob');
+    return blob;
+  } finally {
     frame.innerHTML = '';
     frame.setAttribute('style', orgStyle);
     window.scrollTo(scrollX, scrollY);
-
-    const file = new File([blob], filnavn, { type: 'application/pdf' });
-
-    // iOS Safari Mail har en bug: når Web Share API kaldes med en fil OG title,
-    // ender title-strengen ofte i mail-brødteksten i stedet for emnefeltet.
-    // Workaround: skip Web Share API på iOS — brug mailto: + download i stedet
-    // (giver garanteret korrekt emne; bruger vedhæfter PDF'en manuelt).
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-    if (!isIOS && navigator.canShare && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({ files: [file], title: emne, text: '' });
-        return;
-      } catch (e) {
-        if (e.name === 'AbortError') return; // bruger annullerede
-        // ellers fald gennem til download-fallback
-      }
-    }
-
-    // iOS / fallback: download PDF + åbn mailto med emnefelt korrekt udfyldt
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filnavn;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
-    toast(isIOS ? 'PDF gemt i Filer — vedhæft i mailen' : 'PDF hentet — vedhæft den i mailen');
-    setTimeout(() => {
-      window.location.href = `mailto:${cfg.email||''}?subject=${encodeURIComponent(emne)}`;
-    }, 600);
-  } catch (e) {
-    console.error('PDF-del fejlede:', e);
-    frame.innerHTML = '';
-    frame.setAttribute('style', orgStyle);
-    window.scrollTo(scrollX, scrollY);
-    toast('Kunne ikke bygge PDF');
   }
+}
+
+async function _pdfDel(html, filnavn, emne) {
+  toast('Bygger PDF…');
+  let blob;
+  try {
+    blob = await _pdfBuild(html, filnavn);
+  } catch (e) {
+    console.error('PDF-build fejlede:', e);
+    toast('Kunne ikke bygge PDF');
+    return;
+  }
+  const file = new File([blob], filnavn, { type: 'application/pdf' });
+
+  // iOS Safari Mail har en bug: når Web Share API kaldes med en fil OG title,
+  // ender title-strengen ofte i mail-brødteksten i stedet for emnefeltet.
+  // Workaround: skip Web Share API på iOS — brug mailto: + download i stedet.
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  if (!isIOS && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: emne, text: '' });
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+    }
+  }
+
+  // iOS / fallback: download PDF + åbn mailto med emnefelt korrekt udfyldt
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filnavn;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  toast(isIOS ? 'PDF gemt i Filer — vedhæft i mailen' : 'PDF hentet — vedhæft den i mailen');
+  setTimeout(() => {
+    window.location.href = `mailto:${cfg.email||''}?subject=${encodeURIComponent(emne)}`;
+  }, 600);
+}
+
+// PDF-knap (download direkte) — bruger html2pdf-flowet, ingen window.print().
+// Løser iOS Safari "Automatisk udskrivning blokeret" + Safari's URL/sidenummer-footer
+// der ellers gjorde sidste linje skubbet til side 2.
+async function _pdfDownload(html, filnavn) {
+  toast('Bygger PDF…');
+  let blob;
+  try {
+    blob = await _pdfBuild(html, filnavn);
+  } catch (e) {
+    console.error('PDF-build fejlede:', e);
+    toast('Kunne ikke bygge PDF');
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filnavn;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  toast('PDF gemt');
 }
 
 // Garanterer at PDF aldrig fylder mere end 1 A4-side. Måler indholdshøjde og
@@ -2911,25 +2932,9 @@ function _ensureOnePage(frame) {
   }
 }
 
-// Hjælper: kør window.print() og ryd pdf-frame FØRST når print er færdig.
-// iOS Safari: printdialogen er langsom, så fast 800/1000ms timeout kan rydde framet
-// MENS PDF'en gemmes → tom side. afterprint-event er den korrekte måde.
-function _doPrintAndCleanup(frame, orgTitle) {
-  _ensureOnePage(frame);
-  let cleaned = false;
-  const cleanup = () => {
-    if (cleaned) return;
-    cleaned = true;
-    frame.classList.remove('vis');
-    frame.innerHTML = '';
-    document.title = orgTitle;
-    window.removeEventListener('afterprint', cleanup);
-  };
-  window.addEventListener('afterprint', cleanup);
-  // Fallback: ryd efter 30s hvis afterprint aldrig fyrer (sjældne browsere)
-  setTimeout(cleanup, 30000);
-  window.print();
-}
+// _doPrintAndCleanup fjernet i v1.66 — vi bruger ikke længere window.print().
+// PDF-knapperne genererer PDF direkte via html2pdf og downloader (ingen iOS print-blok,
+// ingen Safari URL/sidenummer-footer der pressede sidste linje til side 2).
 
 function pdfHeaderFs(docType, prodName) {
   const colW = 560, base = 110, avgW = 62;
@@ -3073,13 +3078,8 @@ function _pdfUge() {
 
 function doPDF() {
   const r = _pdfUge();
-  const filnavn = `TimeApp_${(cfg.navn||'uge').replace(/\s+/g,'_')}_Uge${String(r.uge).padStart(2,'0')}-${r.år}`;
-  const frame = document.getElementById('pdf-frame');
-  frame.innerHTML = r.html;
-  frame.classList.add('vis');
-  void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
-  const orgTitle = document.title; document.title = filnavn;
-  _doPrintAndCleanup(frame, orgTitle);
+  const filnavn = `TimeApp_${(cfg.navn||'uge').replace(/\s+/g,'_')}_Uge${String(r.uge).padStart(2,'0')}-${r.år}.pdf`;
+  _pdfDownload(r.html, filnavn);
 }
 
 // ═══════════════════════════════════════════════════
@@ -3387,12 +3387,8 @@ function _pdfMnd() {
 
 function doPDF_mnd() {
   const r = _pdfMnd();
-  const filnavn = `TimeApp_${(cfg.navn||'mnd').replace(/\s+/g,'_')}_${r.mndNavn}-${r.år}`;
-  const frame = document.getElementById('pdf-frame');
-  frame.innerHTML = r.html; frame.classList.add('vis');
-  void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
-  const orgTitle = document.title; document.title = filnavn;
-  _doPrintAndCleanup(frame, orgTitle);
+  const filnavn = `TimeApp_${(cfg.navn||'mnd').replace(/\s+/g,'_')}_${r.mndNavn}-${r.år}.pdf`;
+  _pdfDownload(r.html, filnavn);
 }
 
 function doXLSX_mnd() {
@@ -3497,12 +3493,8 @@ function _pdfAar() {
 
 function doPDF_aar() {
   const r = _pdfAar();
-  const filnavn = `TimeApp_${(cfg.navn||'aar').replace(/\s+/g,'_')}_${r.år}`;
-  const frame = document.getElementById('pdf-frame');
-  frame.innerHTML = r.html; frame.classList.add('vis');
-  void frame.offsetHeight;   // tving synkron layout → print holdes inden for user gesture (iOS Safari)
-  const orgTitle = document.title; document.title = filnavn;
-  _doPrintAndCleanup(frame, orgTitle);
+  const filnavn = `TimeApp_${(cfg.navn||'aar').replace(/\s+/g,'_')}_${r.år}.pdf`;
+  _pdfDownload(r.html, filnavn);
 }
 
 function doXLSX_aar() {
@@ -3666,7 +3658,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.65';
+const APP_VERSION = '1.66';
 
 // ── SPLASH ──
 (function(){
@@ -3704,6 +3696,15 @@ const APP_VERSION = '1.65';
 
 
 const CHANGELOG = {
+  '1.66': {
+    dato: '5. maj 2026',
+    nyt: [
+      'PDF-knappen bruger ikke længere window.print() — det forårsagede iOS Safari "Automatisk udskrivning blokeret"-dialog samt en tom side 2 (pga. Safari URL/sidenummer-footer).',
+      'Nyt flow: PDF genereres direkte via html2pdf og downloades. Ingen print-dialog overhovedet, ingen iOS-blokering, garanteret 1 side.',
+      'Gælder dag-, uge-, måneds- og årseddel. Mail-knappen bruger samme fælles _pdfBuild-rutine.',
+      'Service Worker skiftet til network-first: brugeren får ALTID den nyeste version når online (cache bruges kun offline). Ingen flere "fast på gammel version"-situationer.',
+    ]
+  },
   '1.65': {
     dato: '2. maj 2026',
     nyt: [

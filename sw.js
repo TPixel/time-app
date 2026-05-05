@@ -1,5 +1,8 @@
 // ── Time App Service Worker ──
-const CACHE = 'timeapp-v50';
+// v66 — network-first strategi: brugeren får ALTID seneste version når online,
+// cache bruges kun som fallback når offline. Tidligere cache-first fastholdt
+// brugere på gamle versioner indtil CACHE-konstanten blev bumped manuelt.
+const CACHE = 'timeapp-v66';
 const ASSETS = ['/app.html', '/rekl.html', '/se-ftv.html', '/icon.png'];
 
 self.addEventListener('install', e => {
@@ -17,9 +20,19 @@ self.addEventListener('activate', e => {
   );
 });
 
+// Network-first: prøv altid net først, opdater cache, fallback til cache offline
 self.addEventListener('fetch', e => {
+  // Kun GET — POST/andet sendes direkte
+  if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    fetch(e.request).then(response => {
+      // Kun cache succes-svar fra samme origin
+      if (response && response.status === 200 && response.type === 'basic') {
+        const clone = response.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone)).catch(() => {});
+      }
+      return response;
+    }).catch(() => caches.match(e.request))
   );
 });
 
