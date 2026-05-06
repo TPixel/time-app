@@ -842,6 +842,28 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
 
+  <!-- FEEDBACK -->
+  <div class="s-card" style="margin-top:8px">
+    <div class="s-hd">Feedback &amp; forslag</div>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;color:var(--mut);line-height:1.5">Hjælp os med at gøre Time App bedre. Send en mail om en fejl du har fundet, et forslag til en forbedring eller bare en hilsen.</div>
+      <a href="#" onclick="sendFeedback('fejl');return false" class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-decoration:none;text-align:center;font-size:14px;letter-spacing:0">🐛 &nbsp;RAPPORTER FEJL</a>
+      <a href="#" onclick="sendFeedback('forslag');return false" class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-decoration:none;text-align:center;font-size:14px;letter-spacing:0">💡 &nbsp;FORESLÅ FORBEDRING</a>
+      <a href="#" onclick="sendFeedback('hilsen');return false" class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-decoration:none;text-align:center;font-size:14px;letter-spacing:0">❤️ &nbsp;SEND HILSEN</a>
+      <div style="font-size:11px;color:var(--mut);text-align:center;margin-top:2px">Sendes til thomas@ditzel.dk</div>
+    </div>
+  </div>
+
+  <!-- STØT UDVIKLEREN -->
+  <div class="s-card" style="margin-top:8px">
+    <div class="s-hd">Støt udvikleren</div>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:12px;color:var(--mut);line-height:1.5">Time App er gratis og bygges i fritiden. Har du glæde af appen og lyst til at give en kop kaffe, sætter jeg pris på det. Tak ☕</div>
+      <a href="mobilepay://send?phone=26214709&amp;comment=Time%20App" class="gem-btn" style="text-decoration:none;text-align:center;font-size:16px;letter-spacing:0">☕ &nbsp;DONÉR VIA MOBILEPAY</a>
+      <div style="font-size:11px;color:var(--mut);text-align:center;margin-top:2px">Åbner MobilePay-appen</div>
+    </div>
+  </div>
+
   <div class="s-card" style="margin-top:8px">
     <div class="s-hd">Om appen</div>
     <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
@@ -851,7 +873,7 @@ textarea::placeholder{color:var(--mut)}
       <a href="index.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
         <span>🌐 Om Time App</span><span style="color:var(--acc)">→</span>
       </a>
-      <div style="font-size:11px;color:var(--mut);margin-top:4px">Fiktionsoverenskomst 2025-2027 · Version 38</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:4px" id="om-version">Fiktionsoverenskomst 2025-2027</div>
     </div>
   </div>
 </div>
@@ -2119,6 +2141,34 @@ function bekræftMøde() {
 // QR KODE — del Time App
 // ═══════════════════════════════════════════════════
 const QR_URL = 'https://time-app.dk';
+
+// ═══════════════════════════════════════════════════
+// FEEDBACK — mailto med forhåndsudfyldt subject og body
+// ═══════════════════════════════════════════════════
+function sendFeedback(type) {
+  const navn = (cfg.navn || '').trim() || 'Bruger';
+  const ua = navigator.userAgent || '';
+  const platform = /iPhone|iPad|iPod/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'Andet';
+  const subjects = {
+    fejl:    'Time App — Fejl',
+    forslag: 'Time App — Forslag',
+    hilsen:  'Time App — Hilsen'
+  };
+  const intros = {
+    fejl:    'Beskriv fejlen så detaljeret som muligt:\n\n\n\nHvad lavede du da fejlen opstod?\n\n\n',
+    forslag: 'Mit forslag til Time App:\n\n\n\nHvorfor ville det være nyttigt?\n\n\n',
+    hilsen:  'Hej Thomas\n\n\n'
+  };
+  const subject = encodeURIComponent(subjects[type] || subjects.forslag);
+  const body = encodeURIComponent(
+    (intros[type] || intros.forslag) +
+    '— — — — — — — — — — — —\n' +
+    'Sendt fra Time App v' + APP_VERSION + '\n' +
+    'Platform: ' + platform + '\n' +
+    'Fra: ' + navn
+  );
+  window.location.href = 'mailto:thomas@ditzel.dk?subject=' + subject + '&body=' + body;
+}
 
 function åbnQRModal() {
   document.getElementById('qr-modal-bg').classList.remove('skjult');
@@ -3698,7 +3748,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.69';
+const APP_VERSION = '1.70';
 
 // ── SPLASH ──
 (function(){
@@ -3736,6 +3786,13 @@ const APP_VERSION = '1.69';
 
 
 const CHANGELOG = {
+  '1.70': {
+    dato: '6. maj 2026',
+    nyt: [
+      'Ny "Feedback & forslag"-sektion på Indstillinger: Tre knapper (rapporter fejl, foreslå forbedring, send hilsen) der åbner mailto med forhåndsudfyldt emne og body — automatisk vedhæftet version, platform og dit navn så vi kan hjælpe hurtigere.',
+      'Ny "Støt udvikleren"-sektion: MobilePay-knap til at give en kop kaffe. Time App er gratis og bygges i fritiden — donationer er ren fan-mail.',
+    ]
+  },
   '1.69': {
     dato: '6. maj 2026',
     nyt: [
