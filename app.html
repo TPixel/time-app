@@ -31,6 +31,7 @@
   --btn-p:#E8784A;   /* Pause — laks */
   --btn-h:#1AACDD;   /* Weekend — cyan */
   --btn-r:#1DB954;   /* Kørsel — grøn */
+  --btn-d:#10B981;   /* Diæt — emerald */
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{font-family:'Tahoma',sans-serif;font-weight:bold;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto;letter-spacing:.3px}
@@ -167,18 +168,20 @@ to{transform:scale(1);opacity:1}}
 .xb[id="bn-p"]{border:2px solid rgba(232,120,74,.3)}
 .xb[id="bn-h"]{border:2px solid rgba(26,172,221,.3)}
 .xb[id="bn-r"]{border:2px solid rgba(29,185,84,.3)}
+.xb[id="bn-d"]{border:2px solid rgba(16,185,129,.35)}
 
 /* Aktiv — fyldt farve */
-.xb.von{background:var(--btn-v)!important;border-color:var(--btn-v)!important;color:#fff!important}
-.xb.uon{background:var(--btn-u)!important;border-color:var(--btn-u)!important;color:#fff!important}
-.xb.fon{background:var(--btn-f)!important;border-color:var(--btn-f)!important;color:#fff!important}
-.xb.pon{background:var(--btn-p)!important;border-color:var(--btn-p)!important;color:#fff!important}
-.xb.hon{background:var(--btn-h)!important;border-color:var(--btn-h)!important;color:#fff!important}
-.xb.ron{background:var(--btn-r)!important;border-color:var(--btn-r)!important;color:#fff!important}
+.xb.von{background:var(--btn-v)!important;border:2px solid var(--btn-v)!important;color:#fff!important;box-shadow:0 0 0 2px rgba(232,99,10,.3)!important}
+.xb.uon{background:var(--btn-u)!important;border:2px solid var(--btn-u)!important;color:#fff!important;box-shadow:0 0 0 2px rgba(224,32,32,.3)!important}
+.xb.fon{background:var(--btn-f)!important;border:2px solid var(--btn-f)!important;color:#fff!important;box-shadow:0 0 0 2px rgba(212,160,23,.3)!important}
+.xb.pon{background:var(--btn-p)!important;border:2px solid var(--btn-p)!important;color:#fff!important;box-shadow:0 0 0 2px rgba(232,120,74,.3)!important}
+.xb.hon{background:var(--btn-h)!important;border:2px solid var(--btn-h)!important;color:#fff!important;box-shadow:0 0 0 2px rgba(26,172,221,.3)!important}
+.xb.ron{background:var(--btn-r)!important;border:2px solid var(--btn-r)!important;color:#fff!important;box-shadow:0 0 0 2px rgba(29,185,84,.3)!important}
+.xb.don{background:var(--btn-d)!important;border:2px solid var(--btn-d)!important;color:#fff!important;box-shadow:0 0 0 2px rgba(16,185,129,.3)!important}
 .xb[id="bn-e"]{border:2px solid rgba(167,139,250,.3)}
-.xb.eon{background:#7c3aed!important;border-color:#7c3aed!important;color:#fff!important}
+.xb.eon{background:#7c3aed!important;border:2px solid #7c3aed!important;color:#fff!important;box-shadow:0 0 0 2px rgba(124,58,237,.3)!important}
 .xb[id="bn-møde"]{border:2px solid rgba(129,140,248,.35)}
-.xb.møde-on{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important}
+.xb.møde-on{background:var(--acc)!important;border:2px solid var(--acc)!important;color:#fff!important;box-shadow:0 0 0 2px rgba(129,140,248,.3)!important}
 
 /* ── SÆRTID BADGE ── */
 .saertid-badge{display:none;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:var(--pur);text-align:center}
@@ -188,6 +191,7 @@ to{transform:scale(1);opacity:1}}
 
 .note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:14px 16px;margin-bottom:10px}
 textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'Tahoma',sans-serif;font-size:16px;resize:none;line-height:1.5;font-weight:bold}
+.note-wrap textarea{font-size:32px;line-height:1.3}
 textarea::placeholder{color:var(--mut)}
 .gem-btn{width:100%;padding:18px;border-radius:var(--r);border:none;background:var(--acc);color:#fff;font-family:'Tahoma',sans-serif;font-size:18px;font-weight:bold;letter-spacing:.8px;cursor:pointer;transition:all .2s;text-transform:uppercase}
 .gem-btn:active{transform:scale(.98);opacity:.9}
@@ -3694,7 +3698,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.68';
+const APP_VERSION = '1.69';
 
 // ── SPLASH ──
 (function(){
@@ -3732,6 +3736,13 @@ const APP_VERSION = '1.68';
 
 
 const CHANGELOG = {
+  '1.69': {
+    dato: '6. maj 2026',
+    nyt: [
+      'Diæt-knappen skifter nu tydelig farve (emerald) når den er aktiv — den havde manglet aktiv-styling helt. Alle øvrige knapper har samtidigt fået kraftigere kant og glød så aktiv-tilstand er umiskendelig på set.',
+      'Notefelt har dobbelt så stor skrift (32px) — meget lettere at læse og skrive på set.',
+    ]
+  },
   '1.68': {
     dato: '5. maj 2026',
     nyt: [
