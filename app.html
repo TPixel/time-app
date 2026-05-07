@@ -712,9 +712,12 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
 
-  <!-- PERSONLIGT -->
+  <!-- PERSONLIGT — foldbar -->
   <div class="s-card">
-    <div class="s-hd">Personligt</div>
+    <div class="s-hd" onclick="togCard('pers-body','pers-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      Personligt <span id="pers-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+    </div>
+    <div id="pers-body">
     <div class="s-row">
       <div><div class="s-lbl">Navn</div></div>
       <input class="s-inp" type="text" id="s-navn" placeholder="Thomas" style="width:140px;text-align:left">
@@ -731,11 +734,15 @@ textarea::placeholder{color:var(--mut)}
       <div><div class="s-lbl">Produktionsselskab</div><div class="s-desc">Til udskrifter og ugesedler</div></div>
       <input class="s-inp" type="text" id="s-selskab" placeholder="SAM Produktions Aps." style="width:180px;text-align:left;font-size:12px">
     </div>
+    </div>
   </div>
 
-  <!-- ARBEJDSTIDSMODEL — nu over løn -->
+  <!-- ARBEJDSTIDSMODEL — foldbar, over løn -->
   <div class="s-card">
-    <div class="s-hd">Arbejdstidsmodel §4 / §5</div>
+    <div class="s-hd" onclick="togCard('mod-body','mod-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      Arbejdstidsmodel §4 / §5 <span id="mod-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+    </div>
+    <div id="mod-body" style="padding:14px 16px">
     <div class="model-seg">
       <button class="model-opt" id="mseg-5dag" onclick="vælgModel('5dag')">
         <span class="model-opt-ttl">5-dages</span>
@@ -752,6 +759,7 @@ textarea::placeholder{color:var(--mut)}
         <option value="fre">Fredag</option>
         <option value="man">Mandag</option>
       </select>
+    </div>
     </div>
   </div>
 
@@ -813,8 +821,10 @@ textarea::placeholder{color:var(--mut)}
   <button class="gem-btn" onclick="gemInst()">GEM INDSTILLINGER</button>
 
   <div class="s-card" style="margin-top:20px">
-    <div class="s-hd">Sikkerhedskopi</div>
-    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+    <div class="s-hd" onclick="togCard('sik-body','sik-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      Sikkerhedskopi <span id="sik-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+    </div>
+    <div id="sik-body" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
       <div id="sidst-backup-lbl" style="font-size:12px;font-family:'Tahoma',monospace;padding:10px 12px;background:var(--surf);border-radius:var(--rs);border:1px solid var(--brd)">Henter…</div>
       <div style="font-size:13px;color:var(--mut);line-height:1.55">Gem en sikkerhedskopi af alle dine data. Brug filen hvis du skifter telefon eller mister data.</div>
       <button class="gem-btn" onclick="gemBackupFil()" style="font-size:16px;letter-spacing:0">☁️ &nbsp;GEM BACKUP TIL FILER</button>
@@ -857,10 +867,14 @@ textarea::placeholder{color:var(--mut)}
   <!-- STØT UDVIKLEREN -->
   <div class="s-card" style="margin-top:8px">
     <div class="s-hd">Støt udvikleren</div>
-    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
       <div style="font-size:12px;color:var(--mut);line-height:1.5">Time App er gratis og bygges i fritiden. Har du glæde af appen og lyst til at give en kop kaffe, sætter jeg pris på det. Tak ☕</div>
-      <a href="mobilepay://send?phone=26214709&amp;comment=Time%20App" class="gem-btn" style="text-decoration:none;text-align:center;font-size:16px;letter-spacing:0">☕ &nbsp;DONÉR VIA MOBILEPAY</a>
-      <div style="font-size:11px;color:var(--mut);text-align:center;margin-top:2px">Åbner MobilePay-appen</div>
+      <div style="background:var(--surf);border:1.5px solid var(--brd);border-radius:var(--rs);padding:16px 14px;text-align:center">
+        <div style="font-size:11px;color:var(--mut);margin-bottom:6px;letter-spacing:1px;font-weight:600">MOBILEPAY</div>
+        <div style="font-family:'Tahoma',monospace;font-size:26px;font-weight:700;letter-spacing:2px;color:var(--txt)">26 21 47 09</div>
+      </div>
+      <button class="gem-btn" onclick="kopierMobilePay()" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);font-size:14px;letter-spacing:0">📋 &nbsp;KOPIER NUMMER</button>
+      <a href="mobilepay://" class="gem-btn" style="text-decoration:none;text-align:center;font-size:16px;letter-spacing:0">☕ &nbsp;ÅBN MOBILEPAY</a>
     </div>
   </div>
 
@@ -2168,6 +2182,27 @@ function sendFeedback(type) {
     'Fra: ' + navn
   );
   window.location.href = 'mailto:thomas@ditzel.dk?subject=' + subject + '&body=' + body;
+}
+
+// Kopier MobilePay-nummer til udklipsholder
+function kopierMobilePay() {
+  const nr = '26214709';
+  const ok = () => toast('📋 MobilePay-nummer kopieret');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(nr).then(ok).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = nr; ta.style.position='fixed'; ta.style.left='-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); ok(); } catch(e) { toast('Kopiering fejlede'); }
+      ta.remove();
+    });
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = nr; ta.style.position='fixed'; ta.style.left='-9999px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); ok(); } catch(e) { toast('Kopiering fejlede'); }
+    ta.remove();
+  }
 }
 
 function åbnQRModal() {
@@ -3748,7 +3783,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.70';
+const APP_VERSION = '1.71';
 
 // ── SPLASH ──
 (function(){
@@ -3786,6 +3821,12 @@ const APP_VERSION = '1.70';
 
 
 const CHANGELOG = {
+  '1.71': {
+    dato: '7. maj 2026',
+    nyt: [
+      'MobilePay-donation gjort pålidelig: deep-link mobilepay://send?phone= virker ikke længere — MobilePay tolker den som en ugyldig QR-kode. Erstattet med stort, læsbart nummer (26 21 47 09), kopier-knap, og ren "åbn MobilePay"-knap. Bruger paster nummeret i MobilePay og sender beløbet selv.',
+    ]
+  },
   '1.70': {
     dato: '6. maj 2026',
     nyt: [
