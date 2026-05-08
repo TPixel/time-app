@@ -16,7 +16,7 @@
 <style>
 :root {
   --bg:#0C0C12; --surf:#14141E; --card:#1C1C2A; --card2:#222232;
-  --brd:#2E2E42; --txt:#EEEEF5; --mut:#666680;
+  --brd:#2E2E42; --txt:#EEEEF5; --mut:#B9B9CD;
   --grn:#34D399; --red:#F87171; --yel:#FBBF24; --pnk:#F472B6;
   --acc:#818CF8; --pur:#A78BFA;
   --grn-d:rgba(52,211,153,.12); --red-d:rgba(248,113,113,.12);
@@ -269,7 +269,7 @@ textarea::placeholder{color:var(--mut)}
 
 /* ── INDSTILLINGER ── */
 .s-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
-.s-hd{padding:12px 16px;background:var(--card2);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut)}
+.s-hd{padding:14px 16px;background:var(--card2);font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt)}
 .s-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--brd)}
 .s-row:last-child{border-bottom:none}
 .s-lbl{font-size:14px;font-weight:500}
@@ -700,75 +700,66 @@ textarea::placeholder{color:var(--mut)}
   </div>
   <div style="font-size:12px;color:var(--mut);margin-bottom:20px">Fiktionsoverenskomst 2025–2027</div>
 
-  <!-- PRODUKTIONER — foldbar, viser aktuel produktion når lukket -->
+  <!-- PRODUKTIONER + DETALJER FOR AKTIV PRODUKTION — foldbar -->
   <div class="s-card">
     <div class="s-hd" onclick="togCard('prod-body','prod-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-      <span>Produktioner <span id="prod-collapsed-lbl" style="font-weight:400;opacity:.6;font-size:11px;margin-left:6px"></span></span>
-      <span id="prod-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+      <span>Produktioner <span id="prod-collapsed-lbl" style="font-weight:600;opacity:.9;font-size:14px;margin-left:8px;color:var(--acc)"></span></span>
+      <span id="prod-ch" style="font-size:15px;opacity:.85">▾ Vis</span>
     </div>
-    <div id="prod-body" style="padding:14px 16px">
-      <div class="prod-liste" id="prod-liste"></div>
-      <button class="ny-prod-btn" onclick="nyProduktion()">＋ Ny produktion</button>
-    </div>
-  </div>
+    <div id="prod-body">
 
-  <!-- PERSONLIGT — foldbar -->
-  <div class="s-card">
-    <div class="s-hd" onclick="togCard('pers-body','pers-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-      Personligt <span id="pers-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
-    </div>
-    <div id="pers-body">
-    <div class="s-row">
-      <div><div class="s-lbl">Navn</div></div>
-      <input class="s-inp" type="text" id="s-navn" placeholder="Thomas" style="width:140px;text-align:left">
-    </div>
-    <div class="s-row">
-      <div><div class="s-lbl">Email produktion</div><div class="s-desc">Send ugeseddel til</div></div>
-      <input class="s-inp" type="email" id="s-email" placeholder="prod@film.dk" style="width:160px;text-align:left;font-size:12px">
-    </div>
-    <div class="s-row">
-      <div><div class="s-lbl">Aktuel produktion</div></div>
-      <input class="s-inp" type="text" id="s-prod" placeholder="Film titel" style="width:140px;text-align:left">
-    </div>
-    <div class="s-row">
-      <div><div class="s-lbl">Produktionsselskab</div><div class="s-desc">Til udskrifter og ugesedler</div></div>
-      <input class="s-inp" type="text" id="s-selskab" placeholder="SAM Produktions Aps." style="width:180px;text-align:left;font-size:12px">
-    </div>
-    </div>
-  </div>
+      <!-- Liste + ny-knap -->
+      <div style="padding:14px 16px">
+        <div class="prod-liste" id="prod-liste"></div>
+        <button class="ny-prod-btn" onclick="nyProduktion()">＋ Ny produktion</button>
+      </div>
 
-  <!-- ARBEJDSTIDSMODEL — foldbar, over løn -->
-  <div class="s-card">
-    <div class="s-hd" onclick="togCard('mod-body','mod-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-      Arbejdstidsmodel §4 / §5 <span id="mod-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
-    </div>
-    <div id="mod-body" style="padding:14px 16px">
-    <div class="model-seg">
-      <button class="model-opt" id="mseg-5dag" onclick="vælgModel('5dag')">
-        <span class="model-opt-ttl">5-dages</span>
-        <span class="model-opt-sub">8t/dag · OT efter 8t</span>
-      </button>
-      <button class="model-opt" id="mseg-saertid" onclick="vælgModel('saertid')">
-        <span class="model-opt-ttl">4-dages §5</span>
-        <span class="model-opt-sub">10t/dag · OT efter 10t</span>
-      </button>
-    </div>
-    <div class="s-row" id="fridag-row" style="display:none">
-      <div><div class="s-lbl">Fridag placering</div><div class="s-desc">§5 stk. 3 / stk. 4</div></div>
-      <select class="s-inp" id="s-fridag" style="width:120px;text-align:left" onchange="gemInst()">
-        <option value="fre">Fredag</option>
-        <option value="man">Mandag</option>
-      </select>
-    </div>
-    </div>
-  </div>
+      <!-- Header for detalje-sektion: viser hvilken produktion der redigeres -->
+      <div style="padding:11px 16px;background:var(--surf);border-top:1px solid var(--brd);border-bottom:1px solid var(--brd);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut)">
+        Detaljer · <span id="aktiv-prod-navn" style="color:var(--acc)">(ingen valgt)</span>
+      </div>
 
-  <!-- LØN — foldbar, Manuel dagløn øverst -->
-  <div class="s-card">
-    <div class="s-hd" onclick="togCard('lon-body','lon-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-      Løn §3 <span id="lon-ch" style="font-size:12px;opacity:.6">▴ Luk</span>
-    </div>
-    <div id="lon-body">
+      <!-- PERSONLIGT (per-produktion) -->
+      <div class="s-hd">Personligt</div>
+      <div class="s-row">
+        <div><div class="s-lbl">Navn</div></div>
+        <input class="s-inp" type="text" id="s-navn" style="width:140px;text-align:left">
+      </div>
+      <div class="s-row">
+        <div><div class="s-lbl">Email produktion</div><div class="s-desc">Send ugeseddel til</div></div>
+        <input class="s-inp" type="email" id="s-email" style="width:160px;text-align:left;font-size:12px">
+      </div>
+      <div class="s-row">
+        <div><div class="s-lbl">Produktionstitel</div></div>
+        <input class="s-inp" type="text" id="s-prod" style="width:140px;text-align:left">
+      </div>
+      <div class="s-row">
+        <div><div class="s-lbl">Produktionsselskab</div><div class="s-desc">Til udskrifter og ugesedler</div></div>
+        <input class="s-inp" type="text" id="s-selskab" style="width:180px;text-align:left;font-size:12px">
+      </div>
+
+      <!-- ARBEJDSTIDSMODEL (per-produktion) -->
+      <div class="s-hd">Arbejdstidsmodel §4 / §5</div>
+      <div class="model-seg">
+        <button class="model-opt" id="mseg-5dag" onclick="vælgModel('5dag')">
+          <span class="model-opt-ttl">5-dages</span>
+          <span class="model-opt-sub">8t/dag · OT efter 8t</span>
+        </button>
+        <button class="model-opt" id="mseg-saertid" onclick="vælgModel('saertid')">
+          <span class="model-opt-ttl">4-dages §5</span>
+          <span class="model-opt-sub">10t/dag · OT efter 10t</span>
+        </button>
+      </div>
+      <div class="s-row" id="fridag-row" style="display:none">
+        <div><div class="s-lbl">Fridag placering</div><div class="s-desc">§5 stk. 3 / stk. 4</div></div>
+        <select class="s-inp" id="s-fridag" style="width:120px;text-align:left" onchange="gemInst()">
+          <option value="fre">Fredag</option>
+          <option value="man">Mandag</option>
+        </select>
+      </div>
+
+      <!-- LØN §3 (per-produktion) -->
+      <div class="s-hd">Løn §3</div>
       <div class="s-row" id="s-daglon-row">
         <div><div class="s-lbl">Manuel dagløn</div><div class="s-desc">Fast aftalt dagssats — overskriver beregnet løn</div></div>
         <input class="s-inp" type="number" id="s-daglon" min="0" step="1" placeholder="0 = beregn auto"
@@ -802,12 +793,18 @@ textarea::placeholder{color:var(--mut)}
         <div style="font-family:'Tahoma',monospace;font-size:16px;font-weight:600;color:var(--acc)" id="daglon-vis">—</div>
       </div>
       <!-- 10% enkeltdagstillæg styres per dag via bn-e knappen på dag-visningen -->
+
+      <!-- GEM-knap for aktiv produktion -->
+      <div style="padding:14px 16px 16px">
+        <button class="gem-btn" onclick="gemInst()">GEM PRODUKTION</button>
+      </div>
+
     </div>
   </div>
 
   <div class="s-card">
     <div class="s-hd" id="tillæg-hd" onclick="togTillæg()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-      Tillægsoversigt <span id="tillæg-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+      Tillægsoversigt <span id="tillæg-ch" style="font-size:15px;opacity:.85">▾ Vis</span>
     </div>
     <div id="tillæg-body" style="display:none;padding:14px 16px;font-size:12px;line-height:2;color:var(--mut)">
       Varslet OT: <strong style="color:var(--txt)">+50%</strong> (1.t) · <strong style="color:var(--txt)">+60%</strong> (2.t) · <strong style="color:var(--txt)">+135%</strong> (3.t+)<br>
@@ -818,76 +815,95 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
 
-  <button class="gem-btn" onclick="gemInst()">GEM INDSTILLINGER</button>
-
   <div class="s-card" style="margin-top:20px">
     <div class="s-hd" onclick="togCard('sik-body','sik-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
-      Sikkerhedskopi <span id="sik-ch" style="font-size:12px;opacity:.6">▾ Vis</span>
+      Sikkerhedskopi <span id="sik-ch" style="font-size:15px;opacity:.85">▾ Vis</span>
     </div>
-    <div id="sik-body" style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
-      <div id="sidst-backup-lbl" style="font-size:12px;font-family:'Tahoma',monospace;padding:10px 12px;background:var(--surf);border-radius:var(--rs);border:1px solid var(--brd)">Henter…</div>
-      <div style="font-size:13px;color:var(--mut);line-height:1.55">Gem en sikkerhedskopi af alle dine data. Brug filen hvis du skifter telefon eller mister data.</div>
-      <button class="gem-btn" onclick="gemBackupFil()" style="font-size:16px;letter-spacing:0">☁️ &nbsp;GEM BACKUP TIL FILER</button>
-      <div style="font-size:12px;color:var(--mut);background:var(--surf);border:1px solid var(--brd);border-radius:var(--rs);padding:11px 13px;line-height:1.55">
-        <div style="font-weight:700;color:var(--txt);margin-bottom:4px">📍 Hvor lander filen?</div>
-        På iPhone får du et iOS share sheet — vælg <strong style="color:var(--txt)">Gem i Filer</strong> og bestem mappen selv (fx <em>På min iPhone</em> eller <em>iCloud Drive</em>).<br>
-        På computer/Android lander den i din <strong style="color:var(--txt)">Hentede filer</strong>-mappe.<br>
-        Filnavn: <span style="font-family:'Tahoma',monospace;font-size:11px;color:var(--txt)">timeapp-backup-DATO_KL.json</span>
+    <div id="sik-body" style="padding:20px 16px;display:flex;flex-direction:column;gap:20px">
+
+      <!-- Status -->
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--mut);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Sidst gemt</div>
+        <div id="sidst-backup-lbl" style="font-size:20px;font-family:'Tahoma',monospace;color:var(--grn);font-weight:700">Henter…</div>
       </div>
-      <div style="border-top:1px solid var(--brd);padding-top:12px">
-        <div style="font-size:11px;color:var(--mut);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Gendan fra tidligere backup</div>
-        <label class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-align:center;cursor:pointer;font-size:13px">
-          📂 &nbsp;HENT BACKUP FRA FIL
-          <input type="file" accept=".json" style="display:none" onchange="importerData(event)">
-        </label>
+
+      <!-- Beskrivelse -->
+      <div style="font-size:15px;color:var(--txt);line-height:1.5">
+        Gem en sikkerhedskopi af alle dine data. Brug filen hvis du skifter telefon eller mister data.
       </div>
-    </div>
-  </div>
 
-  <div class="s-card" style="margin-top:8px">
-    <div class="s-hd">Del appen</div>
-    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;color:var(--mut);line-height:1.5">Del Time App med kolleger via QR-kode. De scanner og kommer direkte til time-app.dk.</div>
-      <button class="gem-btn" onclick="åbnQRModal()" style="font-size:16px;letter-spacing:0">📱 &nbsp;VIS QR-KODE</button>
-    </div>
-  </div>
+      <!-- Knapper -->
+      <button class="gem-btn" onclick="gemBackupFil()" style="font-size:17px;letter-spacing:0">☁️ &nbsp;GEM BACKUP TIL FILER</button>
 
-  <!-- FEEDBACK -->
-  <div class="s-card" style="margin-top:8px">
-    <div class="s-hd">Feedback &amp; forslag</div>
-    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:12px;color:var(--mut);line-height:1.5">Hjælp os med at gøre Time App bedre. Send en mail om en fejl du har fundet, et forslag til en forbedring eller bare en hilsen.</div>
-      <a href="#" onclick="sendFeedback('fejl');return false" class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-decoration:none;text-align:center;font-size:14px;letter-spacing:0">🐛 &nbsp;RAPPORTER FEJL</a>
-      <a href="#" onclick="sendFeedback('forslag');return false" class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-decoration:none;text-align:center;font-size:14px;letter-spacing:0">💡 &nbsp;FORESLÅ FORBEDRING</a>
-      <a href="#" onclick="sendFeedback('hilsen');return false" class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-decoration:none;text-align:center;font-size:14px;letter-spacing:0">❤️ &nbsp;SEND HILSEN</a>
-      <div style="font-size:11px;color:var(--mut);text-align:center;margin-top:2px">Sendes til thomas@ditzel.dk</div>
-    </div>
-  </div>
+      <label class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-align:center;cursor:pointer;font-size:16px;letter-spacing:0;display:block">
+        📂 &nbsp;HENT BACKUP FRA FIL
+        <input type="file" accept=".json" style="display:none" onchange="importerData(event)">
+      </label>
 
-  <!-- STØT UDVIKLEREN -->
-  <div class="s-card" style="margin-top:8px">
-    <div class="s-hd">Støt udvikleren</div>
-    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:12px">
-      <div style="font-size:12px;color:var(--mut);line-height:1.5">Time App er gratis og bygges i fritiden. Har du glæde af appen og lyst til at give en kop kaffe, sætter jeg pris på det. Tak ☕</div>
-      <div style="background:var(--surf);border:1.5px solid var(--brd);border-radius:var(--rs);padding:16px 14px;text-align:center">
-        <div style="font-size:11px;color:var(--mut);margin-bottom:6px;letter-spacing:1px;font-weight:600">MOBILEPAY</div>
-        <div style="font-family:'Tahoma',monospace;font-size:26px;font-weight:700;letter-spacing:2px;color:var(--txt)">26 21 47 09</div>
+      <!-- Hjælpetekst, lavest hierarkisk -->
+      <div style="font-size:13px;color:var(--mut);line-height:1.7;border-top:1px solid var(--brd);padding-top:14px">
+        <div><span style="color:var(--txt);font-weight:700">iPhone:</span> Vælg <strong style="color:var(--txt)">Gem i Filer</strong> i share sheet.</div>
+        <div><span style="color:var(--txt);font-weight:700">Computer / Android:</span> Lander i <strong style="color:var(--txt)">Hentede filer</strong>.</div>
+        <div><span style="color:var(--txt);font-weight:700">Filnavn:</span> <span style="font-family:'Tahoma',monospace;color:var(--txt)">timeapp-backup-DATO.json</span></div>
       </div>
-      <button class="gem-btn" onclick="kopierMobilePay()" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);font-size:14px;letter-spacing:0">📋 &nbsp;KOPIER NUMMER</button>
-      <a href="mobilepay://" class="gem-btn" style="text-decoration:none;text-align:center;font-size:16px;letter-spacing:0">☕ &nbsp;ÅBN MOBILEPAY</a>
+
     </div>
   </div>
 
+  <!-- OM & SUPPORT — samlet foldbar (Del · Feedback · Støt · Om) -->
   <div class="s-card" style="margin-top:8px">
-    <div class="s-hd">Om appen</div>
-    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px">
-      <a href="manual.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
-        <span>📖 Manual &amp; hjælp</span><span style="color:var(--acc)">→</span>
-      </a>
-      <a href="index.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
-        <span>🌐 Om Time App</span><span style="color:var(--acc)">→</span>
-      </a>
-      <div style="font-size:11px;color:var(--mut);margin-top:4px" id="om-version">Fiktionsoverenskomst 2025-2027</div>
+    <div class="s-hd" onclick="togCard('omsup-body','omsup-ch')" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+      Om &amp; support <span id="omsup-ch" style="font-size:15px;opacity:.85">▾ Vis</span>
+    </div>
+    <div id="omsup-body" style="padding:14px 16px;display:flex;flex-direction:column;gap:18px">
+
+      <!-- Del appen -->
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--txt);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📱 Del appen</div>
+        <div style="font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:8px">Del Time App med kolleger via QR-kode. De scanner og kommer direkte til time-app.dk.</div>
+        <button class="gem-btn" onclick="åbnQRModal()" style="font-size:15px;letter-spacing:0">VIS QR-KODE</button>
+      </div>
+
+      <!-- Feedback -->
+      <div style="border-top:1px solid var(--brd);padding-top:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--txt);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">💬 Feedback &amp; forslag</div>
+        <div style="font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:8px">Hjælp os med at gøre Time App bedre. Send en mail om en fejl, et forslag, eller bare en hilsen.</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="#" onclick="sendFeedback('fejl');return false" class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-decoration:none;text-align:center;font-size:13px;letter-spacing:0">🐛 &nbsp;RAPPORTER FEJL</a>
+          <a href="#" onclick="sendFeedback('forslag');return false" class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-decoration:none;text-align:center;font-size:13px;letter-spacing:0">💡 &nbsp;FORESLÅ FORBEDRING</a>
+          <a href="#" onclick="sendFeedback('hilsen');return false" class="gem-btn" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);text-decoration:none;text-align:center;font-size:13px;letter-spacing:0">❤️ &nbsp;SEND HILSEN</a>
+        </div>
+        <div style="font-size:11px;color:var(--mut);text-align:center;margin-top:6px">Sendes til thomas@ditzel.dk</div>
+      </div>
+
+      <!-- Støt udvikleren -->
+      <div style="border-top:1px solid var(--brd);padding-top:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--txt);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">☕ Støt udvikleren</div>
+        <div style="font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:10px">Time App er gratis og bygges i fritiden. Har du glæde af appen og lyst til at give en kop kaffe, sætter jeg pris på det. Tak ☕</div>
+        <div style="background:var(--surf);border:1.5px solid var(--brd);border-radius:var(--rs);padding:14px;text-align:center;margin-bottom:8px">
+          <div style="font-size:11px;color:var(--mut);margin-bottom:4px;letter-spacing:1px;font-weight:600">MOBILEPAY</div>
+          <div style="font-family:'Tahoma',monospace;font-size:24px;font-weight:700;letter-spacing:2px;color:var(--txt)">26 21 47 09</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <button class="gem-btn" onclick="kopierMobilePay()" style="background:var(--surf);border:1.5px solid var(--brd);color:var(--txt);font-size:13px;letter-spacing:0">📋 &nbsp;KOPIER NUMMER</button>
+          <a href="mobilepay://" class="gem-btn" style="text-decoration:none;text-align:center;font-size:15px;letter-spacing:0">☕ &nbsp;ÅBN MOBILEPAY</a>
+        </div>
+      </div>
+
+      <!-- Om appen -->
+      <div style="border-top:1px solid var(--brd);padding-top:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--txt);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">ℹ️ Om appen</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <a href="manual.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
+            <span>📖 Manual &amp; hjælp</span><span style="color:var(--acc)">→</span>
+          </a>
+          <a href="index.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;text-decoration:none;color:var(--txt);font-size:14px;font-weight:600">
+            <span>🌐 Om Time App</span><span style="color:var(--acc)">→</span>
+          </a>
+        </div>
+        <div style="font-size:11px;color:var(--mut);margin-top:8px" id="om-version">Fiktionsoverenskomst 2025-2027</div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -1221,7 +1237,8 @@ function opdaterSidstBackup() {
   const el = document.getElementById('sidst-backup-lbl');
   if (!el) return;
   const dato = localStorage.getItem('backup-sidst-dato');
-  el.textContent = dato ? `Sidst gemt: ${dato}` : 'Aldrig gemt — tryk knappen nedenfor';
+  // Header "Sidst gemt" står over feltet — vis kun datoen (eller status hvis aldrig gemt)
+  el.textContent = dato || 'Aldrig gemt';
   el.style.color = dato ? 'var(--grn)' : 'var(--red)';
 }
 
@@ -1571,7 +1588,8 @@ function gemInst() {
   localStorage.setItem('faf-cfg', JSON.stringify(cfg));
   opdaterLonTotal();
   rendProdListe();
-  toast('Gemt ✓');
+  opdaterProdLabel();
+  toast('Produktion gemt ✓');
   opdaterSaertidBadge();
   beregn();
 }
@@ -1621,6 +1639,9 @@ function opdaterProdLabel() {
   // Vis aktuel produktion i foldet Produktioner-header
   const cl = document.getElementById('prod-collapsed-lbl');
   if (cl) cl.textContent = navn ? '· ' + navn : '';
+  // Detaljer-sektion i Indstillinger viser hvilken produktion der redigeres
+  const ad = document.getElementById('aktiv-prod-navn');
+  if (ad) ad.textContent = navn || '(ingen titel)';
 }
 
 // Generisk fold/unfold for s-cards
@@ -3730,9 +3751,10 @@ idbCheckRestore().then(() => {
   hentCfg();
   rendDag();
   initTillæg();
-  initCard('lon-body', 'lon-ch', true);
-  initCard('sik-body', 'sik-ch', false);
-  initCard('prod-body', 'prod-ch', false);
+  // Alle s-cards starter lukket — folder ud ved klik. Tilstand huskes via localStorage.
+  initCard('prod-body',  'prod-ch',  false);
+  initCard('sik-body',   'sik-ch',   false);
+  initCard('omsup-body', 'omsup-ch', false);
   opdaterSidstBackup();
 });
 </script>
@@ -3783,7 +3805,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.71';
+const APP_VERSION = '1.72';
 
 // ── SPLASH ──
 (function(){
@@ -3802,10 +3824,10 @@ const APP_VERSION = '1.71';
   name.style.cssText = 'font-size:26px;font-weight:800;letter-spacing:-.5px;color:#fff;animation:splashFadeUp .5s ease .3s both';
   var sub = document.createElement('div');
   sub.textContent = 'DITZEL';
-  sub.style.cssText = 'font-size:11px;color:#777;letter-spacing:3px;margin-top:5px;animation:splashFadeUp .5s ease .5s both';
+  sub.style.cssText = 'font-size:11px;color:#B3B3B3;letter-spacing:3px;margin-top:5px;animation:splashFadeUp .5s ease .5s both';
   var ver = document.createElement('div');
   ver.textContent = 'v' + APP_VERSION;
-  ver.style.cssText = 'font-size:11px;color:#555;letter-spacing:1px;margin-top:22px;animation:splashFadeUp .5s ease .7s both';
+  ver.style.cssText = 'font-size:11px;color:#A0A0A0;letter-spacing:1px;margin-top:22px;animation:splashFadeUp .5s ease .7s both';
 
   s.appendChild(vid); s.appendChild(name); s.appendChild(sub); s.appendChild(ver);
   document.body.appendChild(s);
@@ -3821,6 +3843,16 @@ const APP_VERSION = '1.71';
 
 
 const CHANGELOG = {
+  '1.72': {
+    dato: '7. maj 2026',
+    nyt: [
+      'Indstillinger ryddet kraftigt op: Alle sektioner (Produktioner, Personligt, Arbejdstidsmodel, Løn, Sikkerhedskopi, Om & support) er nu foldbare og lukket som default — tryk på en sektions overskrift for at folde ud. Mindre at scrolle igennem og lettere at finde det man leder efter.',
+      'Del appen, Feedback, Støt udvikleren og Om appen er samlet i ét fælles "Om & support"-kort med fire underafsnit i stedet for fire separate kasser.',
+      'Grå tekst (beskrivelser, hjælpetekster, sekundære labels) er gjort betydeligt lysere overalt i appen — fra #666680 til #B9B9CD i app.html, index.html og manual.html — så det er mærkbart lettere at læse på set i dårlige lysforhold.',
+      'Personligt + Arbejdstidsmodel + Løn er flyttet ind under Produktioner-kortet som "Detaljer for aktiv produktion". Felterne følger nu produktionen — vælg en produktion i listen og dens navn, email, selskab, model og lønsatser bliver synlige til redigering. Indstillinger-siden er dermed kortere og det er tydeligt, at disse data tilhører den aktive produktion.',
+      'Misvisende placeholder-tekster (Thomas, prod@film.dk, Film titel, SAM Produktions Aps.) fjernet — tomme felter ser nu reelt tomme ud, så ingen tror der allerede står data.',
+    ]
+  },
   '1.71': {
     dato: '7. maj 2026',
     nyt: [
