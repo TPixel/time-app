@@ -183,12 +183,44 @@ to{transform:scale(1);opacity:1}}
 .xb[id="bn-møde"]{border:2px solid rgba(129,140,248,.35)}
 .xb.møde-on{background:var(--acc)!important;border:2px solid var(--acc)!important;color:#fff!important;box-shadow:0 0 0 2px rgba(129,140,248,.3)!important}
 
-/* ── MIXED OT — varslet/uvarslet split ── */
-.mixed-ot-box{margin:-4px 0 12px;background:linear-gradient(135deg,rgba(251,191,36,.10),rgba(232,99,10,.08));border:2px solid var(--yel);border-radius:var(--rs);padding:14px 14px 12px;box-shadow:0 0 0 2px rgba(251,191,36,.12)}
-.mixed-ot-ttl{font-size:14px;font-weight:800;color:var(--yel);letter-spacing:.5px;text-transform:uppercase}
-.mixed-ot-q{font-size:14px;font-weight:700;color:var(--txt);margin:6px 0 12px;line-height:1.25}
-.mixed-ot-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.xb.mxb{padding:14px 4px;font-size:17px;font-weight:800;letter-spacing:.4px;border:2px solid rgba(251,191,36,.35);background:var(--card2);min-height:54px}
+/* ── MIXED OT — overlay oven på Varslet/Uvarslet-knapperne ── */
+.ot-wrap{position:relative;margin-bottom:12px}
+.mixed-ot-overlay{
+  position:absolute;
+  top:-4px; left:-4px; right:-4px; bottom:-4px;
+  background:linear-gradient(135deg,#1C1C2A 0%,#222232 100%);
+  border:3px solid var(--yel);
+  border-radius:14px;
+  padding:8px 10px 10px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:8px;
+  z-index:20;
+  box-shadow:0 0 0 3px rgba(251,191,36,.25), 0 8px 24px rgba(0,0,0,.5);
+  animation:mxFadeIn .18s ease-out;
+}
+@keyframes mxFadeIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+.mixed-ot-q-big{
+  font-size:17px;
+  font-weight:900;
+  color:var(--yel);
+  text-align:center;
+  letter-spacing:.4px;
+  line-height:1.15;
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
+}
+.mixed-ot-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.xb.mxb{
+  padding:10px 2px;
+  font-size:17px;
+  font-weight:900;
+  letter-spacing:.3px;
+  border:2px solid rgba(251,191,36,.45);
+  background:#0C0C12;
+  color:var(--yel);
+  min-height:auto;
+}
 .xb.mxb.von{background:var(--yel)!important;border:2px solid var(--yel)!important;color:#0C0C12!important;box-shadow:0 0 0 2px rgba(251,191,36,.4)!important}
 .mixed-ot-summary{cursor:pointer;margin:-4px 0 12px;background:var(--card);border:1.5px dashed var(--yel);border-radius:var(--rs);padding:11px 14px;font-size:14px;color:var(--yel);font-weight:800;text-align:center;letter-spacing:.4px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
 .mixed-ot-summary:active{transform:scale(.98);opacity:.85}
@@ -537,25 +569,26 @@ textarea::placeholder{color:var(--mut)}
   <div class="wk-auto-badge" id="wk-auto-badge">🔵 Weekend-periode §8 auto-beregnet — fre 20:00 – man 06:00</div>
 
   <div class="slbl">Overarbejde + Tillæg <span class="oe">§6 §7 §8 §12</span></div>
-  <div class="bgrid">
-    <button class="xb" id="bn-v" onclick="tog('v')">
-      Varslet OT
-      <span class="xb-sub">+50% +60% +135%</span>
-    </button>
-    <button class="xb" id="bn-u" onclick="tog('u')">
-      Uvarslet OT
-      <span class="xb-sub">+75% +100% +135%</span>
-    </button>
-  </div>
-  <div id="mixed-ot-row" class="mixed-ot-box" style="display:none">
-    <div class="mixed-ot-ttl">⚡ Mixed OT — Varslet + Uvarslet</div>
-    <div class="mixed-ot-q">Hvor mange af OT-timerne var varslet på forhånd?</div>
-    <div class="mixed-ot-grid">
-      <button class="xb mxb" id="vt-0" onclick="setVarsletTimer(0)">0</button>
-      <button class="xb mxb" id="vt-0.5" onclick="setVarsletTimer(0.5)">30M</button>
-      <button class="xb mxb" id="vt-1" onclick="setVarsletTimer(1)">1T</button>
-      <button class="xb mxb" id="vt-1.5" onclick="setVarsletTimer(1.5)">1½T</button>
-      <button class="xb mxb" id="vt-2" onclick="setVarsletTimer(2)">2T</button>
+  <div class="ot-wrap">
+    <div class="bgrid" style="margin-bottom:0">
+      <button class="xb" id="bn-v" onclick="tog('v')">
+        Varslet OT
+        <span class="xb-sub">+50% +60% +135%</span>
+      </button>
+      <button class="xb" id="bn-u" onclick="tog('u')">
+        Uvarslet OT
+        <span class="xb-sub">+75% +100% +135%</span>
+      </button>
+    </div>
+    <div id="mixed-ot-row" class="mixed-ot-overlay" style="display:none">
+      <div class="mixed-ot-q-big">⚡ Hvor mange OT-timer var varslet?</div>
+      <div class="mixed-ot-grid">
+        <button class="xb mxb" id="vt-0" onclick="setVarsletTimer(0)">0</button>
+        <button class="xb mxb" id="vt-0.5" onclick="setVarsletTimer(0.5)">30M</button>
+        <button class="xb mxb" id="vt-1" onclick="setVarsletTimer(1)">1T</button>
+        <button class="xb mxb" id="vt-1.5" onclick="setVarsletTimer(1.5)">1½T</button>
+        <button class="xb mxb" id="vt-2" onclick="setVarsletTimer(2)">2T</button>
+      </div>
     </div>
   </div>
   <div id="mixed-ot-summary" class="mixed-ot-summary" style="display:none" onclick="åbnMixedOt()">
@@ -3954,7 +3987,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.73';
+const APP_VERSION = '1.74';
 
 // ── SPLASH ──
 (function(){
@@ -3992,6 +4025,16 @@ const APP_VERSION = '1.73';
 
 
 const CHANGELOG = {
+  '1.74': {
+    dato: '8. maj 2026',
+    nyt: [
+      'Mixed OT-menuen lægger sig nu som overlay OVEN PÅ Varslet OT- og Uvarslet OT-knapperne (i stedet for under) — så fokus er klart på det aktive valg, og knapperne dukker op igen så snart menuen lukkes.',
+      'Spørgsmålet "⚡ Hvor mange OT-timer var varslet?" vises nu i stor (17px), fed gul tekst med skygge — meget tydeligere på set i dårlige lysforhold.',
+      'Mørk baggrund + tyk gul ramme + gul glød rundt om gør overlay\'et umiskendeligt — det træder klart frem oven på de farvede OT-knapper bagved.',
+      'Knapperne (0, 30M, 1T, 1½T, 2T) er gjort kraftigere: sort baggrund + gul tekst + gul ramme i inaktiv tilstand → fyldt gul i aktiv. Tydelig kontrast mellem valgt og ikke-valgt.',
+      'Lille fade-in animation når menuen åbner.',
+    ]
+  },
   '1.73': {
     dato: '8. maj 2026',
     nyt: [
