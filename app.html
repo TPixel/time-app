@@ -183,6 +183,17 @@ to{transform:scale(1);opacity:1}}
 .xb[id="bn-møde"]{border:2px solid rgba(129,140,248,.35)}
 .xb.møde-on{background:var(--acc)!important;border:2px solid var(--acc)!important;color:#fff!important;box-shadow:0 0 0 2px rgba(129,140,248,.3)!important}
 
+/* ── MIXED OT — varslet/uvarslet split ── */
+.mixed-ot-box{margin:-4px 0 12px;background:linear-gradient(135deg,rgba(251,191,36,.10),rgba(232,99,10,.08));border:2px solid var(--yel);border-radius:var(--rs);padding:14px 14px 12px;box-shadow:0 0 0 2px rgba(251,191,36,.12)}
+.mixed-ot-ttl{font-size:14px;font-weight:800;color:var(--yel);letter-spacing:.5px;text-transform:uppercase}
+.mixed-ot-q{font-size:14px;font-weight:700;color:var(--txt);margin:6px 0 12px;line-height:1.25}
+.mixed-ot-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.xb.mxb{padding:14px 4px;font-size:17px;font-weight:800;letter-spacing:.4px;border:2px solid rgba(251,191,36,.35);background:var(--card2);min-height:54px}
+.xb.mxb.von{background:var(--yel)!important;border:2px solid var(--yel)!important;color:#0C0C12!important;box-shadow:0 0 0 2px rgba(251,191,36,.4)!important}
+.mixed-ot-summary{cursor:pointer;margin:-4px 0 12px;background:var(--card);border:1.5px dashed var(--yel);border-radius:var(--rs);padding:11px 14px;font-size:14px;color:var(--yel);font-weight:800;text-align:center;letter-spacing:.4px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.mixed-ot-summary:active{transform:scale(.98);opacity:.85}
+.mixed-ot-summary .mhint{font-size:10px;font-weight:700;opacity:.7;letter-spacing:1px;text-transform:uppercase}
+
 /* ── SÆRTID BADGE ── */
 .saertid-badge{display:none;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:var(--pur);text-align:center}
 .saertid-badge.vis{display:block}
@@ -536,20 +547,20 @@ textarea::placeholder{color:var(--mut)}
       <span class="xb-sub">+75% +100% +135%</span>
     </button>
   </div>
-  <div id="mixed-ot-row" style="display:none;margin:-6px 0 12px;background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:10px 14px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-      <div>
-        <div style="font-size:11px;font-weight:700;color:var(--yel)">⚡ MIXED OT</div>
-        <div style="font-size:10px;color:var(--mut);margin-top:2px">Hvor mange OT-timer var varslet?</div>
-      </div>
-      <div style="display:flex;gap:4px">
-        <button class="xb" id="vt-0" onclick="setVarsletTimer(0)" style="padding:6px 10px;min-width:32px;font-size:11px">0</button>
-        <button class="xb" id="vt-0.5" onclick="setVarsletTimer(0.5)" style="padding:6px 10px;min-width:32px;font-size:11px">30m</button>
-        <button class="xb" id="vt-1" onclick="setVarsletTimer(1)" style="padding:6px 10px;min-width:32px;font-size:11px">1t</button>
-        <button class="xb" id="vt-1.5" onclick="setVarsletTimer(1.5)" style="padding:6px 10px;min-width:32px;font-size:11px">1½t</button>
-        <button class="xb" id="vt-2" onclick="setVarsletTimer(2)" style="padding:6px 10px;min-width:32px;font-size:11px">2t</button>
-      </div>
+  <div id="mixed-ot-row" class="mixed-ot-box" style="display:none">
+    <div class="mixed-ot-ttl">⚡ Mixed OT — Varslet + Uvarslet</div>
+    <div class="mixed-ot-q">Hvor mange af OT-timerne var varslet på forhånd?</div>
+    <div class="mixed-ot-grid">
+      <button class="xb mxb" id="vt-0" onclick="setVarsletTimer(0)">0</button>
+      <button class="xb mxb" id="vt-0.5" onclick="setVarsletTimer(0.5)">30M</button>
+      <button class="xb mxb" id="vt-1" onclick="setVarsletTimer(1)">1T</button>
+      <button class="xb mxb" id="vt-1.5" onclick="setVarsletTimer(1.5)">1½T</button>
+      <button class="xb mxb" id="vt-2" onclick="setVarsletTimer(2)">2T</button>
     </div>
+  </div>
+  <div id="mixed-ot-summary" class="mixed-ot-summary" style="display:none" onclick="åbnMixedOt()">
+    <span>⚡ <span id="mixed-ot-summary-txt">Mixed OT</span></span>
+    <span class="mhint">▾ Tryk for at ændre</span>
   </div>
   <div class="bgrid" style="margin-top:0">
     <button class="xb" id="bn-h" onclick="tog('h')">
@@ -2034,6 +2045,16 @@ function beregn() {
   } else {
     ot1lbl = `OT 1. time · ${hFmt(l.ot1H)}`; ot2lbl = `OT 2. time · ${hFmt(l.ot2H)}`;
   }
+
+  // Mixed OT summary text (kompakt linje når menu er foldet sammen)
+  const sumTxt = document.getElementById('mixed-ot-summary-txt');
+  if (sumTxt && isMixed) {
+    const totalOtH = (l.ot1H || 0) + (l.ot2H || 0) + (l.ot3H || 0);
+    const v = Math.min(vt, totalOtH);
+    const u = Math.max(0, totalOtH - v);
+    sumTxt.textContent = `${hFmt(v)} varslet · ${hFmt(u)} uvarslet`;
+  }
+
   document.getElementById('o-ot1-lbl').textContent = ot1lbl;
   document.getElementById('o-ot2-lbl').textContent = ot2lbl;
   document.getElementById('o-ot3-lbl').textContent = `OT 3.+ time (+135%) · ${hFmt(l.ot3H)}`;
@@ -2119,16 +2140,44 @@ function tog(k) {
   if (knapper.v && knapper.u) {
     // Mixed mode — vis varsletTimer selector
     if (knapper.varsletTimer === 0 && k === 'v') knapper.varsletTimer = 0.5; // default 30m
+    mixedOtCollapsed = false; // åbn menuen ved aktivering
+    clearTimeout(setVarsletTimer._t);
   } else {
     knapper.varsletTimer = 0;
+    mixedOtCollapsed = false;
+    clearTimeout(setVarsletTimer._t);
   }
   opdaterKnapper();
   beregn();
 }
+let mixedOtCollapsed = false;
 function setVarsletTimer(n) {
   knapper.varsletTimer = n;
+  mixedOtCollapsed = false; // åbn først, så valget er synligt
   opdaterKnapper();
   beregn();
+  // Auto-skjul efter kort delay så brugeren kan se sit valg
+  clearTimeout(setVarsletTimer._t);
+  setVarsletTimer._t = setTimeout(() => {
+    if (knapper.v && knapper.u) {
+      mixedOtCollapsed = true;
+      opdaterKnapper();
+      beregn();
+    }
+  }, 500);
+}
+function åbnMixedOt() {
+  mixedOtCollapsed = false;
+  opdaterKnapper();
+  beregn();
+}
+function vtFmt(n) {
+  if (n === 0) return '0t';
+  if (n === 0.5) return '30m';
+  if (n === 1) return '1t';
+  if (n === 1.5) return '1½t';
+  if (n === 2) return '2t';
+  return n + 't';
 }
 
 // §12 Stk.1 — Ugeprogrammøde (mødetid der falder i pausen = arbejdstid)
@@ -2380,15 +2429,25 @@ function opdaterKnapper() {
       mødeSub.textContent = 'Ugeprogram §12';
     }
   }
-  // Mixed OT row visibility
+  // Mixed OT row visibility — fuld menu vs. kompakt summary
   const mixRow = document.getElementById('mixed-ot-row');
-  if (mixRow) {
+  const mixSum = document.getElementById('mixed-ot-summary');
+  if (mixRow && mixSum) {
     const isMixed = knapper.v && knapper.u;
-    mixRow.style.display = isMixed ? 'block' : 'none';
+    if (!isMixed) {
+      mixRow.style.display = 'none';
+      mixSum.style.display = 'none';
+    } else if (mixedOtCollapsed) {
+      mixRow.style.display = 'none';
+      mixSum.style.display = 'flex';
+    } else {
+      mixRow.style.display = 'block';
+      mixSum.style.display = 'none';
+    }
     if (isMixed) {
       [0, 0.5, 1, 1.5, 2].forEach(n => {
         const el = document.getElementById('vt-' + n);
-        if (el) el.className = 'xb' + (knapper.varsletTimer === n ? ' von' : '');
+        if (el) el.className = 'xb mxb' + (knapper.varsletTimer === n ? ' von' : '');
       });
     }
   }
@@ -2465,8 +2524,24 @@ function _pdfDag() {
   const dagISO = `${aktivDag.getFullYear()}-${String(aktivDag.getMonth()+1).padStart(2,'0')}-${String(aktivDag.getDate()).padStart(2,'0')}`;
   const dMixed = d.knapper?.v && d.knapper?.u;
   const dVt = d.knapper?.varsletTimer || 0;
+  // Beregn timer-fordeling for mixed OT (samme matematik som calcLon)
+  const dOtH    = Math.max(0, (d.h || 0) - dagMax());
+  const dOt1H   = Math.min(1, dOtH);
+  const dOt2H   = Math.min(1, Math.max(0, dOtH - 1));
+  const dV1     = Math.min(dVt, dOt1H);
+  const dU1     = Math.max(0, dOt1H - dV1);
+  const dV2     = Math.min(Math.max(0, dVt - 1), dOt2H);
+  const dU2     = Math.max(0, dOt2H - dV2);
+  const dVtotal = dV1 + dV2;
+  const dUtotal = dU1 + dU2 + Math.max(0, dOtH - 2); // 3.+ time tæller som uvarslet (samme +135%)
   function otLabel(time, vSats, uSats) {
-    if (dMixed) return `OT ${time}. time (${dVt >= time ? 'varslet '+vSats : 'uvarslet '+uSats})`;
+    if (dMixed) {
+      const v = time === 1 ? dV1 : dV2;
+      const u = time === 1 ? dU1 : dU2;
+      if (v > 0 && u > 0) return `OT ${time}. time: ${hFmt(v)} varslet ${vSats} · ${hFmt(u)} uvarslet ${uSats}`;
+      if (v > 0) return `OT ${time}. time (varslet ${vSats})`;
+      return `OT ${time}. time (uvarslet ${uSats})`;
+    }
     if (d.knapper?.v) return `OT ${time}. time (varslet ${vSats})`;
     return `OT ${time}. time (uvarslet ${uSats})`;
   }
@@ -2486,7 +2561,7 @@ function _pdfDag() {
     if (d.diaetKr) rækker.push({lbl:'Diæt §14', kr:d.diaetKr});
   }
   const badges = [
-    dMixed ? `Mixed OT (${dVt}t varslet)` : (d.knapper?.v ? 'Varslet OT' : null),
+    dMixed ? `${hFmt(dVtotal)} varslet OT · ${hFmt(dUtotal)} uvarslet OT` : (d.knapper?.v ? 'Varslet OT' : null),
     dMixed ? null : (d.knapper?.u ? 'Uvarslet OT' : null),
     d.knapper?.h ? 'Helligdag §8' : null,
     d.knapper?.f ? 'Sen frokost' : null,
@@ -3138,27 +3213,53 @@ function _pdfUge() {
   const fra = dateFmt(datoer[0]);
   const til = dateFmt(datoer[6]);
 
-  // Saml tillæg på tværs af ugen
-  let sumNormal=0, sumOt1=0, sumOt2=0, sumOt3=0, sumWk=0, sumExt=0, sumFsk=0, sumFskKr=0, sumDiaet=0, sumSaertid=0, sumMødeMin=0;
+  // Saml tillæg på tværs af ugen — splittet pr. type/band så mixed-dage opgøres korrekt
+  let sumNormal=0, sumOt3=0, sumWk=0, sumExt=0, sumFsk=0, sumFskKr=0, sumDiaet=0, sumSaertid=0, sumMødeMin=0;
+  let sumVarslet1=0, sumVarslet2=0, sumUvarslet1=0, sumUvarslet2=0;
+  let sumVarslet1H=0, sumVarslet2H=0, sumUvarslet1H=0, sumUvarslet2H=0;
   dage.forEach(d => {
     if (d.fri) return;
-    sumNormal += d.normal; sumOt1 += d.ot1; sumOt2 += d.ot2;
+    sumNormal += d.normal;
     sumOt3 += d.ot3; sumWk += d.wk; sumExt += d.ext;
     sumFsk += d.fsk; sumFskKr += d.fskKr;
     sumDiaet += (d.diaetKr || 0);
     sumSaertid += (d.saertidKr || 0);
     sumMødeMin += (parseInt(d.knapper?.møde) || 0);
+
+    const dMixed = d.knapper?.v && d.knapper?.u;
+    const dVt    = d.knapper?.varsletTimer || 0;
+    const dOtH   = Math.max(0, (d.h || 0) - dagMax());
+    const dOt1H  = Math.min(1, dOtH);
+    const dOt2H  = Math.min(1, Math.max(0, dOtH - 1));
+    if (dMixed) {
+      const v1 = Math.min(dVt, dOt1H), u1 = dOt1H - v1;
+      const v2 = Math.min(Math.max(0, dVt - 1), dOt2H), u2 = dOt2H - v2;
+      sumVarslet1  += ts * v1 * 1.5;  sumVarslet1H  += v1;
+      sumUvarslet1 += ts * u1 * 1.75; sumUvarslet1H += u1;
+      sumVarslet2  += ts * v2 * 1.6;  sumVarslet2H  += v2;
+      sumUvarslet2 += ts * u2 * 2.0;  sumUvarslet2H += u2;
+    } else if (d.knapper?.v) {
+      sumVarslet1  += d.ot1; sumVarslet1H  += dOt1H;
+      sumVarslet2  += d.ot2; sumVarslet2H  += dOt2H;
+    } else {
+      sumUvarslet1 += d.ot1; sumUvarslet1H += dOt1H;
+      sumUvarslet2 += d.ot2; sumUvarslet2H += dOt2H;
+    }
   });
   const tillidUge = tillidshvervUge(); // 500 eller 0
-
-  const otType = dage.some(d => !d.fri && d.knapper?.v) ? 'Varslet' :
-                 dage.some(d => !d.fri && d.knapper?.u) ? 'Uvarslet' : '—';
+  const harMixed = dage.some(d => !d.fri && d.knapper?.v && d.knapper?.u);
 
   // Vis kun dage med arbejde — fri dage skjules helt for et tydeligere overblik
   let dagRk = dage.filter(d => !d.fri).map(d => {
+    const dMixedRow = d.knapper?.v && d.knapper?.u;
+    const dVtRow    = d.knapper?.varsletTimer || 0;
+    const dOtHRow   = Math.max(0, (d.h || 0) - dagMax());
+    const dVRow     = Math.min(dVtRow, dOtHRow);
+    const dURow     = Math.max(0, dOtHRow - dVRow);
+    const otTxt = dMixedRow ? `${hFmt(dVRow)} varslet · ${hFmt(dURow)} uvarslet`
+                            : (d.knapper?.v ? 'Varslet OT' : (d.knapper?.u ? 'Uvarslet OT' : ''));
     const tillæg = [
-      d.knapper?.v ? 'Varslet OT' : '',
-      d.knapper?.u ? 'Uvarslet OT' : '',
+      otTxt,
       d.knapper?.h ? 'Helligdag §8' : '',
       d.knapper?.f ? 'Sen frokost' : '',
       cfg.tillæg   ? '10% enkeltdag' : '',
@@ -3211,10 +3312,10 @@ function _pdfUge() {
     <div class="pdf-sect">Lønspecifikation</div>
     <div class="pdf-lonspec">
       ${lonRow('Normaltime', sumNormal, `${ts.toFixed(2)} kr/t`)}
-      ${lonRow('Varslet OT 1. time (+50%)', otType==='Varslet'?sumOt1:0, `${(ts*1.5).toFixed(2)} kr/t`)}
-      ${lonRow('Varslet OT 2. time (+60%)', otType==='Varslet'?sumOt2:0, `${(ts*1.6).toFixed(2)} kr/t`)}
-      ${lonRow('Uvarslet OT 1. time (+75%)', otType==='Uvarslet'?sumOt1:0, `${(ts*1.75).toFixed(2)} kr/t`)}
-      ${lonRow('Uvarslet OT 2. time (+100%)', otType==='Uvarslet'?sumOt2:0, `${(ts*2.0).toFixed(2)} kr/t`)}
+      ${lonRow('Varslet OT 1. time (+50%)', Math.round(sumVarslet1), `${hFmt(sumVarslet1H)} · ${(ts*1.5).toFixed(2)} kr/t`)}
+      ${lonRow('Varslet OT 2. time (+60%)', Math.round(sumVarslet2), `${hFmt(sumVarslet2H)} · ${(ts*1.6).toFixed(2)} kr/t`)}
+      ${lonRow('Uvarslet OT 1. time (+75%)', Math.round(sumUvarslet1), `${hFmt(sumUvarslet1H)} · ${(ts*1.75).toFixed(2)} kr/t`)}
+      ${lonRow('Uvarslet OT 2. time (+100%)', Math.round(sumUvarslet2), `${hFmt(sumUvarslet2H)} · ${(ts*2.0).toFixed(2)} kr/t`)}
       ${lonRow('OT 3.+ time (+135%)', sumOt3, `${(ts*2.35).toFixed(2)} kr/t`)}
       ${lonRow('Weekend §8 (+75%)', sumWk, 'Min. 4 timer')}
       ${lonRow('Forskudt tid §7 (+110 kr/t)', sumFskKr, `${sumFsk.toFixed(2)} t × 110 kr`)}
@@ -3292,7 +3393,16 @@ function _genXLSX() {
       aoa.push([dagNavn(d.dato), `${d.dato.getDate()}/${d.dato.getMonth()+1}/${d.dato.getFullYear()}`,
         '—','—', 0, 0, '— fri —', 0, 0, 0, 0, 0, 0, '']);
     } else {
-      const ot = d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : d.knapper?.h ? 'Helligdag' : '—';
+      const dMixedX = d.knapper?.v && d.knapper?.u;
+      const dVtX    = d.knapper?.varsletTimer || 0;
+      const dOtHX   = Math.max(0, (d.h || 0) - dagMax());
+      const dVX     = Math.min(dVtX, dOtHX);
+      const dUX     = Math.max(0, dOtHX - dVX);
+      const ot = dMixedX ? `Mixed (${hFmt(dVX)} V · ${hFmt(dUX)} U)`
+                         : (d.knapper?.v ? 'Varslet' : d.knapper?.u ? 'Uvarslet' : d.knapper?.h ? 'Helligdag' : '—');
+      // Timer-tal: brug korrekte rates pr. type. For mixed splittes bandet, men her summeres timerne.
+      const ot1H = Math.min(1, dOtHX);
+      const ot2H = Math.min(1, Math.max(0, dOtHX - 1));
       aoa.push([
         dagNavn(d.dato),
         `${d.dato.getDate()}/${d.dato.getMonth()+1}/${d.dato.getFullYear()}`,
@@ -3300,8 +3410,8 @@ function _genXLSX() {
         +d.h.toFixed(2),
         +(d.normal / ts).toFixed(2),
         ot,
-        +((d.ot1) / (ts * (d.knapper?.v ? 1.5 : 1.75)) || 0).toFixed(2),
-        +((d.ot2) / (ts * (d.knapper?.v ? 1.6 : 2.0)) || 0).toFixed(2),
+        +ot1H.toFixed(2),
+        +ot2H.toFixed(2),
         +((d.ot3) / (ts * 2.35) || 0).toFixed(2),
         +(d.wk / (ts * 0.75) || 0).toFixed(2),
         +d.fsk.toFixed(2),
@@ -3319,26 +3429,39 @@ function _genXLSX() {
   // Lønspecifikation
   aoa.push(['LØNSPECIFIKATION','','','','','','Timesats kr.','Timer','Beløb kr.','','','','','']);
   const specRk = (lbl, kr, rate, timer) => [lbl,'','','','','', +rate.toFixed(2), +timer.toFixed(2), Math.round(kr),'','','','',''];
-  let sumNormal=0,sumOt1h=0,sumOt2h=0,sumOt3h=0,sumWkh=0,sumFsk=0,sumFskKr=0,sumExt=0;
-  let harVarslet=false, harUvarslet=false;
+  let sumNormal=0,sumOt3h=0,sumWkh=0,sumFsk=0,sumFskKr=0,sumExt=0;
+  let xV1=0, xV2=0, xU1=0, xU2=0, xV1H=0, xV2H=0, xU1H=0, xU2H=0;
   dage.forEach(d => {
     if (d.fri) return;
     sumNormal += d.normal; sumFsk += d.fsk; sumFskKr += d.fskKr; sumExt += d.ext;
-    if (d.knapper?.v) { harVarslet=true; sumOt1h+=d.ot1/(ts*1.5); sumOt2h+=d.ot2/(ts*1.6); sumOt3h+=d.ot3/(ts*2.35); }
-    else if (d.knapper?.u || (!d.knapper?.v && !d.knapper?.u && (d.ot1||d.ot2||d.ot3))) {
-      harUvarslet=true; sumOt1h+=d.ot1/(ts*1.75)||0; sumOt2h+=d.ot2/(ts*2.0)||0; sumOt3h+=d.ot3/(ts*2.35)||0;
+    sumOt3h += d.ot3/(ts*2.35)||0;
+    sumWkh  += d.wk/(ts*0.75)||0;
+
+    const dMixed = d.knapper?.v && d.knapper?.u;
+    const dVt    = d.knapper?.varsletTimer || 0;
+    const dOtH   = Math.max(0, (d.h || 0) - dagMax());
+    const dOt1H  = Math.min(1, dOtH);
+    const dOt2H  = Math.min(1, Math.max(0, dOtH - 1));
+    if (dMixed) {
+      const v1 = Math.min(dVt, dOt1H), u1 = dOt1H - v1;
+      const v2 = Math.min(Math.max(0, dVt - 1), dOt2H), u2 = dOt2H - v2;
+      xV1 += ts*v1*1.5;  xV1H += v1;
+      xU1 += ts*u1*1.75; xU1H += u1;
+      xV2 += ts*v2*1.6;  xV2H += v2;
+      xU2 += ts*u2*2.0;  xU2H += u2;
+    } else if (d.knapper?.v) {
+      xV1 += d.ot1; xV1H += dOt1H;
+      xV2 += d.ot2; xV2H += dOt2H;
+    } else if (d.knapper?.u || (d.ot1||d.ot2||d.ot3)) {
+      xU1 += d.ot1; xU1H += dOt1H;
+      xU2 += d.ot2; xU2H += dOt2H;
     }
-    sumWkh += d.wk/(ts*0.75)||0;
   });
   aoa.push(specRk('Normaltime §3', sumNormal, ts, sumNormal/ts));
-  if (harVarslet) {
-    aoa.push(specRk('Varslet OT 1. time +50% §6c', dage.reduce((a,d)=>a+(d.knapper?.v?d.ot1:0),0), ts*1.5, sumOt1h));
-    aoa.push(specRk('Varslet OT 2. time +60% §6c', dage.reduce((a,d)=>a+(d.knapper?.v?d.ot2:0),0), ts*1.6, sumOt2h));
-  }
-  if (harUvarslet) {
-    aoa.push(specRk('Uvarslet OT 1. time +75% §6d', dage.reduce((a,d)=>a+(!d.knapper?.v?d.ot1:0),0), ts*1.75, sumOt1h));
-    aoa.push(specRk('Uvarslet OT 2. time +100% §6d', dage.reduce((a,d)=>a+(!d.knapper?.v?d.ot2:0),0), ts*2.0, sumOt2h));
-  }
+  if (xV1H > 0) aoa.push(specRk('Varslet OT 1. time +50% §6c',  Math.round(xV1), ts*1.5,  xV1H));
+  if (xV2H > 0) aoa.push(specRk('Varslet OT 2. time +60% §6c',  Math.round(xV2), ts*1.6,  xV2H));
+  if (xU1H > 0) aoa.push(specRk('Uvarslet OT 1. time +75% §6d', Math.round(xU1), ts*1.75, xU1H));
+  if (xU2H > 0) aoa.push(specRk('Uvarslet OT 2. time +100% §6d',Math.round(xU2), ts*2.0,  xU2H));
   if (sumOt3h > 0) aoa.push(specRk('OT 3.+ time +135% §6', dage.reduce((a,d)=>a+d.ot3,0), ts*2.35, sumOt3h));
   if (sumWkh > 0)  aoa.push(specRk('Weekend/helligdag +75% §8', dage.reduce((a,d)=>a+d.wk,0), ts*0.75, sumWkh));
   if (sumFsk > 0)  aoa.push(specRk('Forskudt tid +110 kr/t §7', sumFskKr, 110, sumFsk));
@@ -3428,7 +3551,16 @@ function doKalender() {
     const notes = [
       `Arbejdstid: ${d.start} → ${d.slut} (${d.h.toFixed(2)} t)`,
       `Dagløn: ${krFmt(d.lon)}`,
-      d.knapper?.v ? 'Varslet OT' : d.knapper?.u ? 'Uvarslet OT' : '',
+      (() => {
+        const dMx = d.knapper?.v && d.knapper?.u;
+        if (dMx) {
+          const dOH = Math.max(0, (d.h || 0) - dagMax());
+          const dV  = Math.min(d.knapper?.varsletTimer || 0, dOH);
+          const dU  = Math.max(0, dOH - dV);
+          return `Mixed OT: ${hFmt(dV)} varslet · ${hFmt(dU)} uvarslet`;
+        }
+        return d.knapper?.v ? 'Varslet OT' : d.knapper?.u ? 'Uvarslet OT' : '';
+      })(),
       d.knapper?.h ? 'Helligdag §8' : '',
       d.note ? `Note: ${d.note}` : '',
       'Importeret fra Time App'
@@ -3512,8 +3644,17 @@ function _pdfMnd() {
   const {mndNavn, år, mnd, totH, totL, totPensionL, totOt, totD, dageData, DAGE_LANG} = _mndData();
   const pension = Math.round(totPensionL * 0.095);
   const rækker = dageData.filter(({s}) => s).map(({d,s,lon,h}) => {
-    const otType = s.knapper?.v ? 'V' : s.knapper?.u ? 'U' : '';
-    return `<tr><td>${DAGE_LANG[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</td><td class="mono">${s.start||''}–${s.slut||''}</td><td>${hFmt(h)}${otType?' (OT '+otType+')':''}</td><td class="r">${krFmt(lon)}</td></tr>`;
+    const sMixed = s.knapper?.v && s.knapper?.u;
+    const sVt    = s.knapper?.varsletTimer || 0;
+    let otTxt = '';
+    if (sMixed) {
+      const sOtH = Math.max(0, (h || 0) - dagMax());
+      const sV   = Math.min(sVt, sOtH);
+      const sU   = Math.max(0, sOtH - sV);
+      otTxt = ` (${hFmt(sV)}V · ${hFmt(sU)}U)`;
+    } else if (s.knapper?.v) otTxt = ' (OT V)';
+    else if (s.knapper?.u) otTxt = ' (OT U)';
+    return `<tr><td>${DAGE_LANG[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</td><td class="mono">${s.start||''}–${s.slut||''}</td><td>${hFmt(h)}${otTxt}</td><td class="r">${krFmt(lon)}</td></tr>`;
   }).join('');
   const ts = cfg.ugelon / (cfg.model === 'saertid' ? 50 : 40);
   const html = `<div class="pdf-body">
@@ -3562,7 +3703,15 @@ function doXLSX_mnd() {
     ];
     dageData.forEach(({d,s,lon,h}) => {
       if (!s) { aoa.push([`${d.getDate()}/${d.getMonth()+1}/${år}`, DAGE_LANG[d.getDay()],'','','','','']); return; }
-      const otType = s.knapper?.v ? 'Varslet' : s.knapper?.u ? 'Uvarslet' : '';
+      const sMixed = s.knapper?.v && s.knapper?.u;
+      let otType = '';
+      if (sMixed) {
+        const sOtH = Math.max(0, (h || 0) - dagMax());
+        const sV   = Math.min(s.knapper?.varsletTimer || 0, sOtH);
+        const sU   = Math.max(0, sOtH - sV);
+        otType = `Mixed (${hFmt(sV)} V · ${hFmt(sU)} U)`;
+      } else if (s.knapper?.v) otType = 'Varslet';
+      else if (s.knapper?.u) otType = 'Uvarslet';
       aoa.push([`${d.getDate()}/${d.getMonth()+1}/${år}`, DAGE_LANG[d.getDay()], s.start||'', s.slut||'', +h.toFixed(2), otType, +lon.toFixed(0)]);
     });
     aoa.push([],[`I ALT`,'','','', +totH.toFixed(2),'', +totL.toFixed(0)]);
@@ -3805,7 +3954,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.72';
+const APP_VERSION = '1.73';
 
 // ── SPLASH ──
 (function(){
@@ -3843,6 +3992,16 @@ const APP_VERSION = '1.72';
 
 
 const CHANGELOG = {
+  '1.73': {
+    dato: '8. maj 2026',
+    nyt: [
+      'Mixed OT-menuen er redesignet: Når både Varslet og Uvarslet OT er aktive, vises nu en stor, gul-rammet boks i fuld bredde med tydelig titel "⚡ Mixed OT — Varslet + Uvarslet" og spørgsmålet "Hvor mange af OT-timerne var varslet på forhånd?". De fem valgknapper (0, 30M, 1T, 1½T, 2T) er meget større og lettere at ramme på set.',
+      'Auto-skjul efter valg: Når du har valgt antal varslede timer, foldes menuen automatisk sammen efter et halvt sekund og erstattes af en kompakt linje, fx "⚡ 1t varslet · 1t uvarslet". Tryk på linjen for at åbne menuen igen og ændre dit valg.',
+      'Tydeligere varslet/uvarslet fordeling i alle udskrifter (PDF + Excel) til dag, uge og måned: I stedet for "Mixed OT (1.5t varslet)" vises nu både dele, fx "1t varslet OT · 30m uvarslet OT". Lønspecifikationen splittes pr. band så du tydeligt ser præcis hvilke timer der løber på hvilken sats.',
+      'Ugesedlens lønspecifikation viser nu både timer og kr/t pr. linje (fx "0.50 t · 389.25 kr/t") så fordelingen er gennemskuelig — også når en uge har en blanding af rene varslet-dage, rene uvarslet-dage og mixed-dage.',
+      'Ingen ændringer i beregningslogikken — kun visning. Eksisterende data og satser er identiske.',
+    ]
+  },
   '1.72': {
     dato: '7. maj 2026',
     nyt: [
