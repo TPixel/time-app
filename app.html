@@ -187,44 +187,47 @@ to{transform:scale(1);opacity:1}}
 .ot-wrap{position:relative;margin-bottom:12px}
 .mixed-ot-overlay{
   position:absolute;
-  top:-4px; left:-4px; right:-4px; bottom:-4px;
-  background:linear-gradient(135deg,#1C1C2A 0%,#222232 100%);
+  top:-14px; left:-6px; right:-6px; bottom:-14px;
+  background:linear-gradient(135deg,#0C0C12 0%,#14141E 100%);
   border:3px solid var(--yel);
-  border-radius:14px;
-  padding:8px 10px 10px;
+  border-radius:16px;
+  padding:14px 14px 14px;
   display:flex;
   flex-direction:column;
   justify-content:center;
-  gap:8px;
+  gap:12px;
   z-index:20;
-  box-shadow:0 0 0 3px rgba(251,191,36,.25), 0 8px 24px rgba(0,0,0,.5);
+  box-shadow:0 0 0 4px rgba(251,191,36,.28), 0 10px 28px rgba(0,0,0,.6);
   animation:mxFadeIn .18s ease-out;
 }
-@keyframes mxFadeIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+@keyframes mxFadeIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
 .mixed-ot-q-big{
-  font-size:17px;
+  font-family:'Tahoma',sans-serif;
+  font-size:20px;
   font-weight:900;
-  color:var(--yel);
+  color:#FFD84A;
   text-align:center;
-  letter-spacing:.4px;
+  letter-spacing:.3px;
   line-height:1.15;
+  text-shadow:0 2px 4px rgba(0,0,0,.7);
+}
+.mixed-ot-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.xb.mxb{
+  font-family:'Tahoma',sans-serif;
+  padding:14px 2px;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:.4px;
+  border:2.5px solid rgba(251,191,36,.55);
+  background:#000000;
+  color:#FFD84A;
+  min-height:auto;
   text-shadow:0 1px 2px rgba(0,0,0,.5);
 }
-.mixed-ot-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.xb.mxb{
-  padding:10px 2px;
-  font-size:17px;
-  font-weight:900;
-  letter-spacing:.3px;
-  border:2px solid rgba(251,191,36,.45);
-  background:#0C0C12;
-  color:var(--yel);
-  min-height:auto;
-}
-.xb.mxb.von{background:var(--yel)!important;border:2px solid var(--yel)!important;color:#0C0C12!important;box-shadow:0 0 0 2px rgba(251,191,36,.4)!important}
-.mixed-ot-summary{cursor:pointer;margin:-4px 0 12px;background:var(--card);border:1.5px dashed var(--yel);border-radius:var(--rs);padding:11px 14px;font-size:14px;color:var(--yel);font-weight:800;text-align:center;letter-spacing:.4px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.xb.mxb.von{background:var(--yel)!important;border:2.5px solid var(--yel)!important;color:#000!important;box-shadow:0 0 0 3px rgba(251,191,36,.5), 0 0 14px rgba(251,191,36,.4)!important;text-shadow:none!important}
+.mixed-ot-summary{cursor:pointer;margin:-4px 0 12px;background:var(--card);border:2px dashed var(--yel);border-radius:var(--rs);padding:13px 14px;font-family:'Tahoma',sans-serif;font-size:16px;color:#FFD84A;font-weight:900;text-align:center;letter-spacing:.4px;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s;text-shadow:0 1px 2px rgba(0,0,0,.5)}
 .mixed-ot-summary:active{transform:scale(.98);opacity:.85}
-.mixed-ot-summary .mhint{font-size:10px;font-weight:700;opacity:.7;letter-spacing:1px;text-transform:uppercase}
+.mixed-ot-summary .mhint{font-family:'Tahoma',sans-serif;font-size:11px;font-weight:800;opacity:.75;letter-spacing:1.2px;text-transform:uppercase}
 
 /* ── SÆRTID BADGE ── */
 .saertid-badge{display:none;background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:var(--pur);text-align:center}
@@ -3987,7 +3990,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.74';
+const APP_VERSION = '1.75';
 
 // ── SPLASH ──
 (function(){
@@ -4025,6 +4028,16 @@ const APP_VERSION = '1.74';
 
 
 const CHANGELOG = {
+  '1.75': {
+    dato: '8. maj 2026',
+    nyt: [
+      'Mixed OT-overlay\'et er gjort markant mere læsbart på iPhone-skærm: Spørgsmålet "⚡ Hvor mange OT-timer var varslet?" er nu 20px Tahoma Bold (font-weight 900) i lys gul (#FFD84A) med skygge — springer i øjnene.',
+      'Knapperne (0, 30M, 1T, 1½T, 2T) er hævet til 22px Tahoma Bold med tykkere ramme og dyb sort baggrund — meget mere kontrast mellem valgt og ikke-valgt.',
+      'Overlayet er udvidet (top:-14, bottom:-14) så der er bedre luft omkring den større tekst. Tykkere gul ramme (3px) og kraftigere gul glød (4px ring + soft drop shadow).',
+      'Kompakt summary-linje er også opjusteret: 16px Tahoma Bold med skygge — let at læse selv på afstand.',
+      'Aktiv knap har nu glød (yellow halo) udover fyldt baggrund.',
+    ]
+  },
   '1.74': {
     dato: '8. maj 2026',
     nyt: [
