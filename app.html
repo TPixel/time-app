@@ -43,9 +43,10 @@ body{font-family:'Tahoma',sans-serif;font-weight:bold;background:var(--bg);color
 .logo-flag{font-size:15px;line-height:1}
 to{transform:scale(1);opacity:1}}
 
-.tabs{display:flex;background:var(--surf);border-radius:50px;padding:3px;gap:2px;flex-shrink:0;white-space:nowrap}
-.tab{padding:5px 9px;border-radius:50px;font-size:10.5px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s;white-space:nowrap}
+.tabs{display:flex;background:var(--surf);border-radius:50px;padding:4px;gap:4px;flex-shrink:0;white-space:nowrap}
+.tab{padding:10px 18px;border-radius:50px;font-family:'Tahoma',sans-serif;font-size:18px;font-weight:bold;letter-spacing:.3px;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s;white-space:nowrap;min-width:64px}
 .tab.on{background:var(--acc);color:#fff}
+.tab:active{transform:scale(.94)}
 .gear-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;line-height:1;padding:0}
 .gear-btn:active{transform:scale(.88)}
 .gear-btn.on{border-color:var(--acc);background:var(--acc-d)}
@@ -54,25 +55,28 @@ to{transform:scale(1);opacity:1}}
 .view.on{display:block}
 
 /* ── DAG ── */
-.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-.dag-nav{display:flex;gap:8px;margin-top:6px}
-.nbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:34px}
+.dag-nav{display:flex;gap:8px;flex-shrink:0;margin-top:20px}
+.nbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .nbtn:active{transform:scale(.88)}
 .alle-prod-btn{width:auto;border-radius:20px;font-family:'Tahoma',monospace;font-weight:bold;color:var(--mut)}
 .alle-prod-btn.on{background:var(--acc);border-color:var(--acc);color:#000}
-.dag-navn{font-family:'Tahoma',sans-serif;font-size:64px;font-weight:bold;letter-spacing:-.2px;line-height:1;display:inline-block;vertical-align:baseline}
-.dag-dato{font-family:'Tahoma',monospace;font-size:32px;display:inline-block;color:#FFFFFF;margin-left:12px;opacity:1;color:#ffffff;font-weight:bold;letter-spacing:1px;vertical-align:baseline}
-.dag-uge{font-family:'Tahoma',monospace;font-size:28px;color:var(--acc);margin-top:4px;display:block;text-transform:uppercase;letter-spacing:1.8px;font-weight:bold}
-/* Stor produktionstitel under dag-headeren */
-.dag-prod-ttl{font-family:'Tahoma',sans-serif;font-size:60px;font-weight:bold;letter-spacing:-.2px;color:var(--txt);background:none;border:none;padding:8px 0 20px;margin:0;cursor:default;display:block;max-width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.05}
+/* Produktionstitel — stor øverst i .dag-hd (v1.78) */
+.dag-prod-ttl{font-family:'Tahoma',sans-serif;font-size:64px;font-weight:bold;letter-spacing:-.8px;color:var(--txt);background:none;border:none;padding:0;margin:0;cursor:default;display:block;flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}
 .dag-prod-ttl.anden-prod{color:var(--yel)}
-/* Inline tidsvælgere inde i res-boks */
-.res-tider-row{display:flex;align-items:flex-end;gap:6px}
-.tf-inline{cursor:pointer;padding:0}
-.tf-inline .tf-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);margin-bottom:4px}
-.tf-inline .tf-display{font-family:'Tahoma',monospace;font-size:44px;font-weight:bold;color:var(--txt);letter-spacing:.5px;line-height:1}
+/* Dag + UGE-label på samme række (v1.78 — fit på iPhone-bredde uden overlap) */
+.dag-meta{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:nowrap;margin-bottom:18px;position:relative;overflow:hidden}
+.dag-navn{font-family:'Tahoma',sans-serif;font-size:54px;font-weight:bold;letter-spacing:-.5px;line-height:1;flex-shrink:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dag-dato{font-family:'Tahoma',monospace;font-size:42px;color:#FFFFFF;font-weight:bold;letter-spacing:.5px;line-height:1;white-space:nowrap;flex-shrink:0}
+/* UGE 20 — lilla, placeret over dato til højre */
+.dag-uge{font-family:'Tahoma',monospace;font-size:22px;color:var(--acc);display:block;text-transform:uppercase;letter-spacing:2px;font-weight:bold;text-align:right;margin-bottom:3px;line-height:1;white-space:nowrap}
+/* Inline tidsvælgere inde i res-boks (v1.78) */
+.res-tider-row{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;flex-wrap:nowrap}
+.tf-inline{cursor:pointer;padding:0;min-width:0}
+.tf-inline .tf-lbl{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1.4px;color:var(--mut);margin-bottom:4px}
+.tf-inline .tf-display{font-family:'Tahoma',monospace;font-size:60px;font-weight:bold;color:var(--txt);letter-spacing:.5px;line-height:.95}
 .tf-inline .tf-display.tom{color:var(--mut)}
-.tf-sep{font-size:22px;color:var(--mut);padding-bottom:4px;flex-shrink:0}
+.tf-sep{font-size:30px;color:var(--mut);padding-bottom:6px;flex-shrink:0}
 /* prod-pill fjernet — erstattet af dag-prod-ttl */
 .prod-pill{display:none}
 .dag-prod{font-size:11px;color:var(--mut);margin-top:2px;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
@@ -109,16 +113,24 @@ to{transform:scale(1);opacity:1}}
 .tmodal-btn.ok{background:var(--acc);color:#fff}
 
 /* ── RESULTAT ── */
-.res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;user-select:none;position:relative;transition:background .25s,border-color .25s}
+.res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:14px 18px 12px;margin-bottom:10px;cursor:pointer;user-select:none;position:relative;transition:background .25s,border-color .25s}
 @keyframes advarsel-puls{0%,100%{box-shadow:0 0 0 3px rgba(232,160,10,.3),0 0 24px rgba(232,130,10,.18)}50%{box-shadow:0 0 0 6px rgba(232,160,10,.5),0 0 32px rgba(232,130,10,.35)}}
 .res-advarsel{background:linear-gradient(135deg,#2E1A00,#381F00) !important;border-color:#F0A500 !important;border-width:2.5px !important;animation:advarsel-puls 1.8s ease-in-out infinite}
-.res-top{display:flex;flex-direction:column;gap:6px}
-.res-bottom-row{display:flex;align-items:flex-start;justify-content:space-between}
-.res-t{font-family:'Tahoma',monospace;font-size:44px;font-weight:bold;letter-spacing:.5px;line-height:1;white-space:nowrap;color:var(--txt)}
-.res-sub{display:none;font-size:11px;color:var(--mut);font-family:'Tahoma',monospace;margin-top:4px}
-.res-pay-amt{font-family:'Tahoma',monospace;font-size:38px;font-weight:bold;color:var(--grn);text-align:right;white-space:nowrap;letter-spacing:-.5px}
-.res-pay-lbl{font-size:18px;color:var(--mut);text-transform:uppercase;letter-spacing:1.8px;font-weight:800}
-.res-expand{font-size:10px;color:var(--mut);text-align:center;margin-top:6px;letter-spacing:1px;opacity:.6}
+.res-top{display:flex;flex-direction:column;gap:8px}
+/* v1.78: duration (9t 30m) i .res-tider-row, beløb venstre + DAGSLØN højre under duration */
+.res-bottom-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.res-t{font-family:'Tahoma',monospace;font-size:60px;font-weight:bold;letter-spacing:.5px;line-height:.95;white-space:nowrap;color:var(--txt);margin-left:auto}
+.res-sub{display:none;font-size:13px;color:var(--mut);font-family:'Tahoma',monospace;margin-top:4px}
+.res-pay-amt{font-family:'Tahoma',monospace;font-size:64px;font-weight:bold;color:var(--grn);text-align:left;white-space:nowrap;letter-spacing:-1px;line-height:.95}
+.res-pay-lbl{font-size:22px;color:var(--mut);text-transform:uppercase;letter-spacing:2px;font-weight:800;align-self:center;text-align:right;white-space:nowrap}
+.res-expand{display:none}
+/* 4-dag toggle-knap inde i res-boks — centreret under DAGSLØN (v1.78) */
+.res-4dag-row{display:flex;justify-content:center;margin-top:14px}
+.res-4dag-btn{padding:10px 22px;border-radius:50px;border:1.5px solid var(--brd);background:transparent;color:var(--mut);font-family:'Tahoma',sans-serif;font-size:18px;font-weight:bold;letter-spacing:.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap}
+.res-4dag-btn .res-4dag-sub{font-size:13px;opacity:.7;font-weight:600}
+.res-4dag-btn[aria-pressed="true"],.res-4dag-btn.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.res-4dag-btn[aria-pressed="true"] .res-4dag-sub,.res-4dag-btn.on .res-4dag-sub{opacity:.9}
+.res-4dag-btn:active{transform:scale(.96)}
 .res-bottom{display:none}
 
 /* ── OT BREAKDOWN ── */
@@ -136,26 +148,29 @@ to{transform:scale(1);opacity:1}}
 .bgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
 
 .xb{
-  padding:18px 4px;
+  padding:16px 6px;
   border-radius:var(--rs);
   border:none;
   background:var(--card);
   color:rgba(255,255,255,.95);
   font-family:'Tahoma',sans-serif;
-  font-size:19px;
+  font-size:18px;
   font-weight:800;
-  letter-spacing:.6px;
+  letter-spacing:.5px;
   text-transform:uppercase;
   cursor:pointer;
   transition:all .18s;
   display:flex;
-  flex-direction:column;
   align-items:center;
-  gap:6px;
-  line-height:1.15;
+  justify-content:center;
+  line-height:1.1;
   text-align:center;
   position:relative;
   overflow:hidden;
+  min-height:72px;
+  height:72px;
+  width:100%;
+  box-sizing:border-box;
 }
 .xb .xi{font-size:0;display:none} /* skjul emoji — farven siger det hele */
 .xb-sub{font-family:'Tahoma',monospace;font-size:12px;font-weight:bold;opacity:.85;text-transform:none;letter-spacing:.4px;line-height:1.2}
@@ -234,6 +249,44 @@ to{transform:scale(1);opacity:1}}
 .saertid-badge.vis{display:block}
 .wk-auto-badge{display:none;background:rgba(26,172,221,.1);border:1px solid rgba(26,172,221,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:#1AACDD;text-align:center}
 .wk-auto-badge.vis{display:block}
+
+/* ── UGE MODEL TOGGLE (5-dag / 4-dag pr. uge) ── */
+.uge-model-row{display:flex;justify-content:center;margin:6px 0 14px}
+.uge-model-seg{display:inline-flex;background:var(--surf);border:1.5px solid var(--brd);border-radius:50px;padding:3px;gap:2px}
+.uge-model-opt{padding:8px 16px;border-radius:50px;font-family:'Tahoma',sans-serif;font-size:13px;font-weight:bold;letter-spacing:.5px;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.uge-model-opt.on{background:var(--pur);color:#fff;box-shadow:0 2px 8px rgba(167,139,250,.35)}
+.uge-model-opt .uge-model-sub{font-size:10px;opacity:.75;font-weight:600;letter-spacing:.4px}
+.uge-model-opt.on .uge-model-sub{opacity:.9}
+.uge-model-opt:active{transform:scale(.96)}
+.uge-model-hint{display:none;text-align:center;font-size:11px;color:var(--pur);margin:-6px 0 12px;letter-spacing:.4px;font-weight:600}
+.uge-model-hint.vis{display:block}
+
+/* ── FORKLARINGS-OVERLAY (long-press på knapper) ── */
+/* Forklarings-overlay — fylder hele skærmen, stor tydelig tekst (v1.77) */
+.fk-bg{position:fixed;inset:0;background:rgba(0,0,0,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:999;display:block;padding:0;overflow-y:auto;-webkit-overflow-scrolling:touch;cursor:pointer}
+.fk-bg.skjult{display:none}
+.fk-bg.vis{animation:fkFadeIn .22s ease}
+@keyframes fkFadeIn{from{opacity:0}to{opacity:1}}
+.fk-card{width:100%;max-width:none;min-height:100dvh;padding:80px 22px 100px;display:flex;flex-direction:column;gap:22px;color:var(--txt);box-sizing:border-box}
+.fk-luk{position:fixed;top:16px;right:16px;width:54px;height:54px;border-radius:50%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.45);color:#fff;font-size:30px;font-weight:bold;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1000;line-height:1;padding:0}
+.fk-luk:active{transform:scale(.9);background:rgba(255,255,255,.25)}
+.fk-paragraf{font-family:'Tahoma',monospace;font-size:18px;font-weight:bold;letter-spacing:2.5px;color:var(--acc);text-transform:uppercase;margin-top:4px}
+.fk-titel{font-family:'Tahoma',sans-serif;font-size:60px;font-weight:bold;line-height:1;letter-spacing:-.5px;color:var(--txt);margin-bottom:10px}
+.fk-titel .fk-titel-emoji{font-size:48px;margin-right:10px}
+.fk-regel{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:24px 24px 26px;font-family:'Tahoma',sans-serif;font-size:26px;line-height:1.5;color:var(--txt);font-weight:500}
+.fk-regel strong{color:var(--acc);font-weight:bold}
+.fk-regel em{color:var(--yel);font-style:normal;font-weight:bold}
+.fk-divider{font-family:'Tahoma',monospace;font-size:15px;font-weight:bold;letter-spacing:2.5px;color:var(--mut);text-transform:uppercase;margin:10px 0 -6px;padding-left:2px}
+.fk-beregning{background:var(--card2);border:2px solid var(--acc);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 0 0 4px rgba(129,140,248,.12)}
+.fk-br-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--brd)}
+.fk-br-row:last-child{border-bottom:none;padding-bottom:0}
+.fk-br-row.fk-br-tot{padding-top:12px;border-top:2px solid var(--acc);border-bottom:none;margin-top:4px}
+.fk-br-lbl{font-family:'Tahoma',sans-serif;font-size:20px;color:var(--mut);font-weight:600;flex:1;line-height:1.3}
+.fk-br-val{font-family:'Tahoma',monospace;font-size:24px;font-weight:bold;color:var(--txt);white-space:nowrap}
+.fk-br-tot .fk-br-lbl{font-size:22px;color:var(--txt);font-weight:bold;text-transform:uppercase;letter-spacing:.8px}
+.fk-br-tot .fk-br-val{font-size:32px;color:var(--grn)}
+.fk-tom{background:rgba(184,184,205,.08);border:1.5px dashed var(--brd);border-radius:var(--r);padding:22px;text-align:center;font-size:18px;color:var(--mut);line-height:1.5}
+.fk-hint{font-size:16px;color:var(--mut);text-align:center;padding:14px 16px;line-height:1.5;letter-spacing:.3px}
 
 .note-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:14px 16px;margin-bottom:10px}
 textarea{width:100%;background:transparent;border:none;outline:none;color:var(--txt);font-family:'Tahoma',sans-serif;font-size:16px;resize:none;line-height:1.5;font-weight:bold}
@@ -513,23 +566,24 @@ textarea::placeholder{color:var(--mut)}
 
 <!-- DAG VIEW -->
 <div class="view on" id="view-dag">
+  <!-- Header v1.77: Stor produktion øverst med ‹›, så dag + (UGE+dato højre) -->
   <div class="dag-hd">
-    <div>
-      <div class="dag-navn" id="dag-navn"></div>
-      <div class="dag-dato" id="dag-dato"></div>
-      <div class="dag-uge" id="dag-uge"></div>
-      <div id="dag-gem-status" style="font-size:10px;color:var(--grn);margin-top:3px;opacity:0;transition:opacity .4s;font-family:'Tahoma',monospace"></div>
-    </div>
+    <div class="dag-prod-ttl" id="prod-pill">···</div>
     <div class="dag-nav">
       <button class="nbtn" onclick="skiftDag(-1)">‹</button>
       <button class="nbtn" onclick="skiftDag(1)">›</button>
     </div>
   </div>
+  <div class="dag-meta">
+    <span class="dag-navn" id="dag-navn"></span>
+    <div style="text-align:right">
+      <div class="dag-uge" id="dag-uge"></div>
+      <span class="dag-dato" id="dag-dato"></span>
+    </div>
+  </div>
+  <div id="dag-gem-status" style="font-size:10px;color:var(--grn);margin-bottom:8px;opacity:0;transition:opacity .4s;font-family:'Tahoma',monospace"></div>
 
-  <!-- Produktionstitel — kun visning, skift sker via top-baren -->
-  <div class="dag-prod-ttl" id="prod-pill">···</div>
-
-  <!-- Tidvælgere + resultat i ét kort -->
+  <!-- Tidvælgere + resultat i ét kort (v1.78 — duration ved siden af tider) -->
   <div class="res" onclick="togOT()" id="res-boks">
     <div class="res-top">
       <div class="res-tider-row">
@@ -542,17 +596,19 @@ textarea::placeholder{color:var(--mut)}
           <div class="tf-lbl">Slut</div>
           <div class="tf-display tom" id="disp-slut">––:––</div>
         </div>
+        <div class="res-t" id="res-t">– –</div>
       </div>
       <div class="res-bottom-row">
-        <div class="res-t" id="res-t">– –</div>
-        <div style="text-align:right;flex-shrink:0">
-          <div class="res-pay-amt" id="res-pay">0 kr.</div>
-          <div class="res-pay-lbl" id="res-pay-lbl">Dagsløn</div>
-        </div>
+        <div class="res-pay-amt" id="res-pay">0 kr.</div>
+        <div class="res-pay-lbl" id="res-pay-lbl">Dagsløn</div>
+      </div>
+      <div class="res-4dag-row">
+        <button class="res-4dag-btn xb-longpress" id="bn-4dag" data-bnkey="4dag" onclick="event.stopPropagation();toggle4Dag()" aria-pressed="false">
+          4-DAGS UGE
+        </button>
       </div>
     </div>
     <div class="res-sub" id="res-sub"></div>
-    <div class="res-expand" id="res-expand"></div>
   </div>
 
   <div class="ot-boks" id="ot-boks">
@@ -568,65 +624,40 @@ textarea::placeholder{color:var(--mut)}
     <div class="ot-row" id="o-ext-row" style="display:none"><span class="ot-lbl" id="o-ext-lbl">Tillæg</span><span class="ot-val g" id="o-ext">–</span></div>
   </div>
 
-  <div class="saertid-badge" id="saertid-badge">🟣 4-dages uge aktiv — OT starter efter 10 timer</div>
+  <div class="saertid-badge" id="saertid-badge" style="display:none"></div>
   <div class="wk-auto-badge" id="wk-auto-badge">🔵 Weekend-periode §8 auto-beregnet — fre 20:00 – man 06:00</div>
 
   <div class="slbl">Overarbejde + Tillæg <span class="oe">§6 §7 §8 §12</span></div>
-  <div class="ot-wrap">
-    <div class="bgrid" style="margin-bottom:0">
-      <button class="xb" id="bn-v" onclick="tog('v')">
-        Varslet OT
-        <span class="xb-sub">+50% +60% +135%</span>
-      </button>
-      <button class="xb" id="bn-u" onclick="tog('u')">
-        Uvarslet OT
-        <span class="xb-sub">+75% +100% +135%</span>
-      </button>
-    </div>
-    <div id="mixed-ot-row" class="mixed-ot-overlay" style="display:none">
-      <div class="mixed-ot-q-big">⚡ Hvor mange OT-timer var varslet?</div>
-      <div class="mixed-ot-grid">
-        <button class="xb mxb" id="vt-0" onclick="setVarsletTimer(0)">0</button>
-        <button class="xb mxb" id="vt-0.5" onclick="setVarsletTimer(0.5)">30M</button>
-        <button class="xb mxb" id="vt-1" onclick="setVarsletTimer(1)">1T</button>
-        <button class="xb mxb" id="vt-1.5" onclick="setVarsletTimer(1.5)">1½T</button>
-        <button class="xb mxb" id="vt-2" onclick="setVarsletTimer(2)">2T</button>
+  <!-- 3×3 grid v1.78: Kun titler — detaljer via long-press -->
+  <div class="bgrid" style="margin-bottom:7px">
+    <div class="ot-wrap" style="grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:7px;position:relative">
+      <button class="xb" id="bn-v" onclick="tog('v')">Varslet OT</button>
+      <button class="xb" id="bn-u" onclick="tog('u')">Uvarslet OT</button>
+      <div id="mixed-ot-row" class="mixed-ot-overlay" style="display:none">
+        <div class="mixed-ot-q-big">⚡ Hvor mange OT-timer var varslet?</div>
+        <div class="mixed-ot-grid">
+          <button class="xb mxb" id="vt-0" onclick="setVarsletTimer(0)">0</button>
+          <button class="xb mxb" id="vt-0.5" onclick="setVarsletTimer(0.5)">30M</button>
+          <button class="xb mxb" id="vt-1" onclick="setVarsletTimer(1)">1T</button>
+          <button class="xb mxb" id="vt-1.5" onclick="setVarsletTimer(1.5)">1½T</button>
+          <button class="xb mxb" id="vt-2" onclick="setVarsletTimer(2)">2T</button>
+        </div>
       </div>
     </div>
+    <button class="xb" id="bn-p" onclick="tog('p')">Ingen pause</button>
   </div>
   <div id="mixed-ot-summary" class="mixed-ot-summary" style="display:none" onclick="åbnMixedOt()">
     <span>⚡ <span id="mixed-ot-summary-txt">Mixed OT</span></span>
     <span class="mhint">▾ Tryk for at ændre</span>
   </div>
+  <!-- Række 2 + 3: 6 resterende knapper -->
   <div class="bgrid" style="margin-top:0">
-    <button class="xb" id="bn-h" onclick="tog('h')">
-      Helligdag
-      <span class="xb-sub">+75% min 4t §8</span>
-    </button>
-    <button class="xb" id="bn-f" onclick="tog('f')">
-      Sen frokost
-      <span class="xb-sub">Diæt §12</span>
-    </button>
-    <button class="xb" id="bn-p" onclick="tog('p')">
-      Ingen pause
-      <span class="xb-sub">Efter 10t §7</span>
-    </button>
-    <button class="xb" id="bn-r" onclick="tog('r')">
-      Kørsel
-      <span class="xb-sub">= arbejdstid §13</span>
-    </button>
-    <button class="xb" id="bn-d" onclick="tog('d')">
-      Diæt
-      <span class="xb-sub" id="bn-d-sub">+597 kr §14</span>
-    </button>
-    <button class="xb" id="bn-e" onclick="tog('e')">
-      10% enkeltdag
-      <span class="xb-sub">Dagsbeskæftiget §3.10</span>
-    </button>
-    <button class="xb" id="bn-møde" onclick="mødeClick()">
-      <span id="møde-ttl">Møde</span>
-      <span class="xb-sub" id="møde-sub">Ugeprogram §12</span>
-    </button>
+    <button class="xb" id="bn-f" onclick="tog('f')">Sen frokost</button>
+    <button class="xb" id="bn-d" onclick="tog('d')">Diæt</button>
+    <button class="xb" id="bn-møde" onclick="mødeClick()"><span id="møde-ttl">Møde</span></button>
+    <button class="xb" id="bn-r" onclick="tog('r')">Kørsel</button>
+    <button class="xb" id="bn-h" onclick="tog('h')">Helligdag</button>
+    <button class="xb" id="bn-e" onclick="tog('e')">10% enkeltdag</button>
   </div>
 
   <div class="slbl">Note</div>
@@ -853,7 +884,7 @@ textarea::placeholder{color:var(--mut)}
     <div class="s-hd" id="tillæg-hd" onclick="togTillæg()" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center">
       Tillægsoversigt <span id="tillæg-ch" style="font-size:15px;opacity:.85">▾ Vis</span>
     </div>
-    <div id="tillæg-body" style="display:none;padding:14px 16px;font-size:12px;line-height:2;color:var(--mut)">
+    <div id="tillæg-body" style="display:none;padding:18px 20px;font-size:19px;line-height:2.1;color:var(--mut);font-family:'Tahoma',sans-serif;font-weight:600">
       Varslet OT: <strong style="color:var(--txt)">+50%</strong> (1.t) · <strong style="color:var(--txt)">+60%</strong> (2.t) · <strong style="color:var(--txt)">+135%</strong> (3.t+)<br>
       Uvarslet OT: <strong style="color:var(--txt)">+75%</strong> (1.t) · <strong style="color:var(--txt)">+100%</strong> (2.t) · <strong style="color:var(--txt)">+135%</strong> (3.t+)<br>
       Forskudt kl. 19–06 (hverdage): <strong style="color:var(--txt)">+110 kr/t</strong><br>
@@ -1049,6 +1080,18 @@ function lukkModal(e) {
 function bekræftTid() {
   if (modalFelt === 'start') {
     tidStart = { h: valgtH, m: valgtM };
+    // v1.78: Auto-suggest slut-tid hvis slut er tom
+    // Standard: 8.5t (8t arbejde + 30 min ubetalt pause) — 4-dags uge: 10.5t (10t + 30 min)
+    if (!tidSlut) {
+      const erSaertid = (typeof modelForDato === 'function')
+        ? (modelForDato(aktivDag) === 'saertid')
+        : false;
+      const tilføjMin = erSaertid ? 10 * 60 + 30 : 8 * 60 + 30;
+      const totalMin = tidStart.h * 60 + tidStart.m + tilføjMin;
+      const sH = Math.floor((totalMin % (24 * 60)) / 60);
+      const sM = totalMin % 60;
+      tidSlut = { h: sH, m: sM };
+    }
   } else {
     tidSlut = { h: valgtH, m: valgtM };
   }
@@ -1826,8 +1869,36 @@ function calcWeekendTimer(start, slut, dagIdx) {
 // - Fridag på fredag (§5.3): uge slutter fre kl.03:00 (herefter +100% tillæg)
 // - Fridag på mandag (§5.4): uge starter tir kl.06:00 (herefter +100% tillæg)
 // - §5.6: Weekendtillæg og forskudttillæg gælder stadig
-function dagMax() {
-  return cfg.model === 'saertid' ? 10 : 8;
+//
+// UGE-OVERSTYRING: Brugeren kan på ugeoversigten skifte en specifik uge til 4-dages model
+// (eller tilbage til 5-dages) uden at ændre produktionens standard. Lagres i localStorage.
+function ugeModelKey(d) {
+  if (!d) return null;
+  // ISO-uge: brug torsdag i ugen som forankring så år/uge passer
+  const dt = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dow = dt.getDay();
+  const diff = (dow === 0 ? -3 : 4 - dow);
+  dt.setDate(dt.getDate() + diff);
+  return `ugeModel-${aktivProdId}-${dt.getFullYear()}-${ugeNr(dt)}`;
+}
+function getUgeOverride(d) {
+  try {
+    const k = ugeModelKey(d); if (!k) return null;
+    const v = localStorage.getItem(k);
+    return (v === '5dag' || v === 'saertid') ? v : null;
+  } catch (e) { return null; }
+}
+function setUgeOverride(d, model) {
+  const k = ugeModelKey(d); if (!k) return;
+  if (model === (cfg.model || '5dag')) localStorage.removeItem(k); // hvis = produktionens default → fjern override
+  else localStorage.setItem(k, model);
+}
+function modelForDato(d) {
+  if (!d) return cfg.model || '5dag';
+  return getUgeOverride(d) || cfg.model || '5dag';
+}
+function dagMax(d) {
+  return modelForDato(d) === 'saertid' ? 10 : 8;
 }
 
 // §5 stk. 3-4: Tilladt vindue i særtidsuge — returnerer arbejdstimer UDENFOR vinduet
@@ -1835,8 +1906,10 @@ function dagMax() {
 // fri-fre: tilladt man 06:00 → fre 03:00. Udenfor = +100% tillæg på normaltimelønnen.
 // fri-man: tilladt tir 06:00 → fre 17:00. Udenfor = +100% tillæg.
 // §5 stk. 6: Tillægget kommer OVEN PÅ §8 weekend-tillæg ved overlap.
-function calcSaertidUdenforVindue(start, slut, dagIdx, fridag) {
-  if (cfg.model !== 'saertid') return 0;
+function calcSaertidUdenforVindue(start, slut, dagIdx, fridag, model) {
+  // Ny: model-arg har forrang. Bagudkompatibel: hvis ikke angivet, brug cfg.model
+  const m = model || cfg.model;
+  if (m !== 'saertid') return 0;
   const s = tidTilH(start), e = tidTilH(slut);
   if (s === null || e === null) return 0;
   const eAdj = (e > s) ? e : e + 24;
@@ -1909,7 +1982,8 @@ function calcLon(h, opt, wkAutoH = 0, wkRate = 0.75) {
   if (!h || h <= 0) return { total:0, normal:0, ot1:0, ot2:0, ot3:0, wk:0, ext:0 };
   const ts = timesats();
   const { varslet, uvarslet, helligdag, frokost, pause10, varsletTimer } = opt;
-  const dMax = dagMax();
+  // dMax kan komme fra opt (uge-overstyring per dag) — ellers fallback til aktiv dag
+  const dMax = (typeof opt.dMax === 'number') ? opt.dMax : dagMax(opt.dato);
 
   const harEnkeltdag = !!(opt.enkeltdag || cfg.tillæg);
   const normalH = Math.min(dMax, harEnkeltdag ? Math.max(4, h) : h);
@@ -2011,12 +2085,13 @@ function beregn() {
   }
 
   const wkAutoH = (!knapper.h) ? calcWeekendTimer(tidStart, tidSlut, idx) : 0;
-  const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e, varsletTimer:knapper.varsletTimer };
+  const aktivModel = modelForDato(aktivDag);
+  const opt = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e, varsletTimer:knapper.varsletTimer, dato:aktivDag };
   const wkRate = (knapper.h || idx === 0 || idx === 6) ? hentWkRate(aktivDag) : 0.75;
   const l   = calcLon(h, opt, wkAutoH, wkRate);
   const diaetKr = knapper.d ? Math.round(cfg.diaet || 0) : 0;
   // §5 stk. 3-4 + stk. 6: timer udenfor særtidsugens tilladte vindue → +100% tillæg
-  const saertidUdenforH = calcSaertidUdenforVindue(tidStart, tidSlut, idx, cfg.fridag);
+  const saertidUdenforH = calcSaertidUdenforVindue(tidStart, tidSlut, idx, cfg.fridag, aktivModel);
   const tsForTillæg = (cfg.ugelon / 40) * ((knapper.e || cfg.tillæg) ? 1.1 : 1.0);
   const saertidKr = Math.round(saertidUdenforH * tsForTillæg);
   const tot = l.total + fskKr + diaetKr + saertidKr;
@@ -2034,7 +2109,7 @@ function beregn() {
   if (payLbl) payLbl.textContent = erManuel ? 'Manuel dagssats ✎' : harEnkeltdag ? 'Enkeltdag §3.10' : 'Dagsløn';
   // OT-type advarsel opdateres nedenfor, sættes efter ingenType er beregnet
 
-  const dMax = dagMax();
+  const dMax = dagMax(aktivDag);
   let sub = [];
   if (enkeltdagMin) sub.push(`${hFmt(h)} registreret · minimum ${hFmt(l.normalH)}`);
   else if (h > dMax) sub.push(`${hFmt(h - dMax)} OT`);
@@ -2500,12 +2575,13 @@ function gemDag(stille = false) {
   const fsk    = calcForskudt(tidStart, tidSlut, idx);
   const fskKr  = Math.round(fsk * 110);
   const wkAutoH = (!knapper.h && h !== null) ? calcWeekendTimer(tidStart, tidSlut, idx) : 0;
-  const opt    = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e, varsletTimer:knapper.varsletTimer };
+  const aktivModelG = modelForDato(aktivDag);
+  const opt    = { varslet:knapper.v, uvarslet:knapper.u, helligdag:knapper.h, frokost:knapper.f, pause10:knapper.p, enkeltdag:knapper.e, varsletTimer:knapper.varsletTimer, dato:aktivDag };
   const wkRate = (knapper.h || idx === 0 || idx === 6) ? hentWkRate(aktivDag) : 0.75;
   const l      = calcLon(h, opt, wkAutoH, wkRate);
   const diaetKr = knapper.d ? Math.round(cfg.diaet || 0) : 0;
   // §5 stk. 3-4 + stk. 6: timer udenfor særtidsugens vindue → +100% tillæg
-  const saertidUdenforH = (h !== null) ? calcSaertidUdenforVindue(tidStart, tidSlut, idx, cfg.fridag) : 0;
+  const saertidUdenforH = (h !== null) ? calcSaertidUdenforVindue(tidStart, tidSlut, idx, cfg.fridag, aktivModelG) : 0;
   const tsForTillægG = (cfg.ugelon / 40) * ((knapper.e || cfg.tillæg) ? 1.1 : 1.0);
   const saertidKr = Math.round(saertidUdenforH * tsForTillægG);
   const note   = document.getElementById('i-note').value;
@@ -2561,7 +2637,7 @@ function _pdfDag() {
   const dMixed = d.knapper?.v && d.knapper?.u;
   const dVt = d.knapper?.varsletTimer || 0;
   // Beregn timer-fordeling for mixed OT (samme matematik som calcLon)
-  const dOtH    = Math.max(0, (d.h || 0) - dagMax());
+  const dOtH    = Math.max(0, (d.h || 0) - dagMax(aktivDag));
   const dOt1H   = Math.min(1, dOtH);
   const dOt2H   = Math.min(1, Math.max(0, dOtH - 1));
   const dV1     = Math.min(dVt, dOt1H);
@@ -2764,16 +2840,17 @@ function rendAar() {
       if (s.prod) prodSet.add(s.prod);
       const idx = d.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
-      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
+      const dModel = modelForDato(d);
+      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0, dato:d};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
       const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
       const sUH = (s.start && s.slut)
-        ? calcSaertidUdenforVindue(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx, cfg.fridag) : 0;
+        ? calcSaertidUdenforVindue(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx, cfg.fridag, dModel) : 0;
       const tsForT = (cfg.ugelon/40) * ((s.knapper?.e || cfg.tillæg) ? 1.1 : 1.0);
       const saertidKr = Math.round(sUH * tsForT);
       const dagLon = visAlleProduktioner ? (s.lon ?? (l.total + (s.fskKr ?? 0) + diaetKr + saertidKr)) : (s.manuelLon ?? (l.total + (s.fskKr ?? 0) + diaetKr + saertidKr));
-      alleDage.push({d, m, s, h:s.h, lon:dagLon, ot:Math.max(0, s.h - dagMax()), prod:s.prod||''});
+      alleDage.push({d, m, s, h:s.h, lon:dagLon, ot:Math.max(0, s.h - dagMax(d)), prod:s.prod||''});
     }
   }
 
@@ -2870,19 +2947,20 @@ function _rendMaaned() {
       if (!s?.h) return;
       const idx = d.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
-      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
+      const dModel = modelForDato(d);
+      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0, dato:d};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
       const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
       const sUH = (s.start && s.slut)
-        ? calcSaertidUdenforVindue(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx, cfg.fridag) : 0;
+        ? calcSaertidUdenforVindue(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx, cfg.fridag, dModel) : 0;
       const tsForT = (cfg.ugelon/40) * ((s.knapper?.e || cfg.tillæg) ? 1.1 : 1.0);
       const saertidKr = Math.round(sUH * tsForT);
       const dagLon = visAlleProduktioner ? (s.lon ?? (l.total + (s.fskKr ?? 0) + diaetKr + saertidKr)) : (s.manuelLon ?? (l.total + (s.fskKr ?? 0) + diaetKr + saertidKr));
       ugeH += s.h; ugeL += dagLon;
       // §3.4 + §3.7: pension af normalløn — ekskluder enkeltdag, diæter, tillæg
       if (!s.knapper?.e) totPensionL += (dagLon - diaetKr - saertidKr);
-      ugeOt += Math.max(0, s.h - dagMax()); ugeD++;
+      ugeOt += Math.max(0, s.h - dagMax(d)); ugeD++;
     });
 
     totH+=ugeH; totL+=ugeL; totOt+=ugeOt; totD+=ugeD;
@@ -2932,12 +3010,12 @@ function rendUge() {
   datoer.forEach((d, i) => {
     const s    = hentDagMedProd(d);
     const h    = s?.h ?? null;
-    const dMax = dagMax();
+    const dMax = dagMax(d);
     const idx  = d.getDay();
     const wkAutoH = (s && !s.knapper?.h && s.start && s.slut)
       ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
     const opt  = { varslet:s?.knapper?.v, uvarslet:s?.knapper?.u, helligdag:s?.knapper?.h,
-                   frokost:s?.knapper?.f, pause10:s?.knapper?.p, enkeltdag:s?.knapper?.e, varsletTimer:s?.knapper?.varsletTimer||0 };
+                   frokost:s?.knapper?.f, pause10:s?.knapper?.p, enkeltdag:s?.knapper?.e, varsletTimer:s?.knapper?.varsletTimer||0, dato:d };
     const wkRate = (s?.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
     const l    = h ? calcLon(h, opt, wkAutoH, wkRate) : null;
     const lonBeregnet = l ? l.total + (s?.fskKr ?? 0) : 0;
@@ -2987,7 +3065,8 @@ function ugeData() {
   const uge    = ugeNr(datoer[0]);
   const ts     = cfg.ugelon / 40;               // OT-grundlag: mindsteløn uden pers.tillæg
   const tsMed   = ts * (cfg.tillæg ? 1.1 : 1.0); // Normaltimer med pers.tillæg
-  const dMax   = dagMax();
+  const ugeModel = modelForDato(datoer[0]);
+  const dMax   = dagMax(datoer[0]);
   const dage   = datoer.map(d => {
     const s = hentDag(d);
     if (!s || !s.start) return { dato: d, fri: true };
@@ -2998,13 +3077,13 @@ function ugeData() {
       : 0;
     const opt = { varslet: s.knapper?.v, uvarslet: s.knapper?.u,
                   helligdag: s.knapper?.h, frokost: s.knapper?.f,
-                  pause10: s.knapper?.p, enkeltdag: s.knapper?.e, varsletTimer: s.knapper?.varsletTimer||0 };
+                  pause10: s.knapper?.p, enkeltdag: s.knapper?.e, varsletTimer: s.knapper?.varsletTimer||0, dato:d };
     const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
     const l = calcLon(h, opt, wkAutoH, wkRate);
     const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
     // §5 stk. 3-4 + stk. 6 — re-beregn for sikkerhed (cfg.fridag kan være ændret efter dagen blev gemt)
     const sUH = (s.start && s.slut)
-      ? calcSaertidUdenforVindue(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx, cfg.fridag) : 0;
+      ? calcSaertidUdenforVindue(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx, cfg.fridag, ugeModel) : 0;
     const tsForT = (cfg.ugelon/40) * ((s.knapper?.e || cfg.tillæg) ? 1.1 : 1.0);
     const saertidKr = Math.round(sUH * tsForT);
     const lonBeregnet = l.total + (s.fskKr ?? 0) + diaetKr + saertidKr;
@@ -3264,7 +3343,7 @@ function _pdfUge() {
 
     const dMixed = d.knapper?.v && d.knapper?.u;
     const dVt    = d.knapper?.varsletTimer || 0;
-    const dOtH   = Math.max(0, (d.h || 0) - dagMax());
+    const dOtH   = Math.max(0, (d.h || 0) - dagMax(d.dato));
     const dOt1H  = Math.min(1, dOtH);
     const dOt2H  = Math.min(1, Math.max(0, dOtH - 1));
     if (dMixed) {
@@ -3289,7 +3368,7 @@ function _pdfUge() {
   let dagRk = dage.filter(d => !d.fri).map(d => {
     const dMixedRow = d.knapper?.v && d.knapper?.u;
     const dVtRow    = d.knapper?.varsletTimer || 0;
-    const dOtHRow   = Math.max(0, (d.h || 0) - dagMax());
+    const dOtHRow   = Math.max(0, (d.h || 0) - dagMax(d.dato));
     const dVRow     = Math.min(dVtRow, dOtHRow);
     const dURow     = Math.max(0, dOtHRow - dVRow);
     const otTxt = dMixedRow ? `${hFmt(dVRow)} varslet · ${hFmt(dURow)} uvarslet`
@@ -3416,7 +3495,7 @@ function _genXLSX() {
   aoa.push([`Time App · Ditzel — Fiktionsoverenskomst 2025–2027`,'','','','','','','','','','']);
   aoa.push([`Navn: ${cfg.navn || '—'}`, '', '', `Uge: ${uge}`, '', `År: ${år}`,'','','','','']);
   aoa.push([`Produktion: ${cfg.prod || '—'}`, '', '', `Ugeløn: ${cfg.ugelon} kr.`, '', `Timesats: ${ts.toFixed(2)} kr/t`,'','','','','']);
-  aoa.push([`Arbejdstid: ${cfg.model === 'saertid' ? 'Forskudt særtid §5 (OT efter 10t)' : 'Normal §4 (OT efter 8t)'}`,
+  aoa.push([`Arbejdstid: ${modelForDato(datoer[0]) === 'saertid' ? 'Forskudt særtid §5 (OT efter 10t)' : 'Normal §4 (OT efter 8t)'}`,
     '','',`10% tillæg: ${cfg.tillæg ? 'Ja' : 'Nej'}`,'','','','','','','']);
   aoa.push(['']);
 
@@ -3431,7 +3510,7 @@ function _genXLSX() {
     } else {
       const dMixedX = d.knapper?.v && d.knapper?.u;
       const dVtX    = d.knapper?.varsletTimer || 0;
-      const dOtHX   = Math.max(0, (d.h || 0) - dagMax());
+      const dOtHX   = Math.max(0, (d.h || 0) - dagMax(d.dato));
       const dVX     = Math.min(dVtX, dOtHX);
       const dUX     = Math.max(0, dOtHX - dVX);
       const ot = dMixedX ? `Mixed (${hFmt(dVX)} V · ${hFmt(dUX)} U)`
@@ -3475,7 +3554,7 @@ function _genXLSX() {
 
     const dMixed = d.knapper?.v && d.knapper?.u;
     const dVt    = d.knapper?.varsletTimer || 0;
-    const dOtH   = Math.max(0, (d.h || 0) - dagMax());
+    const dOtH   = Math.max(0, (d.h || 0) - dagMax(d.dato));
     const dOt1H  = Math.min(1, dOtH);
     const dOt2H  = Math.min(1, Math.max(0, dOtH - 1));
     if (dMixed) {
@@ -3533,8 +3612,8 @@ function _genXLSX() {
     ['Ugeløn', cfg.ugelon],
     ['Timesats', +ts.toFixed(4)],
     ['10% tillæg', cfg.tillæg ? 'Ja' : 'Nej'],
-    ['Arbejdstidsmodel', cfg.model === 'saertid' ? 'Forskudt særtid §5' : 'Normal §4'],
-    ['OT grænse (timer/dag)', dagMax()],
+    ['Arbejdstidsmodel', modelForDato(datoer[0]) === 'saertid' ? 'Forskudt særtid §5' : 'Normal §4'],
+    ['OT grænse (timer/dag)', dMax],
   ];
   const ws2 = XLSX.utils.aoa_to_sheet(aoa2);
   ws2['!cols'] = [{wch:24},{wch:12},{wch:14}];
@@ -3590,7 +3669,7 @@ function doKalender() {
       (() => {
         const dMx = d.knapper?.v && d.knapper?.u;
         if (dMx) {
-          const dOH = Math.max(0, (d.h || 0) - dagMax());
+          const dOH = Math.max(0, (d.h || 0) - dagMax(d.dato));
           const dV  = Math.min(d.knapper?.varsletTimer || 0, dOH);
           const dU  = Math.max(0, dOH - dV);
           return `Mixed OT: ${hFmt(dV)} varslet · ${hFmt(dU)} uvarslet`;
@@ -3658,16 +3737,17 @@ function _mndData() {
     if (!s?.h) { dageData.push({d:new Date(d), s:null, lon:0, h:0, ot:0}); continue; }
     const idx = d.getDay();
     const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
-    const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
+    const dModel = modelForDato(d);
+    const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0, dato:d};
     const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
     const l = calcLon(s.h, opt, wkAutoH, wkRate);
     const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
     const sUH = (s.start && s.slut)
-      ? calcSaertidUdenforVindue(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx, cfg.fridag) : 0;
+      ? calcSaertidUdenforVindue(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx, cfg.fridag, dModel) : 0;
     const tsForT = (cfg.ugelon/40) * ((s.knapper?.e || cfg.tillæg) ? 1.1 : 1.0);
     const saertidKr = Math.round(sUH * tsForT);
     const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0) + diaetKr + saertidKr);
-    const ot = Math.max(0, s.h - dagMax());
+    const ot = Math.max(0, s.h - dagMax(d));
     totH+=s.h; totL+=dagLon; totOt+=ot; totD++;
     // §3.4 + §3.7: pension af normalløn — ekskluder enkeltdag, diæter og tillæg (§5)
     if (!s.knapper?.e) totPensionL += (dagLon - diaetKr - saertidKr);
@@ -3684,7 +3764,7 @@ function _pdfMnd() {
     const sVt    = s.knapper?.varsletTimer || 0;
     let otTxt = '';
     if (sMixed) {
-      const sOtH = Math.max(0, (h || 0) - dagMax());
+      const sOtH = Math.max(0, (h || 0) - dagMax(d));
       const sV   = Math.min(sVt, sOtH);
       const sU   = Math.max(0, sOtH - sV);
       otTxt = ` (${hFmt(sV)}V · ${hFmt(sU)}U)`;
@@ -3742,7 +3822,7 @@ function doXLSX_mnd() {
       const sMixed = s.knapper?.v && s.knapper?.u;
       let otType = '';
       if (sMixed) {
-        const sOtH = Math.max(0, (h || 0) - dagMax());
+        const sOtH = Math.max(0, (h || 0) - dagMax(d));
         const sV   = Math.min(s.knapper?.varsletTimer || 0, sOtH);
         const sU   = Math.max(0, sOtH - sV);
         otType = `Mixed (${hFmt(sV)} V · ${hFmt(sU)} U)`;
@@ -3789,16 +3869,17 @@ function _aarData() {
       const dObj = new Date(dato);
       const idx = dObj.getDay();
       const wkAutoH = (!s.knapper?.h && s.start && s.slut) ? calcWeekendTimer(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx) : 0;
-      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0};
+      const dModel = modelForDato(dObj);
+      const opt = {varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h, frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e, varsletTimer:s.knapper?.varsletTimer||0, dato:dObj};
       const wkRate = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(dObj) : 0.75;
       const l = calcLon(s.h, opt, wkAutoH, wkRate);
       const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
       const sUH = (s.start && s.slut)
-        ? calcSaertidUdenforVindue(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx, cfg.fridag) : 0;
+        ? calcSaertidUdenforVindue(tidStrTilObj(s.start), tidStrTilObj(s.slut), idx, cfg.fridag, dModel) : 0;
       const tsForT = (cfg.ugelon/40) * ((s.knapper?.e || cfg.tillæg) ? 1.1 : 1.0);
       const saertidKr = Math.round(sUH * tsForT);
       const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0) + diaetKr + saertidKr);
-      mH+=s.h; mL+=dagLon; mOt+=Math.max(0, s.h - dagMax()); mD++;
+      mH+=s.h; mL+=dagLon; mOt+=Math.max(0, s.h - dagMax(dObj)); mD++;
       // §3.4 + §3.7: pension af normalløn — ekskluder enkeltdag, diæter, tillæg
       if (!s.knapper?.e) mPensionL += (dagLon - diaetKr - saertidKr);
     }
@@ -3988,9 +4069,22 @@ idbCheckRestore().then(() => {
   </div>
 </div>
 
+<!-- FORKLARINGS-OVERLAY (long-press) -->
+<div id="fk-overlay" class="fk-bg skjult" onclick="lukForklaring()">
+  <button class="fk-luk" id="fk-luk" onclick="event.stopPropagation();lukForklaring()" aria-label="Luk">✕</button>
+  <div class="fk-card" id="fk-card">
+    <div class="fk-paragraf" id="fk-paragraf">§</div>
+    <div class="fk-titel" id="fk-titel"><span class="fk-titel-emoji" id="fk-emoji"></span><span id="fk-titel-txt"></span></div>
+    <div class="fk-regel" id="fk-regel"></div>
+    <div class="fk-divider">Din beregning</div>
+    <div id="fk-beregning-wrap"></div>
+    <div class="fk-hint">Tryk hvor som helst for at lukke</div>
+  </div>
+</div>
+
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.75';
+const APP_VERSION = '1.78';
 
 // ── SPLASH ──
 (function(){
@@ -4028,6 +4122,15 @@ const APP_VERSION = '1.75';
 
 
 const CHANGELOG = {
+  '1.76': {
+    dato: '13. maj 2026',
+    nyt: [
+      '🔎 NYT — Hold en knap nede (½ sek.) for at få den fulde forklaring: regel-citat fra Fiktionsoverenskomsten + den konkrete beregning for den valgte dag. Overlay\'et fylder hele skærmen så det er let at læse, og lukkes med en stor X-knap (eller ved at trykke ESC / udenfor). Virker på alle action-knapper: Varslet OT, Uvarslet OT, Helligdag, Sen frokost, Ingen pause, Kørsel, Diæt, 10% enkeltdag og Møde.',
+      '🟣 NYT — Skift mellem 5-dages (normal §4) og 4-dages (særtid §5) uge direkte fra ugeoversigten med to store pille-knapper øverst. Hver uge har sin egen indstilling, så samme produktion kan rumme både normale og 4-dages uger uden at ændre produktionens standard. En lille badge under toggle viser når en uge overstyrer produktionen.',
+      'Uge-overstyringen påvirker OT-grænsen (8t vs 10t), særtidsvinduet §5 stk.3-4, og badge-visningen på dag-siden, så beregningen er konsistent på tværs af alle visninger (dag, uge, måned, år) og udskrifter (PDF + Excel).',
+      'Ingen ændringer i lønberegnings-formler — kun ny placering af hvilken model der gælder for hvilken uge. Eksisterende data er identiske.',
+    ]
+  },
   '1.75': {
     dato: '8. maj 2026',
     nyt: [
@@ -4475,6 +4578,304 @@ window.addEventListener('load', () => {
     }, 2000);
   }
 });
+
+// ═══════════════════════════════════════════════════
+// UGE-MODEL TOGGLE (5-dag / 4-dag pr. uge — overstyrer cfg.model)
+// ═══════════════════════════════════════════════════
+function vælgUgeModel(m) {
+  const datoer = ugeDatoer(ugeOffset);
+  setUgeOverride(datoer[0], m);
+  rendUge();           // genrender uge med ny model
+  opdaterUgeModelUI(); // genrender toggle-segmenter
+  // Hvis aktivDag er i samme uge → genberegn dag-view
+  if (datoer.some(d => d.toDateString() === aktivDag.toDateString())) {
+    beregn();
+    opdaterSaertidBadge();
+  }
+}
+// v1.78: én enkelt 4-dag toggle-knap på Dag-view (under DAGSLØN i res-boks)
+function toggle4Dag() {
+  const aktivM = modelForDato(aktivDag);
+  const nyM = aktivM === 'saertid' ? '5dag' : 'saertid';
+  setUgeOverride(aktivDag, nyM);
+  beregn();
+  opdaterSaertidBadge();
+  opdaterUgeModelUI();
+  if (typeof rendUge === 'function' && document.getElementById('view-uge')?.classList.contains('on')) rendUge();
+}
+function opdaterUgeModelUI() {
+  // Brug aktivDag's uge til at finde aktiv model (eftersom knappen sidder på Dag-view)
+  const aktivM = modelForDato(aktivDag);
+  const override = getUgeOverride(aktivDag);
+  const btn = document.getElementById('bn-4dag');
+  if (btn) {
+    const erSaertid = aktivM === 'saertid';
+    btn.classList.toggle('on', erSaertid);
+    btn.setAttribute('aria-pressed', erSaertid ? 'true' : 'false');
+  }
+  const hint = document.getElementById('uge-model-hint');
+  if (hint) hint.classList.toggle('vis', !!override);
+}
+// Patch rendUge så toggle-UI også opdateres
+const _origRendUge = rendUge;
+rendUge = function() {
+  _origRendUge.apply(this, arguments);
+  opdaterUgeModelUI();
+};
+
+// Patch opdaterSaertidBadge så den også reflekterer uge-override på dag-view
+const _origSaertidBadge = opdaterSaertidBadge;
+opdaterSaertidBadge = function() {
+  const b = document.getElementById('saertid-badge');
+  if (!b) return _origSaertidBadge.apply(this, arguments);
+  const m = modelForDato(aktivDag);
+  const override = getUgeOverride(aktivDag);
+  if (m === 'saertid') {
+    const friTxt = cfg.fridag === 'fre' ? 'Fridag: fredag' : 'Fridag: mandag';
+    const suffix = override ? ' · uge-overstyring' : '';
+    b.textContent = `🟣 4-dages uge — OT efter 10t — ${friTxt}${suffix}`;
+    b.classList.add('vis');
+  } else if (override === '5dag') {
+    b.textContent = '⚪ 5-dages uge (uge-overstyring) — OT efter 8t';
+    b.classList.add('vis');
+  } else {
+    b.classList.remove('vis');
+  }
+};
+
+// ═══════════════════════════════════════════════════
+// FORKLARINGS-OVERLAY (long-press 500ms på action-knapper)
+// ═══════════════════════════════════════════════════
+// Indhold per knap: paragraf, emoji, titel, regel-tekst (kort), beregning-builder
+const FK_TEKSTER = {
+  'v': {
+    paragraf: '§6 — Varslet overarbejde',
+    emoji: '⏱', titel: 'Varslet OT',
+    regel: 'Når overarbejde er <strong>varslet senest dagen før kl. 12:00</strong>, betales:<br>· <strong>1. time</strong>: timeløn <em>+50%</em><br>· <strong>2. time</strong>: timeløn <em>+60%</em><br>· <strong>3.+ time</strong>: timeløn <em>+135%</em><br><br>OT regnes fra <strong>dagMax</strong> timer (8t normal §4, 10t særtid §5).'
+  },
+  'u': {
+    paragraf: '§6 — Uvarslet overarbejde',
+    emoji: '⚡', titel: 'Uvarslet OT',
+    regel: 'Hvis overarbejde <strong>ikke er varslet</strong> dagen før kl. 12:00, betales:<br>· <strong>1. time</strong>: timeløn <em>+75%</em><br>· <strong>2. time</strong>: timeløn <em>+100%</em><br>· <strong>3.+ time</strong>: timeløn <em>+135%</em><br><br>§6e: OT skal <em>altid</em> kompenseres. Hvis ingen type er valgt, beregnes som uvarslet.'
+  },
+  'h': {
+    paragraf: '§8 — Helligdag / weekend',
+    emoji: '🎉', titel: 'Helligdag',
+    regel: 'Arbejde på <strong>helligdage, lør, søn</strong> giver tillæg:<br>· <strong>+75%</strong> oven på timeløn (min. <strong>4 timer</strong>)<br>· <strong>+100%</strong> for 2. og efterfølgende weekenddage i samme uge<br><br>Eventuelt OT lægges <em>oven på</em> weekend-satsen.'
+  },
+  'f': {
+    paragraf: '§12 — Sen frokost',
+    emoji: '🥪', titel: 'Sen frokost',
+    regel: 'Hvis frokostpausen <strong>ikke er afholdt senest 5 timer</strong> efter arbejdsdagens start, udløses en <strong>diæt på 597 kr.</strong> (MK-cirkulære 2025).<br><br>Diæten er skattefri og pensionsfri (§14).'
+  },
+  'p': {
+    paragraf: '§7 — Ingen pause efter 10t',
+    emoji: '☕', titel: 'Ingen pause',
+    regel: 'Når der arbejdes <strong>over 10 timer uden afbrudt pause</strong>, gives kompensation svarende til <strong>15 minutters timeløn</strong>.<br><br>Beregnes som <em>timesats × 0,25</em> (15 min) — uafhængigt af om dagen er normal eller særtid.'
+  },
+  'r': {
+    paragraf: '§13 — Kørsel',
+    emoji: '🚗', titel: 'Kørsel = arbejdstid',
+    regel: 'Når arbejdsgiveren beordrer kørsel mellem hjem og lokation, eller mellem lokationer, <strong>tæller transporttiden som arbejdstid</strong>.<br><br>Tilføj kørselstiden til ind/ud-tiderne på dagen — beregnes sammen med øvrige timer (kan udløse OT på normal vis).'
+  },
+  'd': {
+    paragraf: '§14 — Diæter',
+    emoji: '🍽', titel: 'Diæt',
+    regel: 'Per arbejdsdag udløses en <strong>diæt-sats</strong> (2025: 597 kr.), når arbejdsdagen er <em>længere end 5 timer</em> og foregår væk fra hjemmet.<br><br>Satsen følger MK-cirkulæret og <strong>ændres årligt</strong>. Diæter er skattefri og pensionsfri.'
+  },
+  'e': {
+    paragraf: '§3.10 — Enkeltdagsengagement',
+    emoji: '💰', titel: '10% enkeltdag',
+    regel: 'Ved <strong>enkeltdagsansættelse</strong> (max 4 dage i samme uge for samme produktion) lægges <strong>+10%</strong> på mindstelønnen (§3).<br><br>Tillægget gælder kun mindstelønnen — <em>ikke</em> personligt tillæg. Pensionsfri og minimum 4 timers betaling.'
+  },
+  'møde': {
+    paragraf: '§12 Stk.1 — Ugeprogrammøde',
+    emoji: '📋', titel: 'Møde',
+    regel: 'Møder der falder i den almindelige <strong>frokostpause</strong>, eller ligger udenfor planlagt arbejdstid, <strong>tæller som arbejdstid</strong>.<br><br>Mødetiden lægges til dagens samlede arbejdstid og kan udløse OT efter normal regel.'
+  },
+  '4dag': {
+    paragraf: '§5 — 4-dages særtidsuge',
+    emoji: '🟣', titel: '4-dags uge',
+    regel: 'I en <strong>4-dages særtidsuge</strong> arbejdes 40 timer fordelt på <strong>4 dage à 10 timer</strong> i stedet for 5 dage à 8 timer.<br><br>· OT starter først efter <strong>10 timer</strong> pr. dag (i stedet for 8t)<br>· Arbejde udenfor det tilladte vindue udløser <em>+100%</em> tillæg (§5 stk. 3-4)<br>· Aktiverer du knappen overstyres ugens model — gælder kun denne uge.'
+  }
+};
+
+function visForklaring(key) {
+  const t = FK_TEKSTER[key];
+  if (!t) return;
+  document.getElementById('fk-paragraf').textContent = t.paragraf;
+  document.getElementById('fk-titel-txt').textContent = t.titel;
+  document.getElementById('fk-emoji').textContent = t.emoji;
+  document.getElementById('fk-regel').innerHTML = t.regel;
+  document.getElementById('fk-beregning-wrap').innerHTML = byggForklaringBeregning(key);
+  const ov = document.getElementById('fk-overlay');
+  ov.classList.remove('skjult');
+  ov.classList.add('vis');
+  try { if (navigator.vibrate) navigator.vibrate(18); } catch(e) {}
+}
+function lukForklaring() {
+  const ov = document.getElementById('fk-overlay');
+  ov.classList.add('skjult');
+  ov.classList.remove('vis');
+}
+function lukForklaringBg(ev) {
+  if (ev.target && ev.target.id === 'fk-overlay') lukForklaring();
+}
+
+// Byg konkret beregning for valgte dag og knap
+function byggForklaringBeregning(key) {
+  const hRaw = calcTimer(tidStart, tidSlut);
+  const mødeH = mødeTimer(knapper.møde);
+  const h = (hRaw !== null) ? hRaw + mødeH : null;
+  const dMax = dagMax(aktivDag);
+  const ts = cfg.ugelon / 40;
+  const tsMedTillæg = ts * ((knapper.e || cfg.tillæg) ? 1.1 : 1.0);
+
+  const row = (lbl, val) => `<div class="fk-br-row"><span class="fk-br-lbl">${lbl}</span><span class="fk-br-val">${val}</span></div>`;
+  const totRow = (lbl, val) => `<div class="fk-br-row fk-br-tot"><span class="fk-br-lbl">${lbl}</span><span class="fk-br-val">${val}</span></div>`;
+  const tom = (msg) => `<div class="fk-tom">${msg}</div>`;
+
+  const otH = (h !== null) ? Math.max(0, h - dMax) : 0;
+  const ot1H = Math.min(1, otH);
+  const ot2H = Math.min(1, Math.max(0, otH - 1));
+  const ot3H = Math.max(0, otH - 2);
+
+  if (key === 'v' || key === 'u') {
+    if (h === null) return tom('Indtast ind- og ud-tid for at se beregningen for OT.');
+    if (otH <= 0) return tom(`Du har ${hFmt(h)} på dagen og OT-grænsen er ${dMax}t. <br>Når du arbejder over ${dMax}t, vises OT-beregningen her.`);
+    const isV = key === 'v';
+    const r1 = isV ? 1.50 : 1.75;
+    const r2 = isV ? 1.60 : 2.00;
+    const r3 = 2.35;
+    let html = '';
+    html += row('Timeløn (mindsteløn ÷ 40)', `${ts.toFixed(2)} kr/t`);
+    html += row(`OT-grænse i dag`, `${dMax}t`);
+    if (ot1H > 0) html += row(`1. OT-time · ${hFmt(ot1H)} × ${ts.toFixed(2)} × ${r1.toFixed(2)}`, `${Math.round(ts*r1*ot1H).toLocaleString('da-DK')} kr`);
+    if (ot2H > 0) html += row(`2. OT-time · ${hFmt(ot2H)} × ${ts.toFixed(2)} × ${r2.toFixed(2)}`, `${Math.round(ts*r2*ot2H).toLocaleString('da-DK')} kr`);
+    if (ot3H > 0) html += row(`3.+ OT-time · ${hFmt(ot3H)} × ${ts.toFixed(2)} × ${r3.toFixed(2)}`, `${Math.round(ts*r3*ot3H).toLocaleString('da-DK')} kr`);
+    const tot = Math.round(ts*r1*ot1H + ts*r2*ot2H + ts*r3*ot3H);
+    html += totRow(`Samlet ${isV?'varslet':'uvarslet'} OT`, `${tot.toLocaleString('da-DK')} kr`);
+    return `<div class="fk-beregning">${html}</div>`;
+  }
+
+  if (key === 'h') {
+    if (h === null) return tom('Indtast ind- og ud-tid for at se helligdags-beregningen.');
+    const idx = aktivDag.getDay();
+    const wkRate = hentWkRate(aktivDag);
+    const normalH = Math.min(dMax, h);
+    const betaltH = Math.max(4, normalH);
+    const wkKr = ts * wkRate * betaltH;
+    let html = '';
+    html += row('Timeløn', `${ts.toFixed(2)} kr/t`);
+    html += row(`Sats-tillæg`, `+${Math.round(wkRate*100)}%`);
+    html += row(`Betalte normaltimer (min. 4)`, `${hFmt(betaltH)}`);
+    html += row(`Tillæg · ${hFmt(betaltH)} × ${ts.toFixed(2)} × ${wkRate.toFixed(2)}`, `${Math.round(wkKr).toLocaleString('da-DK')} kr`);
+    html += totRow('Helligdags-tillæg', `${Math.round(wkKr).toLocaleString('da-DK')} kr`);
+    return `<div class="fk-beregning">${html}</div>`;
+  }
+
+  if (key === 'f') {
+    const sats = cfg.diaet || 597;
+    let html = '';
+    html += row('Sats per dag (MK-cirkulære)', `${sats.toLocaleString('da-DK')} kr`);
+    html += row('Status', knapper.f ? 'Aktiveret ✓' : 'Ikke aktiveret');
+    html += totRow('Frokost-diæt', `${(knapper.f ? sats : 0).toLocaleString('da-DK')} kr`);
+    return `<div class="fk-beregning">${html}</div>`;
+  }
+
+  if (key === 'p') {
+    if (h === null) return tom('Indtast ind- og ud-tid for at se pause-kompensation.');
+    if (h <= 10) return tom(`Du har ${hFmt(h)} på dagen. <br>Pause-kompensation kun ved <strong>over 10 timer</strong> uden pause.`);
+    const kr = ts * (15/60);
+    let html = '';
+    html += row('Timeløn', `${ts.toFixed(2)} kr/t`);
+    html += row('Kompensation', `15 min`);
+    html += row(`Beregning · ${ts.toFixed(2)} × 0.25`, `${Math.round(kr).toLocaleString('da-DK')} kr`);
+    html += totRow('Pause-kompensation', `${Math.round(kr).toLocaleString('da-DK')} kr`);
+    return `<div class="fk-beregning">${html}</div>`;
+  }
+
+  if (key === 'r') {
+    return tom('Kørselstid tæller som arbejdstid (§13). <br>Lægges direkte til ind/ud-tiderne — påvirker OT-beregning sammen med normale timer.');
+  }
+
+  if (key === 'd') {
+    const sats = cfg.diaet || 597;
+    let html = '';
+    html += row('Sats per dag', `${sats.toLocaleString('da-DK')} kr`);
+    html += row('Status', knapper.d ? 'Aktiveret ✓' : 'Ikke aktiveret');
+    html += totRow('Diæt for dagen', `${(knapper.d ? sats : 0).toLocaleString('da-DK')} kr`);
+    return `<div class="fk-beregning">${html}</div>`;
+  }
+
+  if (key === 'e') {
+    const tsE = ts * 1.1;
+    const normalH = (h !== null) ? Math.min(dMax, Math.max(4, h)) : dMax;
+    let html = '';
+    html += row('Almindelig timeløn', `${ts.toFixed(2)} kr/t`);
+    html += row('Med +10% enkeltdag', `${tsE.toFixed(2)} kr/t`);
+    if (h !== null) {
+      html += row(`Normaltimer (min. 4)`, `${hFmt(normalH)}`);
+      html += row(`Beregning · ${hFmt(normalH)} × ${tsE.toFixed(2)}`, `${Math.round(tsE*normalH).toLocaleString('da-DK')} kr`);
+      html += totRow('Enkeltdags-løn (normal)', `${Math.round(tsE*normalH).toLocaleString('da-DK')} kr`);
+    } else {
+      html += row('Sats-effekt', `+10% på mindsteløn`);
+    }
+    return `<div class="fk-beregning">${html}</div>`;
+  }
+
+  if (key === 'møde') {
+    const min = knapper.møde || 0;
+    if (!min) return tom('Ingen mødetid valgt. <br>Tryk Møde-knappen for at vælge varighed.');
+    const ekstraH = min/60;
+    const kr = ts * ekstraH;
+    let html = '';
+    html += row('Mødetid', `${min} min (${ekstraH.toFixed(2)}t)`);
+    html += row('Timeløn', `${ts.toFixed(2)} kr/t`);
+    html += row('Tillæg til arbejdstid', `${hFmt(ekstraH)}`);
+    html += totRow('Værdi som arbejdstid', `${Math.round(kr).toLocaleString('da-DK')} kr`);
+    return `<div class="fk-beregning">${html}</div>`;
+  }
+
+  return tom('Ingen beregning tilgængelig.');
+}
+
+// Long-press på alle action-knapper
+function setupLongPress() {
+  const map = {
+    'bn-v':'v','bn-u':'u','bn-h':'h','bn-f':'f','bn-p':'p','bn-r':'r','bn-d':'d','bn-e':'e','bn-møde':'møde','bn-4dag':'4dag'
+  };
+  Object.entries(map).forEach(([btnId, key]) => {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    let t = null;
+    let fired = false;
+    const start = (e) => {
+      fired = false;
+      clearTimeout(t);
+      t = setTimeout(() => {
+        fired = true;
+        visForklaring(key);
+      }, 500);
+    };
+    const cancel = () => { clearTimeout(t); };
+    btn.addEventListener('touchstart', start, {passive:true});
+    btn.addEventListener('touchend',   cancel);
+    btn.addEventListener('touchmove',  cancel);
+    btn.addEventListener('touchcancel',cancel);
+    btn.addEventListener('mousedown',  start);
+    btn.addEventListener('mouseup',    cancel);
+    btn.addEventListener('mouseleave', cancel);
+    btn.addEventListener('contextmenu', e => e.preventDefault());
+    // Hvis long-press fyrede, blokér click så knappen ikke også togges
+    btn.addEventListener('click', (e) => {
+      if (fired) { e.stopImmediatePropagation(); e.preventDefault(); fired = false; }
+    }, true);
+  });
+}
+window.addEventListener('load', setupLongPress);
+// Luk forklaring ved Escape
+window.addEventListener('keydown', e => { if (e.key === 'Escape') lukForklaring(); });
 </script>
 </body>
 </html>
