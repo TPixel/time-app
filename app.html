@@ -34,7 +34,13 @@
   --btn-d:#10B981;   /* Diæt — emerald */
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Tahoma',sans-serif;font-weight:bold;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto;letter-spacing:.3px}
+body{font-family:'Tahoma',sans-serif;font-weight:bold;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto;letter-spacing:.3px;
+  /* v1.79: undgå uønsket tekst-markering ved long-press på iPhone */
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* Tillad tekst-markering kun i input + textarea (skriv/redigér felter) */
+input,textarea,[contenteditable="true"]{-webkit-user-select:auto;user-select:auto;-webkit-touch-callout:default}
+/* Eksplicit no-select på interaktive elementer (safari-fallback) */
+button,.xb,.nbtn,.tab,.prod-sw-pill,.gem-btn,.dag-act-btn,.sbtn,.s-tog-btn,.tmodal-btn,.res-4dag-btn,.res,.dk,.aar-pill,.aar-mnd,.mnd-uge,.bb,.gear-btn,.fk-luk,.tf-display,.tf-inline,.dag-navn,.dag-dato,.dag-uge,.dag-prod-ttl,.res-t,.res-pay-amt,.res-pay-lbl,.mixed-ot-summary,.uge-model-opt,.mode-seg-opt,.saertid-badge,.wk-auto-badge,.alle-prod-btn,.prod-item,.prod-del,.prod-skjul,.slbl,.fk-titel,.fk-paragraf,.fk-regel,.toast,.toast-action{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 
 .topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:9px 14px}
 .logo{font-family:'Tahoma',sans-serif;font-size:0;font-weight:bold;letter-spacing:-.3px;display:flex;align-items:center;gap:0;min-width:0;flex-shrink:1}
@@ -249,6 +255,25 @@ to{transform:scale(1);opacity:1}}
 .saertid-badge.vis{display:block}
 .wk-auto-badge{display:none;background:rgba(26,172,221,.1);border:1px solid rgba(26,172,221,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:#1AACDD;text-align:center}
 .wk-auto-badge.vis{display:block}
+
+/* ── PROMINENT MODE-SWITCH (v1.79) — 5 DAG / 4 DAG §5 — øverst i dag-view ── */
+.mode-seg-row{margin:0 0 14px}
+.mode-seg{display:flex;background:var(--surf);border:2px solid var(--brd);border-radius:14px;padding:4px;gap:4px;width:100%}
+.mode-seg-opt{flex:1;padding:11px 6px;border-radius:10px;border:none;background:transparent;color:var(--mut);font-family:'Tahoma',sans-serif;font-weight:bold;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1}
+.mode-seg-opt .mode-seg-ttl{font-size:20px;letter-spacing:.5px}
+.mode-seg-opt .mode-seg-sub{font-size:11px;opacity:.65;font-weight:600;letter-spacing:.6px;text-transform:uppercase}
+.mode-seg-opt.on{background:var(--acc);color:#fff;box-shadow:0 3px 12px rgba(129,140,248,.4)}
+.mode-seg-opt.on .mode-seg-sub{opacity:.85}
+.mode-seg-opt.on.saertid{background:var(--pur);box-shadow:0 3px 12px rgba(167,139,250,.45)}
+.mode-seg-opt:active{transform:scale(.97)}
+
+/* ── ACTION TOAST (v1.79) — toast med en knap (fx "Mail nu" efter PDF) ── */
+.toast-action{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-12px);background:var(--card);color:var(--txt);padding:10px 12px 10px 16px;border-radius:50px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:9999;display:flex;gap:10px;align-items:center;border:1.5px solid var(--acc);box-shadow:0 8px 28px rgba(0,0,0,.55);pointer-events:none}
+.toast-action.on{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast-action-msg{color:var(--grn);white-space:nowrap}
+.toast-action-btn{padding:7px 14px;border-radius:50px;background:var(--acc);color:#fff;border:none;font-family:'Tahoma',sans-serif;font-weight:bold;font-size:13px;cursor:pointer;letter-spacing:.3px;white-space:nowrap}
+.toast-action-btn:active{transform:scale(.94);opacity:.85}
+.toast-action-luk{background:transparent;border:none;color:var(--mut);font-size:18px;cursor:pointer;padding:2px 6px;line-height:1}
 
 /* ── UGE MODEL TOGGLE (5-dag / 4-dag pr. uge) ── */
 .uge-model-row{display:flex;justify-content:center;margin:6px 0 14px}
@@ -498,6 +523,11 @@ textarea::placeholder{color:var(--mut)}
 <div class="prod-sw-bar" id="prod-sw-bar"></div>
 
 <div class="toast" id="toast"></div>
+<div class="toast-action" id="toast-action">
+  <span class="toast-action-msg" id="toast-action-msg">PDF gemt ✓</span>
+  <button class="toast-action-btn" id="toast-action-btn">✉️ Mail nu</button>
+  <button class="toast-action-luk" onclick="lukToastAction()" aria-label="Luk">✕</button>
+</div>
 <div id="pdf-frame"></div>
 
 <!-- TID MODAL -->
@@ -566,6 +596,19 @@ textarea::placeholder{color:var(--mut)}
 
 <!-- DAG VIEW -->
 <div class="view on" id="view-dag">
+  <!-- v1.79: Prominent mode-switch — 5 DAG (Normal §4) / 4 DAG §5 (Særtid) -->
+  <div class="mode-seg-row">
+    <div class="mode-seg" role="tablist" aria-label="Arbejdstidsmodel">
+      <button class="mode-seg-opt on" id="ms-5dag" role="tab" aria-selected="true" onclick="vælgVisMode('5dag')">
+        <span class="mode-seg-ttl">5 DAG</span>
+        <span class="mode-seg-sub">Normal §4</span>
+      </button>
+      <button class="mode-seg-opt" id="ms-4dag" role="tab" aria-selected="false" onclick="vælgVisMode('saertid')">
+        <span class="mode-seg-ttl">4 DAG §5</span>
+        <span class="mode-seg-sub">Forskudt særtid</span>
+      </button>
+    </div>
+  </div>
   <!-- Header v1.77: Stor produktion øverst med ‹›, så dag + (UGE+dato højre) -->
   <div class="dag-hd">
     <div class="dag-prod-ttl" id="prod-pill">···</div>
@@ -601,11 +644,6 @@ textarea::placeholder{color:var(--mut)}
       <div class="res-bottom-row">
         <div class="res-pay-amt" id="res-pay">0 kr.</div>
         <div class="res-pay-lbl" id="res-pay-lbl">Dagsløn</div>
-      </div>
-      <div class="res-4dag-row">
-        <button class="res-4dag-btn xb-longpress" id="bn-4dag" data-bnkey="4dag" onclick="event.stopPropagation();toggle4Dag()" aria-pressed="false">
-          4-DAGS UGE
-        </button>
       </div>
     </div>
     <div class="res-sub" id="res-sub"></div>
@@ -2708,7 +2746,7 @@ function _pdfDag() {
 function doPDF_dag() {
   const r = _pdfDag(); if (!r) return;
   const filnavn = `TimeApp_${(cfg.navn||'dag').replace(/\s+/g,'_')}_${r.dagISO}.pdf`;
-  _pdfDownload(r.html, filnavn);
+  _pdfDownload(r.html, filnavn, sendEnkeltDag);
 }
 
 function sendEnkeltDag() {
@@ -3248,7 +3286,9 @@ async function _pdfDel(html, filnavn, emne) {
 // PDF-knap (download direkte) — bruger html2pdf-flowet, ingen window.print().
 // Løser iOS Safari "Automatisk udskrivning blokeret" + Safari's URL/sidenummer-footer
 // der ellers gjorde sidste linje skubbet til side 2.
-async function _pdfDownload(html, filnavn) {
+// v1.79: hvis mailFn er angivet, vises action-toast med "✉️ Mail nu" så brugeren kan
+// gå direkte videre til mail uden at skulle lukke iOS PDF-preview først.
+async function _pdfDownload(html, filnavn, mailFn) {
   toast('Bygger PDF…');
   let blob;
   try {
@@ -3263,7 +3303,11 @@ async function _pdfDownload(html, filnavn) {
   a.href = url; a.download = filnavn;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
-  toast('PDF gemt');
+  if (typeof mailFn === 'function') {
+    toastAction('PDF gemt ✓', '✉️ Mail nu', mailFn);
+  } else {
+    toast('PDF gemt');
+  }
 }
 
 // Garanterer at PDF aldrig fylder mere end 1 A4-side. Måler indholdshøjde og
@@ -3455,7 +3499,7 @@ function _pdfUge() {
 function doPDF() {
   const r = _pdfUge();
   const filnavn = `TimeApp_${(cfg.navn||'uge').replace(/\s+/g,'_')}_Uge${String(r.uge).padStart(2,'0')}-${r.år}.pdf`;
-  _pdfDownload(r.html, filnavn);
+  _pdfDownload(r.html, filnavn, doMail);
 }
 
 // ═══════════════════════════════════════════════════
@@ -3805,7 +3849,7 @@ function _pdfMnd() {
 function doPDF_mnd() {
   const r = _pdfMnd();
   const filnavn = `TimeApp_${(cfg.navn||'mnd').replace(/\s+/g,'_')}_${r.mndNavn}-${r.år}.pdf`;
-  _pdfDownload(r.html, filnavn);
+  _pdfDownload(r.html, filnavn, doMail_mnd);
 }
 
 function doXLSX_mnd() {
@@ -3920,7 +3964,7 @@ function _pdfAar() {
 function doPDF_aar() {
   const r = _pdfAar();
   const filnavn = `TimeApp_${(cfg.navn||'aar').replace(/\s+/g,'_')}_${r.år}.pdf`;
-  _pdfDownload(r.html, filnavn);
+  _pdfDownload(r.html, filnavn, doMail_aar);
 }
 
 function doXLSX_aar() {
@@ -4011,6 +4055,29 @@ function toast(msg) {
   t.textContent = msg; t.classList.add('on');
   setTimeout(() => t.classList.remove('on'), 2500);
 }
+// v1.79: Action-toast — toast med en handlings-knap (fx "Mail nu" efter PDF-download).
+// Holdes synlig længere (12s), så brugeren kan trykke selv hvis iOS åbnede PDF-preview.
+let _toastActionTimer = null;
+function toastAction(msg, btnLabel, btnHandler) {
+  const t   = document.getElementById('toast-action');
+  const m   = document.getElementById('toast-action-msg');
+  const btn = document.getElementById('toast-action-btn');
+  if (!t || !btn || !m) { toast(msg); return; }
+  m.textContent = msg;
+  btn.textContent = btnLabel;
+  btn.onclick = () => {
+    lukToastAction();
+    try { btnHandler(); } catch(e){ console.error(e); }
+  };
+  t.classList.add('on');
+  clearTimeout(_toastActionTimer);
+  _toastActionTimer = setTimeout(lukToastAction, 12000);
+}
+function lukToastAction() {
+  const t = document.getElementById('toast-action');
+  if (t) t.classList.remove('on');
+  clearTimeout(_toastActionTimer);
+}
 
 // INIT
 idbCheckRestore().then(() => {
@@ -4084,7 +4151,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.78';
+const APP_VERSION = '1.79';
 
 // ── SPLASH ──
 (function(){
@@ -4122,6 +4189,15 @@ const APP_VERSION = '1.78';
 
 
 const CHANGELOG = {
+  '1.79': {
+    dato: '18. maj 2026',
+    nyt: [
+      '🟣 NYT — Stor synlig 5 DAG / 4 DAG §5 toggle øverst i dag-viewet. Brugeren kan ALTID se hvilken arbejdsmodel der gælder for den aktive dag, og skifte mellem normal §4 (5 dage) og forskudt særtid §5 (4 dage) med ét klik. Aktiv tilstand er fremhævet med klar accent-farve.',
+      '✉️ PDF + Mail-flow forbedret: Når du trykker PDF (dag, uge, måned eller år) downloades PDF\'en og en handlings-toast popper op øverst med en "✉️ Mail nu"-knap. Du behøver ikke længere lukke iOS PDF-preview først — bare tryk Mail direkte i toasten, så åbnes mail-flowet (PDF vedhæftes + mailto med emnefelt).',
+      '📱 Long-press på iPhone trigger ikke længere uønsket tekst-markering på knapper og indhold. Tilføjet user-select:none på body og alle interaktive elementer (knapper, OT-grid, mixed-OT, tidsdisplay, dag-navn/dato). Input og textarea bevarer normal tekst-markering så du stadig kan vælge tekst i note-feltet.',
+      'Den lille "4-DAGS UGE"-knap inde i res-boksen er fjernet — erstattet af den nye prominente toggle øverst. Ingen ændring i beregning eller data.',
+    ]
+  },
   '1.76': {
     dato: '13. maj 2026',
     nyt: [
@@ -4603,15 +4679,36 @@ function toggle4Dag() {
   opdaterUgeModelUI();
   if (typeof rendUge === 'function' && document.getElementById('view-uge')?.classList.contains('on')) rendUge();
 }
+// v1.79: Prominent 5-DAG / 4-DAG §5 toggle øverst i dag-view
+function vælgVisMode(target) {
+  const aktivM = modelForDato(aktivDag);
+  if (aktivM === target) return; // ingen ændring
+  setUgeOverride(aktivDag, target);
+  beregn();
+  opdaterSaertidBadge();
+  opdaterUgeModelUI();
+  if (typeof rendUge === 'function' && document.getElementById('view-uge')?.classList.contains('on')) rendUge();
+}
 function opdaterUgeModelUI() {
   // Brug aktivDag's uge til at finde aktiv model (eftersom knappen sidder på Dag-view)
   const aktivM = modelForDato(aktivDag);
   const override = getUgeOverride(aktivDag);
+  const erSaertid = aktivM === 'saertid';
+  // Gammel lille knap (hvis stadig i DOM)
   const btn = document.getElementById('bn-4dag');
   if (btn) {
-    const erSaertid = aktivM === 'saertid';
     btn.classList.toggle('on', erSaertid);
     btn.setAttribute('aria-pressed', erSaertid ? 'true' : 'false');
+  }
+  // Ny prominent segmented control øverst i dag-view
+  const ms5 = document.getElementById('ms-5dag');
+  const ms4 = document.getElementById('ms-4dag');
+  if (ms5 && ms4) {
+    ms5.classList.toggle('on', !erSaertid);
+    ms5.setAttribute('aria-selected', !erSaertid ? 'true' : 'false');
+    ms4.classList.toggle('on', erSaertid);
+    ms4.classList.toggle('saertid', erSaertid);
+    ms4.setAttribute('aria-selected', erSaertid ? 'true' : 'false');
   }
   const hint = document.getElementById('uge-model-hint');
   if (hint) hint.classList.toggle('vis', !!override);
@@ -4627,20 +4724,25 @@ rendUge = function() {
 const _origSaertidBadge = opdaterSaertidBadge;
 opdaterSaertidBadge = function() {
   const b = document.getElementById('saertid-badge');
-  if (!b) return _origSaertidBadge.apply(this, arguments);
-  const m = modelForDato(aktivDag);
-  const override = getUgeOverride(aktivDag);
-  if (m === 'saertid') {
-    const friTxt = cfg.fridag === 'fre' ? 'Fridag: fredag' : 'Fridag: mandag';
-    const suffix = override ? ' · uge-overstyring' : '';
-    b.textContent = `🟣 4-dages uge — OT efter 10t — ${friTxt}${suffix}`;
-    b.classList.add('vis');
-  } else if (override === '5dag') {
-    b.textContent = '⚪ 5-dages uge (uge-overstyring) — OT efter 8t';
-    b.classList.add('vis');
+  if (b) {
+    const m = modelForDato(aktivDag);
+    const override = getUgeOverride(aktivDag);
+    if (m === 'saertid') {
+      const friTxt = cfg.fridag === 'fre' ? 'Fridag: fredag' : 'Fridag: mandag';
+      const suffix = override ? ' · uge-overstyring' : '';
+      b.textContent = `🟣 4-dages uge — OT efter 10t — ${friTxt}${suffix}`;
+      b.classList.add('vis');
+    } else if (override === '5dag') {
+      b.textContent = '⚪ 5-dages uge (uge-overstyring) — OT efter 8t';
+      b.classList.add('vis');
+    } else {
+      b.classList.remove('vis');
+    }
   } else {
-    b.classList.remove('vis');
+    _origSaertidBadge.apply(this, arguments);
   }
+  // v1.79: hold prominent toggle synkroniseret med aktiv dag
+  opdaterUgeModelUI();
 };
 
 // ═══════════════════════════════════════════════════
