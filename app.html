@@ -596,19 +596,6 @@ textarea::placeholder{color:var(--mut)}
 
 <!-- DAG VIEW -->
 <div class="view on" id="view-dag">
-  <!-- v1.79: Prominent mode-switch — 5 DAG (Normal §4) / 4 DAG §5 (Særtid) -->
-  <div class="mode-seg-row">
-    <div class="mode-seg" role="tablist" aria-label="Arbejdstidsmodel">
-      <button class="mode-seg-opt on" id="ms-5dag" role="tab" aria-selected="true" onclick="vælgVisMode('5dag')">
-        <span class="mode-seg-ttl">5 DAG</span>
-        <span class="mode-seg-sub">Normal §4</span>
-      </button>
-      <button class="mode-seg-opt" id="ms-4dag" role="tab" aria-selected="false" onclick="vælgVisMode('saertid')">
-        <span class="mode-seg-ttl">4 DAG §5</span>
-        <span class="mode-seg-sub">Forskudt særtid</span>
-      </button>
-    </div>
-  </div>
   <!-- Header v1.77: Stor produktion øverst med ‹›, så dag + (UGE+dato højre) -->
   <div class="dag-hd">
     <div class="dag-prod-ttl" id="prod-pill">···</div>
@@ -647,6 +634,19 @@ textarea::placeholder{color:var(--mut)}
       </div>
     </div>
     <div class="res-sub" id="res-sub"></div>
+    <!-- v1.80: 5 DAG / 4 DAG §5 toggle flyttet ind i res-boks — under DAGSLØN -->
+    <div class="mode-seg-row" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
+      <div class="mode-seg" role="tablist" aria-label="Arbejdstidsmodel">
+        <button class="mode-seg-opt on" id="ms-5dag" role="tab" aria-selected="true" onclick="event.stopPropagation();vælgVisMode('5dag')">
+          <span class="mode-seg-ttl">5 DAG</span>
+          <span class="mode-seg-sub">Normal §4</span>
+        </button>
+        <button class="mode-seg-opt" id="ms-4dag" role="tab" aria-selected="false" onclick="event.stopPropagation();vælgVisMode('saertid')">
+          <span class="mode-seg-ttl">4 DAG §5</span>
+          <span class="mode-seg-sub">Forskudt særtid</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <div class="ot-boks" id="ot-boks">
@@ -4151,7 +4151,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.79';
+const APP_VERSION = '1.80';
 
 // ── SPLASH ──
 (function(){
@@ -4189,6 +4189,13 @@ const APP_VERSION = '1.79';
 
 
 const CHANGELOG = {
+  '1.80': {
+    dato: '18. maj 2026',
+    nyt: [
+      '🟣 5 DAG / 4 DAG §5 toggle er flyttet tilbage ind i tids-boksen (under DAGSLØN, adskilt med en tynd linje). Toggle er stadig synlig og tydelig — men sidder nu samme sted som de øvrige tids- og lønberegnings-data. Kort sagt: alt om dagens beregning samlet ét sted.',
+      'Knapperne stopper klik-event\'et så de ikke længere åbner OT-detalje-visningen ved en fejl når man skifter model.',
+    ]
+  },
   '1.79': {
     dato: '18. maj 2026',
     nyt: [
