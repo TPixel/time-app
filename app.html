@@ -3428,8 +3428,8 @@ function _pdfUge() {
       <td>${dagNavn(d.dato)} ${d.dato.getDate()}/${d.dato.getMonth()+1}</td>
       <td class="mono">${d.start} → ${d.slut}</td>
       <td class="r">${d.h.toFixed(2)} t</td>
-      <td class="r">${otKr ? krFmt(otKr) : '—'}</td>
-      <td class="r">${krFmt(d.lon)}</td>
+      <td>${tillæg || '—'}</td>
+      <td class="r">${krFmt(d.lon)}${otKr ? `<div style="font-size:8pt;color:#888;font-weight:500;margin-top:2px">heraf ${krFmt(otKr)} tillæg</div>` : ''}</td>
     </tr>`;
   }).join('');
 
@@ -3456,10 +3456,10 @@ function _pdfUge() {
     <div class="pdf-sect">Dagsoversigt</div>
     <table class="pdf-tbl">
       <thead><tr>
-        <th style="width:130px">Dag</th><th>Tider</th>
-        <th class="r" style="width:75px">Timer</th>
-        <th class="r" style="width:100px">Tillæg</th>
-        <th class="r" style="width:100px">Løn</th>
+        <th style="width:110px">Dag</th><th style="width:110px">Tider</th>
+        <th class="r" style="width:70px">Timer</th>
+        <th style="width:180px">Tillæg</th>
+        <th class="r" style="width:110px">Løn</th>
       </tr></thead>
       <tbody>${dagRk}</tbody>
       <tr class="tot"><td colspan="2"><strong>Total</strong></td>
@@ -4151,7 +4151,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.80';
+const APP_VERSION = '1.81';
 
 // ── SPLASH ──
 (function(){
@@ -4189,6 +4189,14 @@ const APP_VERSION = '1.80';
 
 
 const CHANGELOG = {
+  '1.81': {
+    dato: '19. maj 2026',
+    nyt: [
+      '🐛 BUG-FIX — Ugeseddel-PDF: "Tillæg"-kolonnen viste tidligere kun OT-kr-summen og ikke selve tillægs-teksten. Nu vises "0t 30m varslet · 1t 30m uvarslet", "Helligdag §8", "Sen frokost" osv. præcis som tilsigtet, så du kan se hvilke dage der havde mixed OT, helligdag eller andre tillæg direkte i dagsoversigten.',
+      'OT-kr-summen vises stadig — den er flyttet ned under dagslønnen i Løn-kolonnen som en lille grå "heraf X kr. tillæg"-linje, så både løn-total og tillægs-beløb er synlige uden at miste pladsen.',
+      'Kolonnebredder justeret så den længere Tillæg-tekst får plads (Dag 110, Tider 110, Timer 70, Tillæg 180, Løn 110).',
+    ]
+  },
   '1.80': {
     dato: '18. maj 2026',
     nyt: [
