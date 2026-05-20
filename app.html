@@ -2719,7 +2719,9 @@ function _pdfDag() {
     d.knapper?.e ? '10% Enkeltdag' : null,
     mødeMin > 0 ? `Møde ${mødeMin} min` : null,
   ].filter(Boolean).map(b => `<span style="background:var(--acc);color:#fff;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700">${b}</span>`).join(' ');
-  const pension = d.knapper?.e ? 0 : Math.round(d.lon * 0.095);
+  // §3.4/§3.7: pension 9,5% af normallønnen alene (mindstetimesats × normaltimer, uden tillæg/pers)
+  const pNormalH = Math.min(dagMax(aktivDag), d.h || 0);
+  const pension = d.knapper?.e ? 0 : Math.round((cfg.ugelon / 40) * pNormalH * 0.095);
   const html = `<div class="pdf-body">
     ${pdfTop('DAGSEDDEL', d.prod||cfg.prod||'—', cfg.selskab||'')}
     <hr class="pdf-hr">
@@ -3131,7 +3133,7 @@ function ugeData() {
       start: s.start, slut: s.slut,
       h, lon,
       manuelLon: s.manuelLon ?? null,
-      normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3,
+      normal: l.normal, normalH: l.normalH, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3,
       wk: l.wk, ext: l.ext,
       fsk: s.fsk ?? 0, fskKr: s.fskKr ?? 0, diaetKr, saertidKr, saertidUdenforH: sUH,
       knapper: s.knapper ?? {}, note: s.note ?? ''
@@ -3139,12 +3141,12 @@ function ugeData() {
   });
   const totH   = dage.reduce((a, d) => a + (d.fri ? 0 : d.h), 0);
   const totL   = dage.reduce((a, d) => a + (d.fri ? 0 : d.lon), 0);
-  // §3.4: Pensionsbidrag 9,5% af normallønnen
-  // §3.10: Enkeltdagsengagementer er ikke pensionsberettigede
-  // §14: Diæter er udlæg, ikke løn → ikke pensionspligtigt
-  // §3.7: Tillæg (inkl. §5 +100%) indgår ikke i pensionsgrundlaget
+  // §3.4: Pensionsbidrag 9,5% af NORMALLØNNEN alene.
+  // §3.7: Personligt tillæg + alle øvrige tillæg (OT, weekend, forskudt, §5) indgår IKKE.
+  // §3.10: Enkeltdagsengagementer er ikke pensionsberettigede.
+  // Normalløn = mindstetimesats (ugeløn/40) × normaltimer — uden pers.tillæg og uden tillæg.
   const pensionBase = dage.filter(d => !d.fri && !d.knapper?.e)
-    .reduce((a,d) => a + d.lon - (d.diaetKr || 0) - (d.saertidKr || 0), 0);
+    .reduce((a,d) => a + ts * (d.normalH || 0), 0);
   const pension = Math.round(pensionBase * 0.095);
   return { datoer, uge, ts, dMax, dage, totH, totL, pension };
 }
@@ -3795,8 +3797,9 @@ function _mndData() {
     const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0) + diaetKr + saertidKr);
     const ot = Math.max(0, s.h - dagMax(d));
     totH+=s.h; totL+=dagLon; totOt+=ot; totD++;
-    // §3.4 + §3.7: pension af normalløn — ekskluder enkeltdag, diæter og tillæg (§5)
-    if (!s.knapper?.e) totPensionL += (dagLon - diaetKr - saertidKr);
+    // §3.4 + §3.7: pension af NORMALLØNNEN alene (mindstetimesats × normaltimer),
+    // ekskl. OT/weekend/forskudt/diæt/§5 og personligt tillæg. Enkeltdage ikke pensionsberettiget.
+    if (!s.knapper?.e) totPensionL += (cfg.ugelon / 40) * (l.normalH || 0);
     dageData.push({d:new Date(d), s, lon:dagLon, h:s.h, ot, diaetKr, saertidKr});
   }
   return {mndNavn, år, mnd, totH, totL, totPensionL, totOt, totD, dageData, DAGE_LANG};
@@ -3926,8 +3929,8 @@ function _aarData() {
       const saertidKr = Math.round(sUH * tsForT);
       const dagLon = s.manuelLon ?? (l.total + (s.fskKr ?? 0) + diaetKr + saertidKr);
       mH+=s.h; mL+=dagLon; mOt+=Math.max(0, s.h - dagMax(dObj)); mD++;
-      // §3.4 + §3.7: pension af normalløn — ekskluder enkeltdag, diæter, tillæg
-      if (!s.knapper?.e) mPensionL += (dagLon - diaetKr - saertidKr);
+      // §3.4 + §3.7: pension af NORMALLØNNEN alene (mindstetimesats × normaltimer)
+      if (!s.knapper?.e) mPensionL += (cfg.ugelon / 40) * (l.normalH || 0);
     }
     totH+=mH; totL+=mL; totPensionL+=mPensionL; totOt+=mOt; totD+=mD;
     mndr.push({m, navn:MND_LANG[m], mH, mL, mOt, mD});
@@ -4157,7 +4160,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.82';
+const APP_VERSION = '1.83';
 
 // ── SPLASH ──
 (function(){
@@ -4195,6 +4198,13 @@ const APP_VERSION = '1.82';
 
 
 const CHANGELOG = {
+  '1.83': {
+    dato: '20. maj 2026',
+    nyt: [
+      '⚖️ Pensionsberegning rettet til overenskomsten (§3.4 + §3.7): Pension er nu 9,5% af NORMALLØNNEN alene — dvs. kun de normale timer til mindstetimesats. Overtidstillæg, weekendtillæg, forskudt tid, §5-tillæg og personligt tillæg indgår ikke længere i pensionsgrundlaget, præcis som overenskomsten foreskriver. Enkeltdage er fortsat ikke pensionsberettigede.',
+      'Ændringen er konsistent på tværs af dagseddel, ugeseddel, månedsoversigt og årsoversigt.',
+    ]
+  },
   '1.82': {
     dato: '20. maj 2026',
     nyt: [
