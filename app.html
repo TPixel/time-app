@@ -40,7 +40,7 @@ body{font-family:'Tahoma',sans-serif;font-weight:bold;background:var(--bg);color
 /* Tillad tekst-markering kun i input + textarea (skriv/redigér felter) */
 input,textarea,[contenteditable="true"]{-webkit-user-select:auto;user-select:auto;-webkit-touch-callout:default}
 /* Eksplicit no-select på interaktive elementer (safari-fallback) */
-button,.xb,.nbtn,.tab,.prod-sw-pill,.gem-btn,.dag-act-btn,.sbtn,.s-tog-btn,.tmodal-btn,.res-4dag-btn,.res,.dk,.aar-pill,.aar-mnd,.mnd-uge,.bb,.gear-btn,.fk-luk,.tf-display,.tf-inline,.dag-navn,.dag-dato,.dag-uge,.dag-prod-ttl,.res-t,.res-pay-amt,.res-pay-lbl,.mixed-ot-summary,.uge-model-opt,.mode-seg-opt,.saertid-badge,.wk-auto-badge,.alle-prod-btn,.prod-item,.prod-del,.prod-skjul,.slbl,.fk-titel,.fk-paragraf,.fk-regel,.toast,.toast-action{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button,.xb,.nbtn,.tab,.prod-sw-pill,.gem-btn,.dag-act-btn,.sbtn,.s-tog-btn,.tmodal-btn,.res-4dag-btn,.res,.dk,.aar-pill,.aar-mnd,.mnd-uge,.bb,.gear-btn,.fk-luk,.tf-display,.tf-inline,.dag-navn,.dag-dato,.dag-uge,.dag-prod-ttl,.res-t,.res-pay-amt,.res-pay-lbl,.mixed-ot-summary,.uge-model-opt,.mode-seg-opt,.daymode-btn,.saertid-badge,.wk-auto-badge,.alle-prod-btn,.prod-item,.prod-del,.prod-skjul,.slbl,.fk-titel,.fk-paragraf,.fk-regel,.toast,.toast-action{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 
 .topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:9px 14px}
 .logo{font-family:'Tahoma',sans-serif;font-size:0;font-weight:bold;letter-spacing:-.3px;display:flex;align-items:center;gap:0;min-width:0;flex-shrink:1}
@@ -256,16 +256,15 @@ to{transform:scale(1);opacity:1}}
 .wk-auto-badge{display:none;background:rgba(26,172,221,.1);border:1px solid rgba(26,172,221,.3);border-radius:8px;padding:6px 12px;margin-bottom:10px;font-size:11px;color:#1AACDD;text-align:center}
 .wk-auto-badge.vis{display:block}
 
-/* ── PROMINENT MODE-SWITCH (v1.79) — 5 DAG / 4 DAG §5 — øverst i dag-view ── */
-.mode-seg-row{margin:0 0 14px}
-.mode-seg{display:flex;background:var(--surf);border:2px solid var(--brd);border-radius:14px;padding:4px;gap:4px;width:100%}
-.mode-seg-opt{flex:1;padding:11px 6px;border-radius:10px;border:none;background:transparent;color:var(--mut);font-family:'Tahoma',sans-serif;font-weight:bold;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1}
-.mode-seg-opt .mode-seg-ttl{font-size:20px;letter-spacing:.5px}
-.mode-seg-opt .mode-seg-sub{font-size:11px;opacity:.65;font-weight:600;letter-spacing:.6px;text-transform:uppercase}
-.mode-seg-opt.on{background:var(--acc);color:#fff;box-shadow:0 3px 12px rgba(129,140,248,.4)}
-.mode-seg-opt.on .mode-seg-sub{opacity:.85}
-.mode-seg-opt.on.saertid{background:var(--pur);box-shadow:0 3px 12px rgba(167,139,250,.45)}
-.mode-seg-opt:active{transform:scale(.97)}
+/* ── 5 DAG / 4 DAG §5 — to separate knapper ved siden af hinanden (v1.84) ── */
+.daymode-row{display:flex;gap:10px;width:100%}
+.daymode-btn{flex:1 1 0;min-width:0;padding:11px 6px;border-radius:14px;border:2px solid var(--brd);background:var(--surf);color:var(--mut);font-family:'Tahoma',sans-serif;font-weight:bold;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1}
+.daymode-btn .daymode-ttl{font-size:20px;letter-spacing:.5px}
+.daymode-btn .daymode-sub{font-size:11px;opacity:.65;font-weight:600;letter-spacing:.6px;text-transform:uppercase}
+.daymode-btn.on{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 3px 12px rgba(129,140,248,.4)}
+.daymode-btn.on .daymode-sub{opacity:.85}
+.daymode-btn.on.saertid{background:var(--pur);border-color:var(--pur);box-shadow:0 3px 12px rgba(167,139,250,.45)}
+.daymode-btn:active{transform:scale(.97)}
 
 /* ── ACTION TOAST (v1.79) — toast med en knap (fx "Mail nu" efter PDF) ── */
 .toast-action{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-12px);background:var(--card);color:var(--txt);padding:10px 12px 10px 16px;border-radius:50px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:9999;display:flex;gap:10px;align-items:center;border:1.5px solid var(--acc);box-shadow:0 8px 28px rgba(0,0,0,.55);pointer-events:none}
@@ -634,18 +633,16 @@ textarea::placeholder{color:var(--mut)}
       </div>
     </div>
     <div class="res-sub" id="res-sub"></div>
-    <!-- v1.80: 5 DAG / 4 DAG §5 toggle flyttet ind i res-boks — under DAGSLØN -->
-    <div class="mode-seg-row" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--brd)">
-      <div class="mode-seg" role="tablist" aria-label="Arbejdstidsmodel">
-        <button class="mode-seg-opt on" id="ms-5dag" role="tab" aria-selected="true" onclick="event.stopPropagation();vælgVisMode('5dag')">
-          <span class="mode-seg-ttl">5 DAG</span>
-          <span class="mode-seg-sub">Normal §4</span>
-        </button>
-        <button class="mode-seg-opt" id="ms-4dag" role="tab" aria-selected="false" onclick="event.stopPropagation();vælgVisMode('saertid')">
-          <span class="mode-seg-ttl">4 DAG §5</span>
-          <span class="mode-seg-sub">Forskudt særtid</span>
-        </button>
-      </div>
+    <!-- v1.84: 5 DAG / 4 DAG §5 — to separate knapper ved siden af hinanden -->
+    <div class="daymode-row" aria-label="Arbejdstidsmodel">
+      <button class="daymode-btn on" id="ms-5dag" aria-pressed="true" onclick="event.stopPropagation();vælgVisMode('5dag')">
+        <span class="daymode-ttl">5 DAG</span>
+        <span class="daymode-sub">Normal §4</span>
+      </button>
+      <button class="daymode-btn" id="ms-4dag" aria-pressed="false" onclick="event.stopPropagation();vælgVisMode('saertid')">
+        <span class="daymode-ttl">4 DAG §5</span>
+        <span class="daymode-sub">Forskudt særtid</span>
+      </button>
     </div>
   </div>
 
@@ -4160,7 +4157,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.83';
+const APP_VERSION = '1.84';
 
 // ── SPLASH ──
 (function(){
@@ -4198,6 +4195,12 @@ const APP_VERSION = '1.83';
 
 
 const CHANGELOG = {
+  '1.84': {
+    dato: '20. maj 2026',
+    nyt: [
+      '🟣 5 DAG / 4 DAG §5 er nu to separate, tydelige knapper ved siden af hinanden i stedet for den tidligere segmenterede toggle, der kunne opføre sig ustabilt. Den aktive model er klart fremhævet (blå for 5 dag, lilla for 4 dag §5), og det er nu entydigt hvilken der er valgt.',
+    ]
+  },
   '1.83': {
     dato: '20. maj 2026',
     nyt: [
@@ -4743,10 +4746,10 @@ function opdaterUgeModelUI() {
   const ms4 = document.getElementById('ms-4dag');
   if (ms5 && ms4) {
     ms5.classList.toggle('on', !erSaertid);
-    ms5.setAttribute('aria-selected', !erSaertid ? 'true' : 'false');
+    ms5.setAttribute('aria-pressed', !erSaertid ? 'true' : 'false');
     ms4.classList.toggle('on', erSaertid);
     ms4.classList.toggle('saertid', erSaertid);
-    ms4.setAttribute('aria-selected', erSaertid ? 'true' : 'false');
+    ms4.setAttribute('aria-pressed', erSaertid ? 'true' : 'false');
   }
   const hint = document.getElementById('uge-model-hint');
   if (hint) hint.classList.toggle('vis', !!override);
