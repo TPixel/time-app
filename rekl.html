@@ -632,7 +632,7 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
     </div>
   </div>
   <div class="info-boks">
-    <strong>Reklamefilmsoverenskomst 2024</strong> · FAF/Producentforeningen<br>
+    <strong>Reklamefilmsoverenskomst 2024</strong><br>
     OT-satser (Optagelse): +25% (t9–10) / +100% (t11–12) / +150% (t13–14) / +200% (t15+)<br>
     OT-satser (Forbered): +25% / +50% / +75% / +75%<br>
     Gruppe 5: 200 kr/t (t9–14) · 350 kr/t (t15+)<br>
@@ -701,7 +701,7 @@ let S = {
 };
 
 // ═══════════════════════════════════════════════════════════
-// FAGGRUPPER (FAF Reklamefilmsoverenskomst 2024 §1)
+// FAGGRUPPER (Reklamefilmsoverenskomst 2024 §1)
 // ═══════════════════════════════════════════════════════════
 const FAGGRUPPER = [
   { gr: 1, titel: 'Kameraoperatør' },
@@ -1628,7 +1628,7 @@ function renderMnd() {
   ref.setDate(1);
   ref.setMonth(ref.getMonth() + S.mndOffset);
   document.getElementById('mnd-ttl').textContent = MAANEDER[ref.getMonth()] + ' ' + ref.getFullYear();
-  document.getElementById('mnd-yr').textContent = 'Reklamefilm · FAF 2024';
+  document.getElementById('mnd-yr').textContent = 'Reklamefilmsoverenskomst 2024';
 
   // Grupper dage i uger
   const aar = ref.getFullYear(), mnd = ref.getMonth();
@@ -1859,7 +1859,7 @@ function bygPDF(dage, titel, kunArbejdsdage) {
       <tr><td>Timer i alt</td><td class="num"><strong>${hFmt(totalT)}</strong></td></tr>
       <tr class="tot"><td>I alt</td><td class="num"><strong>${Math.round(totalKr).toLocaleString('da-DK')} kr.</strong></td></tr>
     </table>
-    <div class="pdf-footer">Reklamefilmsoverenskomst 2024 · Producentforeningen/FAF · Udskrevet ${new Date().toLocaleDateString('da-DK')} · time-app.dk</div>
+    <div class="pdf-footer">Reklamefilmsoverenskomst 2024 · Udskrevet ${new Date().toLocaleDateString('da-DK')} · time-app.dk</div>
   </div>`;
 }
 
@@ -1905,7 +1905,7 @@ function mailTekst(dage, titel) {
     totalKr += r.total;
     lines.push(`${DAGNAVNE_K[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}: ${p2(dag.tidStart.h)}:${p2(dag.tidStart.m)}–${p2(dag.tidSlut.h)}:${p2(dag.tidSlut.m)} · ${hFmt(r.arbejdsTimer)} · ${dt} Gr.${dag.gruppe} · ${Math.round(r.total).toLocaleString('da-DK')} kr.`);
   });
-  return `Timeregistrering — Reklamefilm\n${titel}\n${ S.inst.navn ? 'Navn: ' + S.inst.navn + '\n' : ''}Overenskomst: FAF Reklamefilm 2024\n\n${lines.join('\n')}\n\nI ALT: ${Math.round(totalKr).toLocaleString('da-DK')} kr.\n\n— Time App · Reklame`;
+  return `Timeregistrering — Reklamefilm\n${titel}\n${ S.inst.navn ? 'Navn: ' + S.inst.navn + '\n' : ''}Overenskomst: Reklamefilmsoverenskomst 2024\n\n${lines.join('\n')}\n\nI ALT: ${Math.round(totalKr).toLocaleString('da-DK')} kr.\n\n— Time App · Reklame`;
 }
 
 function doMail() {
