@@ -464,20 +464,20 @@ textarea::placeholder{color:var(--mut)}
   .pdf-body{width:210mm!important;padding:12mm 14mm 10mm!important;margin:0!important;page-break-inside:auto;}
 }
 .pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;width:210mm;box-sizing:border-box;padding:12mm 14mm 10mm;margin:0 auto;}
-.pdf-top{display:flex;align-items:flex-start;margin-bottom:22px;}
+.pdf-top{display:flex;align-items:flex-start;margin-bottom:14px;}
 .pdf-top-left{flex:1 1 auto;min-width:0;overflow:hidden;}
-.pdf-top-right{flex:0 0 150px;text-align:center;padding-left:8px;padding-top:2px;}
-.pdf-top-right img{width:138px;height:138px;display:block;margin:0 auto 5px;}
-.pdf-top-right .pdf-brand{font-family:'Tahoma',Arial,sans-serif;font-size:24px;letter-spacing:2px;color:#111;line-height:1;}
+.pdf-top-right{flex:0 0 96px;text-align:center;padding-left:8px;padding-top:2px;}
+.pdf-top-right img{width:80px;height:80px;display:block;margin:0 auto 4px;}
+.pdf-top-right .pdf-brand{font-family:'Tahoma',Arial,sans-serif;font-size:15px;letter-spacing:1.5px;color:#111;line-height:1;}
 .pdf-doc-type,.pdf-prod-name{font-family:'Tahoma',Arial Black,sans-serif;font-weight:800;line-height:0.95;letter-spacing:1px;color:#000;white-space:nowrap;display:block;}
-.pdf-prod-name{margin-top:14px;}
-.pdf-prod-co{font-size:24px;font-weight:800;color:#111;margin-top:16px;letter-spacing:1.5px;text-transform:uppercase;}
-.pdf-hr{border:none;border-top:2px solid #111;margin:0 0 14px;}
-.pdf-period-ttl{font-family:'Tahoma',sans-serif;font-weight:800;font-size:42px;letter-spacing:1.2px;color:#000;margin-bottom:6px;line-height:1;}
-.pdf-period-sub{font-size:18px;font-weight:700;color:#111;margin-bottom:22px;letter-spacing:.3px;}
-.pdf-emp-row{display:flex;gap:32px;padding:16px 0;border-top:2px solid #111;border-bottom:2px solid #111;margin-bottom:22px;}
-.pdf-emp-col .pdf-lbl{font-size:11px;font-weight:700;color:#444;margin-bottom:5px;letter-spacing:.08em;text-transform:uppercase;}
-.pdf-emp-col .pdf-val{font-size:18px;font-weight:800;color:#000;letter-spacing:-.2px;}
+.pdf-prod-name{margin-top:6px;}
+.pdf-prod-co{font-size:15px;font-weight:800;color:#111;margin-top:8px;letter-spacing:1.2px;text-transform:uppercase;}
+.pdf-hr{border:none;border-top:2px solid #111;margin:0 0 12px;}
+.pdf-period-ttl{font-family:'Tahoma',sans-serif;font-weight:800;font-size:30px;letter-spacing:1px;color:#000;margin-bottom:4px;line-height:1;}
+.pdf-period-sub{font-size:15px;font-weight:700;color:#111;margin-bottom:14px;letter-spacing:.3px;}
+.pdf-emp-row{display:flex;gap:28px;padding:10px 0;border-top:2px solid #111;border-bottom:2px solid #111;margin-bottom:14px;}
+.pdf-emp-col .pdf-lbl{font-size:10px;font-weight:700;color:#444;margin-bottom:4px;letter-spacing:.08em;text-transform:uppercase;}
+.pdf-emp-col .pdf-val{font-size:16px;font-weight:800;color:#000;letter-spacing:-.2px;}
 .pdf-sect{font-size:12px;font-weight:800;color:#111;letter-spacing:.14em;text-transform:uppercase;margin:0 0 12px;}
 .pdf-tbl{width:100%;border-collapse:collapse;font-size:15px;margin-bottom:18px;color:#111;}
 .pdf-tbl thead tr{background:#000;color:#fff;}
@@ -3331,13 +3331,15 @@ function _ensureOnePage(frame) {
 // ingen Safari URL/sidenummer-footer der pressede sidste linje til side 2).
 
 function pdfHeaderFs(docType, prodName) {
-  const colW = 560, base = 110, avgW = 62;
+  // v1.82: mindre header så udskrifter fylder én side. Tidligere base=110/min=54
+  // gav 54-105px overskrifter der pressede indholdet til side 2.
+  const colW = 600, base = 58, avgW = 62;
   function maxFs(t) {
     const lines = t.split('\n'), worst = lines.reduce((a,b)=>a.length>b.length?a:b);
     const n = worst.length;
     return (colW - (n-1)*1) * base / (n * avgW);
   }
-  return Math.max(54, Math.floor(Math.min(maxFs(docType), maxFs(prodName), base) * 0.96));
+  return Math.max(26, Math.floor(Math.min(maxFs(docType), maxFs(prodName), base) * 0.96));
 }
 function pdfTop(docType, prodName, prodCo) {
   const fs = pdfHeaderFs(docType, prodName);
@@ -3938,25 +3940,29 @@ function _pdfAar() {
   const {år, totH, totL, totPensionL, totOt, totD, mndr, prodLabel} = _aarData();
   const pension = Math.round(totPensionL * 0.095);
   const rækker = mndr.map(({navn,mH,mL,mOt,mD}) =>
-    mD ? `<tr><td>${navn}</td><td class="num">${mD}</td><td class="num">${hFmt(mH)}</td><td class="num">${mOt?hFmt(mOt):'—'}</td><td class="num">${mL.toLocaleString('da-DK')} kr.</td></tr>`
-       : `<tr class="fri"><td>${navn}</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>`
+    mD ? `<tr><td>${navn}</td><td class="r">${mD}</td><td class="r">${hFmt(mH)}</td><td class="r">${mOt?hFmt(mOt):'—'}</td><td class="r">${krFmt(mL)}</td></tr>`
+       : `<tr class="fri"><td>${navn}</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>`
   ).join('');
+  const ts = cfg.ugelon / (cfg.model === 'saertid' ? 50 : 40);
   const html = `<div class="pdf-body">
-    <div class="pdf-logo-hd"><div class="pdf-hd-left"><div style="font-size:8pt;background:#f5f5f5;border:1px solid #ddd;border-radius:4px;padding:4px 10px;color:#555;font-weight:600;letter-spacing:.5px;text-transform:uppercase;display:inline-block" id="pdf-type-lbl">Timespecifikation</div><span>TIME · APP &nbsp;·&nbsp; Ditzel</span></div><img src="logo_transparent.png"></div><hr style="border:none;border-top:2px solid #111;margin-bottom:10px">
-    <div class="pdf-h1">${prodLabel} — ${år}</div>
-    <div class="pdf-meta">
-      <span><strong>${cfg.navn||'—'}</strong>Navn</span>
-      <span><strong>${totD} dage</strong>Arbejdsdage</span>
-      <span><strong>${hFmt(totH)}</strong>Timer i alt</span>
-      <span><strong>${totOt?hFmt(totOt):'0t'}</strong>Overtid</span>
-    </div>
+    ${pdfTop('ÅRSOVERSIGT', prodLabel, cfg.selskab||'')}
+    <hr class="pdf-hr">
+    <div class="pdf-period-ttl">${år}</div>
+    <div class="pdf-period-sub">${totD} arbejdsdage · ${hFmt(totH)} · ${totOt?hFmt(totOt):'0t'} overtid</div>
+    ${pdfEmpRow(cfg.navn||'—', krFmt(cfg.ugelon), cfg.pers?krFmt(cfg.pers):'', ts.toFixed(2)+' kr/t', cfg.model==='saertid'?'10 timer §5':'8 timer §4')}
     <div class="pdf-sect">Månedsoversigt ${år}</div>
-    <table class="pdf-tbl"><thead><tr><th>Måned</th><th class="num">Dage</th><th class="num">Timer</th><th class="num">Overtid</th><th class="num">Løn</th></tr></thead><tbody>${rækker}</tbody></table>
-    <table class="pdf-tillæg">
-      <tr class="total"><td class="lbl">I alt ${år}</td><td class="num">${totL.toLocaleString('da-DK')} kr.</td></tr>
-      <tr class="sub"><td class="lbl">Pension 9,5%</td><td class="num">${pension.toLocaleString('da-DK')} kr.</td></tr>
+    <table class="pdf-tbl">
+      <thead><tr><th>Måned</th><th class="r">Dage</th><th class="r">Timer</th><th class="r">Overtid</th><th class="r">Løn</th></tr></thead>
+      <tbody>${rækker}</tbody>
+      <tr class="tot"><td><strong>I alt ${år}</strong></td><td class="r"><strong>${totD}</strong></td><td class="r"><strong>${hFmt(totH)}</strong></td><td class="r"><strong>${totOt?hFmt(totOt):'0t'}</strong></td><td class="r"><strong>${krFmt(totL)}</strong></td></tr>
     </table>
-    <div class="pdf-footer">Time App · Fiktionsoverenskomst 2025–2027 · Udskrevet ${new Date().toLocaleDateString('da-DK')}</div>
+    <div class="pdf-sect">Lønspecifikation</div>
+    <div class="pdf-lonspec">
+      <div class="pdf-lon-row bold"><span>Bruttoløn</span><span class="amt">${krFmt(totL)}</span></div>
+      <div class="pdf-lon-row muted"><span>Pension 9,5% §3</span><span><span class="note">Arbejdsgiverbetalt</span><span class="amt">${krFmt(pension)}</span></span></div>
+      <div class="pdf-lon-row bold"><span>Samlet inkl. pension</span><span class="amt">${krFmt(totL+pension)}</span></div>
+    </div>
+    <div class="pdf-footer"><span>time-app.dk</span><span>Udskrevet ${new Date().toLocaleDateString('da-DK')}</span></div>
   </div>`;
   return { html, år };
 }
@@ -4151,7 +4157,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.81';
+const APP_VERSION = '1.82';
 
 // ── SPLASH ──
 (function(){
@@ -4189,6 +4195,13 @@ const APP_VERSION = '1.81';
 
 
 const CHANGELOG = {
+  '1.82': {
+    dato: '20. maj 2026',
+    nyt: [
+      '📄 Kompakte udskrifter — alle PDF-udskrifter (dagseddel, ugeseddel, månedsoversigt og årsoversigt) fylder nu præcis ÉN side. Overskrift-blokken (logo + titel) er gjort markant mindre, så indholdet ikke længere skubbes til side 2 og ikke skrumpes unødigt for at passe.',
+      '🛠 Årsoversigten er rettet op: den brugte tidligere nogle layout-stilarter der ikke fandtes, hvilket gav et kæmpe logo og rodet header. Den har nu samme rene, kompakte header som de øvrige udskrifter.',
+    ]
+  },
   '1.81': {
     dato: '19. maj 2026',
     nyt: [

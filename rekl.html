@@ -251,7 +251,18 @@ select.s-inp{-webkit-appearance:none;padding-right:20px}
   body>*{display:none!important}
   #pdf-frame,#pdf-frame.vis{display:block!important;background:#fff!important;position:static!important;inset:auto!important;width:100%!important;padding:0!important;margin:0!important;z-index:auto!important;height:auto!important;min-height:0!important}
 }
-.pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;max-width:175mm;margin:0 auto}
+.pdf-body{font-family:Arial,sans-serif;font-size:10pt;color:#111;max-width:182mm;margin:0 auto}
+/* Kompakt brandet header (v2 — parallel til Fiktion-appen) */
+.pdf-top{display:flex;align-items:flex-start;margin-bottom:12px}
+.pdf-top-left{flex:1 1 auto;min-width:0}
+.pdf-top-right{flex:0 0 90px;text-align:center;padding-left:8px}
+.pdf-top-right img{width:74px;height:74px;display:block;margin:0 auto 3px;object-fit:contain}
+.pdf-top-right .pdf-brand{font-family:'Tahoma',Arial,sans-serif;font-weight:800;font-size:13pt;letter-spacing:1.5px;color:#111;line-height:1}
+.pdf-doc-type{font-family:'Tahoma',Arial Black,sans-serif;font-weight:900;font-size:22pt;line-height:.95;letter-spacing:.5px;color:#000}
+.pdf-prod-name{font-family:'Tahoma',Arial,sans-serif;font-weight:800;font-size:14pt;margin-top:4px;color:#111}
+.pdf-prod-co{font-size:8.5pt;font-weight:700;color:#555;margin-top:6px;letter-spacing:1px;text-transform:uppercase}
+.pdf-hr{border:none;border-top:2px solid #111;margin:0 0 12px}
+/* Bevaret bagudkompatibelt (ubrugt efter v2-header) */
 .pdf-h1{font-size:20pt;font-weight:900;letter-spacing:-.5px;margin-bottom:2px}
 .pdf-h2{font-size:11pt;color:#555;margin-bottom:12px}
 .pdf-meta{display:flex;gap:24px;font-size:9pt;color:#333;padding:8px 0;border-top:2px solid #111;border-bottom:1px solid #ccc;margin-bottom:14px}
@@ -1809,36 +1820,46 @@ function ugeDage() {
   return res;
 }
 
-function bygPDF(dage, titel) {
-  let totalKr = 0, totalT = 0;
-  const rækker = dage.map(({d, dag}) => {
+function bygPDF(dage, titel, kunArbejdsdage) {
+  let totalKr = 0, totalT = 0, antalDage = 0;
+  // Månedsudskrift: vis kun dage med registrering, så den fylder én side.
+  // Ugeudskrift: vis alle 7 dage (også tomme) for et komplet ugebillede.
+  const visning = kunArbejdsdage ? dage.filter(x => x.dag && x.dag.beregnet) : dage;
+  let rækker = visning.map(({d, dag}) => {
     if (!dag || !dag.beregnet) {
       return `<tr class="fri"><td>${DAGNAVNE_K[d.getDay()]}</td><td>${d.getDate()}/${d.getMonth()+1}</td><td>–</td><td>–</td><td>–</td><td class="num">–</td></tr>`;
     }
     const r = dag.beregnet;
     const dt = dag.dagtype === 'optagelse' ? 'Opt.' : 'Forb.';
     const tider = `${p2(dag.tidStart.h)}:${p2(dag.tidStart.m)}–${p2(dag.tidSlut.h)}:${p2(dag.tidSlut.m)}`;
-    totalKr += r.total; totalT += r.arbejdsTimer;
+    totalKr += r.total; totalT += r.arbejdsTimer; antalDage++;
     return `<tr><td>${DAGNAVNE_K[d.getDay()]}</td><td>${d.getDate()}/${d.getMonth()+1}</td><td>${tider}</td><td>${hFmt(r.arbejdsTimer)}</td><td>${dt} Gr.${dag.gruppe}</td><td class="num">${Math.round(r.total).toLocaleString('da-DK')}</td></tr>`;
   }).join('');
+  if (!rækker) rækker = `<tr class="fri"><td colspan="6" style="text-align:center;padding:14px">Ingen registreringer i perioden</td></tr>`;
 
   return `<div class="pdf-body">
-    <div class="pdf-h1">Time App · Reklame</div>
-    <div class="pdf-h2">${titel}</div>
-    <div class="pdf-meta">
-      ${S.inst.navn ? `<span><span style="font-size:8pt;color:#888">NAVN</span><strong>${S.inst.navn}</strong></span>` : ''}
-      <span><span style="font-size:8pt;color:#888">OVERENSKOMST</span><strong>Reklamefilm FAF 2024</strong></span>
-      <span><span style="font-size:8pt;color:#888">GENERERET</span><strong>${new Date().toLocaleDateString('da-DK')}</strong></span>
+    <div class="pdf-top">
+      <div class="pdf-top-left">
+        <div class="pdf-doc-type">REKLAME</div>
+        <div class="pdf-prod-name">${titel}</div>
+        <div class="pdf-prod-co">Reklamefilm · FAF 2024${S.inst.navn ? ' · ' + S.inst.navn : ''}</div>
+      </div>
+      <div class="pdf-top-right">
+        <img src="logo_transparent.png" alt="">
+        <div class="pdf-brand">TIME·APP</div>
+      </div>
     </div>
+    <hr class="pdf-hr">
     <table class="pdf-tbl">
       <tr><th>Dag</th><th>Dato</th><th>Tid</th><th>Timer</th><th>Type/Gr.</th><th class="num">Beløb kr.</th></tr>
       ${rækker}
     </table>
     <table class="pdf-sum">
+      <tr><td>Arbejdsdage</td><td class="num"><strong>${antalDage}</strong></td></tr>
       <tr><td>Timer i alt</td><td class="num"><strong>${hFmt(totalT)}</strong></td></tr>
       <tr class="tot"><td>I alt</td><td class="num"><strong>${Math.round(totalKr).toLocaleString('da-DK')} kr.</strong></td></tr>
     </table>
-    <div class="pdf-footer">Reklamefilmsoverenskomst 2024 · Producentforeningen/FAF · Genereret af Time App · Reklame</div>
+    <div class="pdf-footer">Reklamefilmsoverenskomst 2024 · Producentforeningen/FAF · Udskrevet ${new Date().toLocaleDateString('da-DK')} · time-app.dk</div>
   </div>`;
 }
 
@@ -1868,7 +1889,7 @@ function doPDF_mnd() {
   const titel = MAANEDER[mnd] + ' ' + aar;
   const frame = document.getElementById('pdf-frame');
   frame.className = 'vis';
-  frame.innerHTML = bygPDF(dage, titel);
+  frame.innerHTML = bygPDF(dage, titel, true); // kun arbejdsdage → én side
   setTimeout(() => { window.print(); frame.className = ''; frame.innerHTML = ''; }, 300);
 }
 
@@ -1927,8 +1948,16 @@ idbCheckRestore().then(() => {
 
 
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1';
+const APP_VERSION = '1.1';
 const CHANGELOG = {
+  '1.1': {
+    dato: '20. maj 2026',
+    nyt: [
+      '📄 Pænere udskrifter — uge- og månedsudskrift har nu en kompakt, brandet header (logo + TIME·APP) magen til Fiktion-appen.',
+      'Månedsudskriften viser nu kun dage med registrering, så den fylder én side i stedet for at liste alle månedens tomme dage.',
+      'Tilføjet "Arbejdsdage" og udskrivningsdato i bunden.',
+    ]
+  },
   '1': {
     dato: '10. april 2026',
     nyt: [
