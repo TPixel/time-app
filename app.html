@@ -260,8 +260,8 @@ to{transform:scale(1);opacity:1}}
 
 /* ── 5 DAG / 4 DAG §5 — to separate knapper ved siden af hinanden (v1.84) ── */
 .daymode-row{display:flex;gap:10px;width:100%}
-.daymode-btn{flex:1 1 0;min-width:0;padding:11px 6px;border-radius:14px;border:2px solid var(--brd);background:var(--surf);color:var(--mut);font-family:'Tahoma',sans-serif;font-weight:bold;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1}
-.daymode-btn .daymode-ttl{font-size:20px;letter-spacing:.5px}
+.daymode-btn{flex:1 1 0;min-width:0;padding:16px 8px;border-radius:14px;border:2px solid var(--brd);background:var(--surf);color:var(--mut);font-family:'Tahoma',sans-serif;font-weight:bold;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1}
+.daymode-btn .daymode-ttl{font-size:21px;letter-spacing:.5px}
 .daymode-btn .daymode-sub{font-size:11px;opacity:.65;font-weight:600;letter-spacing:.6px;text-transform:uppercase}
 .daymode-btn.on{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 3px 12px rgba(129,140,248,.4)}
 .daymode-btn.on .daymode-sub{opacity:.85}
@@ -640,12 +640,10 @@ textarea::placeholder{color:var(--mut)}
     <!-- v1.84: 5 DAG / 4 DAG §5 — to separate knapper ved siden af hinanden -->
     <div class="daymode-row" aria-label="Arbejdstidsmodel">
       <button class="daymode-btn on" id="ms-5dag" aria-pressed="true" onclick="event.stopPropagation();vælgVisMode('5dag')">
-        <span class="daymode-ttl">5 DAG</span>
-        <span class="daymode-sub">Normal §4</span>
+        <span class="daymode-ttl">5 dags uge</span>
       </button>
       <button class="daymode-btn" id="ms-4dag" aria-pressed="false" onclick="event.stopPropagation();vælgVisMode('saertid')">
-        <span class="daymode-ttl">4 DAG §5</span>
-        <span class="daymode-sub">Forskudt særtid</span>
+        <span class="daymode-ttl">4 dags uge</span>
       </button>
     </div>
   </div>
@@ -2732,7 +2730,7 @@ function _pdfDag() {
     <hr class="pdf-hr">
     <div class="pdf-period-ttl">${dagStr.toUpperCase()}</div>
     <div class="pdf-period-sub">${d.start||'—'} – ${d.slut||'—'} · ${hFmt(d.h)}</div>
-    ${pdfEmpRow(cfg.navn||'—', krFmt(cfg.ugelon), cfg.pers?krFmt(cfg.pers):'', (cfg.ugelon/40).toFixed(2)+' kr/t', cfg.model==='saertid'?'10 timer §5':'8 timer §4')}
+    ${pdfEmpRow(cfg.navn||'—', krFmt(cfg.ugelon), cfg.pers?krFmt(cfg.pers):'', (cfg.ugelon/40).toFixed(2)+' kr/t', arbtidLabel(modelForDato(aktivDag)))}
     ${badges ? `<div style="margin:0 0 12px;display:flex;gap:6px;flex-wrap:wrap">${badges}</div>` : ''}
     <div class="pdf-sect">Lønspecifikation</div>
     <div class="pdf-lonspec">
@@ -3363,6 +3361,10 @@ function pdfTop(docType, prodName, prodCo) {
     </div>
   </div>`;
 }
+// v1.86: ensartet arbejdstids-label til udskrifter — viser uge-modellen tydeligt
+function arbtidLabel(model) {
+  return model === 'saertid' ? '4 dags uge · 10 t §5' : '5 dags uge · 8 t §4';
+}
 function pdfEmpRow(navn, ugelon, pers, otsats, arbtid) {
   return `<div class="pdf-emp-row">
     <div class="pdf-emp-col"><div class="pdf-lbl">Navn</div><div class="pdf-val">${navn}</div></div>
@@ -3455,7 +3457,7 @@ function _pdfUge() {
     if (!kr) return '';
     return `<div class="pdf-lon-row${cls?' '+cls:''}"><span>${lbl}</span><span>${note?`<span class="note">${note}</span>`:''}<span class="amt">${krFmt(kr)}</span></span></div>`;
   }
-  const arbtid = cfg.model === 'saertid' ? '10 timer §5' : '8 timer §4';
+  const arbtid = arbtidLabel(modelForDato(datoer[0]));
   const html = `<div class="pdf-body">
     ${pdfTop('UGESEDDEL', cfg.prod||'—', cfg.selskab||'')}
     <hr class="pdf-hr">
@@ -3548,7 +3550,7 @@ function _genXLSX() {
   aoa.push([`Time App · Ditzel — Fiktionsoverenskomst 2025–2027`,'','','','','','','','','','']);
   aoa.push([`Navn: ${cfg.navn || '—'}`, '', '', `Uge: ${uge}`, '', `År: ${år}`,'','','','','']);
   aoa.push([`Produktion: ${cfg.prod || '—'}`, '', '', `Ugeløn: ${cfg.ugelon} kr.`, '', `Timesats: ${ts.toFixed(2)} kr/t`,'','','','','']);
-  aoa.push([`Arbejdstid: ${modelForDato(datoer[0]) === 'saertid' ? 'Forskudt særtid §5 (OT efter 10t)' : 'Normal §4 (OT efter 8t)'}`,
+  aoa.push([`Arbejdstid: ${modelForDato(datoer[0]) === 'saertid' ? '4 dags uge — forskudt særtid §5 (OT efter 10t)' : '5 dags uge — normal §4 (OT efter 8t)'}`,
     '','',`10% tillæg: ${cfg.tillæg ? 'Ja' : 'Nej'}`,'','','','','','','']);
   aoa.push(['']);
 
@@ -3826,13 +3828,17 @@ function _pdfMnd() {
     else if (s.knapper?.u) otTxt = ' (OT U)';
     return `<tr><td>${DAGE_LANG[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}</td><td class="mono">${s.start||''}–${s.slut||''}</td><td>${hFmt(h)}${otTxt}</td><td class="r">${krFmt(lon)}</td></tr>`;
   }).join('');
-  const ts = cfg.ugelon / (cfg.model === 'saertid' ? 50 : 40);
+  const ts = cfg.ugelon / 40;
+  const mndModeller = [...new Set(dageData.filter(x => x.s).map(x => modelForDato(x.d)))];
+  const mndArbtid = mndModeller.length === 1 ? arbtidLabel(mndModeller[0])
+                  : mndModeller.length > 1  ? 'Blandet 4/5 dags uge'
+                  : arbtidLabel(cfg.model);
   const html = `<div class="pdf-body">
     ${pdfTop('MÅNEDS\nOVERSIGT', cfg.prod||'—', cfg.selskab||'')}
     <hr class="pdf-hr">
     <div class="pdf-period-ttl">${mndNavn.toUpperCase()} ${år}</div>
     <div class="pdf-period-sub">${totD} arbejdsdage</div>
-    ${pdfEmpRow(cfg.navn||'—', krFmt(cfg.ugelon), cfg.pers?krFmt(cfg.pers):'', ts.toFixed(2)+' kr/t', cfg.model==='saertid'?'10 timer §5':'8 timer §4')}
+    ${pdfEmpRow(cfg.navn||'—', krFmt(cfg.ugelon), cfg.pers?krFmt(cfg.pers):'', ts.toFixed(2)+' kr/t', mndArbtid)}
     <div class="pdf-sect">Dagsoversigt — ${mndNavn} ${år}</div>
     <table class="pdf-tbl">
       <thead><tr>
@@ -3951,13 +3957,13 @@ function _pdfAar() {
     mD ? `<tr><td>${navn}</td><td class="r">${mD}</td><td class="r">${hFmt(mH)}</td><td class="r">${mOt?hFmt(mOt):'—'}</td><td class="r">${krFmt(mL)}</td></tr>`
        : `<tr class="fri"><td>${navn}</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="r">—</td></tr>`
   ).join('');
-  const ts = cfg.ugelon / (cfg.model === 'saertid' ? 50 : 40);
+  const ts = cfg.ugelon / 40;
   const html = `<div class="pdf-body">
     ${pdfTop('ÅRSOVERSIGT', prodLabel, cfg.selskab||'')}
     <hr class="pdf-hr">
     <div class="pdf-period-ttl">${år}</div>
     <div class="pdf-period-sub">${totD} arbejdsdage · ${hFmt(totH)} · ${totOt?hFmt(totOt):'0t'} overtid</div>
-    ${pdfEmpRow(cfg.navn||'—', krFmt(cfg.ugelon), cfg.pers?krFmt(cfg.pers):'', ts.toFixed(2)+' kr/t', cfg.model==='saertid'?'10 timer §5':'8 timer §4')}
+    ${pdfEmpRow(cfg.navn||'—', krFmt(cfg.ugelon), cfg.pers?krFmt(cfg.pers):'', ts.toFixed(2)+' kr/t', arbtidLabel(cfg.model))}
     <div class="pdf-sect">Månedsoversigt ${år}</div>
     <table class="pdf-tbl">
       <thead><tr><th>Måned</th><th class="r">Dage</th><th class="r">Timer</th><th class="r">Overtid</th><th class="r">Løn</th></tr></thead>
@@ -4165,7 +4171,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.85';
+const APP_VERSION = '1.86';
 
 // ── SPLASH ──
 (function(){
@@ -4203,6 +4209,14 @@ const APP_VERSION = '1.85';
 
 
 const CHANGELOG = {
+  '1.86': {
+    dato: '22. maj 2026',
+    nyt: [
+      '📄 Alle udskrifter (dagseddel, ugeseddel, månedsoversigt) viser nu uge-modellen korrekt — "4 dags uge" eller "5 dags uge". Tidligere brugte de produktionens standard-model i stedet for den faktiske model for ugen, så en udskrift fra en uge overstyret til 4-dages kunne vise forkert model og timetal.',
+      'Måneds- og årsoversigt: OT-timesatsen blev tidligere fejlagtigt udregnet som ugeløn/50 ved 4-dages uger — den er nu korrekt ugeløn/40, ligesom på dag- og ugeseddel.',
+      '🟣 De to model-knapper hedder nu enkelt "5 dags uge" og "4 dags uge".',
+    ]
+  },
   '1.85': {
     dato: '20. maj 2026',
     nyt: [
