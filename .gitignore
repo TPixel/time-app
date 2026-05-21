@@ -2,3 +2,6 @@
 # GoatCounter API-token (må ALDRIG committes)
 .goatcounter-token
 goatcounter-snippet.html
+
+# Claude Code arbejdsmapper (må ikke deployes)
+.claude/
