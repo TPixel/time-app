@@ -3250,7 +3250,13 @@ async function _pdfBuild(html, filnavn) {
   }
 }
 
+// v1.87: Ét enkelt del-flow. Web-apps kan ikke både vedhæfte en fil OG sætte
+// mailens emne — så vi gør én ting forudsigeligt: PDF deles via systemets
+// del-ark (vælg Mail dér), og emnet lægges på udklipsholderen så det kan
+// sættes ind i emnefeltet med ét tryk. Samme flow på alle enheder.
 async function _pdfDel(html, filnavn, emne) {
+  // Kopiér emnet til udklipsholderen med det samme — mens brugerens tryk er "frisk"
+  try { navigator.clipboard?.writeText(emne); } catch (e) {}
   toast('Bygger PDF…');
   let blob;
   try {
@@ -3262,30 +3268,25 @@ async function _pdfDel(html, filnavn, emne) {
   }
   const file = new File([blob], filnavn, { type: 'application/pdf' });
 
-  // iOS Safari Mail har en bug: når Web Share API kaldes med en fil OG title,
-  // ender title-strengen ofte i mail-brødteksten i stedet for emnefeltet.
-  // Workaround: skip Web Share API på iOS — brug mailto: + download i stedet.
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-  if (!isIOS && navigator.canShare && navigator.canShare({ files: [file] })) {
+  // Del-ark: PDF'en er ALTID vedhæftet. Ingen title — den roder kun mailen.
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    toast('Emne kopieret ✓ — vælg Mail i listen');
     try {
-      await navigator.share({ files: [file], title: emne, text: '' });
+      await navigator.share({ files: [file] });
       return;
     } catch (e) {
-      if (e.name === 'AbortError') return;
+      if (e.name === 'AbortError') return;        // brugeren annullerede selv
+      console.error('Deling fejlede:', e);        // teknisk fejl → hent PDF i stedet
     }
   }
 
-  // iOS / fallback: download PDF + åbn mailto med emnefelt korrekt udfyldt
+  // Fallback (ældre desktop-browser uden fil-deling, eller deling fejlede): hent PDF'en
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = filnavn;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
-  toast(isIOS ? 'PDF gemt i Filer — vedhæft i mailen' : 'PDF hentet — vedhæft den i mailen');
-  setTimeout(() => {
-    window.location.href = `mailto:${cfg.email||''}?subject=${encodeURIComponent(emne)}`;
-  }, 600);
+  toast('PDF hentet — vedhæft den i din mail (emnet er kopieret)');
 }
 
 // PDF-knap (download direkte) — bruger html2pdf-flowet, ingen window.print().
@@ -4171,7 +4172,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.86';
+const APP_VERSION = '1.87';
 
 // ── SPLASH ──
 (function(){
@@ -4209,6 +4210,13 @@ const APP_VERSION = '1.86';
 
 
 const CHANGELOG = {
+  '1.87': {
+    dato: '22. maj 2026',
+    nyt: [
+      '✉️ Mail-funktionen er gjort enkel og forudsigelig. Tidligere kunne den lave en mail uden emne, eller en mail med emne men uden PDF — fordi den skiftede mellem to forskellige metoder. Nu er der ét flow: PDF\'en bygges og åbnes i del-arket, hvor du vælger Mail. PDF\'en er altid vedhæftet.',
+      'Emnet kan en web-app ikke sætte automatisk i mailen — derfor kopieres det nu til udklipsholderen. Hold fingeren nede i emnefeltet og vælg "Sæt ind". Samme flow på iPhone, iPad og computer.',
+    ]
+  },
   '1.86': {
     dato: '22. maj 2026',
     nyt: [
