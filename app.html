@@ -2757,9 +2757,9 @@ function doPDF_dag() {
 function sendEnkeltDag() {
   const r = _pdfDag(); if (!r) return;
   const navnPrefix = cfg.navn ? `${cfg.navn} · ` : '';
-  const år = r.dagISO.slice(0,4);
   const prod = cfg.prod ? ` · ${cfg.prod}` : '';
-  const emne = `${navnPrefix}${r.dagStr} · ${år}${prod}`;
+  const dagUdenÅr = r.dagStr.replace(/ \d{4}$/, '');
+  const emne = `${navnPrefix}${dagUdenÅr}${prod} (TA)`;
   const filnavn = `TimeApp_${(cfg.navn||'dag').replace(/\s+/g,'_')}_${r.dagISO}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -3766,7 +3766,7 @@ function doMail() {
   const r = _pdfUge();
   const navnPrefix = cfg.navn ? `${cfg.navn} · ` : '';
   const prod = cfg.prod ? ` · ${cfg.prod}` : '';
-  const emne = `${navnPrefix}Uge ${r.uge} · ${r.år}${prod}`;
+  const emne = `${navnPrefix}Uge ${r.uge}${prod} (TA)`;
   const filnavn = `TimeApp_${(cfg.navn||'uge').replace(/\s+/g,'_')}_Uge${String(r.uge).padStart(2,'0')}-${r.år}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -3906,7 +3906,7 @@ function doMail_mnd() {
   const r = _pdfMnd();
   const navnPrefix = cfg.navn ? `${cfg.navn} · ` : '';
   const prod = cfg.prod ? ` · ${cfg.prod}` : '';
-  const emne = `${navnPrefix}${r.mndNavn} · ${r.år}${prod}`;
+  const emne = `${navnPrefix}${r.mndNavn} · ${r.år}${prod} (TA)`;
   const filnavn = `TimeApp_${(cfg.navn||'mnd').replace(/\s+/g,'_')}_${r.mndNavn}-${r.år}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -4015,7 +4015,7 @@ function doMail_aar() {
   const r = _pdfAar();
   const navnPrefix = cfg.navn ? `${cfg.navn} · ` : '';
   const prod = cfg.prod ? ` · ${cfg.prod}` : '';
-  const emne = `${navnPrefix}År ${r.år}${prod}`;
+  const emne = `${navnPrefix}År ${r.år}${prod} (TA)`;
   const filnavn = `TimeApp_${(cfg.navn||'aar').replace(/\s+/g,'_')}_${r.år}.pdf`;
   _pdfDel(r.html, filnavn, emne);
 }
@@ -4172,7 +4172,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.87';
+const APP_VERSION = '1.88';
 
 // ── SPLASH ──
 (function(){
@@ -4210,6 +4210,12 @@ const APP_VERSION = '1.87';
 
 
 const CHANGELOG = {
+  '1.88': {
+    dato: '22. maj 2026',
+    nyt: [
+      '✉️ Mail-emnerne er strammet op: dag- og ugeseddel viser ikke længere årstal, og alle udskrifter får nu "(TA)" til sidst i emnet, så time-app-mails er lette at kende.',
+    ]
+  },
   '1.87': {
     dato: '22. maj 2026',
     nyt: [
