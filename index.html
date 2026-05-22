@@ -779,6 +779,7 @@
   <div class="stat"><div class="stat-val">100%</div><div class="stat-lbl">Gratis</div></div>
   <div class="stat"><div class="stat-val">§3–§13</div><div class="stat-lbl">Paragraffer dækket</div></div>
   <div class="stat"><div class="stat-val">iOS · Android · Mac</div><div class="stat-lbl">Alle platforme</div></div>
+  <div class="stat" id="brugere-stat" style="display:none"><div class="stat-val" id="brugere-count">–</div><div class="stat-lbl">Brugere</div></div>
 </div>
 
 <!-- ══ MOCKUP 1 — DAG-VISNING MED CALLOUTS ══ -->
@@ -1145,7 +1146,7 @@
 <!-- FOOTER -->
 <footer>
   <p>Time App — Bygget til dansk filmproduktion · <a href="app.html?v=40">tpixel.github.io/time-app</a></p>
-  <p style="margin-top:8px">FAF Fiktionsoverenskomst 2025-2027 · 200 tests bestået · Version 29</p>
+  <p style="margin-top:8px">FAF Fiktionsoverenskomst 2025-2027 · 200 tests bestået · Version 30</p>
 </footer>
 
 <script>
@@ -1159,6 +1160,35 @@
     });
   }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+<script>
+// ── BESØGSTÆLLER ──
+(function(){
+  var NS  = 'time-app-dk-tpixel';
+  var API = 'https://abacus.jasoncameron.dev';
+
+  // Tæl totale åbninger ved hvert besøg
+  fetch(API + '/hit/' + NS + '/besoeg').catch(function(){});
+
+  // Tæl unikke brugere — kun én gang pr. enhed
+  var foersteBesoeg = !localStorage.getItem('timeapp_talt');
+  var url = foersteBesoeg
+    ? API + '/hit/' + NS + '/brugere'
+    : API + '/get/' + NS + '/brugere';
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && typeof d.value === 'number') {
+        if (foersteBesoeg) localStorage.setItem('timeapp_talt', '1');
+        document.getElementById('brugere-count').textContent =
+          d.value.toLocaleString('da-DK');
+        document.getElementById('brugere-stat').style.display = '';
+      }
+    })
+    .catch(function(){ /* tæller utilgængelig — stat forbliver skjult */ });
+})();
 </script>
 
 <script>
