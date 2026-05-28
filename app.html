@@ -332,9 +332,13 @@ textarea::placeholder{color:var(--mut)}
 .uge-ttl{font-family:'Tahoma',sans-serif;font-size:56px;font-weight:bold;letter-spacing:-.3px;line-height:1}
 .uge-yr{font-size:16px;color:var(--mut);margin-top:6px;font-family:'Tahoma',monospace;font-weight:bold;letter-spacing:.5px}
 .uge-prod{font-size:11px;color:var(--mut);margin-top:1px;font-style:italic}
-.uge-sum{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:18px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.us-val{font-family:'Tahoma',sans-serif;font-size:38px;font-weight:bold;letter-spacing:-.5px;line-height:1}
-.us-lbl{font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:1.2px;margin-top:6px;font-weight:bold}
+.uge-sum{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:20px 18px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr;gap:18px 14px}
+.us-cell{display:flex;align-items:baseline;gap:10px;min-width:0}
+.us-val{font-family:'Tahoma',sans-serif;font-size:62px;font-weight:bold;letter-spacing:-1.5px;line-height:.95;flex-shrink:0}
+.us-val small{font-size:32px !important;font-weight:bold;letter-spacing:-1px;color:inherit !important}
+.us-lbl{font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:1.2px;font-weight:bold;white-space:nowrap}
+.uge-mode-badge{display:inline-block;margin-top:8px;padding:5px 12px;border-radius:50px;font-family:'Tahoma',sans-serif;font-size:12px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;background:rgba(139,92,246,.14);color:var(--acc);border:1px solid rgba(139,92,246,.35)}
+.uge-mode-badge.m4{background:rgba(232,99,10,.14);color:var(--btn-v);border-color:rgba(232,99,10,.4)}
 .dk{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
 .dk::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
 .dk.c0::before{background:#818CF8}.dk.c1::before{background:#34D399}.dk.c2::before{background:#60A5FA}
@@ -717,6 +721,7 @@ textarea::placeholder{color:var(--mut)}
     <div>
       <div class="uge-ttl" id="uge-ttl">Uge –</div>
       <div class="uge-yr" id="uge-yr"></div>
+      <div class="uge-mode-badge" id="uge-mode-badge" style="display:none"></div>
     </div>
     <div style="display:flex;align-items:center;gap:6px">
       <button class="nbtn" onclick="skiftUge(-1)">‹</button>
@@ -724,10 +729,10 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
   <div class="uge-sum">
-    <div><div class="us-val" id="us-t">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Timer</div></div>
-    <div><div class="us-val" style="color:var(--grn)" id="us-l">0</div><div class="us-lbl">Kr.</div></div>
-    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--red)" id="us-o">0<small style="font-size:14px;color:var(--mut)">t</small></div><div class="us-lbl">Overtid</div></div>
-    <div style="border-top:1px solid var(--brd);padding-top:12px;margin-top:4px"><div class="us-val" style="color:var(--acc)" id="us-d">0</div><div class="us-lbl">Dage</div></div>
+    <div class="us-cell"><div class="us-val" id="us-t">0<small>t</small></div><div class="us-lbl">Timer</div></div>
+    <div class="us-cell"><div class="us-val" style="color:var(--grn)" id="us-l">0</div><div class="us-lbl">Kr.</div></div>
+    <div class="us-cell" style="border-top:1px solid var(--brd);padding-top:16px;margin-top:2px"><div class="us-val" style="color:var(--red)" id="us-o">0<small>t</small></div><div class="us-lbl">Overtid</div></div>
+    <div class="us-cell" style="border-top:1px solid var(--brd);padding-top:16px;margin-top:2px"><div class="us-val" style="color:var(--acc)" id="us-d">0</div><div class="us-lbl">Dage</div></div>
   </div>
   <div id="uge-liste"></div>
   <div class="send-row" style="flex-wrap:wrap;gap:6px">
@@ -3094,10 +3099,23 @@ function rendUge() {
       </div>`;
     liste.appendChild(el);
   });
-  document.getElementById('us-t').innerHTML = `${hFmt(totH)}`;
+  document.getElementById('us-t').innerHTML = `${hFmt(totH)}<small>t</small>`;
   document.getElementById('us-l').textContent = totL.toLocaleString('da-DK');
-  document.getElementById('us-o').innerHTML = `${hFmt(totOt)}`;
+  document.getElementById('us-o').innerHTML = `${hFmt(totOt)}<small>t</small>`;
   document.getElementById('us-d').textContent = totD;
+  // v1.89: tydelig 4/5-dages uge indikator
+  const modeEl = document.getElementById('uge-mode-badge');
+  if (modeEl) {
+    const ugeModel = (typeof modelForDato === 'function') ? modelForDato(datoer[0]) : (cfg.model || '5dag');
+    if (ugeModel === 'saertid') {
+      modeEl.textContent = '4-dages uge';
+      modeEl.className = 'uge-mode-badge m4';
+    } else {
+      modeEl.textContent = '5-dages uge';
+      modeEl.className = 'uge-mode-badge';
+    }
+    modeEl.style.display = 'inline-block';
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -4172,7 +4190,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.88';
+const APP_VERSION = '1.89';
 
 // ── SPLASH ──
 (function(){
@@ -4210,6 +4228,13 @@ const APP_VERSION = '1.88';
 
 
 const CHANGELOG = {
+  '1.89': {
+    dato: '28. maj 2026',
+    nyt: [
+      '👁 Uge-oversigten er gjort tydeligere: tallene for timer, kr., overtid og dage er nu store og lette at læse, med labels ved siden af i stedet for under. Bedre overblik når du tjekker ugen hurtigt.',
+      '🟣 Ny indikator under uge-titlen viser tydeligt om ugen kører på 4-dages eller 5-dages model. Lilla badge = 5-dages (normal §4), orange badge = 4-dages (særtid §5).',
+    ]
+  },
   '1.88': {
     dato: '22. maj 2026',
     nyt: [
