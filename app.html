@@ -850,7 +850,7 @@ textarea::placeholder{color:var(--mut)}
       </div>
 
       <!-- PERSONLIGT (per-produktion) — foldbar v1.91 -->
-      <div class="s-hd s-hd-click" onclick="togCard('pers-body','pers-ch')">
+      <div class="s-hd s-hd-click" onclick="togCardX('pers-body','pers-ch','lon-body','lon-ch')">
         <span>Personligt</span>
         <span id="pers-ch" class="s-hd-ch">▾ Vis</span>
       </div>
@@ -876,7 +876,7 @@ textarea::placeholder{color:var(--mut)}
       </div>
 
       <!-- LØN (per-produktion) — foldbar v1.91 -->
-      <div class="s-hd s-hd-click" onclick="togCard('lon-body','lon-ch')">
+      <div class="s-hd s-hd-click" onclick="togCardX('lon-body','lon-ch','pers-body','pers-ch')">
         <span>Løn</span>
         <span id="lon-ch" class="s-hd-ch">▾ Vis</span>
       </div>
@@ -1790,6 +1790,17 @@ function togCard(bodyId, chId) {
   body.style.display = lukker ? 'none' : showAs;
   if (ch) ch.textContent = lukker ? '▾ Vis' : '▴ Luk';
   localStorage.setItem('faf-card-' + bodyId, lukker ? '0' : '1');
+}
+// Accordion v1.92: åbner bodyId, lukker samtidig closeId (hvis åben)
+function togCardX(openId, openCh, closeId, closeCh) {
+  const closeBody = document.getElementById(closeId);
+  if (closeBody && closeBody.style.display !== 'none') {
+    closeBody.style.display = 'none';
+    const cch = document.getElementById(closeCh);
+    if (cch) cch.textContent = '▾ Vis';
+    localStorage.setItem('faf-card-' + closeId, '0');
+  }
+  togCard(openId, openCh);
 }
 function initCard(bodyId, chId, defaultOpen = true) {
   const gemt = localStorage.getItem('faf-card-' + bodyId);
@@ -4196,7 +4207,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.91';
+const APP_VERSION = '1.92';
 
 // ── SPLASH ──
 (function(){
@@ -4234,6 +4245,12 @@ const APP_VERSION = '1.91';
 
 
 const CHANGELOG = {
+  '1.92': {
+    dato: '29. maj 2026',
+    nyt: [
+      '🪗 PERSONLIGT og LØN opfører sig nu som accordion: kun én kan være åben ad gangen. Når den ene åbnes, lukkes den anden automatisk — så du aldrig skal scrolle.',
+    ]
+  },
   '1.91': {
     dato: '29. maj 2026',
     nyt: [
