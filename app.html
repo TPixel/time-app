@@ -405,6 +405,14 @@ textarea::placeholder{color:var(--mut)}
 .s-desc{font-size:11px;color:var(--mut);margin-top:2px}
 .s-inp{background:var(--surf);border:1px solid var(--brd);border-radius:8px;padding:8px 12px;color:var(--txt);font-family:'Tahoma',monospace;font-size:14px;outline:none}
 .s-inp:focus{border-color:var(--acc)}
+/* TYDELIGHED v1.90 — stablet personligt-felt */
+.s-stack{padding:16px 18px;border-bottom:1px solid var(--brd);display:flex;flex-direction:column;gap:6px}
+.s-stack:last-child{border-bottom:none}
+.s-stack-lbl{font-size:18px;font-weight:700;color:var(--txt);letter-spacing:.3px}
+.s-stack-desc{font-size:12px;color:var(--mut);line-height:1.45;margin-top:-2px}
+.s-stack-inp{background:var(--surf);border:1.5px solid var(--brd);border-radius:10px;padding:13px 14px;color:var(--txt);font-family:'Tahoma',sans-serif;font-size:16px;font-weight:500;outline:none;width:100%;box-sizing:border-box;margin-top:6px;transition:border-color .15s,background .15s}
+.s-stack-inp:focus{border-color:var(--acc);background:var(--card2)}
+.s-stack-inp::placeholder{color:var(--mut);opacity:.45}
 .s-tog-btn{background:var(--surf);border:1.5px solid var(--brd);border-radius:8px;padding:8px 14px;color:var(--mut);font-family:'Tahoma',sans-serif;font-weight:bold;font-size:13px;cursor:pointer;transition:all .18s;letter-spacing:.3px;white-space:nowrap}
 .s-tog-btn.on{background:var(--acc);border-color:var(--acc);color:#fff}
 .s-tog-btn:active{transform:scale(.96)}
@@ -839,43 +847,25 @@ textarea::placeholder{color:var(--mut)}
         Detaljer · <span id="aktiv-prod-navn" style="color:var(--acc)">(ingen valgt)</span>
       </div>
 
-      <!-- PERSONLIGT (per-produktion) -->
+      <!-- PERSONLIGT (per-produktion) — TYDELIGHED v1.90 -->
       <div class="s-hd">Personligt</div>
-      <div class="s-row">
-        <div><div class="s-lbl">Navn</div></div>
-        <input class="s-inp" type="text" id="s-navn" style="width:140px;text-align:left">
+      <div class="s-stack">
+        <label class="s-stack-lbl" for="s-navn">Navn</label>
+        <input class="s-stack-inp" type="text" id="s-navn" placeholder="Dit navn">
       </div>
-      <div class="s-row">
-        <div><div class="s-lbl">Email produktion</div><div class="s-desc">Send ugeseddel til</div></div>
-        <input class="s-inp" type="email" id="s-email" style="width:160px;text-align:left;font-size:12px">
+      <div class="s-stack">
+        <label class="s-stack-lbl" for="s-email">Email produktion</label>
+        <div class="s-stack-desc">Modtager ugeseddel automatisk</div>
+        <input class="s-stack-inp" type="email" id="s-email" placeholder="prod@film.dk">
       </div>
-      <div class="s-row">
-        <div><div class="s-lbl">Produktionstitel</div></div>
-        <input class="s-inp" type="text" id="s-prod" style="width:140px;text-align:left">
+      <div class="s-stack">
+        <label class="s-stack-lbl" for="s-prod">Produktionstitel</label>
+        <input class="s-stack-inp" type="text" id="s-prod" placeholder="Filmens titel">
       </div>
-      <div class="s-row">
-        <div><div class="s-lbl">Produktionsselskab</div><div class="s-desc">Til udskrifter og ugesedler</div></div>
-        <input class="s-inp" type="text" id="s-selskab" style="width:180px;text-align:left;font-size:12px">
-      </div>
-
-      <!-- ARBEJDSTIDSMODEL (per-produktion) -->
-      <div class="s-hd">Arbejdstidsmodel §4 / §5</div>
-      <div class="model-seg">
-        <button class="model-opt" id="mseg-5dag" onclick="vælgModel('5dag')">
-          <span class="model-opt-ttl">5-dages</span>
-          <span class="model-opt-sub">8t/dag · OT efter 8t</span>
-        </button>
-        <button class="model-opt" id="mseg-saertid" onclick="vælgModel('saertid')">
-          <span class="model-opt-ttl">4-dages §5</span>
-          <span class="model-opt-sub">10t/dag · OT efter 10t</span>
-        </button>
-      </div>
-      <div class="s-row" id="fridag-row" style="display:none">
-        <div><div class="s-lbl">Fridag placering</div><div class="s-desc">§5 stk. 3 / stk. 4</div></div>
-        <select class="s-inp" id="s-fridag" style="width:120px;text-align:left" onchange="gemInst()">
-          <option value="fre">Fredag</option>
-          <option value="man">Mandag</option>
-        </select>
+      <div class="s-stack">
+        <label class="s-stack-lbl" for="s-selskab">Produktionsselskab</label>
+        <div class="s-stack-desc">Vises på ugesedler og udskrifter</div>
+        <input class="s-stack-inp" type="text" id="s-selskab" placeholder="Selskab Aps.">
       </div>
 
       <!-- LØN §3 (per-produktion) -->
@@ -1704,7 +1694,7 @@ function gemInst() {
   cfg.selskab = document.getElementById('s-selskab').value.trim();
   cfg.ugelon  = parseFloat(document.getElementById('s-ugelon').value) || 10380;
   cfg.pers   = parseFloat(document.getElementById('s-pers').value) || 0;
-  cfg.fridag = document.getElementById('s-fridag').value;
+  const frEl = document.getElementById('s-fridag'); if (frEl) cfg.fridag = frEl.value;
   const dEl = document.getElementById('s-diaet');
   cfg.diaet = dEl ? (parseFloat(dEl.value) || 597) : 597;
   const dlEl = document.getElementById('s-daglon');
@@ -1747,9 +1737,10 @@ function opdaterModelUI() {
   document.getElementById('mseg-5dag')?.classList.toggle('on', cfg.model === '5dag');
   document.getElementById('mseg-saertid')?.classList.toggle('on', cfg.model === 'saertid');
   const fridagRow = document.getElementById('fridag-row');
-  fridagRow.style.display = cfg.model === 'saertid' ? 'flex' : 'none';
+  if (fridagRow) fridagRow.style.display = cfg.model === 'saertid' ? 'flex' : 'none';
   if (cfg.model === 'saertid') {
-    document.getElementById('s-fridag').value = cfg.fridag || 'fre';
+    const fs = document.getElementById('s-fridag');
+    if (fs) fs.value = cfg.fridag || 'fre';
   }
   opdaterSaertidBadge();
 }
@@ -4190,7 +4181,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.89';
+const APP_VERSION = '1.90';
 
 // ── SPLASH ──
 (function(){
@@ -4228,6 +4219,13 @@ const APP_VERSION = '1.89';
 
 
 const CHANGELOG = {
+  '1.90': {
+    dato: '29. maj 2026',
+    nyt: [
+      '✨ Tydelighed på Produktioner: PERSONLIGT-boksen er tegnet om — store fede labels, hjælpetekst som mindre underlinje, fuld-bredde inputs med tydelig kant. Lettere at læse og taste i.',
+      '🧹 Arbejdstidsmodel §4/§5 er fjernet fra Produktioner-siden — modellen vælges nu kun på dagssiden (5 dags / 4 dags). Mindre dobbeltkonfiguration, ét sted at vælge.',
+    ]
+  },
   '1.89': {
     dato: '28. maj 2026',
     nyt: [
