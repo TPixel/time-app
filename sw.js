@@ -2,7 +2,7 @@
 // v66 — network-first strategi: brugeren får ALTID seneste version når online,
 // cache bruges kun som fallback når offline. Tidligere cache-first fastholdt
 // brugere på gamle versioner indtil CACHE-konstanten blev bumped manuelt.
-const CACHE = 'timeapp-v68';
+const CACHE = 'timeapp-v69';
 const ASSETS = ['/app.html', '/rekl.html', '/se-ftv.html', '/icon.png'];
 
 self.addEventListener('install', e => {
