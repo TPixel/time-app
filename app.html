@@ -399,6 +399,8 @@ textarea::placeholder{color:var(--mut)}
 /* ── INDSTILLINGER ── */
 .s-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
 .s-hd{padding:14px 16px;background:var(--card2);font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--txt)}
+.s-hd-click{cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.s-hd-ch{font-size:15px;opacity:.85;font-weight:600;letter-spacing:.5px}
 .s-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--brd)}
 .s-row:last-child{border-bottom:none}
 .s-lbl{font-size:14px;font-weight:500}
@@ -847,29 +849,38 @@ textarea::placeholder{color:var(--mut)}
         Detaljer · <span id="aktiv-prod-navn" style="color:var(--acc)">(ingen valgt)</span>
       </div>
 
-      <!-- PERSONLIGT (per-produktion) — TYDELIGHED v1.90 -->
-      <div class="s-hd">Personligt</div>
-      <div class="s-stack">
-        <label class="s-stack-lbl" for="s-navn">Navn</label>
-        <input class="s-stack-inp" type="text" id="s-navn" placeholder="Dit navn">
+      <!-- PERSONLIGT (per-produktion) — foldbar v1.91 -->
+      <div class="s-hd s-hd-click" onclick="togCard('pers-body','pers-ch')">
+        <span>Personligt</span>
+        <span id="pers-ch" class="s-hd-ch">▾ Vis</span>
       </div>
-      <div class="s-stack">
-        <label class="s-stack-lbl" for="s-email">Email produktion</label>
-        <div class="s-stack-desc">Modtager ugeseddel automatisk</div>
-        <input class="s-stack-inp" type="email" id="s-email" placeholder="prod@film.dk">
-      </div>
-      <div class="s-stack">
-        <label class="s-stack-lbl" for="s-prod">Produktionstitel</label>
-        <input class="s-stack-inp" type="text" id="s-prod" placeholder="Filmens titel">
-      </div>
-      <div class="s-stack">
-        <label class="s-stack-lbl" for="s-selskab">Produktionsselskab</label>
-        <div class="s-stack-desc">Vises på ugesedler og udskrifter</div>
-        <input class="s-stack-inp" type="text" id="s-selskab" placeholder="Selskab Aps.">
+      <div id="pers-body" data-display="block" style="display:none">
+        <div class="s-stack">
+          <label class="s-stack-lbl" for="s-navn">Navn</label>
+          <input class="s-stack-inp" type="text" id="s-navn" placeholder="Dit navn">
+        </div>
+        <div class="s-stack">
+          <label class="s-stack-lbl" for="s-email">Email produktion</label>
+          <div class="s-stack-desc">Modtager ugeseddel automatisk</div>
+          <input class="s-stack-inp" type="email" id="s-email" placeholder="prod@film.dk">
+        </div>
+        <div class="s-stack">
+          <label class="s-stack-lbl" for="s-prod">Produktionstitel</label>
+          <input class="s-stack-inp" type="text" id="s-prod" placeholder="Filmens titel">
+        </div>
+        <div class="s-stack">
+          <label class="s-stack-lbl" for="s-selskab">Produktionsselskab</label>
+          <div class="s-stack-desc">Vises på ugesedler og udskrifter</div>
+          <input class="s-stack-inp" type="text" id="s-selskab" placeholder="Selskab Aps.">
+        </div>
       </div>
 
-      <!-- LØN §3 (per-produktion) -->
-      <div class="s-hd">Løn §3</div>
+      <!-- LØN (per-produktion) — foldbar v1.91 -->
+      <div class="s-hd s-hd-click" onclick="togCard('lon-body','lon-ch')">
+        <span>Løn</span>
+        <span id="lon-ch" class="s-hd-ch">▾ Vis</span>
+      </div>
+      <div id="lon-body" data-display="block" style="display:none">
       <div class="s-row" id="s-daglon-row">
         <div><div class="s-lbl">Manuel dagløn</div><div class="s-desc">Fast aftalt dagssats — overskriver beregnet løn</div></div>
         <input class="s-inp" type="number" id="s-daglon" min="0" step="1" placeholder="0 = beregn auto"
@@ -903,6 +914,8 @@ textarea::placeholder{color:var(--mut)}
         <div style="font-family:'Tahoma',monospace;font-size:16px;font-weight:600;color:var(--acc)" id="daglon-vis">—</div>
       </div>
       <!-- 10% enkeltdagstillæg styres per dag via bn-e knappen på dag-visningen -->
+      </div>
+      <!-- /lon-body -->
 
       <!-- GEM-knap for aktiv produktion -->
       <div style="padding:14px 16px 16px">
@@ -4116,6 +4129,8 @@ idbCheckRestore().then(() => {
   initTillæg();
   // Alle s-cards starter lukket — folder ud ved klik. Tilstand huskes via localStorage.
   initCard('prod-body',  'prod-ch',  false);
+  initCard('pers-body',  'pers-ch',  false);
+  initCard('lon-body',   'lon-ch',   false);
   initCard('sik-body',   'sik-ch',   false);
   initCard('omsup-body', 'omsup-ch', false);
   opdaterSidstBackup();
@@ -4181,7 +4196,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.90';
+const APP_VERSION = '1.91';
 
 // ── SPLASH ──
 (function(){
@@ -4219,6 +4234,13 @@ const APP_VERSION = '1.90';
 
 
 const CHANGELOG = {
+  '1.91': {
+    dato: '29. maj 2026',
+    nyt: [
+      '📂 PERSONLIGT og LØN er nu foldbare på Produktioner-siden — tryk på titlen for at åbne/lukke. Mindre at scrolle igennem, lettere at finde rundt. Starter lukket — Produktioner-listen er det første du ser.',
+      '✂️ "Løn §3" omdøbt til "Løn" — paragraffen hører til i overenskomsten, ikke i overskriften.',
+    ]
+  },
   '1.90': {
     dato: '29. maj 2026',
     nyt: [
