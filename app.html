@@ -519,41 +519,6 @@ textarea::placeholder{color:var(--mut)}
 @keyframes splashFadeUp{0%{opacity:0;transform:translateY(14px)}100%{opacity:1;transform:translateY(0)}}
 </style>
 
-<style id="design-mode-css">
-.dm-overlay{position:fixed;inset:0;z-index:5000;background:rgba(8,8,12,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;justify-content:center;align-items:flex-end}
-.dm-overlay.on{display:flex}
-.dm-panel{background:var(--surf);border:1px solid var(--brd);border-radius:20px 20px 0 0;width:100%;max-width:430px;max-height:90dvh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.5);animation:dmUp .25s ease}
-@keyframes dmUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.dm-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--brd);flex-shrink:0}
-.dm-title{font-family:'Tahoma',sans-serif;font-size:18px;font-weight:800;color:var(--txt);letter-spacing:.3px;display:flex;align-items:center;gap:8px}
-.dm-x{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--brd);background:var(--card);color:var(--txt);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
-.dm-x:active{transform:scale(.9)}
-.dm-body{overflow-y:auto;padding:12px 18px 8px;-webkit-overflow-scrolling:touch}
-.dm-group{font-family:'Tahoma',monospace;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--acc);margin:18px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--brd)}
-.dm-group:first-child{margin-top:4px}
-.dm-row{margin-bottom:14px}
-.dm-row-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
-.dm-row-lbl{font-family:'Tahoma',sans-serif;font-size:13px;font-weight:600;color:var(--txt)}
-.dm-row-val{font-family:'Tahoma',monospace;font-size:13px;font-weight:700;color:var(--acc);background:var(--card);padding:2px 8px;border-radius:6px;min-width:48px;text-align:center}
-.dm-slider{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;background:var(--card2);outline:none;cursor:pointer}
-.dm-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--acc);border:3px solid var(--surf);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.4)}
-.dm-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--acc);border:3px solid var(--surf);cursor:pointer}
-.dm-color-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.dm-color-lbl{font-family:'Tahoma',sans-serif;font-size:13px;font-weight:600;color:var(--txt)}
-.dm-color-wrap{display:flex;align-items:center;gap:8px}
-.dm-color-hex{font-family:'Tahoma',monospace;font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase}
-.dm-color{width:40px;height:32px;border:1.5px solid var(--brd);border-radius:8px;background:var(--card);cursor:pointer;padding:2px}
-.dm-foot{display:flex;gap:10px;padding:14px 18px;border-top:1px solid var(--brd);flex-shrink:0;background:var(--surf)}
-.dm-btn{flex:1;padding:15px;border-radius:12px;border:none;font-family:'Tahoma',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:transform .12s}
-.dm-btn:active{transform:scale(.96)}
-.dm-btn.save{background:var(--acc);color:#fff}
-.dm-btn.reset{background:var(--card);color:var(--mut);border:1.5px solid var(--brd)}
-.dm-hint{font-family:'Tahoma',sans-serif;font-size:11px;color:var(--mut);text-align:center;padding:0 18px 10px;line-height:1.4}
-</style>
-<script>
-/* Design Mode — anvend gemte værdier FØR paint (undgå flash) */
-try{var _dm=JSON.parse(localStorage.getItem('design-mode-v1')||'{}');for(var _k in _dm){if(_dm[_k])document.documentElement.style.setProperty(_k,_dm[_k]);}}catch(e){}
-</script>
 </head>
 <body>
 
@@ -566,7 +531,6 @@ try{var _dm=JSON.parse(localStorage.getItem('design-mode-v1')||'{}');for(var _k 
       <button class="tab" id="tab-mnd" onclick="visView('mnd')">Måned</button>
     </div>
     <span id="backup-icon" style="font-size:16px;cursor:pointer;opacity:0.25" title="Gem backup-fil til Filer" onclick="gemBackupFil()">☁️</span>
-    <button class="gear-btn" id="design-btn" onclick="openDesignMode()" title="Design Mode">🎨</button>
     <button class="gear-btn" id="gear-btn" onclick="visView('inst')" title="Indstillinger">⚙️</button>
   </div>
 </div>
@@ -4244,7 +4208,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.97';
+const APP_VERSION = '1.98';
 
 // ── SPLASH ──
 (function(){
@@ -4282,10 +4246,10 @@ const APP_VERSION = '1.97';
 
 
 const CHANGELOG = {
-  '1.97': {
-    dato: '29. maj 2026',
+  '1.98': {
+    dato: '31. maj 2026',
     nyt: [
-      '🎨 Nyt Design Mode-panel! Tryk på pensel-ikonet 🎨 i topbaren og juster selv font-størrelser, padding og farver live — du ser ændringerne med det samme. Skru på label-, input-, placeholder-, dag-, knap- og body-tekst, og vælg dine egne farver. Tryk "Gem design" for at beholde, eller "Nulstil" for at gå tilbage til standard. Alt gemmes lokalt på din telefon.',
+      '🧹 Design Mode-panelet er fjernet — det gav for begrænsede justeringer til at være nyttigt. Topbaren er nu renere uden pensel-ikonet, og alt standard-design er tilbage.',
     ]
   },
   '1.92': {
@@ -5168,132 +5132,8 @@ window.addEventListener('load', setupLongPress);
 // Luk forklaring ved Escape
 window.addEventListener('keydown', e => { if (e.key === 'Escape') lukForklaring(); });
 
-// ══════════════════════════════════════════════════════════
-// ── DESIGN MODE ──
-// Live justering af font-størrelser, padding og farver.
-// Gemmer i localStorage (nøgle 'design-mode-v1') som {cssVar: værdi}.
-// CSS bruger var(--dm-X, default) så standard-udseendet bevares
-// indtil Thomas selv ændrer noget.
-// ══════════════════════════════════════════════════════════
-const DM_KEY = 'design-mode-v1';
-const DM_SLIDERS = [
-  { g:'Indstillinger-siden' },
-  { v:'--dm-s-lbl',  lbl:'Label størrelse',       min:12, max:50, def:40 },
-  { v:'--dm-s-inp',  lbl:'Input størrelse',       min:14, max:40, def:28 },
-  { v:'--dm-s-ph',   lbl:'Placeholder størrelse', min:12, max:36, def:26 },
-  { v:'--dm-s-desc', lbl:'Beskrivelse størrelse', min:10, max:20, def:14 },
-  { v:'--dm-s-pad',  lbl:'Input padding',         min:6,  max:24, def:16 },
-  { v:'--dm-s-gap',  lbl:'Stack mellemrum',       min:0,  max:16, def:3  },
-  { g:'Dag-visning' },
-  { v:'--dm-dag-navn', lbl:'Dagsnavn',         min:20, max:60, def:54 },
-  { v:'--dm-dag-dato', lbl:'Dato',             min:20, max:50, def:42 },
-  { v:'--dm-dag-prod', lbl:'Produktionstitel', min:16, max:70, def:64 },
-  { v:'--dm-tid',      lbl:'Tid-display',      min:30, max:80, def:60 },
-  { v:'--dm-dagslon',  lbl:'Dagsløn',          min:20, max:70, def:64 },
-  { g:'Knapper' },
-  { v:'--dm-btn-fs',  lbl:'Knap størrelse', min:10, max:24, def:14 },
-  { v:'--dm-btn-pad', lbl:'Knap padding',   min:6,  max:20, def:14 },
-  { g:'Generelt' },
-  { v:'--dm-body', lbl:'Body tekst', min:12, max:24, def:16 },
-];
-const DM_COLORS = [
-  { v:'--acc',  lbl:'Accent-farve',  def:'#818CF8' },
-  { v:'--bg',   lbl:'Baggrund',      def:'#0C0C12' },
-  { v:'--txt',  lbl:'Tekst',         def:'#EEEEF5' },
-  { v:'--card', lbl:'Kort-baggrund', def:'#1C1C2A' },
-  { v:'--grn',  lbl:'Grøn (dagsløn)',def:'#34D399' },
-];
-
-function dmLoad(){ try { return JSON.parse(localStorage.getItem(DM_KEY)||'{}'); } catch(e){ return {}; } }
-
-function dmBuildPanel(){
-  const saved = dmLoad();
-  const body = document.getElementById('dm-body');
-  if (!body) return;
-  let html = '';
-  DM_SLIDERS.forEach(s => {
-    if (s.g) { html += `<div class="dm-group">${s.g}</div>`; return; }
-    const cur = saved[s.v] ? parseInt(saved[s.v]) : s.def;
-    html += `<div class="dm-row">
-      <div class="dm-row-top">
-        <span class="dm-row-lbl">${s.lbl}</span>
-        <span class="dm-row-val" id="val${s.v}">${cur}px</span>
-      </div>
-      <input class="dm-slider" type="range" min="${s.min}" max="${s.max}" step="1" value="${cur}"
-             oninput="dmSlide('${s.v}', this.value)">
-    </div>`;
-  });
-  html += `<div class="dm-group">Farver</div>`;
-  DM_COLORS.forEach(c => {
-    const cur = saved[c.v] || c.def;
-    html += `<div class="dm-color-row">
-      <span class="dm-color-lbl">${c.lbl}</span>
-      <div class="dm-color-wrap">
-        <span class="dm-color-hex" id="hex${c.v}">${cur}</span>
-        <input class="dm-color" type="color" value="${cur}" oninput="dmColor('${c.v}', this.value)">
-      </div>
-    </div>`;
-  });
-  body.innerHTML = html;
-}
-
-function dmSlide(v, val){
-  document.documentElement.style.setProperty(v, val + 'px');
-  const el = document.getElementById('val'+v);
-  if (el) el.textContent = val + 'px';
-}
-function dmColor(v, val){
-  document.documentElement.style.setProperty(v, val);
-  const el = document.getElementById('hex'+v);
-  if (el) el.textContent = val;
-}
-
-function openDesignMode(){
-  dmBuildPanel();
-  const ov = document.getElementById('dm-overlay');
-  if (ov) ov.classList.add('on');
-}
-function lukDesignMode(){
-  const ov = document.getElementById('dm-overlay');
-  if (ov) ov.classList.remove('on');
-  // Genskab sidst gemte tilstand (annuller ikke-gemte live-ændringer)
-  document.documentElement.style.cssText = '';
-  const saved = dmLoad();
-  for (const k in saved){ if (saved[k]) document.documentElement.style.setProperty(k, saved[k]); }
-}
-
-function dmGem(){
-  const out = {};
-  DM_SLIDERS.forEach(s => { if (s.v) out[s.v] = (parseInt(document.documentElement.style.getPropertyValue(s.v)) || s.def) + 'px'; });
-  DM_COLORS.forEach(c => { out[c.v] = (document.documentElement.style.getPropertyValue(c.v) || c.def).trim(); });
-  localStorage.setItem(DM_KEY, JSON.stringify(out));
-  const ov = document.getElementById('dm-overlay');
-  if (ov) ov.classList.remove('on');
-  if (typeof toast === 'function') toast('Design gemt ✓');
-}
-
-function dmNulstil(){
-  localStorage.removeItem(DM_KEY);
-  document.documentElement.style.cssText = '';
-  dmBuildPanel();
-  if (typeof toast === 'function') toast('Design nulstillet');
-}
+// Ryd evt. gamle Design Mode-værdier fra localStorage (engangs-oprydning)
+try { localStorage.removeItem('design-mode-v1'); } catch(e) {}
 </script>
-
-<!-- ── DESIGN MODE PANEL ── -->
-<div class="dm-overlay" id="dm-overlay" onclick="if(event.target===this)lukDesignMode()">
-  <div class="dm-panel">
-    <div class="dm-head">
-      <div class="dm-title">🎨 Design Mode</div>
-      <button class="dm-x" onclick="lukDesignMode()" title="Luk">✕</button>
-    </div>
-    <div class="dm-body" id="dm-body"></div>
-    <div class="dm-hint">Ændringer vises live. Tryk <b>Gem design</b> for at beholde dem.</div>
-    <div class="dm-foot">
-      <button class="dm-btn reset" onclick="dmNulstil()">Nulstil</button>
-      <button class="dm-btn save" onclick="dmGem()">Gem design</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
