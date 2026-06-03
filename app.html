@@ -403,8 +403,8 @@ textarea::placeholder{color:var(--mut)}
 .s-hd-ch{font-size:15px;opacity:.85;font-weight:600;letter-spacing:.5px}
 .s-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--brd)}
 .s-row:last-child{border-bottom:none}
-.s-lbl{font-size:14px;font-weight:500}
-.s-desc{font-size:11px;color:var(--mut);margin-top:2px}
+.s-lbl{font-size:17px;font-weight:600}
+.s-desc{font-size:13px;color:var(--mut);margin-top:3px;line-height:1.35}
 .s-inp{background:var(--surf);border:1.5px solid var(--brd);border-radius:10px;padding:16px 16px;color:var(--txt);font-family:'Tahoma',sans-serif;font-size:28px;font-weight:bold;outline:none}
 .s-inp:focus{border-color:var(--acc)}
 /* TYDELIGHED v1.90 — stablet personligt-felt */
@@ -884,20 +884,20 @@ textarea::placeholder{color:var(--mut)}
       <div id="lon-body" data-display="block" style="display:none">
       <div class="s-row" id="s-daglon-row">
         <div><div class="s-lbl">Manuel dagløn</div><div class="s-desc">Fast aftalt dagssats — overskriver beregnet løn</div></div>
-        <input class="s-inp" type="number" id="s-daglon" min="0" step="1" placeholder="0 = beregn auto"
-          style="width:110px;text-align:right;font-family:'Tahoma',monospace" oninput="opdaterLonTotal()">
+        <input class="s-inp" type="number" id="s-daglon" min="0" step="1" placeholder="0 = auto"
+          style="width:160px;text-align:right" oninput="opdaterLonTotal()">
       </div>
       <div class="s-row">
         <div><div class="s-lbl">Mindsteløn</div><div class="s-desc">Kr. pr. uge (40 timer)</div></div>
-        <input class="s-inp" type="number" id="s-ugelon" value="10380" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
+        <input class="s-inp" type="number" id="s-ugelon" value="10380" style="width:160px;text-align:right" oninput="opdaterLonTotal()">
       </div>
       <div class="s-row">
         <div><div class="s-lbl">Personligt tillæg</div><div class="s-desc">Erfaring, kørekort, DMX mm. kr/uge</div></div>
-        <input class="s-inp" type="number" id="s-pers" value="0" style="width:110px;text-align:right" oninput="opdaterLonTotal()">
+        <input class="s-inp" type="number" id="s-pers" value="0" style="width:160px;text-align:right" oninput="opdaterLonTotal()">
       </div>
       <div class="s-row">
         <div><div class="s-lbl">Diæt-sats §14</div><div class="s-desc">Kr/dag (MK-cirkulære, 2025: 597)</div></div>
-        <input class="s-inp" type="number" id="s-diaet" value="597" style="width:110px;text-align:right" oninput="gemInst()">
+        <input class="s-inp" type="number" id="s-diaet" value="597" style="width:160px;text-align:right" oninput="gemInst()">
       </div>
       <div class="s-row">
         <div><div class="s-lbl">Tillidshverv §15 Stk.3</div><div class="s-desc">Fast 500 kr/uge — vælg én eller ingen</div></div>
@@ -908,11 +908,11 @@ textarea::placeholder{color:var(--mut)}
       </div>
       <div class="s-row" id="lon-total-row">
         <div><div class="s-lbl">Samlet ugeløn</div><div class="s-desc" id="lon-total-desc">OT beregnes på mindsteløn §3</div></div>
-        <div style="font-family:'Tahoma',monospace;font-size:16px;font-weight:600;color:var(--grn)" id="lon-total">10.380 kr.</div>
+        <div style="font-family:'Tahoma',sans-serif;font-size:22px;font-weight:bold;color:var(--grn)" id="lon-total">10.380 kr.</div>
       </div>
       <div class="s-row">
         <div><div class="s-lbl">Normaldagsløn</div><div class="s-desc" id="daglon-desc">8t/dag (normal uge §4)</div></div>
-        <div style="font-family:'Tahoma',monospace;font-size:16px;font-weight:600;color:var(--acc)" id="daglon-vis">—</div>
+        <div style="font-family:'Tahoma',sans-serif;font-size:22px;font-weight:bold;color:var(--acc)" id="daglon-vis">—</div>
       </div>
       <!-- 10% enkeltdagstillæg styres per dag via bn-e knappen på dag-visningen -->
       </div>
@@ -4208,7 +4208,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '1.98';
+const APP_VERSION = '1.99';
 
 // ── SPLASH ──
 (function(){
@@ -4246,6 +4246,13 @@ const APP_VERSION = '1.98';
 
 
 const CHANGELOG = {
+  '1.99': {
+    dato: '3. juni 2026',
+    nyt: [
+      '📐 LØN-sektionen er strammet op: labels og beskrivelser er gjort større, så de står i bedre forhold til de store tal. Felterne er bredere, så intet skæres af — "0 = beregn auto" er forkortet til "0 = auto".',
+      '🔤 Alle tal i LØN står nu i samme font: Manuel dagløn-feltet brugte en afvigende skrifttype, og de beregnede beløb (Samlet ugeløn / Normaldagsløn) er gjort større og ensartede.',
+    ]
+  },
   '1.98': {
     dato: '31. maj 2026',
     nyt: [
