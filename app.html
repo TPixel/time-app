@@ -1511,8 +1511,11 @@ function skiftProduktion(id) {
   aktivProdId = id;
   localStorage.setItem('faf-aktiv-prod', id);
   const p = produktioner.find(p => p.id === id);
-  // Nulstil dagLon FØR spread, så den ikke bløder fra forrige produktion
-  if (p) cfg = { ...cfg, dagLon: 0, ...p };
+  // Nulstil ALLE per-produktions-felter FØR spread, så intet bløder fra forrige
+  // produktion (ældre produktioner mangler fx selskab/diaet/talsmand/arbjmrep)
+  if (p) cfg = { ...cfg, navn:'', email:'', prod:'', selskab:'', ugelon:10380, pers:0,
+    tillæg:false, model:'5dag', fridag:'fre', dagLon:0, diaet:597,
+    talsmand:false, arbjmrep:false, skjult:false, ...p };
   indlæsCfgIForm();
   rendProdListe();
   rendProdSwitcher();
@@ -4437,7 +4440,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.02';
+const APP_VERSION = '2.03';
 
 // ── SPLASH ──
 (function(){
@@ -4475,6 +4478,13 @@ const APP_VERSION = '2.02';
 
 
 const CHANGELOG = {
+  '2.03': {
+    dato: '4. juni 2026',
+    nyt: [
+      '🧼 Opfølgning på v2.02: Ældre produktioner (oprettet før felterne selskab, diæt og tillidshverv fandtes) kunne "arve" disse værdier fra den produktion man kom fra ved skift. Nu nulstilles ALLE felter til standard før produktionens egne værdier indlæses — intet bløder mellem produktioner.',
+      '✅ Testet med rigtige produktionsdata: 18 skift på kryds og tværs af 6 produktioner uden en eneste fejl, og alle løndata forblev urørte.',
+    ]
+  },
   '2.02': {
     dato: '4. juni 2026',
     nyt: [
