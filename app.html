@@ -2724,7 +2724,7 @@ function gemDag(stille = false) {
     knapper: { ...knapper },
     h, lon: lonGem, fsk, fskKr, diaetKr, saertidKr, saertidUdenforH,
     manuelLon: cfg.dagLon > 0 ? cfg.dagLon : null,
-    normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3, wk: l.wk,
+    normal: l.normal, ot1: l.ot1, ot2: l.ot2, ot3: l.ot3, wk: l.wk, ext: l.ext,
     prod: cfg.prod || '', prodId: aktivProdId
   });
 
@@ -4440,7 +4440,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.03';
+const APP_VERSION = '2.04';
 
 // ── SPLASH ──
 (function(){
@@ -4478,6 +4478,13 @@ const APP_VERSION = '2.03';
 
 
 const CHANGELOG = {
+  '2.04': {
+    dato: '4. juni 2026',
+    nyt: [
+      '🧪 Stor stress-test af hele appen med rigtige produktionsdata: 500 tilfældige produktions-handlinger, 200 dag-registreringer på skiftende produktioner, 330 uge/måned/år-renderinger, 24 PDF-udskrifter, backup-roundtrip, reload-test og ekstreme arbejdstider (over midnat, 24 timer) — alt bestået uden fejl, kørt 6 gange.',
+      '🔍 Dagens gemte data indeholder nu også "ext"-beløbet (frokost-diæt §14 og pause-efter-10-timer-kompensation) som separat felt, så hver dags løn altid kan efterregnes felt for felt.',
+    ]
+  },
   '2.03': {
     dato: '4. juni 2026',
     nyt: [
