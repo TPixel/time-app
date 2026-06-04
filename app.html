@@ -864,21 +864,21 @@ textarea::placeholder{color:var(--mut)}
       <div id="pers-body" data-display="block" style="display:none">
         <div class="s-stack">
           <label class="s-stack-lbl" for="s-navn">Navn</label>
-          <input class="s-stack-inp" type="text" id="s-navn" placeholder="Dit navn">
+          <input class="s-stack-inp" type="text" id="s-navn" placeholder="Dit navn" oninput="autoGemProd()">
         </div>
         <div class="s-stack">
           <label class="s-stack-lbl" for="s-email">Email produktion</label>
           <div class="s-stack-desc">Modtager ugeseddel automatisk</div>
-          <input class="s-stack-inp" type="email" id="s-email" placeholder="prod@film.dk">
+          <input class="s-stack-inp" type="email" id="s-email" placeholder="prod@film.dk" oninput="autoGemProd()">
         </div>
         <div class="s-stack">
           <label class="s-stack-lbl" for="s-prod">Produktionstitel</label>
-          <input class="s-stack-inp" type="text" id="s-prod" placeholder="Filmens titel">
+          <input class="s-stack-inp" type="text" id="s-prod" placeholder="Filmens titel" oninput="autoGemProd()">
         </div>
         <div class="s-stack">
           <label class="s-stack-lbl" for="s-selskab">Produktionsselskab</label>
           <div class="s-stack-desc">Vises på ugesedler og udskrifter</div>
-          <input class="s-stack-inp" type="text" id="s-selskab" placeholder="Selskab Aps.">
+          <input class="s-stack-inp" type="text" id="s-selskab" placeholder="Selskab Aps." oninput="autoGemProd()">
         </div>
       </div>
 
@@ -891,19 +891,19 @@ textarea::placeholder{color:var(--mut)}
       <div class="s-row" id="s-daglon-row">
         <div><div class="s-lbl">Manuel dagløn</div><div class="s-desc">Fast aftalt dagssats — overskriver beregnet løn</div></div>
         <input class="s-inp" type="number" id="s-daglon" min="0" step="1" placeholder="0 = auto"
-          style="width:160px;text-align:right" oninput="opdaterLonTotal()">
+          style="width:160px;text-align:right" oninput="opdaterLonTotal();autoGemProd()">
       </div>
       <div class="s-row">
         <div><div class="s-lbl">Mindsteløn</div><div class="s-desc">Kr. pr. uge (40 timer)</div></div>
-        <input class="s-inp" type="number" id="s-ugelon" value="10380" style="width:160px;text-align:right" oninput="opdaterLonTotal()">
+        <input class="s-inp" type="number" id="s-ugelon" value="10380" style="width:160px;text-align:right" oninput="opdaterLonTotal();autoGemProd()">
       </div>
       <div class="s-row">
         <div><div class="s-lbl">Personligt tillæg</div><div class="s-desc">Erfaring, kørekort, DMX mm. kr/uge</div></div>
-        <input class="s-inp" type="number" id="s-pers" value="0" style="width:160px;text-align:right" oninput="opdaterLonTotal()">
+        <input class="s-inp" type="number" id="s-pers" value="0" style="width:160px;text-align:right" oninput="opdaterLonTotal();autoGemProd()">
       </div>
       <div class="s-row">
         <div><div class="s-lbl">Diæt-sats §14</div><div class="s-desc">Kr/dag (MK-cirkulære, 2025: 597)</div></div>
-        <input class="s-inp" type="number" id="s-diaet" value="597" style="width:160px;text-align:right" oninput="gemInst()">
+        <input class="s-inp" type="number" id="s-diaet" value="597" style="width:160px;text-align:right" oninput="opdaterLonTotal();autoGemProd()">
       </div>
       <div class="s-row">
         <div><div class="s-lbl">Tillidshverv §15 Stk.3</div><div class="s-desc">Fast 500 kr/uge — vælg én eller ingen</div></div>
@@ -1504,6 +1504,10 @@ function nyProduktion() {
 }
 
 function skiftProduktion(id) {
+  // VIGTIGT: Gem den udgående produktions formular-værdier FØRST,
+  // så løn mm. ALDRIG tabes ved produktionsskift (også uden tryk på GEM)
+  clearTimeout(autoGemTimer);
+  gemAktivProdStille();
   aktivProdId = id;
   localStorage.setItem('faf-aktiv-prod', id);
   const p = produktioner.find(p => p.id === id);
@@ -1738,27 +1742,50 @@ function opdaterLonTotal() {
   if (dl) dl.textContent = `${dTimer}t/dag · ${dage}-dages uge (${model === 'saertid' ? 'særtid §5' : 'normal §4'})`;
 }
 
-function gemInst() {
-  cfg.navn   = document.getElementById('s-navn').value.trim();
-  cfg.email  = document.getElementById('s-email').value.trim();
-  cfg.prod    = document.getElementById('s-prod').value.trim();
-  cfg.selskab = document.getElementById('s-selskab').value.trim();
-  cfg.ugelon  = parseFloat(document.getElementById('s-ugelon').value) || 10380;
-  cfg.pers   = parseFloat(document.getElementById('s-pers').value) || 0;
-  const frEl = document.getElementById('s-fridag'); if (frEl) cfg.fridag = frEl.value;
-  const dEl = document.getElementById('s-diaet');
+// Læser formular-felterne ind i cfg og gemmer på den AKTIVE produktion — uden toast.
+// Returnerer true hvis produktionen fandtes og blev gemt.
+function gemAktivProdStille() {
+  const f = id => document.getElementById(id);
+  if (!f('s-ugelon')) return false;
+  cfg.navn   = f('s-navn').value.trim();
+  cfg.email  = f('s-email').value.trim();
+  cfg.prod    = f('s-prod').value.trim();
+  cfg.selskab = f('s-selskab').value.trim();
+  cfg.ugelon  = parseFloat(f('s-ugelon').value) || 10380;
+  cfg.pers   = parseFloat(f('s-pers').value) || 0;
+  const frEl = f('s-fridag'); if (frEl) cfg.fridag = frEl.value;
+  const dEl = f('s-diaet');
   cfg.diaet = dEl ? (parseFloat(dEl.value) || 597) : 597;
-  const dlEl = document.getElementById('s-daglon');
+  const dlEl = f('s-daglon');
   cfg.dagLon = dlEl && dlEl.value ? (parseInt(dlEl.value) || 0) : 0;
 
-  // Gem til aktiv produktion i produktioner-arrayet
+  // Gem KUN hvis produktionen stadig findes (aldrig push her — undgår dubletter ved sletning)
   const idx = produktioner.findIndex(p => p.id === aktivProdId);
-  if (idx !== -1) produktioner[idx] = { ...cfg, id: aktivProdId };
-  else produktioner.push({ ...cfg, id: aktivProdId });
+  if (idx === -1) return false;
+  produktioner[idx] = { ...cfg, id: aktivProdId };
   gemProduktionerStore();
+  localStorage.setItem('faf-cfg', JSON.stringify(cfg)); // baglæns kompatibilitet
+  return true;
+}
 
-  // Baglæns kompatibilitet
-  localStorage.setItem('faf-cfg', JSON.stringify(cfg));
+// Auto-gem (debounced): kaldes ved hver indtastning, så løn ALTID følger produktionen
+let autoGemTimer = null;
+function autoGemProd() {
+  clearTimeout(autoGemTimer);
+  autoGemTimer = setTimeout(() => {
+    if (gemAktivProdStille()) { rendProdListe(); opdaterProdLabel(); }
+  }, 500);
+}
+
+function gemInst() {
+  clearTimeout(autoGemTimer);
+  const gemt = gemAktivProdStille();
+  if (!gemt) {
+    // Aktiv produktion fandtes ikke i listen — gendan den (sjælden edge case)
+    produktioner.push({ ...cfg, id: aktivProdId });
+    gemProduktionerStore();
+    localStorage.setItem('faf-cfg', JSON.stringify(cfg));
+  }
   opdaterLonTotal();
   rendProdListe();
   opdaterProdLabel();
@@ -1771,6 +1798,7 @@ function swTog(k) {
   cfg[k] = !cfg[k];
   setSw(k, cfg[k]);
   opdaterLonTotal();
+  autoGemProd(); // gem toggle på produktionen med det samme
   beregn();
 }
 function setSw(k, v) {
@@ -4409,7 +4437,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.01';
+const APP_VERSION = '2.02';
 
 // ── SPLASH ──
 (function(){
@@ -4447,6 +4475,13 @@ const APP_VERSION = '2.01';
 
 
 const CHANGELOG = {
+  '2.02': {
+    dato: '4. juni 2026',
+    nyt: [
+      '🛟 VIGTIG RETTELSE — Løn følger nu ALTID produktionen: Tidligere blev ændringer i løn, navn, email mm. kun gemt når man trykkede GEM PRODUKTION. Skiftede man produktion uden at trykke GEM, forsvandt indtastningerne stille og roligt. Nu gemmes alle felter automatisk mens du taster, og ved produktionsskift gemmes den produktion du forlader altid først.',
+      '💾 GEM PRODUKTION-knappen findes stadig og virker som før — den er nu en ekstra bekræftelse oven på auto-gem.',
+    ]
+  },
   '2.00': {
     dato: '3. juni 2026',
     nyt: [
