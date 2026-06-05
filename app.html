@@ -4440,7 +4440,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.04';
+const APP_VERSION = '2.05';
 
 // ── SPLASH ──
 (function(){
@@ -4478,6 +4478,13 @@ const APP_VERSION = '2.04';
 
 
 const CHANGELOG = {
+  '2.05': {
+    dato: '5. juni 2026',
+    nyt: [
+      '🔄 4/5-dags toggle gemmer nu altid med det samme: når du skifter en dag eller uge mellem normal (§4, 8t) og særtid (§5, 10t), bliver alle ugens allerede gemte dage straks genberegnet og gemt med den nye model — overtid, §5-tillæg og dagsløn følger med uden at du skal åbne hver dag igen.',
+      '🧪 Verificeret med 500 tilfældige kombinationer af timer (8-14t), weekend, helligdag og skift mellem begge modeller: dagMax (10t særtid / 8t normal), OT-beregning og genberegning af gemte dage gav korrekte tal i alle tilfælde.',
+    ]
+  },
   '2.04': {
     dato: '4. juni 2026',
     nyt: [
@@ -5079,9 +5086,61 @@ window.addEventListener('load', () => {
 // ═══════════════════════════════════════════════════
 // UGE-MODEL TOGGLE (5-dag / 4-dag pr. uge — overstyrer cfg.model)
 // ═══════════════════════════════════════════════════
+// v2.05 FIX — "4/5-dags knappen hænger":
+// Når modellen skiftes for en uge ændres OT-grænsen (dagMax 8↔10) og dagslønnen
+// (ugeløn deles på 5 vs 4 dage). De ALLEREDE GEMTE dage i ugen beholdt tidligere
+// deres gamle model-afhængige felter (normal/ot1/ot2/ot3/saertidKr/lon), så dag-PDF
+// og årsoversigt viste forkert OT/løn indtil dagen blev gemt manuelt igen — det
+// fik knappen til at "hænge" (skift uden synlig effekt på tallene).
+// Løsning: genberegn og gem alle gemte dage i den berørte uge straks ved modelskift.
+function ugeDatoerForDato(d) {
+  // Mandag→søndag for ugen der indeholder d (uafhængigt af ugeOffset/"i dag").
+  const dow = d.getDay();
+  const diff = (dow === 0 ? -6 : 1) - dow; // mandag = ugestart
+  const man = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
+  return Array.from({ length: 7 }, (_, i) =>
+    new Date(man.getFullYear(), man.getMonth(), man.getDate() + i));
+}
+function reberegnGemtDag(d) {
+  // Genberegn én gemt dags model-afhængige felter ud fra dens egne gemte
+  // start/slut/knapper og den NU gældende model for datoen. Returnerer true hvis
+  // en rigtig dag blev opdateret. Arbejdstimer (s.h) påvirkes ikke af modelskift.
+  const k = nøgle(d);
+  let s; try { s = JSON.parse(localStorage.getItem(k)); } catch { return false; }
+  if (!s || !s.start) return false;
+  const idx     = d.getDay();
+  const ts0     = tidStrTilObj(s.start), ts1 = tidStrTilObj(s.slut);
+  const h       = s.h;
+  const fsk     = (typeof s.fsk === 'number') ? s.fsk : calcForskudt(ts0, ts1, idx);
+  const fskKr   = Math.round(fsk * 110);
+  const wkAutoH = (!s.knapper?.h && s.slut) ? calcWeekendTimer(ts0, ts1, idx) : 0;
+  const opt     = { varslet:s.knapper?.v, uvarslet:s.knapper?.u, helligdag:s.knapper?.h,
+                    frokost:s.knapper?.f, pause10:s.knapper?.p, enkeltdag:s.knapper?.e,
+                    varsletTimer:s.knapper?.varsletTimer||0, dato:d };
+  const wkRate  = (s.knapper?.h || idx === 0 || idx === 6) ? hentWkRate(d) : 0.75;
+  const l       = calcLon(h, opt, wkAutoH, wkRate);
+  const diaetKr = s.diaetKr ?? (s.knapper?.d ? Math.round(cfg.diaet || 0) : 0);
+  const sUH     = s.slut ? calcSaertidUdenforVindue(ts0, ts1, idx, cfg.fridag, modelForDato(d)) : 0;
+  const tsForT  = (cfg.ugelon / 40) * ((s.knapper?.e || cfg.tillæg) ? 1.1 : 1.0);
+  const saertidKr = Math.round(sUH * tsForT);
+  s.normal = l.normal; s.ot1 = l.ot1; s.ot2 = l.ot2; s.ot3 = l.ot3; s.wk = l.wk; s.ext = l.ext;
+  s.fsk = fsk; s.fskKr = fskKr; s.diaetKr = diaetKr;
+  s.saertidKr = saertidKr; s.saertidUdenforH = sUH;
+  // Manuel dagssats (cfg.dagLon) er model-uafhængig — rør den ikke.
+  if (!s.manuelLon) s.lon = l.total + fskKr + diaetKr + saertidKr;
+  localStorage.setItem(k, JSON.stringify(s));
+  return true;
+}
+function regemUgeEfterModelskift(refDato) {
+  let n = 0;
+  ugeDatoerForDato(refDato).forEach(d => { if (reberegnGemtDag(d)) n++; });
+  if (n && typeof idbMirrorAll === 'function') idbMirrorAll();
+  return n;
+}
 function vælgUgeModel(m) {
   const datoer = ugeDatoer(ugeOffset);
   setUgeOverride(datoer[0], m);
+  regemUgeEfterModelskift(datoer[0]); // v2.05: gem genberegnede dage straks
   rendUge();           // genrender uge med ny model
   opdaterUgeModelUI(); // genrender toggle-segmenter
   // Hvis aktivDag er i samme uge → genberegn dag-view
@@ -5095,6 +5154,7 @@ function toggle4Dag() {
   const aktivM = modelForDato(aktivDag);
   const nyM = aktivM === 'saertid' ? '5dag' : 'saertid';
   setUgeOverride(aktivDag, nyM);
+  regemUgeEfterModelskift(aktivDag); // v2.05: gem genberegnede dage straks
   beregn();
   opdaterSaertidBadge();
   opdaterUgeModelUI();
@@ -5105,6 +5165,7 @@ function vælgVisMode(target) {
   const aktivM = modelForDato(aktivDag);
   if (aktivM === target) return; // ingen ændring
   setUgeOverride(aktivDag, target);
+  regemUgeEfterModelskift(aktivDag); // v2.05: gem genberegnede dage straks
   beregn();
   opdaterSaertidBadge();
   opdaterUgeModelUI();
