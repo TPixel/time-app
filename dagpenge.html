@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dagpenge">
+<meta name="theme-color" content="#0C0C12">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<title>Dagpenge · Time App</title>
+<style>
+:root{
+  --bg:#0C0C12; --surf:#14141E; --card:#1C1C2A; --card2:#222232;
+  --brd:#2E2E42; --txt:#EEEEF5; --mut:#B9B9CD;
+  --grn:#34D399; --red:#F87171; --yel:#FBBF24; --pnk:#F472B6;
+  --acc:#818CF8; --pur:#A78BFA;
+  --grn-d:rgba(52,211,153,.12); --red-d:rgba(248,113,113,.12);
+  --yel-d:rgba(251,191,36,.12); --acc-d:rgba(129,140,248,.15);
+  --r:14px; --rs:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Tahoma',sans-serif;font-weight:bold;font-size:16px;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto;letter-spacing:.3px;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,select{-webkit-user-select:auto;user-select:auto;font-family:'Tahoma',sans-serif;font-weight:bold}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:11px 16px}
+.logo{display:flex;align-items:center;gap:9px;font-size:20px;font-weight:bold;letter-spacing:-.3px}
+.logo-icon{width:34px;height:34px;border-radius:9px;object-fit:contain}
+.logo em{color:var(--acc);font-style:normal}
+.gear-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;line-height:1}
+.gear-btn:active{transform:scale(.88)}
+
+/* ── TABS ── */
+.tabbar{position:sticky;top:60px;z-index:90;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);padding:10px 12px 12px;border-bottom:1px solid var(--brd)}
+.tabs{display:flex;background:var(--surf);border-radius:50px;padding:4px;gap:3px}
+.tab{flex:1;padding:11px 4px;border-radius:50px;font-size:15px;font-weight:bold;letter-spacing:.2px;cursor:pointer;border:none;background:transparent;color:var(--mut);transition:all .2s;white-space:nowrap}
+.tab.on{background:var(--acc);color:#fff}
+.tab:active{transform:scale(.94)}
+
+.view{display:none;padding:18px 16px 60px}
+.view.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── KORT ── */
+.card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:18px 18px;margin-bottom:14px}
+.card-ttl{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--mut);margin-bottom:14px;display:flex;align-items:center;gap:7px;justify-content:space-between}
+.card-ttl .sub{font-size:11px;letter-spacing:1px;color:var(--mut);text-transform:none;font-weight:700}
+
+/* ── PROGRESS RING ── */
+.ring-wrap{display:flex;align-items:center;gap:18px}
+.ring{flex-shrink:0;position:relative;width:128px;height:128px}
+.ring svg{transform:rotate(-90deg)}
+.ring-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring-pct{font-family:'Tahoma',monospace;font-size:30px;font-weight:bold;line-height:1}
+.ring-pct-sub{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;margin-top:3px}
+.ring-info{flex:1;min-width:0}
+.ring-num{font-family:'Tahoma',monospace;font-size:25px;font-weight:bold;line-height:1.05;letter-spacing:-.5px}
+.ring-num .of{color:var(--mut);font-size:18px}
+.ring-lbl{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:1.4px;margin-top:5px;font-weight:800}
+.ring-mangler{font-size:14px;margin-top:12px;font-weight:bold}
+
+/* ── BAR ── */
+.bar-row{margin-bottom:16px}
+.bar-row:last-child{margin-bottom:0}
+.bar-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px}
+.bar-hd .l{font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:1.2px;font-weight:800}
+.bar-hd .v{font-family:'Tahoma',monospace;font-size:16px;font-weight:bold}
+.bar-hd .v .of{color:var(--mut);font-size:13px}
+.bar{height:14px;border-radius:50px;background:var(--surf);overflow:hidden;border:1px solid var(--brd)}
+.bar-fill{height:100%;border-radius:50px;transition:width .6s cubic-bezier(.4,0,.2,1);min-width:3px}
+
+/* status farver */
+.cg{color:var(--grn)} .cy{color:var(--yel)} .cr{color:var(--red)} .ca{color:var(--acc)} .cm{color:var(--mut)} .cp{color:var(--pur)}
+.bg-g{background:linear-gradient(90deg,#10B981,#34D399)} .bg-y{background:linear-gradient(90deg,#D4A017,#FBBF24)} .bg-r{background:linear-gradient(90deg,#DC2626,#F87171)} .bg-a{background:linear-gradient(90deg,#6366F1,#818CF8)} .bg-p{background:linear-gradient(90deg,#7C3AED,#A78BFA)}
+.ring-stroke-g{stroke:#34D399} .ring-stroke-y{stroke:#FBBF24} .ring-stroke-r{stroke:#F87171} .ring-stroke-a{stroke:#818CF8}
+
+/* ── STATUS BANNER ── */
+.banner{border-radius:var(--r);padding:16px 18px;margin-bottom:14px;display:flex;align-items:center;gap:13px;border:1.5px solid}
+.banner-ic{font-size:30px;line-height:1;flex-shrink:0}
+.banner-tx{flex:1;min-width:0}
+.banner-h{font-size:18px;font-weight:bold;line-height:1.15}
+.banner-s{font-size:13px;color:var(--mut);margin-top:3px;line-height:1.3}
+.banner.ok{background:var(--grn-d);border-color:var(--grn)}
+.banner.warn{background:var(--yel-d);border-color:var(--yel)}
+.banner.bad{background:var(--red-d);border-color:var(--red)}
+.banner.info{background:var(--acc-d);border-color:var(--acc)}
+
+/* ── SATS BOKS ── */
+.sats-big{font-family:'Tahoma',monospace;font-size:46px;font-weight:bold;color:var(--grn);line-height:1;letter-spacing:-1px}
+.sats-unit{font-size:18px;color:var(--mut)}
+.sats-rows{margin-top:14px}
+.sats-r{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--brd);font-size:14px}
+.sats-r:last-child{border-bottom:none}
+.sats-r .k{color:var(--mut)}
+.sats-r .v{font-family:'Tahoma',monospace;font-weight:bold}
+
+/* ── KEY/VAL grid ── */
+.kv{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--brd);font-size:14px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--mut)}
+.kv .v{font-family:'Tahoma',monospace;font-weight:bold;text-align:right}
+
+/* ── KNAPPER ── */
+.btn{display:block;width:100%;padding:16px;border-radius:var(--rs);border:none;font-family:'Tahoma',sans-serif;font-size:16px;font-weight:bold;cursor:pointer;letter-spacing:.3px;transition:transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-acc{background:var(--acc);color:#fff}
+.btn-grn{background:var(--grn);color:#06281D}
+.btn-surf{background:var(--surf);color:var(--txt);border:1.5px solid var(--brd)}
+.btn-red{background:var(--red-d);color:var(--red);border:1.5px solid var(--red)}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.btn-sm{padding:12px;font-size:14px}
+
+/* ── FORM ── */
+.fld{margin-bottom:14px}
+.fld-lbl{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:var(--mut);margin-bottom:7px;display:block}
+.fld input,.fld select{width:100%;background:var(--surf);border:1.5px solid var(--brd);border-radius:var(--rs);padding:14px;color:var(--txt);font-size:16px;outline:none}
+.fld input:focus,.fld select:focus{border-color:var(--acc)}
+.fld-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:8px}
+.seg-opt{flex:1;padding:14px;border-radius:var(--rs);border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);font-size:15px;font-weight:bold;cursor:pointer;text-align:center;transition:all .2s}
+.seg-opt.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.seg-opt.on.b{background:var(--pur);border-color:var(--pur)}
+.fld-hint{font-size:11px;color:var(--mut);margin-top:6px;line-height:1.35;font-weight:600}
+
+/* ── PROD LISTE ── */
+.prod{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px;margin-bottom:11px;position:relative}
+.prod.udlobet{opacity:.5}
+.prod-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:9px}
+.prod-navn{font-size:18px;font-weight:bold;line-height:1.1;flex:1;min-width:0}
+.prod-selskab{font-size:12px;color:var(--mut);margin-top:2px;font-weight:600}
+.prod-type{flex-shrink:0;font-size:11px;font-weight:800;padding:4px 9px;border-radius:6px;letter-spacing:.5px}
+.prod-type.a{background:var(--acc-d);color:var(--acc)}
+.prod-type.b{background:rgba(167,139,250,.15);color:var(--pur)}
+.prod-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-bottom:8px}
+.prod-meta .m{display:flex;flex-direction:column}
+.prod-meta .m .mv{font-family:'Tahoma',monospace;font-size:17px;font-weight:bold}
+.prod-meta .m .ml{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:1px}
+.prod-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px;padding-top:9px;border-top:1px solid var(--brd)}
+.prod-dato{font-family:'Tahoma',monospace;font-size:12px;color:var(--mut)}
+.prod-badge{font-size:11px;font-weight:800;padding:3px 8px;border-radius:5px;letter-spacing:.4px}
+.badge-g{background:var(--grn-d);color:var(--grn)}
+.badge-r{background:var(--red-d);color:var(--red)}
+.badge-mut{background:var(--surf);color:var(--mut)}
+.prod-acts{display:flex;gap:7px;margin-top:11px}
+.prod-acts button{flex:1;padding:9px;border-radius:9px;border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);font-size:13px;font-weight:bold;cursor:pointer}
+.prod-acts button.del{color:var(--red);border-color:rgba(248,113,113,.3)}
+.prod-acts button:active{transform:scale(.95)}
+.timeapp-tag{font-size:10px;color:var(--acc);font-weight:700;margin-top:3px;display:flex;align-items:center;gap:3px}
+
+.empty{text-align:center;padding:40px 20px;color:var(--mut)}
+.empty-ic{font-size:48px;margin-bottom:12px;opacity:.6}
+.empty-tx{font-size:15px;line-height:1.4}
+
+/* ── INDBERETNING uge-liste ── */
+.uge-row{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;background:var(--card);border:1px solid var(--brd);border-radius:var(--rs);margin-bottom:9px}
+.uge-row .ul{font-size:14px;font-weight:bold}
+.uge-row .ul .us{font-size:11px;color:var(--mut);font-weight:600;margin-top:2px}
+.uge-row .uv{font-family:'Tahoma',monospace;font-size:20px;font-weight:bold;text-align:right}
+.uge-row .uv .uvs{font-size:11px;color:var(--mut)}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.modal-bg.skjult{display:none}
+.modal{background:var(--surf);border-radius:22px 22px 0 0;width:100%;max-width:430px;max-height:92dvh;overflow-y:auto;padding:8px 18px 32px;border-top:1px solid var(--brd)}
+.modal-grip{width:42px;height:5px;border-radius:3px;background:var(--brd);margin:8px auto 16px}
+.modal-ttl{font-size:20px;font-weight:bold;margin-bottom:18px;text-align:center}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card2);border:1.5px solid var(--acc);color:var(--txt);padding:14px 22px;border-radius:50px;font-size:14px;font-weight:bold;z-index:400;opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:90vw;text-align:center}
+.toast.vis{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.note{font-size:11px;color:var(--mut);line-height:1.5;font-weight:600;margin-top:4px}
+.divider{height:1px;background:var(--brd);margin:18px 0}
+.hd2{font-size:15px;font-weight:bold;margin:4px 0 12px;color:var(--txt)}
+.legal{font-size:10.5px;color:var(--mut);line-height:1.55;font-weight:600;background:var(--surf);border:1px solid var(--brd);border-radius:var(--rs);padding:13px 15px;margin-top:14px}
+.legal b{color:var(--txt)}
+.fab{position:fixed;bottom:24px;right:calc(50% - 215px + 18px);width:60px;height:60px;border-radius:50%;background:var(--acc);color:#fff;font-size:32px;border:none;cursor:pointer;box-shadow:0 6px 24px rgba(129,140,248,.5);display:flex;align-items:center;justify-content:center;z-index:80;line-height:1}
+.fab:active{transform:scale(.9)}
+@media(max-width:430px){.fab{right:18px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><img src="icon.png" class="logo-icon" alt=""><span>Dagpenge<em>·</em></span></div>
+  <button class="gear-btn" onclick="åbnMenu()">⚙</button>
+</div>
+
+<div class="tabbar">
+  <div class="tabs">
+    <button class="tab on" data-v="dash" onclick="visView('dash')">Oversigt</button>
+    <button class="tab" data-v="reg" onclick="visView('reg')">Arbejde</button>
+    <button class="tab" data-v="hist" onclick="visView('hist')">Historik</button>
+    <button class="tab" data-v="indb" onclick="visView('indb')">Indberet</button>
+  </div>
+</div>
+
+<!-- ═══════════ OVERSIGT ═══════════ -->
+<div class="view on" id="v-dash"></div>
+
+<!-- ═══════════ ARBEJDE ═══════════ -->
+<div class="view" id="v-reg"></div>
+
+<!-- ═══════════ HISTORIK ═══════════ -->
+<div class="view" id="v-hist"></div>
+
+<!-- ═══════════ INDBERETNING ═══════════ -->
+<div class="view" id="v-indb"></div>
+
+<button class="fab" id="fab" onclick="åbnProdModal()" style="display:none">＋</button>
+
+<!-- MODAL: produktion -->
+<div class="modal-bg skjult" id="prod-modal">
+  <div class="modal">
+    <div class="modal-grip"></div>
+    <div class="modal-ttl" id="pm-ttl">Ny produktion</div>
+    <input type="hidden" id="pm-id">
+    <div class="fld"><label class="fld-lbl">Produktion / titel</label><input id="pm-navn" placeholder="Fx Lykke-Per"></div>
+    <div class="fld"><label class="fld-lbl">Selskab / arbejdsgiver</label><input id="pm-selskab" placeholder="Fx Zentropa"></div>
+    <div class="fld-2">
+      <div class="fld"><label class="fld-lbl">Startdato</label><input id="pm-start" type="date"></div>
+      <div class="fld"><label class="fld-lbl">Slutdato</label><input id="pm-slut" type="date"></div>
+    </div>
+    <div class="fld">
+      <label class="fld-lbl">Indkomsttype</label>
+      <div class="seg">
+        <div class="seg-opt on" id="pm-type-a" onclick="sætType('A')">A-indkomst<div class="fld-hint" style="margin-top:3px;color:inherit;opacity:.8">løntimer</div></div>
+        <div class="seg-opt b" id="pm-type-b" onclick="sætType('B')">B-indkomst<div class="fld-hint" style="margin-top:3px;color:inherit;opacity:.8">honorar</div></div>
+      </div>
+    </div>
+    <div class="fld-2">
+      <div class="fld"><label class="fld-lbl">Timer i alt</label><input id="pm-timer" type="number" inputmode="decimal" placeholder="0" oninput="pmAutoBrutto()"></div>
+      <div class="fld"><label class="fld-lbl">Timer / uge</label><input id="pm-tpu" type="number" inputmode="decimal" placeholder="37" oninput="pmFraTpu()"></div>
+    </div>
+    <div class="fld" id="pm-timer-hint-wrap"><div class="fld-hint" id="pm-timer-hint"></div></div>
+    <div class="fld"><label class="fld-lbl">Bruttoløn (kr)</label><input id="pm-brutto" type="number" inputmode="decimal" placeholder="0"><div class="fld-hint" id="pm-brutto-hint"></div></div>
+    <div class="btn-row">
+      <button class="btn btn-surf" onclick="lukProdModal()">Annullér</button>
+      <button class="btn btn-grn" onclick="gemProd()">Gem</button>
+    </div>
+    <button class="btn btn-red btn-sm" id="pm-del" onclick="sletProdFraModal()" style="display:none;margin-top:4px">Slet produktion</button>
+  </div>
+</div>
+
+<!-- MODAL: menu -->
+<div class="modal-bg skjult" id="menu-modal">
+  <div class="modal">
+    <div class="modal-grip"></div>
+    <div class="modal-ttl">Menu</div>
+    <button class="btn btn-acc" style="margin-bottom:10px" onclick="importerTimeApp()">⏱ Hent data fra Time App</button>
+    <div class="note" style="margin:-4px 0 14px">Læser dine produktioner og registrerede dage fra Time App på denne enhed.</div>
+    <div class="btn-row">
+      <button class="btn btn-surf btn-sm" onclick="eksportJSON()">⤓ Eksportér</button>
+      <button class="btn btn-surf btn-sm" onclick="document.getElementById('import-fil').click()">⤒ Importér</button>
+    </div>
+    <input type="file" id="import-fil" accept="application/json" style="display:none" onchange="importJSON(event)">
+    <div class="btn-row">
+      <button class="btn btn-surf btn-sm" onclick="printOversigt()">🖨 Print</button>
+      <button class="btn btn-surf btn-sm" onclick="mailOversigt()">✉ Mail</button>
+    </div>
+    <button class="btn btn-red btn-sm" style="margin-top:4px" onclick="nulstilAlt()">Nulstil alle data</button>
+    <div class="divider"></div>
+    <a href="app.html" style="text-decoration:none"><button class="btn btn-surf btn-sm">← Tilbage til Time App</button></a>
+    <button class="btn btn-surf btn-sm" style="margin-top:10px" onclick="lukMenu()">Luk</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════
+//  KONSTANTER — Fiktionsoverenskomst / dagpengeregler 2026
+// ═══════════════════════════════════════════════════
+const TIMER_KRAV       = 1924;      // timer på 3 år for dagpengeret
+const INDKOMST_KRAV    = 286632;    // kr på 3 år (alternativ vej)
+const B_OMREGNING      = 305.29;    // kr/time — B-indkomst → timer
+const MND_TIMELOFT     = 296;       // max løntimer der medregnes pr. måned
+const SATS_MAX         = 22041;     // max dagpenge kr/md
+const SATS_TILLAEG     = 26198;     // beskæftigelsestillæg kr/md (første 3 mdr)
+const SATS_PROCENT     = 0.90;      // 90% af gennemsnitsindkomst
+const SATS_PERIODE_MDR = 24;        // beregningsperiode
+const SATS_BEDSTE_MDR  = 12;        // antal bedste måneder der tæller
+const MND_INDK_LOFT    = Math.round(SATS_MAX / SATS_PROCENT); // 24490 — månedsloft for sats-beregning
+const OPTJ_AAR         = 3;         // optjeningsperiode i år
+const SUPPL_MAX_UGER   = 30;        // max uger supplerende dagpenge
+const SUPPL_PERIODE_UGER = 104;     // indenfor 104 uger
+const SUPPL_ADVARSEL   = 25;        // advar når man når denne grænse
+const GDAGE_SATS       = 1017;      // kr pr. G-dag (2026)
+const GDAGE_MIN_TIMER  = 74;        // min timer hos AG indenfor 4 uger
+const GDAGE_MAX_PR_LEDIG = 2;       // AG betaler 1. og 2. ledighedsdag
+const APP_VERSION      = 'dp-1.00';
+
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let data = { produktioner: [], supplUger: [], version: APP_VERSION };
+let pmType = 'A';
+
+function gem(){ localStorage.setItem('dagpenge-data', JSON.stringify(data)); }
+function hent(){
+  try{
+    const raw = localStorage.getItem('dagpenge-data');
+    if(raw){ const d = JSON.parse(raw); data = { produktioner:d.produktioner||[], supplUger:d.supplUger||[], version:APP_VERSION }; }
+    else { data = { produktioner:[], supplUger:[], version:APP_VERSION }; }
+  }catch(e){ console.warn('hent fejl',e); }
+}
+
+// ═══════════════════════════════════════════════════
+//  DATO-HJÆLPERE
+// ═══════════════════════════════════════════════════
+function idag(){ return new Date(); }
+function parseDato(s){ if(!s) return null; const d=new Date(s+'T12:00:00'); return isNaN(d)?null:d; }
+function p2(n){ return String(n).padStart(2,'0'); }
+function isoDato(d){ return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`; }
+function visDato(s){ const d=parseDato(s); if(!d) return '—'; return `${d.getDate()}/${d.getMonth()+1}-${String(d.getFullYear()).slice(2)}`; }
+function dagsForskel(a,b){ return Math.round((b-a)/86400000); }
+function ugerMellem(a,b){ return Math.max(0, dagsForskel(a,b)/7); }
+function ugeNr(d){ const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())); const dag=(t.getUTCDay()+6)%7; t.setUTCDate(t.getUTCDate()-dag+3); const f=new Date(Date.UTC(t.getUTCFullYear(),0,4)); return 1+Math.round(((t-f)/86400000-3+((f.getUTCDay()+6)%7))/7); }
+function måMdKey(d){ return `${d.getFullYear()}-${p2(d.getMonth()+1)}`; }
+function genId(){ return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+// Grænse for optjeningsperioden (3 år tilbage) og sats-periode (24 mdr tilbage)
+function grænseOptj(){ const d=idag(); d.setFullYear(d.getFullYear()-OPTJ_AAR); return d; }
+function grænseSats(){ const d=idag(); d.setMonth(d.getMonth()-SATS_PERIODE_MDR); return d; }
+
+// Hvor stor del af en produktion ligger indenfor [grænse; nu]?
+// Returnerer faktor 0..1 baseret på dato-overlap, så udløbne dele ekskluderes.
+function andelIndenfor(prod, grænse){
+  const s=parseDato(prod.startdato), e=parseDato(prod.slutdato);
+  const nu=idag();
+  if(!s||!e) return 1; // mangler dato → tæl fuldt
+  const a=Math.max(s.getTime(), grænse.getTime());
+  const b=Math.min(e.getTime(), nu.getTime());
+  const total=e.getTime()-s.getTime();
+  if(total<=0) return (s>=grænse && s<=nu)?1:0;
+  if(b<=a) return 0;
+  return (b-a)/total;
+}
+
+// ═══════════════════════════════════════════════════
+//  BEREGNINGSMOTOR
+// ═══════════════════════════════════════════════════
+function prodTimer(p){
+  const t=parseFloat(p.timer)||0;
+  if(p.type==='B'){ return (parseFloat(p.brutto)||0)/B_OMREGNING; }
+  return t;
+}
+function prodIndkomst(p){ return parseFloat(p.brutto)||0; }
+
+function beregnOptjening(){
+  const g=grænseOptj();
+  let timer=0, indkomst=0;
+  for(const p of data.produktioner){
+    const andel=andelIndenfor(p,g);
+    if(andel<=0) continue;
+    timer    += prodTimer(p)*andel;
+    indkomst += prodIndkomst(p)*andel;
+  }
+  return { timer, indkomst,
+    timerPct: Math.min(100, timer/TIMER_KRAV*100),
+    indkPct:  Math.min(100, indkomst/INDKOMST_KRAV*100),
+    timerOpfyldt: timer>=TIMER_KRAV,
+    indkOpfyldt:  indkomst>=INDKOMST_KRAV,
+    timerMangler: Math.max(0, TIMER_KRAV-timer),
+    indkMangler:  Math.max(0, INDKOMST_KRAV-indkomst) };
+}
+
+// Fordel bruttoløn pr. måned (proportionalt med dage) for sats-beregning
+function månedligIndkomst(){
+  const map={};
+  for(const p of data.produktioner){
+    const s=parseDato(p.startdato), e=parseDato(p.slutdato);
+    const brutto=parseFloat(p.brutto)||0;
+    if(!s||!e||brutto<=0){
+      // ingen periode → læg på startmåned (eller i dag)
+      const k=måMdKey(s||idag());
+      map[k]=(map[k]||0)+brutto; continue;
+    }
+    const totalDage=Math.max(1, dagsForskel(s,e)+1);
+    let cur=new Date(s.getFullYear(),s.getMonth(),1);
+    while(cur<=e){
+      const mStart=new Date(cur.getFullYear(),cur.getMonth(),1);
+      const mSlut =new Date(cur.getFullYear(),cur.getMonth()+1,0);
+      const a=Math.max(s.getTime(),mStart.getTime());
+      const b=Math.min(e.getTime(),mSlut.getTime());
+      if(b>=a){
+        const dage=dagsForskel(new Date(a),new Date(b))+1;
+        const k=måMdKey(cur);
+        map[k]=(map[k]||0)+brutto*(dage/totalDage);
+      }
+      cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
+    }
+  }
+  return map;
+}
+
+function beregnSats(){
+  const map=månedligIndkomst();
+  const gSats=grænseSats();
+  // kun måneder indenfor 24-mdr perioden
+  const måneder=[];
+  for(const k in map){
+    const [y,m]=k.split('-').map(Number);
+    const d=new Date(y,m-1,15);
+    if(d>=gSats && d<=idag()) måneder.push(Math.min(map[k], MND_INDK_LOFT));
+  }
+  måneder.sort((a,b)=>b-a);
+  const bedste=måneder.slice(0,SATS_BEDSTE_MDR);
+  if(bedste.length===0) return { sats:0, snit:0, antalMdr:0, fuld:false };
+  const snit=bedste.reduce((a,b)=>a+b,0)/bedste.length;
+  const sats=Math.min(Math.round(snit*SATS_PROCENT), SATS_MAX);
+  return { sats, snit:Math.round(snit), antalMdr:bedste.length, fuld:bedste.length>=SATS_BEDSTE_MDR };
+}
+
+function beregnSupplerende(){
+  // tæl supplerende-uger indenfor seneste 104 uger
+  const nu=idag();
+  let brugt=0;
+  for(const u of data.supplUger){
+    const d=parseDato(u);
+    if(d && ugerMellem(d,nu)<=SUPPL_PERIODE_UGER) brugt++;
+  }
+  return { brugt, max:SUPPL_MAX_UGER, tilbage:Math.max(0,SUPPL_MAX_UGER-brugt),
+    pct:Math.min(100, brugt/SUPPL_MAX_UGER*100),
+    advarsel: brugt>=SUPPL_ADVARSEL, opbrugt: brugt>=SUPPL_MAX_UGER };
+}
+
+// G-dage pr. produktion: ≥74 timer hos AG indenfor 4 uger?
+function gdageBerettiget(p){
+  const timer=parseFloat(p.timer)||0;
+  const s=parseDato(p.startdato), e=parseDato(p.slutdato);
+  let uger=1;
+  if(s&&e) uger=Math.max(1, ugerMellem(s,e));
+  // gennemsnitlige timer pr. 4-ugers vindue
+  const timerPr4Uger = uger>0 ? (timer/uger)*4 : timer;
+  const ok = timer>=GDAGE_MIN_TIMER && timerPr4Uger>=GDAGE_MIN_TIMER;
+  return { ok, dage:ok?GDAGE_MAX_PR_LEDIG:0, kr:ok?GDAGE_MAX_PR_LEDIG*GDAGE_SATS:0, timerPr4Uger:Math.round(timerPr4Uger) };
+}
+
+// Tempo: timer optjent pr. uge over aktiv periode → estimer uger til mål
+function beregnTempo(opt){
+  if(opt.timerOpfyldt||opt.indkOpfyldt) return null;
+  const nu=idag();
+  let tidligst=null, sidst=null, timerSum=0;
+  for(const p of data.produktioner){
+    const s=parseDato(p.startdato);
+    const andel=andelIndenfor(p,grænseOptj());
+    if(andel<=0) continue;
+    timerSum+=prodTimer(p)*andel;
+    const e=parseDato(p.slutdato)||s;
+    if(s&&(!tidligst||s<tidligst)) tidligst=s;
+    if(e&&(!sidst||e>sidst)) sidst=e;
+  }
+  if(!tidligst||timerSum<=0) return null;
+  const aktivUger=Math.max(1, ugerMellem(tidligst, sidst||nu));
+  const tempoTimer=timerSum/aktivUger; // timer pr. uge
+  if(tempoTimer<=0.1) return null;
+  const ugerTilbage=Math.ceil(opt.timerMangler/tempoTimer);
+  return { tempoTimer:Math.round(tempoTimer), ugerTilbage };
+}
+
+function farveForPct(pct){ return pct>=75?'g':pct>=50?'y':'r'; }
+
+// ═══════════════════════════════════════════════════
+//  FORMATTERING
+// ═══════════════════════════════════════════════════
+function krFmt(n){ return Math.round(n).toLocaleString('da-DK')+' kr'; }
+function nrFmt(n){ return Math.round(n).toLocaleString('da-DK'); }
+function tFmt(n){ return (Math.round(n*10)/10).toLocaleString('da-DK'); }
+
+// ═══════════════════════════════════════════════════
+//  PROGRESS RING (SVG)
+// ═══════════════════════════════════════════════════
+function ringSvg(pct, farve){
+  const r=56, c=2*Math.PI*r, off=c*(1-Math.min(100,pct)/100);
+  return `<svg width="128" height="128" viewBox="0 0 128 128">
+    <circle cx="64" cy="64" r="${r}" fill="none" stroke="var(--surf)" stroke-width="12"/>
+    <circle cx="64" cy="64" r="${r}" fill="none" class="ring-stroke-${farve}" stroke-width="12" stroke-linecap="round"
+      stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" style="transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)"/>
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER: OVERSIGT
+// ═══════════════════════════════════════════════════
+function renderDash(){
+  const opt=beregnOptjening();
+  const sats=beregnSats();
+  const suppl=beregnSupplerende();
+  const tempo=beregnTempo(opt);
+  const optjent = opt.timerOpfyldt || opt.indkOpfyldt;
+
+  // hovedring viser ALTID timer-vejen (primær for filmarbejdere).
+  // Indkomst-vejen vises som alternativ-bar nedenunder. Banneret er status-autoritet.
+  const hovedPct = opt.timerPct;
+  const hovedFarve = (optjent||opt.timerOpfyldt)?'g':farveForPct(hovedPct);
+
+  let html='';
+
+  // STATUS BANNER
+  if(optjent){
+    html+=`<div class="banner ok"><div class="banner-ic">✓</div><div class="banner-tx">
+      <div class="banner-h cg">Dagpengeret optjent!</div>
+      <div class="banner-s">Du opfylder ${opt.timerOpfyldt?'timekravet':''}${opt.timerOpfyldt&&opt.indkOpfyldt?' og ':''}${opt.indkOpfyldt?'indkomstkravet':''} for de seneste ${OPTJ_AAR} år.</div></div></div>`;
+  } else if(tempo){
+    html+=`<div class="banner info"><div class="banner-ic">⏳</div><div class="banner-tx">
+      <div class="banner-h">Mangler ${nrFmt(opt.timerMangler)} timer</div>
+      <div class="banner-s">Med dit nuværende tempo (${tempo.tempoTimer} t/uge) optjener du retten om <b class="ca">ca. ${tempo.ugerTilbage} uger</b>.</div></div></div>`;
+  } else {
+    html+=`<div class="banner warn"><div class="banner-ic">⚠</div><div class="banner-tx">
+      <div class="banner-h">Mangler ${nrFmt(opt.timerMangler)} timer</div>
+      <div class="banner-s">Registrér dit arbejde for at se hvor tæt du er på dagpengeret.</div></div></div>`;
+  }
+
+  // HOVED-RING
+  html+=`<div class="card"><div class="card-ttl">Optjening · seneste ${OPTJ_AAR} år <span class="sub">det der nås først tæller</span></div>
+    <div class="ring-wrap">
+      <div class="ring">${ringSvg(hovedPct,hovedFarve)}
+        <div class="ring-mid"><div class="ring-pct c${hovedFarve}">${Math.round(hovedPct)}%</div><div class="ring-pct-sub">${opt.timerOpfyldt?'opfyldt ✓':'af timekrav'}</div></div>
+      </div>
+      <div class="ring-info">
+        <div class="ring-num">${nrFmt(opt.timer)}<span class="of"> / ${nrFmt(TIMER_KRAV)}</span></div>
+        <div class="ring-lbl">Timer optjent</div>
+        <div class="ring-mangler ${opt.timerOpfyldt?'cg':'cm'}">${opt.timerOpfyldt?'✓ Timekrav opfyldt':'Mangler '+nrFmt(opt.timerMangler)+' t'}</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="bar-row">
+      <div class="bar-hd"><span class="l">Indkomst-vej (alternativ)</span><span class="v c${farveForPct(opt.indkPct)}">${Math.round(opt.indkPct)}%</span></div>
+      <div class="bar"><div class="bar-fill bg-${optjent?'g':farveForPct(opt.indkPct)}" style="width:${opt.indkPct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px" class="cm">
+        <span class="${opt.indkOpfyldt?'cg':''}" style="font-family:'Tahoma',monospace">${krFmt(opt.indkomst)}</span>
+        <span style="font-family:'Tahoma',monospace">mål ${nrFmt(INDKOMST_KRAV)} kr</span>
+      </div>
+    </div>
+  </div>`;
+
+  // DAGPENGESATS
+  const tillægMdr3 = Math.min(SATS_TILLAEG, Math.round(sats.snit*SATS_PROCENT)>=SATS_MAX?SATS_TILLAEG:sats.sats===SATS_MAX?SATS_TILLAEG:Math.min(SATS_TILLAEG, Math.round(sats.snit*SATS_PROCENT*(SATS_TILLAEG/SATS_MAX))));
+  html+=`<div class="card"><div class="card-ttl">Estimeret dagpengesats <span class="sub">${sats.fuld?'12 bedste mdr':sats.antalMdr+' mdr registreret'}</span></div>
+    <div><span class="sats-big">${nrFmt(sats.sats)}</span> <span class="sats-unit">kr/md</span></div>
+    <div class="sats-rows">
+      <div class="sats-r"><span class="k">Beskæftigelsestillæg (1.–3. md)</span><span class="v cg">${nrFmt(Math.min(SATS_TILLAEG, Math.round(sats.sats*(SATS_TILLAEG/SATS_MAX))))} kr</span></div>
+      <div class="sats-r"><span class="k">Gennemsnit (12 bedste mdr)</span><span class="v">${nrFmt(sats.snit)} kr</span></div>
+      <div class="sats-r"><span class="k">90% af gennemsnit</span><span class="v">${nrFmt(Math.round(sats.snit*SATS_PROCENT))} kr</span></div>
+      <div class="sats-r"><span class="k">Maks-sats 2026</span><span class="v cm">${nrFmt(SATS_MAX)} kr</span></div>
+    </div>
+    ${!sats.fuld?`<div class="note" style="margin-top:12px">⚠ Kun ${sats.antalMdr} af 12 måneder registreret — satsen bliver mere præcis når du tilføjer flere måneders løn.</div>`:''}
+  </div>`;
+
+  // SUPPLERENDE DAGPENGE
+  const sFarve = suppl.opbrugt?'r':suppl.advarsel?'y':'g';
+  html+=`<div class="card"><div class="card-ttl">Supplerende dagpenge <span class="sub">max ${SUPPL_MAX_UGER} uger / ${SUPPL_PERIODE_UGER} uger</span></div>
+    <div class="bar-row">
+      <div class="bar-hd"><span class="l">Forbrugte uger</span><span class="v c${sFarve}">${suppl.brugt}<span class="of"> / ${suppl.max}</span></span></div>
+      <div class="bar"><div class="bar-fill bg-${sFarve}" style="width:${suppl.pct}%"></div></div>
+    </div>
+    ${suppl.opbrugt?`<div class="banner bad" style="margin:12px 0 0"><div class="banner-ic">⛔</div><div class="banner-tx"><div class="banner-h cr">30-ugers grænse nået</div><div class="banner-s">Du kan ikke længere få supplerende dagpenge i denne 104-ugers periode.</div></div></div>`
+      :suppl.advarsel?`<div class="banner warn" style="margin:12px 0 0"><div class="banner-ic">⚠</div><div class="banner-tx"><div class="banner-h cy">Nærmer dig grænsen</div><div class="banner-s">Kun ${suppl.tilbage} uger tilbage med supplerende dagpenge.</div></div></div>`
+      :`<div class="note" style="margin-top:10px">${suppl.tilbage} uger tilbage. Registrér forbrugte uger under Indberet.</div>`}
+  </div>`;
+
+  // NØGLETAL
+  const antalProd = data.produktioner.length;
+  let gdageKr=0, gdageProd=0;
+  for(const p of data.produktioner){ const g=gdageBerettiget(p); if(g.ok){gdageKr+=g.kr;gdageProd++;} }
+  html+=`<div class="card"><div class="card-ttl">Nøgletal</div>
+    <div class="kv"><span class="k">Registrerede produktioner</span><span class="v">${antalProd}</span></div>
+    <div class="kv"><span class="k">Timer i optjeningsperioden</span><span class="v">${tFmt(opt.timer)} t</span></div>
+    <div class="kv"><span class="k">Indkomst i perioden</span><span class="v">${krFmt(opt.indkomst)}</span></div>
+    <div class="kv"><span class="k">G-dage berettigede prod.</span><span class="v cg">${gdageProd} → ${krFmt(gdageKr)}</span></div>
+  </div>`;
+
+  if(antalProd===0){
+    html+=`<button class="btn btn-acc" onclick="visView('reg')">＋ Registrér din første produktion</button>`;
+  }
+
+  document.getElementById('v-dash').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER: ARBEJDE (registrér)
+// ═══════════════════════════════════════════════════
+function renderReg(){
+  let html=`<button class="btn btn-acc" style="margin-bottom:16px" onclick="åbnProdModal()">＋ Tilføj produktion</button>`;
+
+  if(data.produktioner.length===0){
+    html+=`<div class="empty"><div class="empty-ic">🎬</div><div class="empty-tx">Ingen produktioner endnu.<br>Tilføj manuelt, eller hent data fra Time App via menuen ⚙</div></div>`;
+  } else {
+    html+=`<div class="hd2">Dine produktioner (${data.produktioner.length})</div>`;
+    const sorted=[...data.produktioner].sort((a,b)=>(parseDato(b.startdato)||0)-(parseDato(a.startdato)||0));
+    for(const p of sorted) html+=prodKort(p, true);
+  }
+  document.getElementById('v-reg').innerHTML=html;
+}
+
+function prodKort(p, medActions){
+  const g=gdageBerettiget(p);
+  const udlobet=andelIndenfor(p,grænseOptj())<=0;
+  const timer=prodTimer(p);
+  return `<div class="prod ${udlobet?'udlobet':''}">
+    <div class="prod-hd">
+      <div style="flex:1;min-width:0">
+        <div class="prod-navn">${esc(p.navn||'Uden navn')}</div>
+        ${p.selskab?`<div class="prod-selskab">${esc(p.selskab)}</div>`:''}
+        ${p.fraTimeApp?`<div class="timeapp-tag">⏱ fra Time App</div>`:''}
+      </div>
+      <div class="prod-type ${p.type==='B'?'b':'a'}">${p.type||'A'}</div>
+    </div>
+    <div class="prod-meta">
+      <div class="m"><span class="mv">${tFmt(timer)}</span><span class="ml">timer${p.type==='B'?' (omr.)':''}</span></div>
+      <div class="m"><span class="mv">${nrFmt(p.brutto||0)}</span><span class="ml">kr brutto</span></div>
+      ${p.tpu?`<div class="m"><span class="mv">${tFmt(p.tpu)}</span><span class="ml">t/uge</span></div>`:''}
+    </div>
+    <div class="prod-foot">
+      <span class="prod-dato">${visDato(p.startdato)} – ${visDato(p.slutdato)}</span>
+      ${udlobet?`<span class="prod-badge badge-mut">udløbet</span>`
+        :g.ok?`<span class="prod-badge badge-g">✓ ${g.dage} G-dage · ${nrFmt(g.kr)} kr</span>`
+        :`<span class="prod-badge badge-mut">G-dage: ${g.timerPr4Uger}/${GDAGE_MIN_TIMER} t</span>`}
+    </div>
+    ${medActions?`<div class="prod-acts">
+      <button onclick="åbnProdModal('${p.id}')">✎ Redigér</button>
+      <button class="del" onclick="sletProd('${p.id}')">🗑 Slet</button>
+    </div>`:''}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER: HISTORIK
+// ═══════════════════════════════════════════════════
+function renderHist(){
+  let html='';
+  const g=grænseOptj();
+  const sorted=[...data.produktioner].sort((a,b)=>(parseDato(b.startdato)||0)-(parseDato(a.startdato)||0));
+  const aktive=sorted.filter(p=>andelIndenfor(p,g)>0);
+  const udlobne=sorted.filter(p=>andelIndenfor(p,g)<=0);
+
+  const opt=beregnOptjening();
+  html+=`<div class="card"><div class="card-ttl">Optjeningsperiode</div>
+    <div class="kv"><span class="k">Tæller fra</span><span class="v">${visDato(isoDato(g))}</span></div>
+    <div class="kv"><span class="k">Til i dag</span><span class="v">${visDato(isoDato(idag()))}</span></div>
+    <div class="kv"><span class="k">Aktive produktioner</span><span class="v cg">${aktive.length}</span></div>
+    <div class="kv"><span class="k">Udløbne (uden for 3 år)</span><span class="v cm">${udlobne.length}</span></div>
+  </div>`;
+
+  if(sorted.length===0){
+    html+=`<div class="empty"><div class="empty-ic">📅</div><div class="empty-tx">Ingen historik endnu.</div></div>`;
+    document.getElementById('v-hist').innerHTML=html; return;
+  }
+
+  if(aktive.length){
+    html+=`<div class="hd2 cg">✓ Tæller med (${aktive.length})</div>`;
+    for(const p of aktive) html+=prodKort(p,false);
+  }
+  if(udlobne.length){
+    html+=`<div class="hd2 cm" style="margin-top:20px">⌛ Udløbet — tæller ikke (${udlobne.length})</div>`;
+    for(const p of udlobne) html+=prodKort(p,false);
+  }
+  document.getElementById('v-hist').innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER: INDBERETNING
+// ═══════════════════════════════════════════════════
+function renderIndb(){
+  const suppl=beregnSupplerende();
+  let html='';
+
+  html+=`<div class="card"><div class="card-ttl">Dagpengekort · timer pr. uge</div>
+    <div class="note" style="margin-bottom:14px">Timer du har arbejdet skal indberettes på dit dagpengekort. De fradrages time-for-time, og hver arbejdstime forlænger din dagpengeperiode med 2 timer.</div>`;
+
+  // byg uge-oversigt fra produktioner med timer/uge og periode
+  const ugeMap=byggUgeOversigt();
+  const ugeKeys=Object.keys(ugeMap).sort().reverse().slice(0,16);
+  if(ugeKeys.length===0){
+    html+=`<div class="empty" style="padding:24px"><div class="empty-tx">Tilføj produktioner med start/slut-dato og timer for at se ugentlig indberetning.</div></div>`;
+  } else {
+    for(const k of ugeKeys){
+      const u=ugeMap[k];
+      const forlæng=u.timer*2;
+      html+=`<div class="uge-row">
+        <div class="ul">Uge ${u.uge} · ${u.aar}<div class="us">${u.prod}</div></div>
+        <div class="uv">${tFmt(u.timer)} t<div class="uvs">+${tFmt(forlæng)} t forlæng.</div></div>
+      </div>`;
+    }
+  }
+  html+=`</div>`;
+
+  // SUPPLERENDE UGE-REGISTRERING
+  html+=`<div class="card"><div class="card-ttl">Supplerende dagpenge-uger</div>
+    <div class="bar-hd"><span class="l">Brugt</span><span class="v c${suppl.opbrugt?'r':suppl.advarsel?'y':'g'}">${suppl.brugt} / ${SUPPL_MAX_UGER}</span></div>
+    <div class="bar" style="margin-bottom:14px"><div class="bar-fill bg-${suppl.opbrugt?'r':suppl.advarsel?'y':'g'}" style="width:${suppl.pct}%"></div></div>
+    <button class="btn btn-surf btn-sm" onclick="tilføjSupplUge()">＋ Registrér en supplerende uge (denne uge)</button>`;
+  if(data.supplUger.length){
+    html+=`<div style="margin-top:14px">`;
+    const sortU=[...data.supplUger].sort().reverse();
+    for(const u of sortU){
+      const d=parseDato(u);
+      const aktiv=d&&ugerMellem(d,idag())<=SUPPL_PERIODE_UGER;
+      html+=`<div class="kv"><span class="k ${aktiv?'':'cm'}">Uge ${d?ugeNr(d):'?'} · ${d?d.getFullYear():''} ${aktiv?'':'(udløbet)'}</span><span class="v"><button onclick="fjernSupplUge('${u}')" style="background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;font-weight:bold">✕</button></span></div>`;
+    }
+    html+=`</div>`;
+  }
+  html+=`</div>`;
+
+  // G-DAGE OVERSIGT
+  html+=`<div class="card"><div class="card-ttl">G-dage oversigt <span class="sub">${nrFmt(GDAGE_SATS)} kr/dag</span></div>
+    <div class="note" style="margin-bottom:12px">Arbejdsgiver betaler de 2 første ledighedsdage (G-dage) hvis du har haft mindst ${GDAGE_MIN_TIMER} timer hos dem inden for 4 uger.</div>`;
+  let nogen=false, sum=0;
+  for(const p of data.produktioner){
+    const g=gdageBerettiget(p);
+    if(andelIndenfor(p,grænseOptj())<=0) continue;
+    nogen=true;
+    if(g.ok) sum+=g.kr;
+    html+=`<div class="kv"><span class="k">${esc(p.navn||'Uden navn')}${p.selskab?' · '+esc(p.selskab):''}</span><span class="v ${g.ok?'cg':'cm'}">${g.ok?'✓ '+nrFmt(g.kr)+' kr':g.timerPr4Uger+'/'+GDAGE_MIN_TIMER+' t'}</span></div>`;
+  }
+  if(!nogen) html+=`<div class="note">Ingen aktive produktioner.</div>`;
+  else html+=`<div class="kv" style="border-top:1.5px solid var(--brd);margin-top:4px"><span class="k" style="font-weight:bold;color:var(--txt)">Samlet G-dage-potentiale</span><span class="v cg" style="font-size:17px">${nrFmt(sum)} kr</span></div>`;
+  html+=`</div>`;
+
+  html+=`<div class="btn-row"><button class="btn btn-surf btn-sm" onclick="printOversigt()">🖨 Print</button><button class="btn btn-surf btn-sm" onclick="mailOversigt()">✉ Mail</button></div>`;
+
+  document.getElementById('v-indb').innerHTML=html;
+}
+
+function byggUgeOversigt(){
+  const map={};
+  for(const p of data.produktioner){
+    const s=parseDato(p.startdato), e=parseDato(p.slutdato);
+    if(!s||!e) continue;
+    const antalUger=Math.max(1,Math.ceil(ugerMellem(s,e)+0.0001)) ;
+    const tpu = parseFloat(p.tpu) || (parseFloat(p.timer)||0)/antalUger;
+    if(tpu<=0) continue;
+    let cur=new Date(s);
+    let guard=0;
+    while(cur<=e && guard<400){
+      const k=`${cur.getFullYear()}-U${p2(ugeNr(cur))}`;
+      if(!map[k]) map[k]={uge:ugeNr(cur), aar:cur.getFullYear(), timer:0, prod:p.navn||''};
+      else if(map[k].prod.indexOf(p.navn||'')<0) map[k].prod+=', '+(p.navn||'');
+      map[k].timer+=tpu;
+      cur=new Date(cur.getTime()+7*86400000);
+      guard++;
+    }
+  }
+  return map;
+}
+
+// ═══════════════════════════════════════════════════
+//  PRODUKTION MODAL
+// ═══════════════════════════════════════════════════
+function åbnProdModal(id){
+  const m=document.getElementById('prod-modal');
+  if(id){
+    const p=data.produktioner.find(x=>x.id===id);
+    if(!p) return;
+    document.getElementById('pm-ttl').textContent='Redigér produktion';
+    document.getElementById('pm-id').value=p.id;
+    document.getElementById('pm-navn').value=p.navn||'';
+    document.getElementById('pm-selskab').value=p.selskab||'';
+    document.getElementById('pm-start').value=p.startdato||'';
+    document.getElementById('pm-slut').value=p.slutdato||'';
+    document.getElementById('pm-timer').value=p.timer||'';
+    document.getElementById('pm-tpu').value=p.tpu||'';
+    document.getElementById('pm-brutto').value=p.brutto||'';
+    sætType(p.type||'A');
+    document.getElementById('pm-del').style.display='block';
+  } else {
+    document.getElementById('pm-ttl').textContent='Ny produktion';
+    document.getElementById('pm-id').value='';
+    ['pm-navn','pm-selskab','pm-start','pm-slut','pm-timer','pm-tpu','pm-brutto'].forEach(i=>document.getElementById(i).value='');
+    sætType('A');
+    document.getElementById('pm-del').style.display='none';
+  }
+  pmHints();
+  m.classList.remove('skjult');
+}
+function lukProdModal(){ document.getElementById('prod-modal').classList.add('skjult'); }
+function sætType(t){
+  pmType=t;
+  document.getElementById('pm-type-a').classList.toggle('on',t==='A');
+  document.getElementById('pm-type-b').classList.toggle('on',t==='B');
+  pmHints();
+}
+function pmFraTpu(){
+  const tpu=parseFloat(document.getElementById('pm-tpu').value)||0;
+  const s=parseDato(document.getElementById('pm-start').value);
+  const e=parseDato(document.getElementById('pm-slut').value);
+  if(tpu>0 && s && e){
+    const uger=Math.max(1,Math.ceil(ugerMellem(s,e)+0.0001));
+    document.getElementById('pm-timer').value=Math.round(tpu*uger);
+  }
+  pmHints();
+}
+function pmAutoBrutto(){ pmHints(); }
+function pmHints(){
+  const timer=parseFloat(document.getElementById('pm-timer').value)||0;
+  const brutto=parseFloat(document.getElementById('pm-brutto').value)||0;
+  const th=document.getElementById('pm-timer-hint');
+  const bh=document.getElementById('pm-brutto-hint');
+  if(pmType==='B'){
+    const omr=brutto/B_OMREGNING;
+    th.textContent=`B-indkomst omregnes: ${nrFmt(brutto)} kr ÷ ${B_OMREGNING.toLocaleString('da-DK')} = ${tFmt(omr)} optjenings-timer`;
+    bh.textContent=`Honorar/B-indkomst tæller via omregning (${B_OMREGNING.toLocaleString('da-DK')} kr/t)`;
+  } else {
+    th.textContent= timer>0 ? `${tFmt(timer)} løntimer tæller direkte mod 1.924-timers kravet` : 'Faktiske løntimer (A-indkomst)';
+    bh.textContent= brutto>0 ? `${krFmt(brutto)} tæller mod 286.632 kr-kravet` : 'Bruttoløn — tæller mod indkomst-vejen';
+  }
+}
+function gemProd(){
+  const id=document.getElementById('pm-id').value;
+  const obj={
+    id: id||genId(),
+    navn: document.getElementById('pm-navn').value.trim(),
+    selskab: document.getElementById('pm-selskab').value.trim(),
+    startdato: document.getElementById('pm-start').value,
+    slutdato: document.getElementById('pm-slut').value,
+    type: pmType,
+    timer: parseFloat(document.getElementById('pm-timer').value)||0,
+    tpu: parseFloat(document.getElementById('pm-tpu').value)||0,
+    brutto: parseFloat(document.getElementById('pm-brutto').value)||0,
+  };
+  if(!obj.navn && !obj.brutto && !obj.timer){ toast('Udfyld mindst navn eller timer'); return; }
+  if(id){
+    const i=data.produktioner.findIndex(x=>x.id===id);
+    if(i>=0){ obj.fraTimeApp=data.produktioner[i].fraTimeApp; obj.kilde=data.produktioner[i].kilde; data.produktioner[i]=obj; }
+  } else {
+    data.produktioner.push(obj);
+  }
+  gem(); lukProdModal(); renderAlt(); toast(id?'Gemt ✓':'Produktion tilføjet ✓');
+}
+function sletProdFraModal(){ const id=document.getElementById('pm-id').value; if(id) sletProd(id); lukProdModal(); }
+function sletProd(id){
+  const p=data.produktioner.find(x=>x.id===id);
+  if(!confirm(`Slet "${p?.navn||'produktion'}"?`)) return;
+  data.produktioner=data.produktioner.filter(x=>x.id!==id);
+  gem(); renderAlt(); toast('Slettet');
+}
+
+// ═══════════════════════════════════════════════════
+//  SUPPLERENDE UGER
+// ═══════════════════════════════════════════════════
+function tilføjSupplUge(){
+  const iso=isoDato(idag());
+  // gem mandag i denne uge for entydighed
+  if(!data.supplUger.includes(iso)){ data.supplUger.push(iso); gem(); renderAlt(); toast('Uge registreret'); }
+  else toast('Denne uge er allerede registreret');
+}
+function fjernSupplUge(u){ data.supplUger=data.supplUger.filter(x=>x!==u); gem(); renderAlt(); toast('Fjernet'); }
+
+// ═══════════════════════════════════════════════════
+//  IMPORT FRA TIME APP (samme localStorage)
+// ═══════════════════════════════════════════════════
+function importerTimeApp(){
+  let prods=[];
+  try{ prods=JSON.parse(localStorage.getItem('faf-produktioner')||'[]'); }catch(e){}
+  if(!prods.length){ toast('Ingen Time App-data fundet på denne enhed'); return; }
+
+  let tilføjet=0, opdateret=0;
+  for(const tp of prods){
+    // saml alle dage for denne produktion
+    let timerSum=0, lonSum=0, datoer=[];
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      if(!key || !key.startsWith('faf-'+tp.id+'-')) continue;
+      const m=key.match(/-(\d{4}-\d{2}-\d{2})$/);
+      if(!m) continue;
+      try{
+        const d=JSON.parse(localStorage.getItem(key));
+        if(d && (d.h||d.lon)){ timerSum+=parseFloat(d.h)||0; lonSum+=parseFloat(d.lon)||0; datoer.push(m[1]); }
+      }catch(e){}
+    }
+    if(datoer.length===0 && !tp.prod) continue;
+    datoer.sort();
+    const navn = tp.prod || tp.navn || 'Time App-produktion';
+    const obj={
+      id: 'ta-'+tp.id,
+      kilde: tp.id,
+      fraTimeApp:true,
+      navn,
+      selskab: tp.selskab||'',
+      startdato: datoer[0]||'',
+      slutdato: datoer[datoer.length-1]||'',
+      type:'A',
+      timer: Math.round(timerSum*10)/10,
+      tpu:0,
+      brutto: Math.round(lonSum),
+    };
+    if(timerSum<=0 && lonSum<=0) continue;
+    const eks=data.produktioner.findIndex(x=>x.id===obj.id || x.kilde===tp.id);
+    if(eks>=0){ data.produktioner[eks]={...data.produktioner[eks],...obj}; opdateret++; }
+    else { data.produktioner.push(obj); tilføjet++; }
+  }
+  gem(); renderAlt(); lukMenu();
+  if(tilføjet||opdateret) toast(`Time App: ${tilføjet} ny${tilføjet===1?'':'e'}, ${opdateret} opdateret ✓`);
+  else toast('Ingen produktioner med registrerede dage fundet');
+}
+
+// ═══════════════════════════════════════════════════
+//  EKSPORT / IMPORT JSON
+// ═══════════════════════════════════════════════════
+function eksportJSON(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`dagpenge-backup-${isoDato(idag())}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('Eksporteret ✓');
+}
+function importJSON(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(!d.produktioner) throw new Error('mangler produktioner');
+      if(!confirm(`Importér ${d.produktioner.length} produktioner? Dette overskriver nuværende data.`)) return;
+      data={produktioner:d.produktioner||[], supplUger:d.supplUger||[], version:APP_VERSION};
+      gem(); renderAlt(); lukMenu(); toast('Importeret ✓');
+    }catch(e){ toast('Kunne ikke læse filen'); }
+  };
+  r.readAsText(f);
+  ev.target.value='';
+}
+function nulstilAlt(){
+  if(!confirm('Slet ALLE dagpenge-data? Time App påvirkes ikke.')) return;
+  if(!confirm('Er du helt sikker? Dette kan ikke fortrydes.')) return;
+  data={produktioner:[],supplUger:[],version:APP_VERSION};
+  gem(); renderAlt(); lukMenu(); toast('Alt nulstillet');
+}
+
+// ═══════════════════════════════════════════════════
+//  PRINT / MAIL
+// ═══════════════════════════════════════════════════
+function byggTekstRapport(){
+  const opt=beregnOptjening(), sats=beregnSats(), suppl=beregnSupplerende();
+  let t=`DAGPENGE-OVERSIGT · ${isoDato(idag())}\n`;
+  t+=`════════════════════════════\n\n`;
+  t+=`OPTJENING (seneste ${OPTJ_AAR} år)\n`;
+  t+=`  Timer:    ${tFmt(opt.timer)} / ${nrFmt(TIMER_KRAV)}  (${Math.round(opt.timerPct)}%)\n`;
+  t+=`  Indkomst: ${nrFmt(opt.indkomst)} / ${nrFmt(INDKOMST_KRAV)} kr  (${Math.round(opt.indkPct)}%)\n`;
+  t+=`  Status:   ${(opt.timerOpfyldt||opt.indkOpfyldt)?'DAGPENGERET OPTJENT ✓':'Mangler '+nrFmt(opt.timerMangler)+' timer'}\n\n`;
+  t+=`DAGPENGESATS (estimat)\n`;
+  t+=`  Sats:     ${nrFmt(sats.sats)} kr/md\n`;
+  t+=`  Snit 12 bedste mdr: ${nrFmt(sats.snit)} kr\n\n`;
+  t+=`SUPPLERENDE DAGPENGE\n`;
+  t+=`  Brugt: ${suppl.brugt} / ${SUPPL_MAX_UGER} uger (${suppl.tilbage} tilbage)\n\n`;
+  t+=`PRODUKTIONER (${data.produktioner.length})\n`;
+  for(const p of data.produktioner){
+    const g=gdageBerettiget(p);
+    t+=`  • ${p.navn||'Uden navn'}${p.selskab?' ('+p.selskab+')':''}\n`;
+    t+=`    ${visDato(p.startdato)}–${visDato(p.slutdato)} · ${tFmt(prodTimer(p))} t · ${nrFmt(p.brutto||0)} kr · ${p.type||'A'}${g.ok?' · G-dage '+nrFmt(g.kr)+' kr':''}\n`;
+  }
+  t+=`\n— Genereret af Dagpenge · Time App. Vejledende beregning.\n`;
+  return t;
+}
+function printOversigt(){
+  const opt=beregnOptjening(), sats=beregnSats(), suppl=beregnSupplerende();
+  const w=window.open('','_blank');
+  if(!w){ toast('Tillad pop-ups for at printe'); return; }
+  let prodRows='';
+  for(const p of data.produktioner){
+    const g=gdageBerettiget(p);
+    prodRows+=`<tr><td>${esc(p.navn||'—')}<br><small>${esc(p.selskab||'')}</small></td><td>${visDato(p.startdato)}–${visDato(p.slutdato)}</td><td style="text-align:right">${tFmt(prodTimer(p))} t</td><td style="text-align:right">${nrFmt(p.brutto||0)} kr</td><td style="text-align:center">${p.type||'A'}</td><td style="text-align:right">${g.ok?nrFmt(g.kr)+' kr':'—'}</td></tr>`;
+  }
+  w.document.write(`<!DOCTYPE html><html lang="da"><head><meta charset="utf-8"><title>Dagpenge-oversigt</title>
+  <style>body{font-family:Arial,sans-serif;max-width:760px;margin:24px auto;padding:0 20px;color:#111}
+  h1{font-size:22px;border-bottom:3px solid #6366F1;padding-bottom:8px}h2{font-size:15px;margin-top:24px;color:#4338CA}
+  table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}th,td{padding:7px 9px;border-bottom:1px solid #ddd;text-align:left}
+  th{background:#f1f1f7;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+  .box{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}.kpi{flex:1;min-width:140px;background:#f6f6fb;border:1px solid #e3e3ef;border-radius:10px;padding:12px 14px}
+  .kpi .n{font-size:24px;font-weight:bold;color:#4338CA}.kpi .l{font-size:11px;color:#666;text-transform:uppercase}
+  small{color:#888}.foot{margin-top:30px;font-size:11px;color:#999}</style></head><body>
+  <h1>Dagpenge-oversigt · ${isoDato(idag())}</h1>
+  <h2>Optjening (seneste ${OPTJ_AAR} år)</h2>
+  <div class="box">
+    <div class="kpi"><div class="n">${tFmt(opt.timer)}</div><div class="l">af ${nrFmt(TIMER_KRAV)} timer (${Math.round(opt.timerPct)}%)</div></div>
+    <div class="kpi"><div class="n">${nrFmt(opt.indkomst)}</div><div class="l">af ${nrFmt(INDKOMST_KRAV)} kr (${Math.round(opt.indkPct)}%)</div></div>
+    <div class="kpi"><div class="n">${(opt.timerOpfyldt||opt.indkOpfyldt)?'✓':nrFmt(opt.timerMangler)}</div><div class="l">${(opt.timerOpfyldt||opt.indkOpfyldt)?'Optjent':'timer mangler'}</div></div>
+  </div>
+  <h2>Dagpengesats & supplerende</h2>
+  <div class="box">
+    <div class="kpi"><div class="n">${nrFmt(sats.sats)} kr</div><div class="l">est. sats/md</div></div>
+    <div class="kpi"><div class="n">${nrFmt(Math.min(SATS_TILLAEG,Math.round(sats.sats*(SATS_TILLAEG/SATS_MAX))))} kr</div><div class="l">m. beskæft.tillæg</div></div>
+    <div class="kpi"><div class="n">${suppl.brugt}/${SUPPL_MAX_UGER}</div><div class="l">supplerende uger</div></div>
+  </div>
+  <h2>Produktioner (${data.produktioner.length})</h2>
+  <table><thead><tr><th>Produktion</th><th>Periode</th><th style="text-align:right">Timer</th><th style="text-align:right">Brutto</th><th style="text-align:center">Type</th><th style="text-align:right">G-dage</th></tr></thead><tbody>${prodRows||'<tr><td colspan="6">Ingen</td></tr>'}</tbody></table>
+  <div class="foot">Genereret af Dagpenge · Time App. Vejledende beregning baseret på dagpengeregler 2026 — kontakt din a-kasse for bindende vurdering.</div>
+  <script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+function mailOversigt(){
+  const body=encodeURIComponent(byggTekstRapport());
+  const emne=encodeURIComponent(`Dagpenge-oversigt · ${isoDato(idag())}`);
+  window.location.href=`mailto:?subject=${emne}&body=${body}`;
+}
+
+// ═══════════════════════════════════════════════════
+//  MENU + VIEWS + UTILS
+// ═══════════════════════════════════════════════════
+function åbnMenu(){ document.getElementById('menu-modal').classList.remove('skjult'); }
+function lukMenu(){ document.getElementById('menu-modal').classList.add('skjult'); }
+let aktivView='dash';
+function visView(v){
+  aktivView=v;
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('on'));
+  document.getElementById('v-'+v).classList.add('on');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.v===v));
+  document.getElementById('fab').style.display=(v==='reg')?'flex':'none';
+  window.scrollTo(0,0);
+}
+function renderAlt(){ renderDash(); renderReg(); renderHist(); renderIndb(); }
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('vis');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('vis'),2600);
+}
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// luk modal ved klik på baggrund
+document.querySelectorAll('.modal-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.add('skjult'); });
+});
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+hent();
+renderAlt();
+visView('dash');
+</script>
+</body>
+</html>
