@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0C0C12">
+<title>Time App · v3.0 Mockup</title>
+<style>
+:root{
+  --bg:#0C0C12; --surf:#14141E; --card:#1C1C2A; --card2:#222232;
+  --brd:#2E2E42; --txt:#EEEEF5; --mut:#B9B9CD;
+  --grn:#34D399; --red:#F87171; --yel:#FBBF24; --pnk:#F472B6;
+  --acc:#818CF8; --pur:#A78BFA;
+  --r:18px; --rs:14px;
+  /* knap-farver — fra Time App */
+  --btn-v:#E8630A; --btn-u:#E02020; --btn-f:#D4A017;
+  --btn-p:#E8784A; --btn-h:#1AACDD; --btn-r:#1DB954;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Tahoma',sans-serif;font-weight:bold;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto;letter-spacing:.2px;
+  -webkit-user-select:none;user-select:none;overflow-x:hidden}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.95);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:16px 20px}
+.brand{display:flex;align-items:center;gap:11px;font-size:22px;font-weight:bold}
+.brand img{width:40px;height:40px;border-radius:11px;object-fit:contain}
+.brand em{color:var(--acc);font-style:normal}
+.mock-tag{font-size:14px;font-weight:800;color:var(--acc);background:rgba(129,140,248,.15);padding:6px 13px;border-radius:50px;letter-spacing:1px}
+
+/* ── DAG/UGE TABS ── */
+.modetabs{display:flex;gap:10px;padding:16px 18px 4px}
+.modetab{flex:1;padding:18px;border-radius:50px;border:2px solid var(--brd);background:var(--surf);color:var(--mut);font-size:22px;font-weight:bold;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase}
+.modetab.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.modetab:active{transform:scale(.96)}
+
+.screen{display:none;padding:14px 18px 160px}
+.screen.on{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ── DAG HEADER ── */
+.dag-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin:14px 4px 8px}
+.dag-navn{font-size:48px;font-weight:bold;line-height:1;letter-spacing:-1px}
+.dag-dato{font-size:22px;color:var(--mut);font-weight:bold;margin-top:8px}
+.dag-uge{font-size:18px;color:var(--acc);text-transform:uppercase;letter-spacing:2px;font-weight:bold;text-align:right;white-space:nowrap}
+.dag-nav{display:flex;gap:10px;margin-top:8px;justify-content:flex-end}
+.navbtn{width:52px;height:52px;border-radius:50%;border:2px solid var(--brd);background:var(--surf);color:var(--txt);font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.navbtn:active{transform:scale(.9)}
+
+/* ── PRODUKTION + BADGE ── */
+.prod-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 4px 16px}
+.prod-titel{font-size:30px;font-weight:bold;letter-spacing:-.5px;line-height:1.05;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge-5dag{flex-shrink:0;font-size:18px;font-weight:800;padding:11px 18px;border-radius:50px;background:rgba(129,140,248,.18);color:var(--acc);border:2px solid rgba(129,140,248,.4);letter-spacing:.5px}
+
+/* ── TID-BOKS ── */
+.tidboks{background:linear-gradient(135deg,#16162A,#1C1C36);border:2px solid rgba(129,140,248,.3);border-radius:var(--r);padding:26px 16px 22px;margin-bottom:16px}
+.tidrow{display:flex;align-items:center;justify-content:center;gap:14px}
+.tidblok{text-align:center}
+.tidlbl{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--mut);margin-bottom:8px}
+.tidval{font-size:56px;font-weight:bold;line-height:1;font-family:'Tahoma',monospace;letter-spacing:0}
+.tidpil{font-size:34px;color:var(--acc);padding-bottom:8px;flex-shrink:0}
+.tid-divider{height:2px;background:var(--brd);margin:24px 4px 20px}
+.tidbund{display:flex;flex-direction:column;gap:18px;padding:0 6px}
+.timer-grp{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.timer-lbl{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:1.6px;color:var(--mut)}
+.timer-val{font-size:30px;font-weight:bold;font-family:'Tahoma',monospace;white-space:nowrap;display:flex;align-items:baseline;gap:10px}
+.timer-val .ot-mini{font-size:15px;font-weight:800;color:var(--btn-v);background:rgba(232,99,10,.18);padding:3px 9px;border-radius:6px;letter-spacing:.3px}
+.lon-grp{display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-top:2px solid var(--brd);padding-top:18px}
+.lon-lbl{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:1.6px;color:var(--mut)}
+.lon-val{font-size:40px;font-weight:bold;color:var(--grn);font-family:'Tahoma',monospace;letter-spacing:-1px;line-height:1;white-space:nowrap}
+
+/* ── OT BREAKDOWN ── */
+.spec-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;background:var(--card);border:2px solid var(--brd);border-radius:var(--rs);padding:18px 22px;cursor:pointer;margin-bottom:14px}
+.spec-toggle .st-l{font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--txt)}
+.spec-toggle .st-arrow{font-size:22px;color:var(--mut);transition:transform .25s}
+.spec-toggle.open .st-arrow{transform:rotate(180deg)}
+.spec{background:var(--card);border:2px solid var(--brd);border-radius:var(--rs);padding:8px 22px;margin-bottom:16px;display:none;overflow:hidden}
+.spec.open{display:block;animation:fade .25s ease}
+.spec-row{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1.5px solid var(--brd)}
+.spec-row:last-child{border-bottom:none}
+.spec-row.total{padding-top:20px}
+.spec-l{font-size:16px;color:var(--mut)}
+.spec-l.strong{font-size:18px;color:var(--txt);font-weight:800}
+.spec-tag{font-size:14px;font-weight:800;padding:3px 9px;border-radius:6px;margin-left:8px}
+.tag-n{background:rgba(129,140,248,.18);color:var(--acc)}
+.tag-1{background:rgba(232,99,10,.18);color:var(--btn-v)}
+.tag-2{background:rgba(224,32,32,.2);color:var(--red)}
+.tag-t{background:rgba(167,139,250,.18);color:var(--pur)}
+.spec-v{font-size:18px;font-weight:bold;font-family:'Tahoma',monospace}
+.spec-v.total{font-size:26px;color:var(--grn)}
+.spec-hrs{font-size:14px;color:var(--mut);font-family:'Tahoma',monospace;margin-right:4px}
+
+/* ── KNAP-SEKTION ── */
+.sektion-lbl{font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--mut);margin:24px 4px 14px}
+.bgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+.xb{padding:14px 18px;border-radius:var(--rs);border:2px solid var(--brd);background:var(--card);color:rgba(255,255,255,.92);font-family:'Tahoma',sans-serif;font-size:16px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:78px;text-align:center;line-height:1.15}
+.xb .xb-sub{font-size:14px;font-weight:bold;opacity:.8;text-transform:none;font-family:'Tahoma',monospace}
+.xb:active{transform:scale(.94)}
+.xb.bdr-v{border-color:rgba(232,99,10,.4)} .xb.bdr-u{border-color:rgba(224,32,32,.4)} .xb.bdr-f{border-color:rgba(212,160,23,.4)}
+.xb.bdr-p{border-color:rgba(232,120,74,.4)} .xb.bdr-h{border-color:rgba(26,172,221,.4)} .xb.bdr-r{border-color:rgba(29,185,84,.4)}
+.xb.on-v{background:var(--btn-v);border-color:var(--btn-v);color:#fff;box-shadow:0 0 0 3px rgba(232,99,10,.3)}
+.xb.on-u{background:var(--btn-u);border-color:var(--btn-u);color:#fff;box-shadow:0 0 0 3px rgba(224,32,32,.3)}
+.xb.on-f{background:var(--btn-f);border-color:var(--btn-f);color:#fff;box-shadow:0 0 0 3px rgba(212,160,23,.3)}
+.xb.on-p{background:var(--btn-p);border-color:var(--btn-p);color:#fff;box-shadow:0 0 0 3px rgba(232,120,74,.3)}
+.xb.on-h{background:var(--btn-h);border-color:var(--btn-h);color:#fff;box-shadow:0 0 0 3px rgba(26,172,221,.3)}
+.xb.on-r{background:var(--btn-r);border-color:var(--btn-r);color:#fff;box-shadow:0 0 0 3px rgba(29,185,84,.3)}
+
+/* ── UGE-VISNING ── */
+.uge-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 4px 18px}
+.uge-titel{font-size:40px;font-weight:bold;letter-spacing:-1px;line-height:1}
+.uge-titel .us{font-size:20px;color:var(--mut);font-weight:bold;display:block;margin-top:6px}
+.badge-45-big{flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--acc);color:#fff;border-radius:18px;padding:14px 20px;line-height:1;box-shadow:0 6px 20px rgba(129,140,248,.35)}
+.badge-45-big .b-num{font-size:34px;font-weight:bold}
+.badge-45-big .b-txt{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+.ugedag{background:var(--card);border:2px solid var(--brd);border-radius:var(--r);padding:20px 22px;margin-bottom:13px;cursor:pointer;transition:all .15s}
+.ugedag:active{transform:scale(.985);border-color:var(--acc)}
+.ud-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.ud-navn{font-size:28px;font-weight:bold;letter-spacing:-.5px}
+.ud-navn .ud-dato{font-size:16px;color:var(--mut);font-weight:bold;margin-left:8px}
+.ud-lon{font-size:30px;font-weight:bold;color:var(--grn);font-family:'Tahoma',monospace;letter-spacing:-.5px}
+.ud-bund{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:nowrap}
+.ud-tid{font-size:22px;font-weight:bold;font-family:'Tahoma',monospace;color:var(--txt);white-space:nowrap;flex-shrink:0}
+.ud-meta{display:flex;gap:9px;align-items:center;flex-shrink:0}
+.ud-timer{font-size:18px;font-weight:bold;font-family:'Tahoma',monospace;color:var(--mut);white-space:nowrap}
+.ud-otbadge{font-size:14px;font-weight:800;padding:5px 10px;border-radius:7px;background:rgba(232,99,10,.18);color:var(--btn-v);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;flex-shrink:0}
+
+/* ── UGE TOTAL ── */
+.total-boks{background:linear-gradient(135deg,#16162A,#1C1C36);border:2px solid rgba(52,211,153,.3);border-radius:var(--r);padding:24px;margin-top:18px}
+.total-titel{font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--mut);margin-bottom:18px}
+.total-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;text-align:center}
+.total-cell .tc-val{font-size:30px;font-weight:bold;font-family:'Tahoma',monospace;line-height:1}
+.total-cell .tc-lbl{font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-top:8px}
+.tc-val.grn{color:var(--grn)} .tc-val.ot{color:var(--btn-v)} .tc-val.tim{color:var(--txt)}
+.total-lon-stor{text-align:center;margin-top:22px;padding-top:20px;border-top:2px solid var(--brd)}
+.total-lon-stor .tl-lbl{font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--mut);margin-bottom:8px}
+.total-lon-stor .tl-val{font-size:52px;font-weight:bold;color:var(--grn);font-family:'Tahoma',monospace;letter-spacing:-1.5px;line-height:1}
+
+/* ── SEND-KNAP (fast i bunden) ── */
+.sendbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;padding:18px 18px 26px;background:linear-gradient(0deg,var(--bg) 55%,rgba(12,12,18,0));z-index:120;pointer-events:none}
+.sendbtn{pointer-events:auto;width:100%;padding:24px;border-radius:50px;border:none;background:var(--acc);color:#fff;font-family:'Tahoma',sans-serif;font-size:26px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 28px rgba(129,140,248,.5);display:flex;align-items:center;justify-content:center;gap:12px;transition:transform .12s}
+.sendbtn:active{transform:scale(.97)}
+.sendbtn .sb-ic{font-size:28px}
+
+/* ── HURTIGMENU OVERLAY ── */
+.qm-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:300;display:none;align-items:flex-end;justify-content:center;animation:bgfade .2s ease}
+.qm-bg.on{display:flex}
+@keyframes bgfade{from{opacity:0}to{opacity:1}}
+.qm{width:100%;max-width:430px;background:var(--surf);border-radius:28px 28px 0 0;border-top:2px solid var(--brd);padding:12px 18px 30px;animation:qmup .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes qmup{from{transform:translateY(100%)}to{transform:none}}
+.qm-grip{width:48px;height:6px;border-radius:4px;background:var(--brd);margin:10px auto 18px}
+.qm-titel{font-size:24px;font-weight:bold;text-align:center;margin-bottom:6px}
+.qm-sub{font-size:15px;color:var(--mut);text-align:center;margin-bottom:22px;font-weight:bold}
+.qm-opt{display:flex;align-items:center;gap:18px;background:var(--card);border:2px solid var(--brd);border-radius:var(--r);padding:20px 22px;margin-bottom:12px;cursor:pointer;transition:all .15s}
+.qm-opt:active{transform:scale(.97);border-color:var(--acc);background:var(--card2)}
+.qm-ic{font-size:34px;width:52px;text-align:center;flex-shrink:0}
+.qm-tx{flex:1;min-width:0}
+.qm-tx .qt-h{font-size:22px;font-weight:bold;line-height:1.1}
+.qm-tx .qt-s{font-size:15px;color:var(--mut);font-weight:bold;margin-top:3px}
+.qm-chev{font-size:24px;color:var(--mut)}
+.qm-luk{width:100%;padding:20px;border-radius:50px;border:2px solid var(--brd);background:transparent;color:var(--mut);font-size:20px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:8px}
+.qm-luk:active{transform:scale(.97)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:130px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card2);border:2px solid var(--grn);color:var(--txt);padding:18px 28px;border-radius:50px;font-size:18px;font-weight:bold;z-index:400;opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 8px 32px rgba(0,0,0,.6);max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><img src="icon.png" alt=""><span>Time App<em> ·</em></span></div>
+  <span class="mock-tag">v3.0</span>
+</div>
+
+<div class="modetabs">
+  <button class="modetab on" id="mt-dag" onclick="visMode('dag')">Dag</button>
+  <button class="modetab" id="mt-uge" onclick="visMode('uge')">Uge</button>
+</div>
+
+<!-- ═══════════════ DAG-VISNING ═══════════════ -->
+<div class="screen on" id="screen-dag">
+
+  <div class="dag-head">
+    <div>
+      <div class="dag-navn">Onsdag</div>
+      <div class="dag-dato">21. maj 2026</div>
+    </div>
+    <div>
+      <div class="dag-uge">Uge 21</div>
+      <div class="dag-nav">
+        <button class="navbtn" onclick="toast('Forrige dag')">‹</button>
+        <button class="navbtn" onclick="toast('Næste dag')">›</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="prod-row">
+    <div class="prod-titel">Den Lukkede Bog</div>
+    <div class="badge-5dag">5-DAGS</div>
+  </div>
+
+  <div class="tidboks">
+    <div class="tidrow">
+      <div class="tidblok">
+        <div class="tidlbl">Start</div>
+        <div class="tidval">08:00</div>
+      </div>
+      <div class="tidpil">→</div>
+      <div class="tidblok">
+        <div class="tidlbl">Slut</div>
+        <div class="tidval">18:30</div>
+      </div>
+    </div>
+    <div class="tid-divider"></div>
+    <div class="tidbund">
+      <div class="timer-grp">
+        <div class="timer-lbl">Arbejdstid</div>
+        <div class="timer-val">10t 30m <span class="ot-mini">2,5t OT</span></div>
+      </div>
+      <div class="lon-grp">
+        <div class="lon-lbl">Dagsløn</div>
+        <div class="lon-val">2.984 kr</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="spec-toggle open" id="spec-toggle" onclick="toggleSpec()">
+    <span class="st-l">Specifikation</span>
+    <span class="st-arrow">▼</span>
+  </div>
+  <div class="spec open" id="spec">
+    <div class="spec-row">
+      <div class="spec-l"><span class="spec-hrs">8,0 t</span> Normaltimer <span class="spec-tag tag-n">§3</span></div>
+      <div class="spec-v">1.896 kr</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-l"><span class="spec-hrs">1,5 t</span> Varslet OT 1 <span class="spec-tag tag-1">+50%</span></div>
+      <div class="spec-v">552 kr</div>
+    </div>
+    <div class="spec-row">
+      <div class="spec-l"><span class="spec-hrs">1,0 t</span> Varslet OT 2 <span class="spec-tag tag-2">+100%</span></div>
+      <div class="spec-v">536 kr</div>
+    </div>
+    <div class="spec-row total">
+      <div class="spec-l strong">Dagsløn i alt</div>
+      <div class="spec-v total">2.984 kr</div>
+    </div>
+  </div>
+
+  <div class="sektion-lbl">Tillæg &amp; vilkår</div>
+  <div class="bgrid">
+    <button class="xb bdr-v on-v" onclick="tog(this,'v')">Varslet OT<span class="xb-sub">aktiv</span></button>
+    <button class="xb bdr-u" onclick="tog(this,'u')">Uvarslet OT</button>
+    <button class="xb bdr-f" onclick="tog(this,'f')">Frokost</button>
+    <button class="xb bdr-p" onclick="tog(this,'p')">Pause 10%</button>
+    <button class="xb bdr-h" onclick="tog(this,'h')">Helligdag</button>
+    <button class="xb bdr-r" onclick="tog(this,'r')">Kørsel</button>
+  </div>
+
+</div>
+
+<!-- ═══════════════ UGE-VISNING ═══════════════ -->
+<div class="screen" id="screen-uge">
+
+  <div class="uge-head">
+    <div class="uge-titel">Uge 21<span class="us">19.–25. maj 2026</span></div>
+    <div class="badge-45-big">
+      <div class="b-num">5</div>
+      <div class="b-txt">dages uge</div>
+    </div>
+  </div>
+
+  <div class="ugedag" onclick="toast('Åbn Mandag')">
+    <div class="ud-top">
+      <div class="ud-navn">Mandag<span class="ud-dato">19/5</span></div>
+      <div class="ud-lon">1.896 kr</div>
+    </div>
+    <div class="ud-bund">
+      <div class="ud-tid">08:00 → 16:00</div>
+      <div class="ud-meta"><span class="ud-timer">8t 0m</span></div>
+    </div>
+  </div>
+
+  <div class="ugedag" onclick="toast('Åbn Tirsdag')">
+    <div class="ud-top">
+      <div class="ud-navn">Tirsdag<span class="ud-dato">20/5</span></div>
+      <div class="ud-lon">2.640 kr</div>
+    </div>
+    <div class="ud-bund">
+      <div class="ud-tid">07:30 → 17:30</div>
+      <div class="ud-meta"><span class="ud-timer">10t 0m</span><span class="ud-otbadge">2t OT</span></div>
+    </div>
+  </div>
+
+  <div class="ugedag" onclick="toast('Åbn Onsdag')">
+    <div class="ud-top">
+      <div class="ud-navn">Onsdag<span class="ud-dato">21/5</span></div>
+      <div class="ud-lon">2.984 kr</div>
+    </div>
+    <div class="ud-bund">
+      <div class="ud-tid">08:00 → 18:30</div>
+      <div class="ud-meta"><span class="ud-timer">10t 30m</span><span class="ud-otbadge">2,5t OT</span></div>
+    </div>
+  </div>
+
+  <div class="total-boks">
+    <div class="total-titel">Uge i alt · 3 dage</div>
+    <div class="total-grid">
+      <div class="total-cell"><div class="tc-val tim">28,5</div><div class="tc-lbl">Timer</div></div>
+      <div class="total-cell"><div class="tc-val ot">4,5</div><div class="tc-lbl">OT-timer</div></div>
+      <div class="total-cell"><div class="tc-val grn">9,5%</div><div class="tc-lbl">Pension</div></div>
+    </div>
+    <div class="total-lon-stor">
+      <div class="tl-lbl">Ugeløn i alt</div>
+      <div class="tl-val">7.520 kr</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════ SEND-KNAP ═══════════════ -->
+<div class="sendbar">
+  <button class="sendbtn" onclick="åbnQM()"><span class="sb-ic">📤</span> Send</button>
+</div>
+
+<!-- ═══════════════ HURTIGMENU ═══════════════ -->
+<div class="qm-bg" id="qm" onclick="lukQMbg(event)">
+  <div class="qm">
+    <div class="qm-grip"></div>
+    <div class="qm-titel">Send</div>
+    <div class="qm-sub" id="qm-sub">Vælg hvad du vil sende — det sker med det samme</div>
+
+    <div class="qm-opt" onclick="udfør('PDF Ugeseddel')">
+      <div class="qm-ic">📄</div>
+      <div class="qm-tx"><div class="qt-h">PDF Ugeseddel</div><div class="qt-s">Hele ugen som PDF</div></div>
+      <div class="qm-chev">›</div>
+    </div>
+    <div class="qm-opt" onclick="udfør('PDF Dagseddel')">
+      <div class="qm-ic">📄</div>
+      <div class="qm-tx"><div class="qt-h">PDF Dagseddel</div><div class="qt-s">Kun denne dag som PDF</div></div>
+      <div class="qm-chev">›</div>
+    </div>
+    <div class="qm-opt" onclick="udfør('Mail ugeseddel')">
+      <div class="qm-ic">✉️</div>
+      <div class="qm-tx"><div class="qt-h">Mail ugeseddel</div><div class="qt-s">Send ugen til produktionen</div></div>
+      <div class="qm-chev">›</div>
+    </div>
+    <div class="qm-opt" onclick="udfør('Mail dag')">
+      <div class="qm-ic">✉️</div>
+      <div class="qm-tx"><div class="qt-h">Mail dag</div><div class="qt-s">Send dagen til produktionen</div></div>
+      <div class="qm-chev">›</div>
+    </div>
+    <div class="qm-opt" onclick="udfør('Timeoversigt')">
+      <div class="qm-ic">📋</div>
+      <div class="qm-tx"><div class="qt-h">Timeoversigt</div><div class="qt-s">Kun timer — uden beløb</div></div>
+      <div class="qm-chev">›</div>
+    </div>
+
+    <button class="qm-luk" onclick="lukQM()">Luk</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+let mode='dag';
+function visMode(m){
+  mode=m;
+  document.getElementById('screen-dag').classList.toggle('on',m==='dag');
+  document.getElementById('screen-uge').classList.toggle('on',m==='uge');
+  document.getElementById('mt-dag').classList.toggle('on',m==='dag');
+  document.getElementById('mt-uge').classList.toggle('on',m==='uge');
+  // hurtigmenu-undertekst tilpasses
+  document.getElementById('qm-sub').textContent = m==='uge'
+    ? 'Sender for Uge 21 — det sker med det samme'
+    : 'Sender for Onsdag 21/5 — det sker med det samme';
+  window.scrollTo(0,0);
+}
+
+function toggleSpec(){
+  document.getElementById('spec').classList.toggle('open');
+  document.getElementById('spec-toggle').classList.toggle('open');
+}
+
+function tog(el,farve){
+  el.classList.toggle('on-'+farve);
+  // opdatér undertekst "aktiv/—" på de knapper der har den
+  const sub=el.querySelector('.xb-sub');
+  const aktiv=el.classList.contains('on-'+farve);
+  if(sub) sub.textContent = aktiv ? 'aktiv' : '';
+  else if(aktiv){ const s=document.createElement('span'); s.className='xb-sub'; s.textContent='aktiv'; el.appendChild(s); }
+}
+
+function åbnQM(){ document.getElementById('qm').classList.add('on'); }
+function lukQM(){ document.getElementById('qm').classList.remove('on'); }
+function lukQMbg(e){ if(e.target.id==='qm') lukQM(); }
+function udfør(hvad){
+  lukQM();
+  setTimeout(()=>toast('✓ '+hvad+' — klar!'),180);
+}
+
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('on'),2200);
+}
+</script>
+</body>
+</html>
