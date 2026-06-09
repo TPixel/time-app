@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0C0C12">
+<title>Produktions-Dashboard · Time App</title>
+<style>
+/* ═══════════════ DESIGN TOKENS (fra Time App) ═══════════════ */
+:root{
+  --bg:#0C0C12;--surf:#14141E;--card:#1C1C2A;--card2:#222232;
+  --brd:#2E2E42;--txt:#EEEEF5;--mut:#B9B9CD;
+  --grn:#34D399;--red:#F87171;--yel:#FBBF24;--pnk:#F472B6;
+  --acc:#818CF8;--pur:#A78BFA;
+  --grn-d:rgba(52,211,153,.12);--red-d:rgba(248,113,113,.12);
+  --yel-d:rgba(251,191,36,.12);--acc-d:rgba(129,140,248,.15);
+  --r:14px;--rs:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Tahoma',sans-serif;font-weight:bold;font-size:16px;background:var(--bg);color:var(--txt);min-height:100dvh;letter-spacing:.3px;-webkit-user-select:none;user-select:none}
+
+/* ═══════════════ LAYOUT ═══════════════ */
+.shell{max-width:1200px;margin:0 auto}
+@media(max-width:500px){.shell{max-width:430px}}
+
+/* ═══════════════ TOPBAR ═══════════════ */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.top-left{display:flex;align-items:center;gap:14px;min-width:0}
+.prod-name{font-size:22px;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-name em{color:var(--acc);font-style:normal}
+.top-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.uge-nav{display:flex;align-items:center;gap:8px}
+.uge-label{font-family:'Tahoma',monospace;font-size:18px;letter-spacing:1px;min-width:100px;text-align:center}
+.uge-label span{color:var(--acc)}
+.nbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0}
+.nbtn:active{transform:scale(.88)}
+.link-btn{color:var(--acc);text-decoration:none;font-size:13px;white-space:nowrap}
+
+/* ═══════════════ CONTENT ═══════════════ */
+.content{padding:20px}
+@media(max-width:500px){.content{padding:14px}}
+
+/* ═══════════════ KPI KORT ═══════════════ */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:700px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:16px 18px;transition:border-color .2s}
+.kpi:hover{border-color:var(--acc)}
+.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:8px}
+.kpi-val{font-family:'Tahoma',monospace;font-size:32px;letter-spacing:-.5px;line-height:1}
+@media(max-width:500px){.kpi-val{font-size:26px}}
+.kpi-sub{font-size:12px;color:var(--mut);margin-top:6px;font-weight:normal}
+.kpi.green .kpi-val{color:var(--grn)}
+.kpi.red .kpi-val{color:var(--red)}
+.kpi.yellow .kpi-val{color:var(--yel)}
+.kpi.accent .kpi-val{color:var(--acc)}
+
+/* ═══════════════ SEKTION ═══════════════ */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap}
+.section-title{font-size:14px;text-transform:uppercase;letter-spacing:2px;color:var(--mut)}
+.section-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pill-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);font-family:'Tahoma',sans-serif;font-size:12px;font-weight:bold;cursor:pointer;transition:all .15s;white-space:nowrap}
+.pill-btn:active{transform:scale(.95)}
+.pill-btn.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.pill-btn.grn{background:var(--grn);border-color:var(--grn);color:#000}
+.pill-btn.red{background:var(--red);border-color:var(--red);color:#000}
+
+/* ═══════════════ TABEL ═══════════════ */
+.tbl-wrap{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:28px}
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;min-width:780px}
+th{background:var(--surf);padding:10px 8px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--mut);position:sticky;top:0;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--acc)}
+th.sorted-asc::after{content:' ▲';font-size:9px}
+th.sorted-desc::after{content:' ▼';font-size:9px}
+td{padding:8px;border-top:1px solid var(--brd);font-size:14px;white-space:nowrap}
+tr.expandable{cursor:pointer;transition:background .15s}
+tr.expandable:hover{background:var(--card2)}
+tr.expanded{background:var(--card2)}
+tr.detail-row{display:none}
+tr.detail-row.open{display:table-row}
+tr.detail-row td{padding:12px 16px;background:var(--surf);border-top:none}
+
+/* Farvekoder for timer */
+.t-normal{color:var(--grn)}
+.t-ot{color:var(--yel)}
+.t-missing{color:var(--red);font-style:italic}
+.t-zero{color:var(--mut)}
+.t-weekend{color:var(--pur)}
+
+/* Status-badge */
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:bold;display:inline-block}
+.badge-ok{background:var(--grn-d);color:var(--grn)}
+.badge-missing{background:var(--red-d);color:var(--red)}
+.badge-partial{background:var(--yel-d);color:var(--yel)}
+
+/* Fold-ud detaljer */
+.detail-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;max-width:700px}
+.detail-day{background:var(--card);border:1px solid var(--brd);border-radius:var(--rs);padding:10px;text-align:center}
+.detail-day-name{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.detail-day-val{font-family:'Tahoma',monospace;font-size:20px}
+.detail-day-ot{font-size:11px;color:var(--yel);margin-top:2px}
+.detail-day-start{font-size:10px;color:var(--mut);margin-top:2px}
+.detail-day.weekend{border-color:rgba(167,139,250,.3)}
+.detail-day.off{opacity:.4}
+@media(max-width:500px){.detail-grid{grid-template-columns:repeat(4,1fr)}}
+
+/* ═══════════════ CHARTS ═══════════════ */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+@media(max-width:700px){.charts-row{grid-template-columns:1fr}}
+.chart-card{background:var(--card);border:1px solid var(--brd);border-radius:var(--r);padding:18px}
+.chart-title{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:14px}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:160px}
+.bar-group{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-stack{display:flex;flex-direction:column;justify-content:flex-end;height:130px;width:100%;gap:1px}
+.bar-seg{border-radius:3px 3px 0 0;min-height:1px;transition:height .4s ease}
+.bar-norm{background:var(--grn)}
+.bar-ot{background:var(--yel)}
+.bar-label{font-size:10px;color:var(--mut);text-align:center}
+.bar-val{font-size:10px;color:var(--txt);text-align:center;font-family:'Tahoma',monospace}
+
+/* Donut chart */
+.donut-wrap{display:flex;align-items:center;gap:24px;justify-content:center}
+.donut-svg{width:120px;height:120px;flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:8px}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:13px}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+
+/* ═══════════════ BUDGET ═══════════════ */
+.budget-bar-wrap{margin-bottom:20px}
+.budget-labels{display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px}
+.budget-track{height:18px;background:var(--surf);border-radius:10px;overflow:hidden;position:relative}
+.budget-fill{height:100%;border-radius:10px;transition:width .5s ease;position:relative}
+.budget-fill.ok{background:linear-gradient(90deg,var(--grn),#2dd4bf)}
+.budget-fill.warn{background:linear-gradient(90deg,var(--yel),#f59e0b)}
+.budget-fill.over{background:linear-gradient(90deg,var(--red),#ef4444)}
+
+/* ═══════════════ ACTIONS BAR ═══════════════ */
+.actions-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.action-btn{padding:10px 20px;border-radius:var(--rs);border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-family:'Tahoma',sans-serif;font-size:13px;font-weight:bold;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}
+.action-btn:active{transform:scale(.96)}
+.action-btn:hover{border-color:var(--acc)}
+
+/* ═══════════════ TOAST ═══════════════ */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--brd);color:var(--txt);padding:12px 24px;border-radius:30px;font-size:14px;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* ═══════════════ EMPTY STATE ═══════════════ */
+.empty{text-align:center;padding:60px 20px}
+.empty-icon{font-size:48px;margin-bottom:16px}
+.empty-title{font-size:20px;margin-bottom:8px}
+.empty-sub{color:var(--mut);font-size:14px;font-weight:normal;margin-bottom:20px}
+.empty a{color:var(--acc)}
+
+/* ═══════════════ RESPONSIVE ═══════════════ */
+@media(max-width:500px){
+  .topbar{padding:10px 14px}
+  .prod-name{font-size:18px}
+  .uge-label{font-size:15px;min-width:80px}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="top-left">
+      <div class="prod-name"><em>Den Lukkede Bog</em></div>
+    </div>
+    <div class="top-right">
+      <div class="uge-nav">
+        <button class="nbtn" onclick="changeWeek(-1)">&larr;</button>
+        <div class="uge-label" id="uge-label">UGE <span>21</span></div>
+        <button class="nbtn" onclick="changeWeek(1)">&rarr;</button>
+      </div>
+      <a href="send-demo.html" class="link-btn">+ Send data</a>
+    </div>
+  </div>
+
+  <div class="content" id="main-content">
+    <!-- Fyldes af JS -->
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   TIME APP · PRODUKTIONS-DASHBOARD — Prototype v1
+   localStorage-baseret mock
+   ═══════════════════════════════════════════════════════ */
+
+const STORE_KEY = 'timeapp_prod_data';
+const PROD = 'Den Lukkede Bog';
+const BUDGET_PER_WEEK = 320000; // simuleret ugebudget
+
+let currentWeek = 21;
+let currentYear = 2026;
+let sortCol = null;
+let sortDir = 'asc';
+let expandedRows = new Set();
+
+// ── DATA ──
+function getData(){return JSON.parse(localStorage.getItem(STORE_KEY)||'[]');}
+
+function getWeekData(uge){
+  return getData().filter(d => d.produktion===PROD && d.uge===uge && d.aar===currentYear);
+}
+
+function getAllWeeks(){
+  const all = getData().filter(d=>d.produktion===PROD);
+  const weeks = [...new Set(all.map(d=>d.uge))].sort((a,b)=>a-b);
+  return weeks;
+}
+
+// Hvem BURDE have indberettet (baseret på alle uger)
+function getFullTeam(){
+  const all = getData().filter(d=>d.produktion===PROD);
+  const team = {};
+  all.forEach(d=>{
+    if(!team[d.navn]) team[d.navn] = {navn:d.navn, stilling:d.stilling, bruttolon:d.bruttolon, otSats:d.otSats};
+  });
+  return Object.values(team);
+}
+
+// ── RENDER ──
+function render(){
+  const el = document.getElementById('main-content');
+  const weekData = getWeekData(currentWeek);
+  const fullTeam = getFullTeam();
+
+  document.getElementById('uge-label').innerHTML = 'UGE <span>'+currentWeek+'</span>';
+
+  if(!getData().length){
+    el.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">Ingen data endnu</div>
+        <div class="empty-sub">Gå til <a href="send-demo.html">Send-demo</a> og generer testdata for at se dashboardet i aktion.</div>
+      </div>`;
+    return;
+  }
+
+  // Beregn KPIs
+  const reported = weekData.map(d=>d.navn);
+  const missing = fullTeam.filter(p => !reported.includes(p.navn));
+  const totalTimer = weekData.reduce((s,d) => s + d.dage.reduce((ss,dd)=>ss+dd.timer,0), 0);
+  const totalOT = weekData.reduce((s,d) => s + d.dage.reduce((ss,dd)=>ss+dd.ot,0), 0);
+  const totalLon = weekData.reduce((s,d) => {
+    const ot = d.dage.reduce((ss,dd)=>ss+dd.ot,0);
+    return s + d.bruttolon + (ot * d.otSats);
+  }, 0);
+
+  // Sammenlign med forrige uge
+  const prevData = getWeekData(currentWeek - 1);
+  const prevTimer = prevData.reduce((s,d) => s + d.dage.reduce((ss,dd)=>ss+dd.timer,0), 0);
+  const prevLon = prevData.reduce((s,d) => {
+    const ot = d.dage.reduce((ss,dd)=>ss+dd.ot,0);
+    return s + d.bruttolon + (ot * d.otSats);
+  }, 0);
+  const timerDiff = prevTimer ? ((totalTimer-prevTimer)/prevTimer*100).toFixed(0) : null;
+  const lonDiff = prevLon ? ((totalLon-prevLon)/prevLon*100).toFixed(0) : null;
+
+  let html = '';
+
+  // ── KPI KORT ──
+  html += '<div class="kpi-row">';
+  html += kpiCard('Timer i alt', fmtNum(totalTimer)+'t', timerDiff ? (timerDiff>0?'+':'')+timerDiff+'% vs. uge '+(currentWeek-1) : '', 'accent');
+  html += kpiCard('OT-timer', fmtNum(totalOT)+'t', totalTimer ? (totalOT/totalTimer*100).toFixed(1)+'% af total' : '', totalOT>totalTimer*0.15?'yellow':'green');
+  html += kpiCard('Lønudgift', fmtKr(totalLon), lonDiff ? (lonDiff>0?'+':'')+lonDiff+'% vs. uge '+(currentWeek-1) : '', totalLon>BUDGET_PER_WEEK?'red':'green');
+  html += kpiCard('Indsendt', weekData.length+'/'+fullTeam.length, missing.length ? missing.length+' mangler' : 'Alle har indsendt', missing.length?'red':'green');
+  html += '</div>';
+
+  // ── BUDGET BAR ──
+  const budgetPct = Math.min((totalLon/BUDGET_PER_WEEK)*100, 150);
+  const budgetClass = budgetPct > 100 ? 'over' : budgetPct > 85 ? 'warn' : 'ok';
+  html += '<div class="budget-bar-wrap">';
+  html += '<div class="budget-labels"><span>Budget: '+fmtKr(BUDGET_PER_WEEK)+'</span><span>'+budgetPct.toFixed(0)+'% brugt</span></div>';
+  html += '<div class="budget-track"><div class="budget-fill '+budgetClass+'" style="width:'+Math.min(budgetPct,100)+'%"></div></div>';
+  html += '</div>';
+
+  // ── ACTIONS ──
+  html += '<div class="actions-bar">';
+  html += '<button class="action-btn" onclick="exportExcel()">&#128196; Eksporter Excel</button>';
+  html += '<button class="action-btn" onclick="printOverview()">&#128424; Print oversigt</button>';
+  if(missing.length){
+    html += '<button class="action-btn" onclick="sendReminder()" style="border-color:var(--red);color:var(--red)">&#128276; Send påmindelse ('+missing.length+')</button>';
+  }
+  html += '</div>';
+
+  // ── HOLDOVERSIGT ──
+  html += '<div class="section-head"><div class="section-title">Holdoversigt &mdash; Uge '+currentWeek+'</div>';
+  html += '<div class="section-actions">';
+  html += '<button class="pill-btn'+(sortCol===null?' on':'')+'" onclick="setSort(null)">Standard</button>';
+  html += '<button class="pill-btn'+(sortCol==='timer'?' on':'')+'" onclick="setSort(\'timer\')">Timer</button>';
+  html += '<button class="pill-btn'+(sortCol==='lon'?' on':'')+'" onclick="setSort(\'lon\')">Løn</button>';
+  html += '<button class="pill-btn'+(sortCol==='navn'?' on':'')+'" onclick="setSort(\'navn\')">Navn</button>';
+  html += '</div></div>';
+
+  // Byg tabellens data — merge reported + missing
+  let rows = weekData.map(d => {
+    const dage = d.dage;
+    const total = dage.reduce((s,dd)=>s+dd.timer,0);
+    const ot = dage.reduce((s,dd)=>s+dd.ot,0);
+    const lon = d.bruttolon + ot*d.otSats;
+    return {...d, totalTimer:total, totalOT:ot, totalLon:lon, isMissing:false};
+  });
+  missing.forEach(p => {
+    rows.push({...p, dage:[], totalTimer:0, totalOT:0, totalLon:0, isMissing:true, uge:currentWeek});
+  });
+
+  // Sort
+  if(sortCol==='timer') rows.sort((a,b)=> sortDir==='desc'? b.totalTimer-a.totalTimer : a.totalTimer-b.totalTimer);
+  else if(sortCol==='lon') rows.sort((a,b)=> sortDir==='desc'? b.totalLon-a.totalLon : a.totalLon-b.totalLon);
+  else if(sortCol==='navn') rows.sort((a,b)=> sortDir==='asc'? a.navn.localeCompare(b.navn,'da') : b.navn.localeCompare(a.navn,'da'));
+
+  html += '<div class="tbl-wrap"><div class="tbl-scroll"><table>';
+  html += '<tr><th onclick="setSort(\'navn\')">Navn</th><th>Stilling</th>';
+  ['Man','Tir','Ons','Tor','Fre','Lør','Søn'].forEach(d=>{ html+='<th>'+d+'</th>'; });
+  html += '<th onclick="setSort(\'timer\')">Total</th><th onclick="setSort(\'timer\')">OT</th><th onclick="setSort(\'lon\')">Løn</th><th>Status</th></tr>';
+
+  rows.forEach((r,idx) => {
+    const isExpanded = expandedRows.has(r.navn);
+    if(r.isMissing){
+      html += '<tr class="expandable" style="opacity:.6">';
+      html += '<td><strong>'+r.navn+'</strong></td><td>'+r.stilling+'</td>';
+      for(let i=0;i<7;i++) html += '<td class="t-missing">&mdash;</td>';
+      html += '<td class="t-missing">&mdash;</td><td class="t-missing">&mdash;</td><td class="t-missing">&mdash;</td>';
+      html += '<td><span class="badge badge-missing">Mangler</span></td>';
+      html += '</tr>';
+    } else {
+      html += '<tr class="expandable'+(isExpanded?' expanded':'')+'" onclick="toggleRow(\''+r.navn+'\')">';
+      html += '<td><strong>'+r.navn+'</strong></td><td>'+r.stilling+'</td>';
+      r.dage.forEach((d,i)=>{
+        if(d.timer===0 && i<5) html += '<td class="t-zero">0</td>';
+        else if(d.timer===0) html += '<td class="t-zero">&middot;</td>';
+        else {
+          let cls = i>=5 ? 't-weekend' : 't-normal';
+          let val = d.timer+'';
+          if(d.ot>0) val += '<sup class="t-ot">+'+d.ot+'</sup>';
+          html += '<td class="'+cls+'">'+val+'</td>';
+        }
+      });
+      html += '<td><strong>'+r.totalTimer+'t</strong></td>';
+      html += '<td class="'+(r.totalOT>0?'t-ot':'t-zero')+'">'+r.totalOT+'t</td>';
+      html += '<td>'+fmtKr(r.totalLon)+'</td>';
+      html += '<td><span class="badge badge-ok">OK</span></td>';
+      html += '</tr>';
+
+      // Detail row
+      html += '<tr class="detail-row'+(isExpanded?' open':'')+'" id="detail-'+safeId(r.navn)+'">';
+      html += '<td colspan="12"><div class="detail-grid">';
+      const dagLabels = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+      r.dage.forEach((d,i) => {
+        const isWe = i>=5;
+        const isOff = d.timer===0;
+        html += '<div class="detail-day'+(isWe?' weekend':'')+(isOff?' off':'')+'">';
+        html += '<div class="detail-day-name">'+dagLabels[i]+'</div>';
+        html += '<div class="detail-day-val '+(isOff?'t-zero':isWe?'t-weekend':'t-normal')+'">'+d.timer+'t</div>';
+        if(d.ot>0) html += '<div class="detail-day-ot">+'+d.ot+'t OT</div>';
+        if(d.start) html += '<div class="detail-day-start">'+d.start+'</div>';
+        html += '</div>';
+      });
+      html += '</div></td></tr>';
+    }
+  });
+  html += '</table></div></div>';
+
+  // ── CHARTS ──
+  const allWeeks = getAllWeeks();
+  html += '<div class="charts-row">';
+
+  // Bar chart — timer per uge
+  html += '<div class="chart-card"><div class="chart-title">Timer per uge</div><div class="bar-chart">';
+  let maxT = 0;
+  const weekTotals = allWeeks.map(w => {
+    const wd = getWeekData(w);
+    const norm = wd.reduce((s,d)=>s+d.dage.reduce((ss,dd)=>ss+dd.timer,0),0);
+    const ot = wd.reduce((s,d)=>s+d.dage.reduce((ss,dd)=>ss+dd.ot,0),0);
+    if(norm+ot > maxT) maxT = norm+ot;
+    return {uge:w, norm, ot};
+  });
+  weekTotals.forEach(wt => {
+    const normH = maxT ? (wt.norm/maxT)*130 : 0;
+    const otH = maxT ? (wt.ot/maxT)*130 : 0;
+    const isCurrent = wt.uge === currentWeek;
+    html += '<div class="bar-group">';
+    html += '<div class="bar-val">'+fmtNum(wt.norm+wt.ot)+'</div>';
+    html += '<div class="bar-stack">';
+    if(otH>0) html += '<div class="bar-seg bar-ot" style="height:'+otH+'px"></div>';
+    html += '<div class="bar-seg bar-norm" style="height:'+normH+'px;'+(isCurrent?'opacity:1':'opacity:.6')+'"></div>';
+    html += '</div>';
+    html += '<div class="bar-label'+(isCurrent?' style="color:var(--acc)"':'')+'">Uge '+wt.uge+'</div>';
+    html += '</div>';
+  });
+  html += '</div></div>';
+
+  // Donut — Normal vs OT
+  const totalNorm = weekData.reduce((s,d)=>s+d.dage.reduce((ss,dd)=>ss+dd.timer,0),0);
+  const totalOTc = weekData.reduce((s,d)=>s+d.dage.reduce((ss,dd)=>ss+dd.ot,0),0);
+  const total = totalNorm+totalOTc || 1;
+  const normPct = (totalNorm/total)*100;
+  const otPct = (totalOTc/total)*100;
+  const normDash = (normPct/100)*283;
+  const otDash = (otPct/100)*283;
+
+  html += '<div class="chart-card"><div class="chart-title">Normal vs. Overtid</div>';
+  html += '<div class="donut-wrap">';
+  html += '<svg class="donut-svg" viewBox="0 0 100 100">';
+  html += '<circle cx="50" cy="50" r="45" fill="none" stroke="var(--surf)" stroke-width="10"/>';
+  html += '<circle cx="50" cy="50" r="45" fill="none" stroke="var(--grn)" stroke-width="10" stroke-dasharray="'+normDash+' 283" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>';
+  html += '<circle cx="50" cy="50" r="45" fill="none" stroke="var(--yel)" stroke-width="10" stroke-dasharray="'+otDash+' 283" stroke-dashoffset="-'+normDash+'" transform="rotate(-90 50 50)"/>';
+  html += '<text x="50" y="48" text-anchor="middle" fill="var(--txt)" font-family="Tahoma" font-weight="bold" font-size="14">'+totalNorm+'t</text>';
+  html += '<text x="50" y="62" text-anchor="middle" fill="var(--mut)" font-family="Tahoma" font-size="8">+'+totalOTc+'t OT</text>';
+  html += '</svg>';
+  html += '<div class="donut-legend">';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--grn)"></div>Normal '+normPct.toFixed(0)+'%</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--yel)"></div>Overtid '+otPct.toFixed(0)+'%</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Mangler '+missing.length+' pers.</div>';
+  html += '</div></div></div>';
+
+  html += '</div>'; // charts-row
+
+  // ── MANGLER-LISTE ──
+  if(missing.length){
+    html += '<div class="section-head"><div class="section-title" style="color:var(--red)">Manglende indberetninger</div></div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px">';
+    missing.forEach(p => {
+      html += '<div style="background:var(--red-d);border:1px solid rgba(248,113,113,.2);border-radius:var(--rs);padding:10px 14px;min-width:180px">';
+      html += '<div style="font-size:14px;color:var(--red)">'+p.navn+'</div>';
+      html += '<div style="font-size:11px;color:var(--mut);margin-top:2px">'+p.stilling+'</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
+// ── HELPERS ──
+function kpiCard(label, val, sub, colorClass){
+  return '<div class="kpi '+colorClass+'"><div class="kpi-label">'+label+'</div><div class="kpi-val">'+val+'</div>'+(sub?'<div class="kpi-sub">'+sub+'</div>':'')+'</div>';
+}
+function fmtNum(n){ return n%1===0 ? n.toLocaleString('da-DK') : n.toLocaleString('da-DK',{minimumFractionDigits:1,maximumFractionDigits:1}); }
+function fmtKr(n){ return n.toLocaleString('da-DK',{style:'currency',currency:'DKK',minimumFractionDigits:0,maximumFractionDigits:0}); }
+function safeId(s){ return s.replace(/[^a-zA-Z0-9]/g,'_'); }
+
+// ── INTERACTIONS ──
+function changeWeek(dir){
+  currentWeek += dir;
+  if(currentWeek<1) currentWeek = 1;
+  if(currentWeek>53) currentWeek = 53;
+  expandedRows.clear();
+  render();
+}
+
+function setSort(col){
+  if(sortCol===col){ sortDir = sortDir==='asc'?'desc':'asc'; }
+  else { sortCol=col; sortDir=col==='timer'||col==='lon'?'desc':'asc'; }
+  render();
+}
+
+function toggleRow(navn){
+  if(expandedRows.has(navn)) expandedRows.delete(navn);
+  else expandedRows.add(navn);
+  render();
+}
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ── EXPORT ──
+function exportExcel(){
+  const weekData = getWeekData(currentWeek);
+  if(!weekData.length){ toast('Ingen data at eksportere'); return; }
+  const dagLabels = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+  let csv = 'Navn;Stilling;'+dagLabels.join(';')+';Total;OT;Løn\n';
+  weekData.forEach(r => {
+    const total = r.dage.reduce((s,d)=>s+d.timer,0);
+    const ot = r.dage.reduce((s,d)=>s+d.ot,0);
+    const lon = r.bruttolon + ot*r.otSats;
+    csv += r.navn+';'+r.stilling+';';
+    csv += r.dage.map(d=>d.timer).join(';')+';';
+    csv += total+';'+ot+';'+lon+'\n';
+  });
+  const blob = new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = PROD.replace(/\s/g,'_')+'_uge'+currentWeek+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV eksporteret!');
+}
+
+function printOverview(){
+  window.print();
+}
+
+function sendReminder(){
+  const fullTeam = getFullTeam();
+  const weekData = getWeekData(currentWeek);
+  const reported = weekData.map(d=>d.navn);
+  const missing = fullTeam.filter(p=>!reported.includes(p.navn));
+  if(!missing.length){ toast('Alle har indsendt!'); return; }
+  const names = missing.map(p=>p.navn).join(', ');
+  toast('Påmindelse sendt til: '+names);
+}
+
+// ── PRINT STYLES ──
+const printStyle = document.createElement('style');
+printStyle.textContent = `
+@media print{
+  body{background:#fff!important;color:#000!important;font-size:11px}
+  .topbar,.actions-bar,.section-actions,.link-btn,.nbtn,.pill-btn,.charts-row,.budget-bar-wrap,.empty{display:none!important}
+  .shell{max-width:100%}
+  .content{padding:10px}
+  .kpi-row{grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+  .kpi{border:1px solid #ccc;padding:10px}
+  .kpi-label{color:#666}
+  .kpi-val{font-size:20px;color:#000!important}
+  .kpi-sub{color:#666}
+  .tbl-wrap{border:1px solid #ccc}
+  table{min-width:auto!important}
+  th{background:#eee!important;color:#333!important;font-size:9px}
+  td{font-size:10px;color:#000!important;border-color:#ddd!important}
+  .t-normal,.t-ot,.t-weekend,.t-missing,.t-zero{color:#000!important}
+  sup{color:#666!important}
+  .badge{border:1px solid #999;color:#000!important;background:#eee!important}
+  .detail-row{display:none!important}
+  .section-title{color:#333!important}
+  @page{margin:1cm;size:landscape}
+}`;
+document.head.appendChild(printStyle);
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', e => {
+  if(e.key==='ArrowLeft') changeWeek(-1);
+  if(e.key==='ArrowRight') changeWeek(1);
+});
+
+// ── INIT ──
+// Auto-generer testdata hvis tomt
+(function(){
+  if(getData().length === 0){
+    autoGenerate();
+  }
+  render();
+})();
+
+function autoGenerate(){
+  const hold = [
+    {navn:'Lars Kronborg',     stilling:'Gaffer',             lon:21500, otSats:560},
+    {navn:'Mette Hvid',        stilling:'Best Boy',           lon:19800, otSats:515},
+    {navn:'Kasper Ravn',       stilling:'Belyser',            lon:17200, otSats:448},
+    {navn:'Sofie Lind',        stilling:'Belyser',            lon:17200, otSats:448},
+    {navn:'Emil Bech',         stilling:'Belyser',            lon:17200, otSats:448},
+    {navn:'Nanna Storm',       stilling:'Belyser',            lon:17200, otSats:448},
+    {navn:'Tobias Kruse',      stilling:'DIT',                lon:20500, otSats:533},
+    {navn:'Ida Munk',          stilling:'1. kameraassistent', lon:19000, otSats:495},
+    {navn:'Oscar Blom',        stilling:'2. kameraassistent', lon:16800, otSats:437},
+    {navn:'Henrik Juul',       stilling:'Tonemester',         lon:21000, otSats:547},
+    {navn:'Line Fabricius',    stilling:'Scripter',           lon:18500, otSats:481},
+    {navn:'Rasmus Dall',       stilling:'Indspilningsleder',  lon:22000, otSats:572},
+    {navn:'Camilla Vest',      stilling:'Rekvisitør',         lon:17500, otSats:455},
+    {navn:'Pernille Skou',     stilling:'Rekvisitør',         lon:17500, otSats:455},
+    {navn:'Astrid Holm',       stilling:'Kostumier',          lon:18000, otSats:468}
+  ];
+  const dagLabels = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+  const data = [];
+  const uger = [19,20,21];
+
+  // Seed random for reproducibility
+  let seed = 42;
+  function sRnd(){ seed=(seed*16807+0)%2147483647; return (seed-1)/2147483646; }
+  function sRndInt(min,max){ return Math.floor(sRnd()*(max-min+1))+min; }
+  function sRndChoice(arr){ return arr[Math.floor(sRnd()*arr.length)]; }
+
+  hold.forEach(person => {
+    uger.forEach(uge => {
+      // 20% chance missing i uge 21
+      if(uge===21 && sRnd()<0.2) return;
+      // Alle har data i uge 19+20
+
+      const dage = dagLabels.map((dag,i) => {
+        if(i>=5){ // Weekend
+          const weekend = sRnd()<0.35;
+          if(!weekend) return {dag, timer:0, ot:0, start:null};
+          const t = sRndChoice([8,9,10,11]);
+          return {dag, timer:t, ot:sRnd()<0.4?sRndChoice([1,1.5,2]):0, start:sRndChoice(['07:00','07:30','08:00'])};
+        }
+        const t = sRndChoice([8,9,9.5,10,10,10,10.5,11,11,12]);
+        const ot = t>10 ? sRndChoice([0.5,1,1.5,2]) : (sRnd()<0.25?sRndChoice([0.5,1,1.5]):0);
+        return {dag, timer:t, ot:ot, start:sRndChoice(['06:00','06:30','07:00','07:00','07:30','08:00'])};
+      });
+
+      data.push({
+        id: Date.now()+'_'+Math.random().toString(36).substr(2,6),
+        navn: person.navn,
+        stilling: person.stilling,
+        produktion: 'Den Lukkede Bog',
+        uge: uge,
+        aar: 2026,
+        bruttolon: person.lon,
+        otSats: person.otSats,
+        dage: dage,
+        sendt: new Date().toISOString()
+      });
+    });
+  });
+
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+</script>
+</body>
+</html>

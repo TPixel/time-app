@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0C0C12">
+<title>Send til Produktion · Time App</title>
+<style>
+:root{
+  --bg:#0C0C12;--surf:#14141E;--card:#1C1C2A;--card2:#222232;
+  --brd:#2E2E42;--txt:#EEEEF5;--mut:#B9B9CD;
+  --grn:#34D399;--red:#F87171;--yel:#FBBF24;--acc:#818CF8;
+  --grn-d:rgba(52,211,153,.12);--red-d:rgba(248,113,113,.12);
+  --acc-d:rgba(129,140,248,.15);
+  --r:14px;--rs:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Tahoma',sans-serif;font-weight:bold;font-size:16px;background:var(--bg);color:var(--txt);min-height:100dvh;max-width:430px;margin:0 auto;letter-spacing:.3px;padding:0 0 60px}
+@media(min-width:500px){body{max-width:600px}}
+
+.topbar{position:sticky;top:0;z-index:100;background:rgba(12,12,18,.93);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+.topbar h1{font-size:20px;letter-spacing:-.3px}
+.topbar h1 em{color:var(--acc);font-style:normal}
+.topbar a{color:var(--acc);text-decoration:none;font-size:14px}
+
+.wrap{padding:16px}
+h2{font-size:16px;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;margin:24px 0 12px}
+h2:first-child{margin-top:8px}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-grid.full{grid-template-columns:1fr}
+label{display:block}
+label span{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin-bottom:4px;display:block}
+input,select{width:100%;background:var(--card);border:1.5px solid var(--brd);border-radius:var(--rs);padding:12px 14px;font-family:'Tahoma',sans-serif;font-size:16px;font-weight:bold;color:var(--txt);outline:none;transition:border-color .2s}
+input:focus,select:focus{border-color:var(--acc)}
+select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23B9B9CD' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+
+.day-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:8px;align-items:center;margin-bottom:6px}
+.day-label{font-size:14px;color:var(--mut)}
+.day-row input{padding:10px;font-size:14px;text-align:center}
+
+.btn{width:100%;padding:16px;border:none;border-radius:var(--r);font-family:'Tahoma',sans-serif;font-size:16px;font-weight:bold;cursor:pointer;transition:all .15s;margin-top:12px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--acc);color:#fff}
+.btn-green{background:var(--grn);color:#000}
+.btn-outline{background:transparent;border:1.5px solid var(--brd);color:var(--mut)}
+.btn-red{background:var(--red);color:#000}
+
+.status{margin-top:16px;padding:14px;border-radius:var(--rs);font-size:14px;display:none}
+.status.ok{display:block;background:var(--grn-d);color:var(--grn)}
+.status.err{display:block;background:var(--red-d);color:var(--red)}
+
+.count-badge{background:var(--acc-d);color:var(--acc);padding:4px 12px;border-radius:20px;font-size:13px;margin-left:8px}
+
+.preview{margin-top:16px;background:var(--card);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;max-height:300px;overflow-y:auto}
+.preview table{width:100%;border-collapse:collapse;font-size:12px}
+.preview th{background:var(--surf);padding:8px 6px;text-align:left;color:var(--mut);font-size:10px;text-transform:uppercase;letter-spacing:1px;position:sticky;top:0}
+.preview td{padding:6px;border-top:1px solid var(--brd);white-space:nowrap}
+.preview .missing{color:var(--red);font-style:italic}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Send til <em>Produktion</em></h1>
+  <a href="dashboard.html">Se dashboard &rarr;</a>
+</div>
+
+<div class="wrap">
+  <h2>Manuel indsendelse</h2>
+  <div class="form-grid">
+    <label><span>Navn</span><input id="f-navn" placeholder="Anders Belysansen"></label>
+    <label><span>Stilling</span>
+      <select id="f-stilling">
+        <option>Gaffer</option><option>Best Boy</option><option>Belyser</option>
+        <option>DIT</option><option>1. kameraassistent</option><option>2. kameraassistent</option>
+        <option>Tonemester</option><option>Scripter</option><option>Indspilningsleder</option>
+        <option>Rekvisitør</option><option>Kostumier</option><option>Sminke</option>
+      </select>
+    </label>
+  </div>
+  <div class="form-grid" style="margin-top:10px">
+    <label><span>Produktion</span><input id="f-prod" value="Den Lukkede Bog"></label>
+    <label><span>Uge</span><input id="f-uge" type="number" value="21" min="1" max="53"></label>
+  </div>
+  <div class="form-grid" style="margin-top:10px">
+    <label><span>Bruttoløn / uge</span><input id="f-lon" type="number" placeholder="18.500"></label>
+    <label><span>OT-sats / time</span><input id="f-ot-sats" type="number" placeholder="485"></label>
+  </div>
+
+  <h2>Timer per dag</h2>
+  <div class="day-row"><span class="day-label">Dag</span><span class="day-label" style="text-align:center;font-size:11px">NORMAL</span><span class="day-label" style="text-align:center;font-size:11px">OT</span><span class="day-label" style="text-align:center;font-size:11px">START</span></div>
+  <div class="day-row"><span class="day-label">Man</span><input id="d-man" type="number" step=".5" value="10"><input id="ot-man" type="number" step=".5" value="0"><input id="s-man" value="07:00"></div>
+  <div class="day-row"><span class="day-label">Tir</span><input id="d-tir" type="number" step=".5" value="10"><input id="ot-tir" type="number" step=".5" value="0"><input id="s-tir" value="07:00"></div>
+  <div class="day-row"><span class="day-label">Ons</span><input id="d-ons" type="number" step=".5" value="10"><input id="ot-ons" type="number" step=".5" value="0"><input id="s-ons" value="07:00"></div>
+  <div class="day-row"><span class="day-label">Tor</span><input id="d-tor" type="number" step=".5" value="10"><input id="ot-tor" type="number" step=".5" value="0"><input id="s-tor" value="07:00"></div>
+  <div class="day-row"><span class="day-label">Fre</span><input id="d-fre" type="number" step=".5" value="10"><input id="ot-fre" type="number" step=".5" value="0"><input id="s-fre" value="07:00"></div>
+  <div class="day-row"><span class="day-label">Lør</span><input id="d-lor" type="number" step=".5" value="0"><input id="ot-lor" type="number" step=".5" value="0"><input id="s-lor" value=""></div>
+  <div class="day-row"><span class="day-label">Søn</span><input id="d-son" type="number" step=".5" value="0"><input id="ot-son" type="number" step=".5" value="0"><input id="s-son" value=""></div>
+
+  <button class="btn btn-primary" onclick="sendManual()">Send ugeseddel</button>
+  <div id="status-manual" class="status"></div>
+
+  <h2 style="margin-top:40px">Testdata-generator</h2>
+  <p style="color:var(--mut);font-size:13px;margin-bottom:12px;font-weight:normal">Genererer 15 filmarbejdere med 3 ugers realistisk data for "Den Lukkede Bog".</p>
+  <button class="btn btn-green" onclick="genTestdata()">Generer testdata (15 personer &times; 3 uger)</button>
+  <button class="btn btn-outline" onclick="clearAll()">Ryd al data</button>
+  <div id="status-gen" class="status"></div>
+
+  <div id="preview-wrap" style="display:none">
+    <h2>Gemt data <span id="count-badge" class="count-badge"></span></h2>
+    <div class="preview" id="preview-table"></div>
+  </div>
+</div>
+
+<script>
+const STORE_KEY = 'timeapp_prod_data';
+const DAGE = ['man','tir','ons','tor','fre','lor','son'];
+const DAG_LABELS = ['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+
+function getData(){ return JSON.parse(localStorage.getItem(STORE_KEY)||'[]'); }
+function setData(d){ localStorage.setItem(STORE_KEY, JSON.stringify(d)); }
+
+function sendManual(){
+  const navn = document.getElementById('f-navn').value.trim();
+  if(!navn){ showStatus('status-manual','Udfyld navn','err'); return; }
+  const entry = {
+    id: Date.now()+'_'+Math.random().toString(36).substr(2,4),
+    navn: navn,
+    stilling: document.getElementById('f-stilling').value,
+    produktion: document.getElementById('f-prod').value,
+    uge: parseInt(document.getElementById('f-uge').value),
+    aar: 2026,
+    bruttolon: parseFloat(document.getElementById('f-lon').value)||0,
+    otSats: parseFloat(document.getElementById('f-ot-sats').value)||0,
+    dage: DAGE.map((d,i)=>({
+      dag: DAG_LABELS[i],
+      timer: parseFloat(document.getElementById('d-'+d).value)||0,
+      ot: parseFloat(document.getElementById('ot-'+d).value)||0,
+      start: document.getElementById('s-'+d).value||null
+    })),
+    sendt: new Date().toISOString()
+  };
+  const data = getData();
+  data.push(entry);
+  setData(data);
+  showStatus('status-manual','Ugeseddel sendt for '+navn+' (uge '+entry.uge+')','ok');
+  renderPreview();
+}
+
+function genTestdata(){
+  const hold = [
+    {navn:'Lars Kronborg',     stilling:'Gaffer',             lon:21500, otSats:560},
+    {navn:'Mette Hvid',        stilling:'Best Boy',           lon:19800, otSats:515},
+    {navn:'Kasper Ravn',       stilling:'Belyser',            lon:17200, otSats:448},
+    {navn:'Sofie Lind',        stilling:'Belyser',            lon:17200, otSats:448},
+    {navn:'Emil Bech',         stilling:'Belyser',            lon:17200, otSats:448},
+    {navn:'Nanna Storm',       stilling:'Belyser',            lon:17200, otSats:448},
+    {navn:'Tobias Kruse',      stilling:'DIT',                lon:20500, otSats:533},
+    {navn:'Ida Munk',          stilling:'1. kameraassistent', lon:19000, otSats:495},
+    {navn:'Oscar Blom',        stilling:'2. kameraassistent', lon:16800, otSats:437},
+    {navn:'Henrik Juul',       stilling:'Tonemester',         lon:21000, otSats:547},
+    {navn:'Line Fabricius',    stilling:'Scripter',           lon:18500, otSats:481},
+    {navn:'Rasmus Dall',       stilling:'Indspilningsleder',  lon:22000, otSats:572},
+    {navn:'Camilla Vest',      stilling:'Rekvisitør',         lon:17500, otSats:455},
+    {navn:'Pernille Skou',     stilling:'Rekvisitør',         lon:17500, otSats:455},
+    {navn:'Astrid Holm',       stilling:'Kostumier',          lon:18000, otSats:468}
+  ];
+
+  const data = getData();
+  const uger = [19,20,21];
+
+  hold.forEach(person => {
+    uger.forEach(uge => {
+      // Noget randomness — de fleste har data, men nogen mangler i uge 21
+      const missing = (uge===21 && Math.random()<0.25);
+      if(missing) return;
+
+      const dage = DAG_LABELS.map((dag,i) => {
+        if(i>=5){ // Weekend
+          const weekend = Math.random()<0.35;
+          if(!weekend) return {dag, timer:0, ot:0, start:null};
+          const t = [8,9,10,11][Math.floor(Math.random()*4)];
+          return {dag, timer:t, ot:Math.random()<0.4?rnd(1,3):0, start:rndStart()};
+        }
+        const t = [8,9,9.5,10,10,10,10.5,11,11,12][Math.floor(Math.random()*10)];
+        const ot = t>10 ? rnd(0.5, t-10+1) : (Math.random()<0.3? rnd(0.5,2):0);
+        return {dag, timer:t, ot:ot, start:rndStart()};
+      });
+
+      data.push({
+        id: Date.now()+'_'+Math.random().toString(36).substr(2,6),
+        navn: person.navn,
+        stilling: person.stilling,
+        produktion: 'Den Lukkede Bog',
+        uge: uge,
+        aar: 2026,
+        bruttolon: person.lon,
+        otSats: person.otSats,
+        dage: dage,
+        sendt: new Date().toISOString()
+      });
+    });
+  });
+
+  setData(data);
+  const count = data.length;
+  showStatus('status-gen', 'Genereret! '+count+' ugesedler i alt.','ok');
+  renderPreview();
+}
+
+function rnd(min,max){
+  return Math.round((min+Math.random()*(max-min))*2)/2; // halve timer
+}
+function rndStart(){
+  const h = [6,7,7,7,8,8][Math.floor(Math.random()*6)];
+  const m = ['00','00','00','30'][Math.floor(Math.random()*4)];
+  return String(h).padStart(2,'0')+':'+m;
+}
+
+function clearAll(){
+  if(!confirm('Slet AL produktionsdata fra localStorage?')) return;
+  localStorage.removeItem(STORE_KEY);
+  showStatus('status-gen','Al data slettet.','err');
+  renderPreview();
+}
+
+function showStatus(id, msg, type){
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'status '+type;
+  setTimeout(()=>{ el.className='status'; }, 4000);
+}
+
+function renderPreview(){
+  const data = getData();
+  const wrap = document.getElementById('preview-wrap');
+  const badge = document.getElementById('count-badge');
+  const tbl = document.getElementById('preview-table');
+  if(!data.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  badge.textContent = data.length+' ugesedler';
+
+  // Vis seneste 20
+  const recent = data.slice(-20).reverse();
+  let html = '<table><tr><th>Navn</th><th>Stilling</th><th>Uge</th><th>Timer</th><th>OT</th><th>Løn</th></tr>';
+  recent.forEach(r=>{
+    const totalT = r.dage.reduce((s,d)=>s+d.timer,0);
+    const totalOT = r.dage.reduce((s,d)=>s+d.ot,0);
+    html+='<tr><td>'+r.navn+'</td><td>'+r.stilling+'</td><td>'+r.uge+'</td><td>'+totalT+'t</td><td>'+totalOT+'t</td><td>'+r.bruttolon.toLocaleString('da-DK')+'</td></tr>';
+  });
+  html+='</table>';
+  tbl.innerHTML = html;
+}
+
+// Init
+renderPreview();
+</script>
+</body>
+</html>
