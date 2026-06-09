@@ -118,6 +118,22 @@ to{transform:scale(1);opacity:1}}
 .tmodal-btn.annul{background:var(--surf);color:var(--mut)}
 .tmodal-btn.ok{background:var(--acc);color:#fff}
 
+/* ── SEND-VALG MODAL (v2.06) ── */
+.send-modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.send-modal-head .tmodal-ttl{margin:0;text-align:left}
+.send-luk{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--mut);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send-luk:active{transform:scale(.9)}
+.send-valg{display:flex;align-items:center;gap:16px;width:100%;background:var(--card);border:1.5px solid var(--brd);border-radius:var(--r);padding:18px 18px;margin-bottom:11px;cursor:pointer;text-align:left;transition:all .15s}
+.send-valg:active{transform:scale(.97);border-color:var(--acc);background:var(--card2)}
+.send-valg .sv-ic{font-size:28px;flex-shrink:0;width:34px;text-align:center}
+.send-valg .sv-tx{flex:1;min-width:0}
+.send-valg .sv-h{display:block;font-family:'Tahoma',sans-serif;font-size:17px;font-weight:bold;color:var(--txt);line-height:1.15}
+.send-valg .sv-s{display:block;font-size:12px;color:var(--mut);font-weight:600;margin-top:3px}
+.send-valg .sv-chev{font-size:20px;color:var(--mut);flex-shrink:0}
+.send-til{margin-top:6px;padding:13px 16px;background:var(--surf);border:1.5px solid var(--brd);border-radius:var(--rs);font-size:13px;color:var(--mut);font-weight:600;word-break:break-all}
+.send-til strong{color:var(--txt)}
+.send-til.mangler{border-color:var(--yel);color:var(--yel)}
+
 /* ── RESULTAT ── */
 .res{background:linear-gradient(135deg,#16162A,#1A1A32);border:1.5px solid rgba(129,140,248,.25);border-radius:var(--r);padding:14px 18px 12px;margin-bottom:10px;cursor:pointer;user-select:none;position:relative;transition:background .25s,border-color .25s}
 @keyframes advarsel-puls{0%,100%{box-shadow:0 0 0 3px rgba(232,160,10,.3),0 0 24px rgba(232,130,10,.18)}50%{box-shadow:0 0 0 6px rgba(232,160,10,.5),0 0 32px rgba(232,130,10,.35)}}
@@ -571,6 +587,27 @@ textarea::placeholder{color:var(--mut)}
       <button class="tmodal-btn annul" onclick="lukkModal(null)">Annuller</button>
       <button class="tmodal-btn ok" onclick="bekræftTid()">OK</button>
     </div>
+  </div>
+</div>
+
+<!-- SEND-VALG MODAL (v2.06) — mailto med/uden beløb -->
+<div class="tmodal-bg skjult" id="send-modal-bg" onclick="lukSendModal(event)">
+  <div class="tmodal" onclick="event.stopPropagation()">
+    <div class="send-modal-head">
+      <div class="tmodal-ttl">SEND <span id="send-kontekst-lbl"></span></div>
+      <button class="send-luk" onclick="lukSendModal(null)" aria-label="Luk">✕</button>
+    </div>
+    <button class="send-valg" onclick="sendValg('lon')">
+      <span class="sv-ic">✉️</span>
+      <span class="sv-tx"><span class="sv-h">Med løn og beregning</span><span class="sv-s">Tider, timer, OT og beløb</span></span>
+      <span class="sv-chev">›</span>
+    </button>
+    <button class="send-valg" onclick="sendValg('timer')">
+      <span class="sv-ic">📋</span>
+      <span class="sv-tx"><span class="sv-h">Kun timer</span><span class="sv-s">Tider og timer — ingen beløb</span></span>
+      <span class="sv-chev">›</span>
+    </button>
+    <div class="send-til" id="send-til"></div>
   </div>
 </div>
 
@@ -2858,14 +2895,103 @@ function doPDF_dag() {
   _pdfDownload(r.html, filnavn, sendEnkeltDag);
 }
 
+// ═══════════════════════════════════════════════════
+// SEND-VALG MODAL (v2.06) — mailto direkte, med/uden beløb
+// ═══════════════════════════════════════════════════
+let sendKontekst = 'dag'; // 'dag' | 'uge'
+
+function åbnSendModal(kontekst) {
+  // Guard: kræv data inden modalen åbnes
+  if (kontekst === 'dag' && !hentDag(aktivDag)) { toast('Gem dagen først'); return; }
+  if (kontekst === 'uge') {
+    const harDage = ugeDatoer(ugeOffset).some(d => hentDag(d));
+    if (!harDage) { toast('Ingen registrerede dage i ugen'); return; }
+  }
+  sendKontekst = kontekst;
+  document.getElementById('send-kontekst-lbl').textContent = kontekst === 'uge' ? 'UGE' : 'DAG';
+  const til = document.getElementById('send-til');
+  if (cfg.email) {
+    til.classList.remove('mangler');
+    til.innerHTML = `Til: <strong>${cfg.email}</strong>`;
+  } else {
+    til.classList.add('mangler');
+    til.innerHTML = `⚠ Ingen modtager-email sat — vælg modtager i mail-appen (eller tilføj email i ⚙️)`;
+  }
+  document.getElementById('send-modal-bg').classList.remove('skjult');
+}
+function lukSendModal(e) {
+  if (e === null || e.target.id === 'send-modal-bg') {
+    document.getElementById('send-modal-bg').classList.add('skjult');
+  }
+}
+function sendValg(type) {
+  document.getElementById('send-modal-bg').classList.add('skjult');
+  if (sendKontekst === 'uge') {
+    if (type === 'lon') mailUgeMedLon(); else mailTimer();
+  } else {
+    if (type === 'lon') mailDagMedLon(); else sendTimerDag();
+  }
+}
+
+// ✉️ Send dag → åbn valg-modal (med beløb / kun timer)
 function sendEnkeltDag() {
-  const r = _pdfDag(); if (!r) return;
+  åbnSendModal('dag');
+}
+
+// ✉️ Mail dag MED beløb — direkte mailto, body spejler dagseddel-lønspec
+function mailDagMedLon() {
+  const d = hentDag(aktivDag);
+  if (!d) { toast('Gem dagen først'); return; }
+  const dgNavn  = DAGE[aktivDag.getDay()];
+  const datoStr = `${aktivDag.getDate()}. ${MND[aktivDag.getMonth()]} ${aktivDag.getFullYear()}`;
+  const dMax    = dagMax(aktivDag);
+  const normalH = Math.min(d.h || 0, dMax);
+  const otH     = Math.max(0, (d.h || 0) - dMax);
+  let otTxt = '';
+  if (otH > 0) {
+    if (d.knapper?.v && d.knapper?.u) {
+      const vH = Math.min(d.knapper?.varsletTimer || 0, otH);
+      otTxt = `Overtid: ${hFmt(otH)} (${hFmt(vH)} varslet / ${hFmt(Math.max(0, otH - vH))} uvarslet)\n`;
+    } else if (d.knapper?.v) otTxt = `Overtid: ${hFmt(otH)} varslet\n`;
+    else if (d.knapper?.u)   otTxt = `Overtid: ${hFmt(otH)} uvarslet\n`;
+    else                     otTxt = `Overtid: ${hFmt(otH)}\n`;
+  }
+  // Lønposter — samme rækker som dagseddel-PDF (_pdfDag)
+  const poster = [];
+  if (d.manuelLon) {
+    poster.push(['Manuel aftalt dagssats', d.manuelLon]);
+  } else {
+    if (d.normal)    poster.push(['Normal arbejdstid', d.normal]);
+    if (d.ot1)       poster.push(['OT 1. time', d.ot1]);
+    if (d.ot2)       poster.push(['OT 2. time', d.ot2]);
+    if (d.ot3)       poster.push(['OT 3.+ time', d.ot3]);
+    if (d.wk)        poster.push(['Weekendtillæg §8', d.wk]);
+    if (d.fskKr)     poster.push(['Forskudt §7', d.fskKr]);
+    if (d.saertidKr) poster.push(['Særtid §5', d.saertidKr]);
+    if (d.diaetKr)   poster.push(['Diæt §14', d.diaetKr]);
+  }
+  const pNormalH = Math.min(dagMax(aktivDag), d.h || 0);
+  const pension  = d.knapper?.e ? 0 : Math.round((cfg.ugelon / 40) * pNormalH * 0.095);
+
   const navnPrefix = cfg.navn ? `${cfg.navn} · ` : '';
   const prod = cfg.prod ? ` · ${cfg.prod}` : '';
-  const dagUdenÅr = r.dagStr.replace(/ \d{4}$/, '');
-  const emne = `${navnPrefix}${dagUdenÅr}${prod} (TA)`;
-  const filnavn = `TimeApp_${(cfg.navn||'dag').replace(/\s+/g,'_')}_${r.dagISO}.pdf`;
-  _pdfDel(r.html, filnavn, emne);
+  const emne = `${navnPrefix}${dgNavn} ${aktivDag.getDate()}/${aktivDag.getMonth()+1}${prod} (TA)`;
+  let body = `${dgNavn} ${datoStr}\n`;
+  if (cfg.navn)    body += `Medarbejder: ${cfg.navn}\n`;
+  if (cfg.prod)    body += `Produktion: ${cfg.prod}\n`;
+  if (cfg.selskab) body += `Selskab: ${cfg.selskab}\n`;
+  body += `\nTid: ${d.start||'—'} – ${d.slut||'—'}\n`;
+  body += `Timer: ${hFmt(d.h)}\n`;
+  body += `Normaltimer: ${hFmt(normalH)}\n`;
+  body += otTxt;
+  body += `\nLønspecifikation:\n`;
+  poster.forEach(([lbl, kr]) => { body += `  ${lbl}: ${krFmt(kr)}\n`; });
+  body += `  ─────────────────\n`;
+  body += `  Dagsløn: ${krFmt(d.lon)}\n`;
+  if (pension > 0) body += `  Pension 9,5% §3.4 (arbejdsgiverbetalt): ${krFmt(pension)}\n`;
+  if (d.note) body += `\nNote: ${d.note}\n`;
+  body += `\n— — — — — — — — — — — —\nSendt fra Time App v${APP_VERSION}`;
+  window.location.href = `mailto:${encodeURIComponent(cfg.email || '')}?subject=${encodeURIComponent(emne)}&body=${encodeURIComponent(body)}`;
 }
 
 // 📋 Send timer for dagen — mailto med tider, INGEN beløb (v2.00)
@@ -4027,13 +4153,39 @@ function doKalender() {
   URL.revokeObjectURL(url);
   toast('Kalender downloadet — åbn filen ✓');
 }
+// ✉️ Mail uge → åbn valg-modal (med beløb / kun timer)
 function doMail() {
-  const r = _pdfUge();
+  åbnSendModal('uge');
+}
+
+// ✉️ Mail uge MED beløb — direkte mailto, body med tider, timer, OT og beløb pr. dag + totaler
+function mailUgeMedLon() {
+  const { datoer, uge, dage, totH, totL, pension } = ugeData();
+  const arbejdsdage = dage.filter(d => !d.fri);
+  if (arbejdsdage.length === 0) { toast('Ingen registrerede dage i ugen'); return; }
   const navnPrefix = cfg.navn ? `${cfg.navn} · ` : '';
   const prod = cfg.prod ? ` · ${cfg.prod}` : '';
-  const emne = `${navnPrefix}Uge ${r.uge}${prod} (TA)`;
-  const filnavn = `TimeApp_${(cfg.navn||'uge').replace(/\s+/g,'_')}_Uge${String(r.uge).padStart(2,'0')}-${r.år}.pdf`;
-  _pdfDel(r.html, filnavn, emne);
+  const emne = `${navnPrefix}Uge ${uge}${prod} (TA)`;
+  let body = `Ugeseddel — Uge ${uge}, ${datoer[0].getFullYear()}\n`;
+  if (cfg.navn)    body += `Medarbejder: ${cfg.navn}\n`;
+  if (cfg.prod)    body += `Produktion: ${cfg.prod}\n`;
+  if (cfg.selskab) body += `Selskab: ${cfg.selskab}\n`;
+  body += `\n`;
+  arbejdsdage.forEach(d => {
+    const otH = Math.max(0, d.h - dagMax(d.dato));
+    let otTag = '';
+    if (otH > 0) {
+      const t = (d.knapper?.v && d.knapper?.u) ? ' V+U' : d.knapper?.v ? ' V' : d.knapper?.u ? ' U' : '';
+      otTag = ` · OT ${hFmt(otH)}${t}`;
+    }
+    body += `${dagNavn(d.dato)} ${d.dato.getDate()}/${d.dato.getMonth()+1}: ${d.start}–${d.slut} · ${hFmt(d.h)}${otTag} · ${krFmt(d.lon)}\n`;
+  });
+  body += `\nTimer i alt: ${hFmt(totH)}\n`;
+  body += `Bruttoløn: ${krFmt(totL)}\n`;
+  body += `Pension 9,5% §3 (arbejdsgiverbetalt): ${krFmt(pension)}\n`;
+  body += `Samlet inkl. pension: ${krFmt(totL + pension)}\n`;
+  body += `\n— — — — — — — — — — — —\nSendt fra Time App v${APP_VERSION}`;
+  window.location.href = `mailto:${encodeURIComponent(cfg.email || '')}?subject=${encodeURIComponent(emne)}&body=${encodeURIComponent(body)}`;
 }
 
 // ═══════════════════════════════════════════════════
@@ -4440,7 +4592,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.05';
+const APP_VERSION = '2.06';
 
 // ── SPLASH ──
 (function(){
@@ -4478,6 +4630,14 @@ const APP_VERSION = '2.05';
 
 
 const CHANGELOG = {
+  '2.06': {
+    dato: '9. juni 2026',
+    nyt: [
+      '✉️ Nyt send-flow: Når du trykker "Send dag" eller "Mail" (uge), åbner en hurtig valg-menu hvor du vælger "Med løn og beregning" eller "Kun timer". Begge åbner mail-appen direkte med modtager (produktionens email) og emne udfyldt — ingen omvej over PDF og deling.',
+      '📧 "Med løn"-mailen indeholder hele lønspecifikationen (normaltimer, OT, weekend, forskudt, særtid, diæt, dagsløn/ugeløn og pension). "Kun timer" sender tider og timer helt uden beløb — perfekt når produktionen kun skal bruge timetallene.',
+      '👤 Menuen viser tydeligt hvilken modtager-email mailen sendes til, og advarer hvis ingen email er sat på produktionen.',
+    ]
+  },
   '2.05': {
     dato: '5. juni 2026',
     nyt: [
