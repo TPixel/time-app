@@ -31,22 +31,46 @@ h1{font-size:24px;font-weight:800;margin:2px 0 2px;letter-spacing:.3px}
 .s-desc{font-size:12px;color:var(--mut);margin-top:2px;line-height:1.35}
 .s-inp{width:118px;text-align:right;background:var(--card2);border:1px solid var(--brd);color:var(--txt);
   font-family:'Tahoma',sans-serif;font-size:18px;font-weight:700;padding:9px 11px;border-radius:var(--rs)}
-.s-inp.wide{width:100%;text-align:left}
 .seg{display:flex;gap:5px;background:var(--card2);border:1px solid var(--brd);border-radius:var(--rs);padding:4px}
 .seg-opt{flex:1;text-align:center;padding:9px 8px;border-radius:9px;font-size:14px;font-weight:800;color:var(--mut);
   border:none;background:transparent;cursor:pointer;user-select:none;white-space:nowrap}
 .seg-opt.on{background:var(--acc);color:#15152A}
 
-/* timer-grid */
-.wk{padding:12px 12px 4px}
+/* dag-rækker med tider (samme metode som appen) */
+.wk{padding:10px 12px 4px}
 .wk-ttl{font-size:12px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin:6px 4px 8px;display:flex;justify-content:space-between}
 .wk-ttl .sum{color:var(--acc)}
-.days{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.day{display:flex;flex-direction:column;align-items:center;gap:3px}
-.day .dl{font-size:10px;font-weight:800;color:var(--mut)}
-.day input{width:100%;text-align:center;background:var(--card2);border:1px solid var(--brd);color:var(--txt);
-  font-family:'Tahoma',sans-serif;font-size:16px;font-weight:700;padding:8px 0;border-radius:9px}
-.day.we input{border-color:#3a3050;color:var(--yel)}
+.drow{display:flex;align-items:center;gap:8px;padding:7px 4px;border-top:1px solid var(--brd)}
+.dn{width:32px;font-size:13px;font-weight:800;color:var(--mut);flex-shrink:0}
+.dn.we{color:var(--yel)}
+.dt{flex:1;min-width:0;background:var(--card2);border:1px solid var(--brd);border-radius:10px;padding:7px 4px;
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:1px}
+.dt-l{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--mut)}
+.dt-v{font-family:'Tahoma',monospace;font-size:19px;font-weight:bold;color:var(--txt)}
+.dt-v.tom{color:#555}
+.dsep{color:var(--mut);font-size:15px;flex-shrink:0}
+.ddur{width:58px;text-align:right;font-size:14px;font-weight:800;flex-shrink:0;font-family:'Tahoma',monospace}
+.dclr{width:24px;flex-shrink:0;text-align:center;color:#555;font-size:16px;cursor:pointer;background:none;border:none}
+
+/* tidvælger-modal (port fra app) */
+.tmodal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.tmodal-bg.skjult{display:none}
+.tmodal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:460px;padding:20px 20px 40px}
+.tmodal-ttl{font-size:16px;font-weight:bold;text-align:center;margin-bottom:18px;color:var(--mut);text-transform:uppercase;letter-spacing:1px}
+.tmodal-vis{font-family:'Tahoma',monospace;font-size:52px;font-weight:bold;text-align:center;letter-spacing:2px;margin-bottom:22px}
+.tmodal-sep{color:var(--mut)}
+.tscroll-row{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.tscroll{flex:1;max-width:150px}
+.tscroll-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--mut);text-align:center;margin-bottom:8px}
+.tscroll-inner{display:flex;flex-direction:column;gap:2px;max-height:200px;overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tscroll-inner::-webkit-scrollbar{display:none}
+.tscroll-item{font-family:'Tahoma',monospace;font-size:20px;font-weight:bold;text-align:center;padding:12px 0;border-radius:8px;cursor:pointer;color:var(--mut);scroll-snap-align:start;transition:all .15s;flex-shrink:0}
+.tscroll-item.sel{background:var(--acc);color:#fff}
+.tscroll-item:active{opacity:.7}
+.tmodal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tmodal-btn{padding:15px;border-radius:var(--rs);border:none;font-size:15px;font-weight:bold;cursor:pointer;font-family:'Tahoma',sans-serif}
+.tmodal-btn.annul{background:var(--surf);color:var(--mut)}
+.tmodal-btn.ok{background:var(--acc);color:#fff}
 
 /* gauge */
 .gauge-wrap{padding:16px}
@@ -71,12 +95,12 @@ h1{font-size:24px;font-weight:800;margin:2px 0 2px;letter-spacing:.3px}
 .kpi-v{font-size:22px;font-weight:800}
 .kpi-l{font-size:10px;color:var(--mut);font-weight:700;margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
 
-/* fair-tjek */
+/* fair */
 .fair{padding:16px}
 .bar2{display:flex;flex-direction:column;gap:11px;margin:6px 0 14px}
 .brow .bl{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:5px}
 .brow .bt{height:22px;border-radius:7px;background:var(--card2);overflow:hidden}
-.brow .bf{height:100%;border-radius:7px}
+.brow .bf{height:100%;border-radius:7px;transition:width .2s}
 .verdict{border-radius:var(--rs);padding:13px 14px;font-size:15px;font-weight:800;line-height:1.4;text-align:center}
 .verdict.up{background:var(--grn-d);border:1px solid var(--grn);color:#9CF0CF}
 .verdict.dn{background:var(--red-d);border:2px dashed var(--red);color:#FFB4B4}
@@ -102,8 +126,12 @@ h1{font-size:24px;font-weight:800;margin:2px 0 2px;letter-spacing:.3px}
         <input class="s-inp" type="number" id="i-belob" value="14000" inputmode="numeric" oninput="render()"></div>
       <div class="s-row"><div><div class="s-lbl">Forudsat timer/uge</div><div class="s-desc">Grundlag for 10%-reglen</div></div>
         <input class="s-inp" type="number" id="i-timer" value="50" inputmode="numeric" oninput="render()"></div>
+      <div class="s-row"><div><div class="s-lbl">Arbejdsmodel</div><div class="s-desc">5 dag = 8 normaltimer · 4 dag §5 = 10</div></div>
+        <div class="seg" style="width:150px" id="seg-model"><button class="seg-opt on" onclick="setModel('5dag')">5 dag</button><button class="seg-opt" onclick="setModel('4dag')">4 dag</button></div></div>
       <div class="s-row"><div><div class="s-lbl">Timeloft §3.9</div><div class="s-desc">PA/Runner = 50 (må ikke overskrides) · øvrige 55</div></div>
         <div class="seg" style="width:140px" id="seg-loft"><button class="seg-opt on" onclick="setLoft(55)">55</button><button class="seg-opt" onclick="setLoft(50)">50</button></div></div>
+      <div class="s-row"><div><div class="s-lbl">Pause pr. dag</div><div class="s-desc">Ubetalt pause trækkes fra (som appen)</div></div>
+        <div class="seg" style="width:150px" id="seg-pause"><button class="seg-opt on" onclick="setPause(30)">30 min</button><button class="seg-opt" onclick="setPause(0)">Ingen</button></div></div>
       <div class="s-row"><div><div class="s-lbl">Mindsteløn §3</div><div class="s-desc">Kr/uge (40 t) — grundlag for timeløn-tjek</div></div>
         <input class="s-inp" type="number" id="i-mindste" value="10380" inputmode="numeric" oninput="render()"></div>
       <div class="s-row"><div><div class="s-lbl">Personligt tillæg</div><div class="s-desc">Kr/uge — uden for OT-grundlag</div></div>
@@ -113,19 +141,13 @@ h1{font-size:24px;font-weight:800;margin:2px 0 2px;letter-spacing:.3px}
     </div>
   </div>
 
-  <!-- TIMER -->
+  <!-- TIMER (Start/Slut tider — samme metode som appen) -->
   <div class="s-card">
-    <div class="s-hd" onclick="tog('t-body','t-ch')"><span>Registrér timer</span><span class="s-hd-ch" id="t-ch">▴ Skjul</span></div>
+    <div class="s-hd" onclick="tog('t-body','t-ch')"><span>Registrér tider</span><span class="s-hd-ch" id="t-ch">▴ Skjul</span></div>
     <div id="t-body">
-      <div class="wk">
-        <div class="wk-ttl"><span>Uge 1</span><span class="sum" id="sum1">54 t</span></div>
-        <div class="days" id="days1"></div>
-      </div>
-      <div class="wk">
-        <div class="wk-ttl"><span>Uge 2 · denne uge</span><span class="sum" id="sum2">58 t</span></div>
-        <div class="days" id="days2"></div>
-      </div>
-      <div style="padding:6px 12px 14px"><button class="reset" onclick="nulstil()">Nulstil timer</button></div>
+      <div class="wk"><div class="wk-ttl"><span>Uge 1</span><span class="sum" id="sum1">–</span></div><div id="days1"></div></div>
+      <div class="wk"><div class="wk-ttl"><span>Uge 2 · denne uge</span><span class="sum" id="sum2">–</span></div><div id="days2"></div></div>
+      <div style="padding:8px 12px 14px"><button class="reset" onclick="nulstil()">Nulstil tider</button></div>
     </div>
   </div>
 
@@ -133,7 +155,7 @@ h1{font-size:24px;font-weight:800;margin:2px 0 2px;letter-spacing:.3px}
   <div class="s-card">
     <div class="s-hd"><span>Hvor tæt på overtid?</span><span class="s-hd-ch" id="g-pct">—</span></div>
     <div class="gauge-wrap">
-      <div class="gauge-top"><div class="gauge-now"><span id="g-now">58</span><small> t denne uge</small></div>
+      <div class="gauge-top"><div class="gauge-now"><span id="g-now">–</span><small> t denne uge</small></div>
         <div class="gauge-state" id="g-state">—</div></div>
       <div class="track" id="track"><div class="zone z-grn" id="z1"></div><div class="zone z-yel" id="z2"></div><div class="zone z-red" id="z3"></div>
         <div class="needle snit" id="n-snit"></div><div class="needle" id="n-now"></div></div>
@@ -147,19 +169,19 @@ h1{font-size:24px;font-weight:800;margin:2px 0 2px;letter-spacing:.3px}
     </div>
     <div class="warn red" id="warn"><span class="em">⚠︎</span><span id="warn-txt"></span></div>
     <div class="kpi">
-      <div class="kpi-box"><div class="kpi-v" id="k-snit" style="color:var(--pur)">56,0</div><div class="kpi-l">2-ugers snit</div></div>
-      <div class="kpi-box"><div class="kpi-v" id="k-ot" style="color:var(--yel)">—</div><div class="kpi-l">Overtid i alt</div></div>
+      <div class="kpi-box"><div class="kpi-v" id="k-snit" style="color:var(--pur)">–</div><div class="kpi-l">2-ugers snit</div></div>
+      <div class="kpi-box"><div class="kpi-v" id="k-ot" style="color:var(--yel)">–</div><div class="kpi-l">Overtid i alt</div></div>
       <div class="kpi-box"><div class="kpi-v" id="k-loft" style="color:var(--grn)">OK</div><div class="kpi-l">Timeloft</div></div>
     </div>
   </div>
 
-  <!-- FAIR-TJEK -->
+  <!-- FAIR -->
   <div class="s-card">
     <div class="s-hd"><span>Er klump'en fair?</span><span class="s-hd-ch">2 uger</span></div>
     <div class="fair">
       <div class="bar2">
-        <div class="brow"><div class="bl"><span>Timeløn + OT (§6)</span><span id="v-time">—</span></div><div class="bt"><div class="bf" id="bf-time" style="background:var(--acc)"></div></div></div>
-        <div class="brow"><div class="bl"><span>Klump</span><span id="v-klump">—</span></div><div class="bt"><div class="bf" id="bf-klump" style="background:var(--grn)"></div></div></div>
+        <div class="brow"><div class="bl"><span>Timeløn + OT (§6)</span><span id="v-time">–</span></div><div class="bt"><div class="bf" id="bf-time" style="background:var(--acc)"></div></div></div>
+        <div class="brow"><div class="bl"><span>Klump</span><span id="v-klump">–</span></div><div class="bt"><div class="bf" id="bf-klump" style="background:var(--grn)"></div></div></div>
       </div>
       <div class="verdict up" id="verdict">—</div>
       <div class="mini" id="fair-mini"></div>
@@ -176,113 +198,154 @@ h1{font-size:24px;font-weight:800;margin:2px 0 2px;letter-spacing:.3px}
 
 </div>
 
+<!-- TIDVÆLGER MODAL -->
+<div class="tmodal-bg skjult" id="tmodal-bg" onclick="lukkModal(event)">
+  <div class="tmodal" onclick="event.stopPropagation()">
+    <div class="tmodal-ttl" id="tmodal-ttl">Vælg tidspunkt</div>
+    <div class="tmodal-vis"><span id="mv-h">--</span><span class="tmodal-sep">:</span><span id="mv-m">--</span></div>
+    <div class="tscroll-row">
+      <div class="tscroll"><div class="tscroll-lbl">Timer</div><div class="tscroll-inner" id="ts-timer"></div></div>
+      <div class="tscroll"><div class="tscroll-lbl">Kvarter</div><div class="tscroll-inner" id="ts-min"></div></div>
+    </div>
+    <div class="tmodal-btns"><button class="tmodal-btn annul" onclick="lukkModal(null)">Annuller</button><button class="tmodal-btn ok" onclick="bekræftTid()">OK</button></div>
+  </div>
+</div>
+
 <script>
-let loft=55, vars=1, afsVal=0;
-const DAYS=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
-const def1=[10,11,10,12,11,0,0], def2=[11,12,12,11,12,0,0];
+const M=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
+const KVARTER=[0,15,30,45];
+let model='5dag', loft=55, pauseMin=30, vars=1, afsVal=0;
 const $=id=>document.getElementById(id);
 const kr=n=>Math.round(n).toLocaleString('da-DK');
+const thr=()=>model==='4dag'?10:8;
 
-function buildDays(id,vals){
-  const c=$(id);c.innerHTML='';
-  vals.forEach((v,i)=>{
-    const we=i>4?' we':'';
-    c.insertAdjacentHTML('beforeend',
-      '<div class="day'+we+'"><span class="dl">'+DAYS[i]+'</span><input type="number" inputmode="decimal" min="0" max="24" step="0.5" value="'+v+'" oninput="render()"></div>');
-  });
-}
-function readDays(id){return [...$(id).querySelectorAll('input')].map(i=>parseFloat(i.value)||0);}
+// demo-tider: uge1 = 10,11,10,12,11t arbejde · uge2 = 11,12,12,11,12t (30 min pause)
+function mk(s,e){return {s,e};}
+let week=[
+ [mk({h:7,m:0},{h:17,m:30}),mk({h:7,m:0},{h:18,m:30}),mk({h:7,m:0},{h:17,m:30}),mk({h:7,m:0},{h:19,m:30}),mk({h:7,m:0},{h:18,m:30}),mk(null,null),mk(null,null)],
+ [mk({h:7,m:0},{h:18,m:30}),mk({h:7,m:0},{h:19,m:30}),mk({h:7,m:0},{h:19,m:30}),mk({h:7,m:0},{h:18,m:30}),mk({h:7,m:0},{h:19,m:30}),mk(null,null),mk(null,null)]
+];
+
+const tToStr=t=>t?String(t.h).padStart(2,'0')+':'+String(t.m).padStart(2,'0'):'––:––';
+const tToH=t=>t?t.h+t.m/60:null;
+function arbtimer(d){const s=tToH(d.s),e=tToH(d.e);if(s===null||e===null)return null;let h=(e>=s)?e-s:e-s+24;return Math.max(0,h-pauseMin/60);}
+
 function tog(b,c){const e=$(b),ch=$(c);const o=e.style.display!=='none';e.style.display=o?'none':'block';ch.textContent=o?'▾ Vis':'▴ Skjul';}
+function setModel(m){model=m;$('seg-model').children[0].classList.toggle('on',m==='5dag');$('seg-model').children[1].classList.toggle('on',m==='4dag');render();}
 function setLoft(v){loft=v;$('seg-loft').children[0].classList.toggle('on',v===55);$('seg-loft').children[1].classList.toggle('on',v===50);render();}
+function setPause(v){pauseMin=v;$('seg-pause').children[0].classList.toggle('on',v===30);$('seg-pause').children[1].classList.toggle('on',v===0);render();}
 function setVars(v){vars=v;$('seg-vars').children[0].classList.toggle('on',v===1);$('seg-vars').children[1].classList.toggle('on',v===0);render();}
 function afs(d){afsVal=Math.max(0,afsVal+d);render();}
-function nulstil(){buildDays('days1',[0,0,0,0,0,0,0]);buildDays('days2',[0,0,0,0,0,0,0]);render();}
+function nulstil(){week=[[...Array(7)].map(()=>mk(null,null)),[...Array(7)].map(()=>mk(null,null))];render();}
 
-// dagsbetaling for timeløn-model (normaltimeløn m, uden pers)
-function dayPay(h,m){
-  const norm=Math.min(h,8)*m;
-  let ot=Math.max(0,h-8), pay=norm;
-  const r=vars?[0.50,0.60,1.35]:[0.75,1.00,1.35];
-  const t1=Math.min(ot,1); ot-=t1;
-  const t2=Math.min(ot,1); ot-=t2;
-  const t3=Math.max(ot,0);
-  pay+=t1*m*(1+r[0])+t2*m*(1+r[1])+t3*m*(1+r[2]);
-  return pay;
+function buildDays(w){
+  const c=$('days'+(w+1));c.innerHTML='';
+  week[w].forEach((d,i)=>{
+    const we=i>4?' we':'';
+    const ah=arbtimer(d);
+    const dur=ah===null?'–':(Math.floor(ah)+'t '+Math.round((ah-Math.floor(ah))*60)+'m');
+    const row=document.createElement('div');row.className='drow';
+    row.innerHTML='<span class="dn'+we+'">'+M[i]+'</span>'+
+      '<div class="dt" onclick="pick('+w+','+i+',\'s\')"><span class="dt-l">Start</span><span class="dt-v'+(d.s?'':' tom')+'">'+tToStr(d.s)+'</span></div>'+
+      '<span class="dsep">→</span>'+
+      '<div class="dt" onclick="pick('+w+','+i+',\'e\')"><span class="dt-l">Slut</span><span class="dt-v'+(d.e?'':' tom')+'">'+tToStr(d.e)+'</span></div>'+
+      '<span class="ddur" style="color:'+(ah>thr()?'var(--yel)':'var(--txt)')+'">'+dur+'</span>'+
+      '<button class="dclr" onclick="event.stopPropagation();clr('+w+','+i+')">✕</button>';
+    c.appendChild(row);
+  });
 }
-function otHours(h){return Math.max(0,h-8);}
+function clr(w,i){week[w][i]=mk(null,null);render();}
+
+// ── tidvælger ──
+let target=null, valgtH=8, valgtM=0;
+function pick(w,i,felt){
+  target={w,i,felt};
+  const cur=felt==='s'?week[w][i].s:week[w][i].e;
+  valgtH=cur?cur.h:(felt==='s'?7:17); valgtM=cur?cur.m:0;
+  $('tmodal-ttl').textContent=felt==='s'?'Vælg starttid':'Vælg sluttid';
+  $('tmodal-bg').classList.remove('skjult');
+  byggModal();
+}
+function byggModal(){
+  const hEl=$('ts-timer'),mEl=$('ts-min');hEl.innerHTML='';mEl.innerHTML='';
+  for(let h=0;h<24;h++){const el=document.createElement('div');el.className='tscroll-item'+(h===valgtH?' sel':'');el.textContent=String(h).padStart(2,'0');el.onclick=()=>{valgtH=h;opdaterModal();};hEl.appendChild(el);}
+  KVARTER.forEach(m=>{const el=document.createElement('div');el.className='tscroll-item'+(m===valgtM?' sel':'');el.textContent=String(m).padStart(2,'0');el.onclick=()=>{valgtM=m;opdaterModal();};mEl.appendChild(el);});
+  $('mv-h').textContent=String(valgtH).padStart(2,'0');$('mv-m').textContent=String(valgtM).padStart(2,'0');
+  const sel=hEl.querySelector('.sel');if(sel)sel.scrollIntoView({block:'center'});
+}
+function opdaterModal(){
+  $('ts-timer').querySelectorAll('.tscroll-item').forEach((el,i)=>el.classList.toggle('sel',i===valgtH));
+  $('ts-min').querySelectorAll('.tscroll-item').forEach((el,i)=>el.classList.toggle('sel',KVARTER[i]===valgtM));
+  $('mv-h').textContent=String(valgtH).padStart(2,'0');$('mv-m').textContent=String(valgtM).padStart(2,'0');
+}
+function lukkModal(e){if(e===null||e.target===$('tmodal-bg'))$('tmodal-bg').classList.add('skjult');}
+function bekræftTid(){
+  const {w,i,felt}=target;
+  if(felt==='s'){
+    week[w][i].s={h:valgtH,m:valgtM};
+    if(!week[w][i].e){const add=(model==='4dag'?10:8)*60+pauseMin;const tot=valgtH*60+valgtM+add;week[w][i].e={h:Math.floor((tot%1440)/60),m:tot%60};}
+  } else week[w][i].e={h:valgtH,m:valgtM};
+  $('tmodal-bg').classList.add('skjult');render();
+}
+
+// ── timeløn-model for fair-tjek ──
+function dayPay(h,m){
+  const T=thr();const norm=Math.min(h,T)*m;let ot=Math.max(0,h-T),pay=norm;
+  const r=vars?[.5,.6,1.35]:[.75,1,1.35];
+  const t1=Math.min(ot,1);ot-=t1;const t2=Math.min(ot,1);ot-=t2;const t3=Math.max(ot,0);
+  pay+=t1*m*(1+r[0])+t2*m*(1+r[1])+t3*m*(1+r[2]);return pay;
+}
 
 function render(){
+  buildDays(0);buildDays(1);
   const aftalt=+$('i-timer').value||0, belob=+$('i-belob').value||0;
-  const mindste=+$('i-mindste').value||0, pers=+$('i-pers').value||0;
-  const d1=readDays('days1'), d2=readDays('days2');
-  const w1=d1.reduce((a,b)=>a+b,0), w2=d2.reduce((a,b)=>a+b,0);
-  const snit=(w1+w2)/2;
-  $('sum1').textContent=(+w1.toFixed(1))+' t';$('sum2').textContent=(+w2.toFixed(1))+' t';
+  const mindste=+$('i-mindste').value||0, pers=+$('i-pers').value||0, T=thr();
+  const h1=week[0].map(arbtimer).map(x=>x||0), h2=week[1].map(arbtimer).map(x=>x||0);
+  const w1=h1.reduce((a,b)=>a+b,0), w2=h2.reduce((a,b)=>a+b,0), snit=(w1+w2)/2;
+  const f1=(+w1.toFixed(2)), f2=(+w2.toFixed(2));
+  $('sum1').textContent=f1+' t';$('sum2').textContent=f2+' t';
 
-  // gauge
-  const buf=aftalt*1.10;
-  const top=Math.max(loft,buf,w1,w2,snit)*1.04||1;
+  const buf=aftalt*1.10, top=Math.max(loft,buf,w1,w2,snit)*1.04||1;
   const p=x=>Math.min(100,Math.max(0,x/top*100));
-  $('z1').style.width=p(aftalt)+'%';
-  $('z2').style.width=Math.max(0,p(buf)-p(aftalt))+'%';
-  $('z3').style.width=Math.max(0,100-p(buf))+'%';
-  $('n-now').style.left='calc('+p(w2)+'% - 2px)';
-  $('n-snit').style.left='calc('+p(snit)+'% - 1px)';
+  $('z1').style.width=p(aftalt)+'%';$('z2').style.width=Math.max(0,p(buf)-p(aftalt))+'%';$('z3').style.width=Math.max(0,100-p(buf))+'%';
+  $('n-now').style.left='calc('+p(w2)+'% - 2px)';$('n-snit').style.left='calc('+p(snit)+'% - 1px)';
   $('sc-aftalt').textContent=aftalt+' t';$('sc-loft').textContent=loft+' t';
-  $('g-now').textContent=+w2.toFixed(1);
-  const overPct=aftalt?(w2/aftalt-1)*100:0;
-  $('g-pct').textContent=(overPct>=0?'+':'')+overPct.toFixed(0)+'% vs aftalt';
+  $('g-now').textContent=f2;
+  $('g-pct').textContent=(aftalt?((w2/aftalt-1)*100>=0?'+':'')+((w2/aftalt-1)*100).toFixed(0):'0')+'% vs aftalt';
 
   let st,bg,col;
   if(w2<=aftalt){st='Indenfor aftale';bg='var(--grn-d)';col='var(--grn)';}
   else if(w2<=buf){st='I buffer ≤10%';bg='var(--yel-d)';col='var(--yel)';}
-  else {st='Over +10%';bg='var(--red-d)';col='var(--red)';}
+  else{st='Over +10%';bg='var(--red-d)';col='var(--red)';}
   if(w2>loft||w1>loft){st='OVER TIMELOFT '+loft+'t';bg='var(--red-d)';col='var(--red)';}
   const gs=$('g-state');gs.textContent=st;gs.style.background=bg;gs.style.color=col;
 
-  // kpis
   $('k-snit').textContent=snit.toLocaleString('da-DK',{minimumFractionDigits:1,maximumFractionDigits:1});
-  const otTot=[...d1,...d2].reduce((a,h)=>a+otHours(h),0);
+  const otTot=[...h1,...h2].reduce((a,h)=>a+Math.max(0,h-T),0);
   $('k-ot').textContent=(+otTot.toFixed(1))+' t';
   const loftOK=(w1<=loft&&w2<=loft);
-  $('k-loft').textContent=loftOK?'OK':'OVER';
-  $('k-loft').style.color=loftOK?'var(--grn)':'var(--red)';
+  $('k-loft').textContent=loftOK?'OK':'OVER';$('k-loft').style.color=loftOK?'var(--grn)':'var(--red)';
 
-  // warning
   const w=$('warn'),wt=$('warn-txt');
-  if(aftalt>0&&snit>buf){
-    w.className='warn red';
-    wt.innerHTML='<b>10%-reglen udløst.</b> 2-ugers snit '+snit.toFixed(1)+' t er '+((snit/aftalt-1)*100).toFixed(0)+'% over de aftalte '+aftalt+' t — der <b>skal aftales et løntillæg</b> særskilt (§3 stk.9).';
-  } else if(!loftOK){
-    w.className='warn red';
-    wt.innerHTML='<b>Timeloft overskredet.</b> En uge er over '+loft+' t'+(loft===50?' — PA/Runner-loftet må ikke overskrides.':'.');
-  } else {
-    w.className='warn grn';
-    wt.innerHTML='<b>Indenfor aftale.</b> 2-ugers snit '+snit.toFixed(1)+' t er under +10%-grænsen ('+buf.toFixed(1)+' t).';
-  }
+  if(aftalt>0&&snit>buf){w.className='warn red';wt.innerHTML='<b>10%-reglen udløst.</b> 2-ugers snit '+snit.toFixed(1)+' t er '+((snit/aftalt-1)*100).toFixed(0)+'% over de aftalte '+aftalt+' t — der <b>skal aftales et løntillæg</b> særskilt (§3 stk.9).';}
+  else if(!loftOK){w.className='warn red';wt.innerHTML='<b>Timeloft overskredet.</b> En uge er over '+loft+' t'+(loft===50?' — PA/Runner-loftet må ikke overskrides.':'.');}
+  else{w.className='warn grn';wt.innerHTML='<b>Indenfor aftale.</b> 2-ugers snit '+snit.toFixed(1)+' t er under +10%-grænsen ('+buf.toFixed(1)+' t).';}
   w.querySelector('.em').textContent=w.className.includes('grn')?'✓':'⚠︎';
 
-  // fair-tjek
   const m=mindste/40;
-  const tl=[...d1,...d2].reduce((a,h)=>a+dayPay(h,m),0)+pers*2;
+  const tl=[...h1,...h2].reduce((a,h)=>a+dayPay(h,m),0)+pers*2;
   const kl=belob*2;
-  $('v-time').textContent=kr(tl)+' kr';
-  $('v-klump').textContent=kr(kl)+' kr';
-  const mx=Math.max(tl,kl)||1;
-  $('bf-time').style.width=(tl/mx*100)+'%';
-  $('bf-klump').style.width=(kl/mx*100)+'%';
-  const diff=kl-tl;
-  const v=$('verdict');
-  if(diff>=0){v.className='verdict up';v.innerHTML='Klump ligger <b>'+kr(diff)+' kr over</b> timeløn+OT for disse timer — god aftale';}
-  else {v.className='verdict dn';v.innerHTML='Klump ligger <b>'+kr(-diff)+' kr under</b> timeløn+OT for disse timer';}
-  // §3.9 minimum = mod normalløn (base, ikke OT)
-  const minBase=(mindste+pers)*2;
-  const minOK=kl>=minBase;
-  $('fair-mini').innerHTML='<b>§3.9-minimum:</b> klump ('+kr(kl)+' kr) '+(minOK?'≥':'<')+' normalløn '+kr(minBase)+' kr — '+(minOK?'<span style="color:var(--grn)">opfyldt</span>.':'<span style="color:var(--red)">må ikke ligge under!</span>.')+'<br>Sammenligningen ovenfor er en <b>værdi-tjek</b> mod timeløn+OT (normaltimeløn '+kr(m)+' kr/t, '+(vars?'varslet':'uvarslet')+'). Weekend-, nat- og §8-tillæg er ikke med.';
+  $('v-time').textContent=kr(tl)+' kr';$('v-klump').textContent=kr(kl)+' kr';
+  const mx=Math.max(tl,kl)||1;$('bf-time').style.width=(tl/mx*100)+'%';$('bf-klump').style.width=(kl/mx*100)+'%';
+  const diff=kl-tl,v=$('verdict');
+  if(diff>=0){v.className='verdict up';v.innerHTML='Klump ligger <b>'+kr(diff)+' kr over</b> timeløn+OT for disse tider — god aftale';}
+  else{v.className='verdict dn';v.innerHTML='Klump ligger <b>'+kr(-diff)+' kr under</b> timeløn+OT for disse tider';}
+  const minBase=(mindste+pers)*2, minOK=kl>=minBase;
+  $('fair-mini').innerHTML='<b>§3.9-minimum:</b> klump ('+kr(kl)+' kr) '+(minOK?'≥':'<')+' normalløn '+kr(minBase)+' kr — '+(minOK?'<span style="color:var(--grn)">opfyldt</span>.':'<span style="color:var(--red)">må ikke ligge under!</span>.')+'<br>Sammenligningen er en <b>værdi-tjek</b> mod timeløn+OT (normaltimeløn '+kr(m)+' kr/t, '+(vars?'varslet':'uvarslet')+', '+T+' normaltimer/dag). Weekend-, nat- og §8-tillæg er ikke med.';
 
   $('afs-val').textContent=afsVal;
 }
-buildDays('days1',def1);buildDays('days2',def2);render();
+render();
 </script>
 </body>
 </html>
