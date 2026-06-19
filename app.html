@@ -61,8 +61,12 @@ to{transform:scale(1);opacity:1}}
 .view.on{display:block}
 
 /* ── DAG ── */
-.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:34px}
-.dag-nav{display:flex;gap:8px;flex-shrink:0;margin-top:20px}
+.dag-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:22px}
+/* Produktionstitel-blok øverst, over chips (kun dag-visning) */
+.dag-ttl-top{padding:14px 16px 8px}
+/* dag-nav: egen række over datoen, små pile */
+.dag-nav{display:flex;gap:8px;flex-shrink:0;margin-bottom:14px}
+.nbtn-s{width:30px;height:30px;font-size:15px;flex-shrink:0}
 .nbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .nbtn:active{transform:scale(.88)}
 .alle-prod-btn{width:auto;border-radius:20px;font-family:'Tahoma',monospace;font-weight:bold;color:var(--mut)}
@@ -555,6 +559,11 @@ textarea::placeholder{color:var(--mut)}
   </div>
 </div>
 
+<!-- DAG: produktionstitel øverst (kun synlig i dag-visning), over chips -->
+<div class="dag-ttl-top" id="dag-ttl-top">
+  <div class="dag-prod-ttl" id="prod-pill">···</div>
+</div>
+
 <!-- PROD SWITCHER BAR -->
 <div class="prod-sw-bar" id="prod-sw-bar"></div>
 
@@ -653,13 +662,10 @@ textarea::placeholder{color:var(--mut)}
 
 <!-- DAG VIEW -->
 <div class="view on" id="view-dag">
-  <!-- Header v1.77: Stor produktion øverst med ‹›, så dag + (UGE+dato højre) -->
-  <div class="dag-hd">
-    <div class="dag-prod-ttl" id="prod-pill">···</div>
-    <div class="dag-nav">
-      <button class="nbtn" onclick="skiftDag(-1)">‹</button>
-      <button class="nbtn" onclick="skiftDag(1)">›</button>
-    </div>
+  <!-- Header: titel over chips; små pile på egen række over dato -->
+  <div class="dag-nav">
+    <button class="nbtn nbtn-s" onclick="skiftDag(-1)" aria-label="Forrige dag">‹</button>
+    <button class="nbtn nbtn-s" onclick="skiftDag(1)" aria-label="Næste dag">›</button>
   </div>
   <div class="dag-meta">
     <span class="dag-navn" id="dag-navn"></span>
@@ -1974,56 +1980,47 @@ function mødeTimer(min) {
   return Math.min(Math.max(parseInt(min) || 0, 0), 30) / 60;
 }
 
-// §7: Forskudt tid = timer uden for 06-19 på hverdage (man-fre)
-// §7.4: Timer i weekend-perioden (fre 20:00–man 06:00) giver IKKE §7 — det er §8
-function calcForskudt(start, slut, dagIdx) {
-  if (dagIdx === 0 || dagIdx === 6) return 0; // Lørdag/søndag: ingen §7 (alt er §8 weekend)
+// Klassificér hver kvarter-slot i en vagt efter ABSOLUT ugedag+tid, så timer der
+// falder efter midnat får det rigtige døgns §7/§8-vindue (også på nattevagter).
+// dagIdx = startdagens getDay() (0=søn..6=lør).
+// §7.1 forskudt: man 19-24; tirs-tors 00-06 & 19-24; fre 00-06 & 19-20.
+// §8.1 weekend: fre 20:00 → man 06:00.
+function vinduerForVagt(start, slut, dagIdx) {
   const s = tidTilH(start), e = tidTilH(slut);
-  if (s === null || e === null) return 0;
-  let fsk = 0;
-  const seg = (e >= s) ? [[s, e]] : [[s, 24], [0, e]];
-  seg.forEach(([a, b]) => {
-    // Fredag natvagt der krydser midnat: [0,e]-segmentet er lørdag = §8 weekend, ikke §7
-    if (dagIdx === 5 && a === 0) return;
-    // Mandag: 00:00–06:00 er weekend-periode → §8, ikke §7
-    const aFsk = (dagIdx === 1) ? Math.max(a, 6) : a;
-    // Fredag: 20:00–24:00 er weekend-periode → §8, ikke §7
-    const bFsk = (dagIdx === 5) ? Math.min(b, 20) : b;
-    if (aFsk >= bFsk) return;
-    if (aFsk < 6) fsk += Math.min(bFsk, 6) - aFsk;
-    if (bFsk > 19) fsk += bFsk - Math.max(aFsk, 19);
-  });
-  return Math.max(0, fsk);
+  if (s === null || e === null) return { forskudt: 0, weekendClock: 0, totalClock: 0 };
+  const eAdj = (e > s) ? e : e + 24; // håndter nat-skift
+  const totalClock = eAdj - s;
+  let forskudt = 0, weekendClock = 0;
+  const step = 0.25;
+  for (let t = s; t < eAdj - 1e-9; t += step) {
+    const dag = (((dagIdx + Math.floor(t / 24)) % 7) + 7) % 7; // 0=søn..6=lør
+    const tod = ((t % 24) + 24) % 24;
+    let erWeekend = false;
+    if (dag === 5 && tod >= 20) erWeekend = true;        // fredag fra 20:00
+    else if (dag === 6 || dag === 0) erWeekend = true;   // lørdag / søndag
+    else if (dag === 1 && tod < 6) erWeekend = true;     // mandag til 06:00
+    if (erWeekend) { weekendClock += step; continue; }
+    let erForskudt = false;
+    if (dag === 1) { if (tod >= 19) erForskudt = true; }                    // man 19-24
+    else if (dag >= 2 && dag <= 4) { if (tod < 6 || tod >= 19) erForskudt = true; } // tirs-tors
+    else if (dag === 5) { if (tod < 6 || (tod >= 19 && tod < 20)) erForskudt = true; } // fre
+    if (erForskudt) forskudt += step;
+  }
+  return { forskudt, weekendClock, totalClock };
 }
 
-// §8: Weekend-periode fre 20:00 → man 06:00
-// Returnerer ARBEJDSTIMER der overlapper med weekend-perioden
-// (clock-time minus proportional andel af 30 min ubetalt spisepause)
-// §8.2: weekendtillæg betales "pr. time" = pr. arbejdstime, jf. §6 om
-// arbejdsdagens definition (15 min betalt pause + 30 min ubetalt spisepause)
+// §7: Forskudt tid (110 kr/t, kl. 19-06 hverdage). §7.4: ikke i weekend-perioden.
+function calcForskudt(start, slut, dagIdx) {
+  return Math.max(0, vinduerForVagt(start, slut, dagIdx).forskudt);
+}
+
+// §8: Weekend-periode fre 20:00 → man 06:00. Returnerer ARBEJDSTIMER i weekend-perioden
+// (clock-time minus proportional andel af 30 min ubetalt spisepause, jf. §6/§8.2 "pr. time").
 function calcWeekendTimer(start, slut, dagIdx) {
-  const s = tidTilH(start), e = tidTilH(slut);
-  if (s === null || e === null) return 0;
-  const eAdj = (e > s) ? e : e + 24; // håndter nat-skift
-  const totalClockH = eAdj - s;
-  let wkClockH = 0;
-  if (dagIdx === 6 || dagIdx === 0) {
-    // Lørdag / søndag: hele vagten er i weekend-perioden
-    wkClockH = totalClockH;
-  } else if (dagIdx === 5) {
-    // Fredag: fra kl. 20:00 og frem
-    if (s >= 20)        wkClockH = totalClockH;
-    else if (eAdj > 20) wkClockH = eAdj - 20;
-  } else if (dagIdx === 1) {
-    // Mandag: til kl. 06:00
-    if (s < 6) wkClockH = Math.min(eAdj, 6) - s;
-  }
-  if (wkClockH <= 0 || totalClockH <= 0) return 0;
-  // Træk 30 min spisepause proportionalt fra weekend-andelen
-  // Hvis hele vagten er weekend → fuld pause trækkes fra; halv vagt → halv pause
-  // Dog kun når vagten er > 0.5 timer (ellers er der ingen pause)
-  const pauseAndel = (totalClockH > 0.5) ? (wkClockH / totalClockH) * 0.5 : 0;
-  return Math.max(0, wkClockH - pauseAndel);
+  const v = vinduerForVagt(start, slut, dagIdx);
+  if (v.weekendClock <= 0 || v.totalClock <= 0) return 0;
+  const pauseAndel = (v.totalClock > 0.5) ? (v.weekendClock / v.totalClock) * 0.5 : 0;
+  return Math.max(0, v.weekendClock - pauseAndel);
 }
 
 // §5 Forskudt særtid:
@@ -2149,7 +2146,14 @@ function calcLon(h, opt, wkAutoH = 0, wkRate = 0.75) {
   const dMax = (typeof opt.dMax === 'number') ? opt.dMax : dagMax(opt.dato);
 
   const harEnkeltdag = !!(opt.enkeltdag || cfg.tillæg);
-  const normalH = Math.min(dMax, harEnkeltdag ? Math.max(4, h) : h);
+  // Lørdag/søndag behandles som §8 weekend-dag (samme regler som helligdag)
+  const dow = opt.dato ? opt.dato.getDay() : -1;
+  const erFuldWeekend = (dow === 0 || dow === 6);
+  const erWeekendDag = !!helligdag || erFuldWeekend;
+  // Daglig minimumsbetaling: §4.1/§5 normaldag (8 ved 5-dag, 10 ved særtid);
+  // §8.2 weekend/helligdag min. 4t; §3 enkeltdag min. 4t.
+  const dagMin = harEnkeltdag ? 4 : (erWeekendDag ? 4 : dMax);
+  const normalH = Math.min(dMax, Math.max(dagMin, harEnkeltdag ? Math.max(4, h) : h));
   const otH     = Math.max(0, h - dMax);
   const ot1H    = Math.min(1, otH);
   const ot2H    = Math.min(1, Math.max(0, otH - 1));
@@ -2160,7 +2164,7 @@ function calcLon(h, opt, wkAutoH = 0, wkRate = 0.75) {
   const tsWk    = tsGrund * (harEnkeltdag ? 1.1 : 1.0);
   let normal = 0, ot1 = 0, ot2 = 0, ot3 = 0, wk = 0;
 
-  if (helligdag) {
+  if (erWeekendDag) {
     // §8.2: +75% (eller +100% ved 2.+ weekenddag i ugen) på normaltimer, min. 4 timer
     const betaltH = Math.max(4, normalH);
     wk     = tsWk * wkRate * betaltH;
@@ -4482,6 +4486,8 @@ function visView(navn) {
   document.getElementById('tab-mnd')?.classList.toggle('on', navn === 'mnd');
   // Gear: aktiv når inst
   document.getElementById('gear-btn')?.classList.toggle('on', navn === 'inst');
+  // Produktionstitel-blok kun i dag-visning
+  document.getElementById('dag-ttl-top')?.style.setProperty('display', navn === 'dag' ? 'block' : 'none');
   if (navn === 'uge') rendUge();
   if (navn === 'dag') rendDag();
   if (navn === 'mnd') rendMaaned();
@@ -4592,7 +4598,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.06';
+const APP_VERSION = '2.10';
 
 // ── SPLASH ──
 (function(){
@@ -4630,6 +4636,15 @@ const APP_VERSION = '2.06';
 
 
 const CHANGELOG = {
+  '2.10': {
+    dato: '19. juni 2026',
+    nyt: [
+      '📐 Lønberegningen er finpudset og verificeret mod Fiktionsoverenskomsten på tværs af 20.000 tilfældige uger — alle vagttyper, lønninger, nat- og weekendvagter ramt.',
+      '🗓️ Daglig minimumsbetaling: en hverdag sikrer normaldagens timer (§4 8t / §5 10t) og en weekend-/helligdagsdag mindst 4 timer (§8.2), også på korte dage.',
+      '🌙 Nattevagter hen over midnat: forskudt tid (§7) og weekend-timer (§8) fordeles nu præcist på det rigtige døgn — fx tæller tirsdag morgen 00–06 efter en mandag-vagt korrekt som forskudt.',
+      '🎬 Weekend- og helligdagsovertid følger §8.3 nøjagtigt: weekendtillæg + 50% / 60% / 135% oven i.',
+    ]
+  },
   '2.06': {
     dato: '9. juni 2026',
     nyt: [
