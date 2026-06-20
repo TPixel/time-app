@@ -340,8 +340,8 @@ function render(){
   const diff=kl-tl,v=$('verdict');
   if(diff>=0){v.className='verdict up';v.innerHTML='Klump ligger <b>'+kr(diff)+' kr over</b> timeløn+OT for disse tider — god aftale';}
   else{v.className='verdict dn';v.innerHTML='Klump ligger <b>'+kr(-diff)+' kr under</b> timeløn+OT for disse tider';}
-  const minBase=(mindste+pers)*2, minOK=kl>=minBase;
-  $('fair-mini').innerHTML='<b>§3.9-minimum:</b> klump ('+kr(kl)+' kr) '+(minOK?'≥':'<')+' normalløn '+kr(minBase)+' kr — '+(minOK?'<span style="color:var(--grn)">opfyldt</span>.':'<span style="color:var(--red)">må ikke ligge under!</span>.')+'<br>Sammenligningen er en <b>værdi-tjek</b> mod timeløn+OT (normaltimeløn '+kr(m)+' kr/t, '+(vars?'varslet':'uvarslet')+', '+T+' normaltimer/dag). Weekend-, nat- og §8-tillæg er ikke med.';
+  const minBase=mindste*2, minOK=kl>=minBase;
+  $('fair-mini').innerHTML='<b>§3.9-minimum:</b> klump ('+kr(kl)+' kr) '+(minOK?'≥':'<')+' normalløn '+kr(minBase)+' kr — '+(minOK?'<span style="color:var(--grn)">opfyldt</span>':'<span style="color:var(--red)">må ikke ligge under!</span>')+'. Personligt tillæg'+(pers?' ('+kr(pers)+' kr/uge)':'')+' tæller <b>ikke</b> med i normallønnen (§3 stk.7), men bør lægges oven i klumpen.<br>Søjlerne er en <b>værdi-tjek</b> mod timeløn+OT (normaltimeløn '+kr(m)+' kr/t, '+(vars?'varslet':'uvarslet')+', '+T+' normaltimer/dag). Weekend-, nat- og §8-tillæg er ikke med.';
 
   $('afs-val').textContent=afsVal;
 }
