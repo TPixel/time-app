@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Time App — Stats</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0C0C12;color:#fff;font-family:'Tahoma',sans-serif;font-weight:bold;min-height:100dvh;max-width:430px;margin:0 auto;padding:40px 16px}
+.hdr{text-align:center;margin-bottom:32px}
+.hdr h1{font-size:22px;letter-spacing:-.5px}
+.hdr .sub{font-size:12px;color:#666;margin-top:4px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
+.card{background:#1a1a24;border-radius:14px;padding:20px;text-align:center}
+.card-n{font-size:48px;color:#E8820A;letter-spacing:-2px}
+.card-n.blue{color:#378ADD}
+.card-l{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.card-full{grid-column:1/-1}
+.ratio{margin-bottom:24px;background:#1a1a24;border-radius:14px;padding:16px}
+.ratio-ttl{font-size:13px;color:#888;margin-bottom:8px}
+.ratio-bar{height:20px;background:#2a2a36;border-radius:10px;overflow:hidden;position:relative}
+.ratio-fill{height:100%;border-radius:10px;background:#E8820A;transition:width .5s}
+.ratio-lbl{position:absolute;right:8px;top:0;line-height:20px;font-size:11px;color:#fff}
+.info{background:#1a1a24;border-radius:14px;padding:16px;margin-bottom:24px}
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #2a2a36}
+.info-row:last-child{border:none}
+.info-k{font-size:14px;color:#888}
+.info-v{font-size:14px;color:#fff}
+.refresh{display:block;margin:0 auto;padding:14px 32px;border-radius:12px;border:none;background:#2a2a36;color:#888;font-family:'Tahoma',sans-serif;font-size:16px;font-weight:bold;cursor:pointer}
+.refresh:active{background:#3a3a46}
+.loading{text-align:center;color:#555;font-size:14px;padding:20px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+<h1>Time App Stats</h1>
+<div class="sub">Besøgstal for time-app.dk</div>
+</div>
+
+<div class="cards">
+<div class="card">
+<div class="card-n" id="brugere">—</div>
+<div class="card-l">Unikke brugere</div>
+</div>
+<div class="card">
+<div class="card-n blue" id="besoeg">—</div>
+<div class="card-l">Besøg i alt</div>
+</div>
+</div>
+
+<div class="ratio">
+<div class="ratio-ttl">Genbesøgsrate</div>
+<div class="ratio-bar">
+<div class="ratio-fill" id="ratioBar" style="width:0%"></div>
+<div class="ratio-lbl" id="ratioLbl">—</div>
+</div>
+</div>
+
+<div class="info">
+<div class="info-row"><span class="info-k">Gennemsnit besøg per bruger</span><span class="info-v" id="avg">—</span></div>
+<div class="info-row"><span class="info-k">Returnerende brugere (est.)</span><span class="info-v" id="retur">—</span></div>
+<div class="info-row"><span class="info-k">Sidst opdateret</span><span class="info-v" id="tid">—</span></div>
+</div>
+
+<button class="refresh" onclick="hent()">Opdater</button>
+
+<script>
+var API='https://abacus.jasoncameron.dev';
+var NS='time-app-dk-tpixel';
+
+function hent(){
+  document.getElementById('brugere').textContent='...';
+  document.getElementById('besoeg').textContent='...';
+  Promise.all([
+    fetch(API+'/get/'+NS+'/brugere').then(function(r){return r.json()}),
+    fetch(API+'/get/'+NS+'/besoeg').then(function(r){return r.json()})
+  ]).then(function(d){
+    var b=d[0].value||0;
+    var v=d[1].value||0;
+    document.getElementById('brugere').textContent=b.toLocaleString('da-DK');
+    document.getElementById('besoeg').textContent=v.toLocaleString('da-DK');
+    var avg=b>0?(v/b).toFixed(1):'—';
+    document.getElementById('avg').textContent=avg+'x';
+    var retur=Math.max(0,v-b);
+    document.getElementById('retur').textContent=retur+' genbesøg';
+    var pct=b>0?Math.round((retur/v)*100):0;
+    document.getElementById('ratioBar').style.width=pct+'%';
+    document.getElementById('ratioLbl').textContent=pct+'% genbesøg';
+    document.getElementById('tid').textContent=new Date().toLocaleString('da-DK');
+  }).catch(function(){
+    document.getElementById('brugere').textContent='fejl';
+    document.getElementById('besoeg').textContent='fejl';
+  });
+}
+hent();
+</script>
+</body>
+</html>
