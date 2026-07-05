@@ -66,6 +66,11 @@ to{transform:scale(1);opacity:1}}
 .dag-ttl-top{padding:14px 16px 8px}
 /* dag-nav: egen række over datoen, små pile */
 .dag-nav{display:flex;gap:8px;flex-shrink:0;margin-bottom:14px}
+/* Swipe-feedback: dag glider ind fra siden når man stryger */
+#view-dag.sw-next{animation:dagSwNext .22s ease}
+#view-dag.sw-prev{animation:dagSwPrev .22s ease}
+@keyframes dagSwNext{from{transform:translateX(30px);opacity:.35}to{transform:none;opacity:1}}
+@keyframes dagSwPrev{from{transform:translateX(-30px);opacity:.35}to{transform:none;opacity:1}}
 .nbtn-s{width:30px;height:30px;font-size:15px;flex-shrink:0}
 .nbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .nbtn:active{transform:scale(.88)}
@@ -662,11 +667,7 @@ textarea::placeholder{color:var(--mut)}
 
 <!-- DAG VIEW -->
 <div class="view on" id="view-dag">
-  <!-- Header: titel over chips; små pile på egen række over dato -->
-  <div class="dag-nav">
-    <button class="nbtn nbtn-s" onclick="skiftDag(-1)" aria-label="Forrige dag">‹</button>
-    <button class="nbtn nbtn-s" onclick="skiftDag(1)" aria-label="Næste dag">›</button>
-  </div>
+  <!-- Skift dag: stryg til siderne (venstre = næste, højre = forrige) -->
   <div class="dag-meta">
     <span class="dag-navn" id="dag-navn"></span>
     <div style="text-align:right">
@@ -4598,7 +4599,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.10';
+const APP_VERSION = '2.11';
 
 // ── SPLASH ──
 (function(){
@@ -4636,6 +4637,13 @@ const APP_VERSION = '2.10';
 
 
 const CHANGELOG = {
+  '2.11': {
+    dato: '5. juli 2026',
+    nyt: [
+      '👆 NYT — Skift dag ved at stryge til siderne på dag-siden: stryg til venstre for næste dag, til højre for forrige. De to små ‹ › pile er fjernet, så toppen er renere og mere overskuelig.',
+      'Dagen glider blødt ind fra siden som visuel bekræftelse, og lodret scroll forstyrrer ikke gesten.',
+    ]
+  },
   '2.10': {
     dato: '19. juni 2026',
     nyt: [
@@ -5633,6 +5641,53 @@ function setupLongPress() {
   });
 }
 window.addEventListener('load', setupLongPress);
+
+// ── SWIPE: skift dag ved at stryge til siderne (erstatter ‹ › pilene) ──
+function dagSwipeAnim(dir) {
+  const el = document.getElementById('view-dag');
+  if (!el) return;
+  el.classList.remove('sw-next', 'sw-prev');
+  void el.offsetWidth; // reflow, så animationen kan genstarte
+  el.classList.add(dir > 0 ? 'sw-next' : 'sw-prev');
+}
+function setupDagSwipe() {
+  const el = document.getElementById('view-dag');
+  if (!el) return;
+  let x0 = 0, y0 = 0, t0 = 0, aktiv = false;
+  el.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) { aktiv = false; return; }
+    const t = e.touches[0];
+    x0 = t.clientX; y0 = t.clientY; t0 = Date.now(); aktiv = true;
+  }, { passive: true });
+  el.addEventListener('touchmove', e => {
+    if (!aktiv) return;
+    const t = e.touches[0];
+    // Lodret bevægelse (scroll) afbryder swipe-genkendelsen
+    if (Math.abs(t.clientY - y0) > 16 && Math.abs(t.clientY - y0) > Math.abs(t.clientX - x0)) aktiv = false;
+  }, { passive: true });
+  el.addEventListener('touchend', e => {
+    if (!aktiv) return; aktiv = false;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - x0, dy = t.clientY - y0, dt = Date.now() - t0;
+    if (dt < 700 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.8) {
+      const dir = dx < 0 ? 1 : -1; // stryg venstre = næste dag, højre = forrige
+      dagSwipeAnim(dir);
+      skiftDag(dir);
+      // Engangs-hint fjernes så snart brugeren har opdaget gesten
+      try { localStorage.setItem('hint-swipe-dag', '1'); } catch (e) {}
+    }
+  }, { passive: true });
+}
+window.addEventListener('load', setupDagSwipe);
+// Diskret engangs-hint: fortæl at man kan stryge til at skifte dag
+window.addEventListener('load', () => {
+  try { if (localStorage.getItem('hint-swipe-dag')) return; } catch (e) {}
+  setTimeout(() => {
+    try { if (localStorage.getItem('hint-swipe-dag')) return; } catch (e) {}
+    toast('← Stryg til siderne for at skifte dag →');
+  }, 1500);
+});
+
 // Luk forklaring ved Escape
 window.addEventListener('keydown', e => { if (e.key === 'Escape') lukForklaring(); });
 
