@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Time App — Reklame</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0C0C12;color:#fff;font-family:'Tahoma',sans-serif;font-weight:bold;overflow-x:hidden}
+
+/* ── HERO SEKTION ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 80%,rgba(124,106,247,.15),transparent 70%);pointer-events:none}
+.hero h1{font-size:48px;letter-spacing:-2px;margin-bottom:8px;z-index:1;position:relative}
+.hero h1 span{color:#7C6AF7}
+.hero .sub{font-size:18px;color:#888;margin-bottom:40px;z-index:1;position:relative;font-weight:normal}
+
+/* ── IPHONE MOCKUP ── */
+.phone-frame{width:280px;height:570px;border-radius:40px;border:4px solid #333;background:#000;position:relative;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:1;margin-bottom:40px}
+.phone-notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:28px;background:#000;border-radius:0 0 16px 16px;z-index:10}
+.phone-screen{width:100%;height:100%;overflow:hidden;position:relative}
+.phone-screen img{width:100%;position:absolute;top:0;left:0;animation:scrollApp 12s ease-in-out infinite}
+@keyframes scrollApp{
+  0%,15%{top:0}
+  40%,55%{top:-60%}
+  75%,90%{top:-120%}
+  100%{top:0}
+}
+
+/* ── FEATURES ── */
+.features{padding:60px 20px;max-width:500px;margin:0 auto}
+.feat{display:flex;align-items:flex-start;gap:16px;margin-bottom:32px;opacity:0;animation:fadeUp .6s ease forwards}
+.feat:nth-child(1){animation-delay:.2s}
+.feat:nth-child(2){animation-delay:.4s}
+.feat:nth-child(3){animation-delay:.6s}
+.feat:nth-child(4){animation-delay:.8s}
+.feat:nth-child(5){animation-delay:1s}
+.feat:nth-child(6){animation-delay:1.2s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.feat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.feat-icon.purple{background:rgba(124,106,247,.15);color:#7C6AF7}
+.feat-icon.green{background:rgba(74,222,128,.15);color:#4ade80}
+.feat-icon.orange{background:rgba(232,130,10,.15);color:#E8820A}
+.feat-icon.blue{background:rgba(55,138,221,.15);color:#378ADD}
+.feat-icon.red{background:rgba(248,113,113,.15);color:#f87171}
+.feat-icon.teal{background:rgba(29,158,117,.15);color:#1D9E75}
+.feat-ttl{font-size:16px;margin-bottom:2px}
+.feat-desc{font-size:13px;color:#888;font-weight:normal;line-height:1.5}
+
+/* ── CTA ── */
+.cta{text-align:center;padding:40px 20px 80px}
+.cta-btn{display:inline-block;background:#7C6AF7;color:#fff;padding:16px 40px;border-radius:50px;font-size:18px;font-weight:bold;text-decoration:none;letter-spacing:.5px}
+.cta-btn:hover{background:#6B5BD6}
+.cta-sub{font-size:13px;color:#555;margin-top:12px}
+
+/* ── STATS BAR ── */
+.stats-bar{display:flex;justify-content:center;gap:40px;padding:20px;margin-bottom:20px;z-index:1;position:relative}
+.sb-item{text-align:center}
+.sb-n{font-size:28px;color:#4ade80}
+.sb-l{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<div class="hero-bg"></div>
+<h1>TIME<span>·</span>APP</h1>
+<div class="sub">Lønberegning for filmteknikere</div>
+
+<div class="phone-frame">
+<div class="phone-notch"></div>
+<div class="phone-screen">
+<img src="reklame-fullscreen.png" alt="Time App screenshot">
+</div>
+</div>
+
+<div class="stats-bar">
+<div class="sb-item"><div class="sb-n">67+</div><div class="sb-l">Brugere</div></div>
+<div class="sb-item"><div class="sb-n">100%</div><div class="sb-l">Gratis</div></div>
+<div class="sb-item"><div class="sb-n">FAF</div><div class="sb-l">Overenskomst</div></div>
+</div>
+</div>
+
+<div class="features">
+<div class="feat">
+<div class="feat-icon purple">⏱</div>
+<div><div class="feat-ttl">Dag, Uge, Måned</div><div class="feat-desc">Registrer timer og se løn beregnet automatisk efter Fiktionsoverenskomsten 2025–2027.</div></div>
+</div>
+<div class="feat">
+<div class="feat-icon orange">⚡</div>
+<div><div class="feat-ttl">Varslet og uvarslet OT</div><div class="feat-desc">+50%/+60%/+135% varslet. +75%/+100%/+135% uvarslet. Mixed OT med split. Alt beregnet korrekt.</div></div>
+</div>
+<div class="feat">
+<div class="feat-icon green">📋</div>
+<div><div class="feat-ttl">PDF og mail med ét tryk</div><div class="feat-desc">Send ugeseddel med eller uden beløb direkte til produktionen. Timeoversigt uden løn til deling.</div></div>
+</div>
+<div class="feat">
+<div class="feat-icon blue">🌙</div>
+<div><div class="feat-ttl">Weekend, helligdag, forskudt</div><div class="feat-desc">§7 forskudt tid, §8 weekend/helligdag, §5 særtid (4-dages uge). Alt med korrekte tillæg.</div></div>
+</div>
+<div class="feat">
+<div class="feat-icon red">🔒</div>
+<div><div class="feat-ttl">Dine data er dine</div><div class="feat-desc">Alt gemmes lokalt på din telefon. Ingen konto, ingen login, ingen tracking. Virker offline.</div></div>
+</div>
+<div class="feat">
+<div class="feat-icon teal">🎬</div>
+<div><div class="feat-ttl">Flere produktioner</div><div class="feat-desc">Skift mellem produktioner med ét tryk. Hver produktion har sin egen løn, tillæg og data.</div></div>
+</div>
+</div>
+
+<div class="cta">
+<a class="cta-btn" href="https://time-app.dk">Prøv Time App gratis</a>
+<div class="cta-sub">Ingen download · Åbn i Safari eller Chrome · Læg på hjemmeskærm</div>
+</div>
+
+</body>
+</html>
