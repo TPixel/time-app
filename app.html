@@ -57,30 +57,34 @@ to{transform:scale(1);opacity:1}}
 .gear-btn:active{transform:scale(.88)}
 .gear-btn.on{border-color:var(--acc);background:var(--acc-d)}
 
-.view{display:none;padding:16px 16px 40px}
+.view{display:none;padding:12px 16px 24px}
 .view.on{display:block}
 
 /* ── DAG ── */
 .dag-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:22px}
 /* Produktionstitel-blok øverst, over chips (kun dag-visning) */
-.dag-ttl-top{padding:14px 16px 8px}
+.dag-ttl-top{padding:8px 16px 4px}
 /* dag-nav: egen række over datoen, små pile */
 .dag-nav{display:flex;gap:8px;flex-shrink:0;margin-bottom:14px}
-/* Swipe-feedback: dag glider ind fra siden når man stryger */
-#view-dag.sw-next{animation:dagSwNext .22s ease}
-#view-dag.sw-prev{animation:dagSwPrev .22s ease}
-@keyframes dagSwNext{from{transform:translateX(30px);opacity:.35}to{transform:none;opacity:1}}
-@keyframes dagSwPrev{from{transform:translateX(-30px);opacity:.35}to{transform:none;opacity:1}}
+/* Swipe-feedback: dag glider tydeligt ind fra siden — større bevægelse, roligere tempo */
+#view-dag.sw-next{animation:dagSwNext .42s cubic-bezier(.22,.61,.36,1)}
+#view-dag.sw-prev{animation:dagSwPrev .42s cubic-bezier(.22,.61,.36,1)}
+@keyframes dagSwNext{from{transform:translateX(85px);opacity:.15}45%{opacity:.6}to{transform:none;opacity:1}}
+@keyframes dagSwPrev{from{transform:translateX(-85px);opacity:.15}45%{opacity:.6}to{transform:none;opacity:1}}
+/* Retnings-pil der blinker kort ved swipe, så gesten er tydelig */
+.sw-arrow{position:fixed;top:50%;transform:translateY(-50%);font-size:64px;font-weight:bold;color:var(--acc);z-index:9000;pointer-events:none;opacity:0;text-shadow:0 2px 18px rgba(0,0,0,.6)}
+.sw-arrow.fire{animation:swArrow .5s ease}
+@keyframes swArrow{0%{opacity:0}25%{opacity:.95}100%{opacity:0}}
 .nbtn-s{width:30px;height:30px;font-size:15px;flex-shrink:0}
 .nbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .nbtn:active{transform:scale(.88)}
 .alle-prod-btn{width:auto;border-radius:20px;font-family:'Tahoma',monospace;font-weight:bold;color:var(--mut)}
 .alle-prod-btn.on{background:var(--acc);border-color:var(--acc);color:#000}
 /* Produktionstitel — stor øverst i .dag-hd (v1.78) */
-.dag-prod-ttl{font-family:'Tahoma',sans-serif;font-size:var(--dm-dag-prod,64px);font-weight:bold;letter-spacing:-.8px;color:var(--txt);background:none;border:none;padding:0;margin:0;cursor:default;display:block;flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}
+.dag-prod-ttl{font-family:'Tahoma',sans-serif;font-size:var(--dm-dag-prod,40px);font-weight:bold;letter-spacing:-.6px;color:var(--txt);background:none;border:none;padding:0;margin:0;cursor:default;display:block;flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.02}
 .dag-prod-ttl.anden-prod{color:var(--yel)}
 /* Dag + UGE-label på samme række (v1.78 — fit på iPhone-bredde uden overlap) */
-.dag-meta{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:nowrap;margin-bottom:18px;position:relative;overflow:hidden}
+.dag-meta{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:nowrap;margin-bottom:12px;position:relative;overflow:hidden}
 .dag-navn{font-family:'Tahoma',sans-serif;font-size:var(--dm-dag-navn,54px);font-weight:bold;letter-spacing:-.5px;line-height:1;flex-shrink:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dag-dato{font-family:'Tahoma',monospace;font-size:var(--dm-dag-dato,42px);color:#FFFFFF;font-weight:bold;letter-spacing:.5px;line-height:1;white-space:nowrap;flex-shrink:0}
 /* UGE 20 — lilla, placeret over dato til højre */
@@ -3075,6 +3079,7 @@ function rendDag() {
     const erAndenProd = s?.prodId && s.prodId !== aktivProdId;
     ttl.classList.toggle('anden-prod', !!erAndenProd);
     ttl.title = '';
+    fitProdTitle(ttl);
   }
   knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,r:false,e:false,d:false,varsletTimer:0, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, r:false, e:false, d:false, møde:0, varsletTimer:0 };
   tidStart = s?.tidStart || null;
@@ -4600,7 +4605,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.13';
+const APP_VERSION = '2.14';
 
 // ── SPLASH ──
 (function(){
@@ -4644,6 +4649,15 @@ const APP_VERSION = '2.13';
 
 
 const CHANGELOG = {
+  '2.14': {
+    dato: '9. juli 2026',
+    nyt: [
+      '🔠 Produktionstitlen tilpasser sig nu selv: korte navne vises stort, længere navne skrumper automatisk lige nok til at hele navnet altid kan være på én linje — intet bliver skåret over.',
+      '👆 Dag-swipe er gjort tydeligere og roligere: dagen glider længere og blødere ind fra siden, og en kort pil (‹ / ›) viser hvilken vej du skiftede.',
+      '📳 Haptisk feedback: appen giver nu et lille tik når du trykker på knapper og skifter dag (virker på Android; på iPhone afhænger det af Safari-versionen).',
+      '📏 Toppen af dag-siden er strammet, så flere knapper er synlige uden at scrolle.',
+    ]
+  },
   '2.13': {
     dato: '9. juli 2026',
     nyt: [
@@ -5655,13 +5669,77 @@ function setupLongPress() {
 }
 window.addEventListener('load', setupLongPress);
 
+// ── AUTO-TILPAS PRODUKTIONSTITEL — skalér font så navnet altid passer på én linje ──
+function fitProdTitle(el) {
+  if (!el) return;
+  const MAX = 40, MIN = 20;
+  el.style.fontSize = MAX + 'px';
+  // Bredde til rådighed (elementet er flex:1 i .dag-ttl-top med 16px padding hver side)
+  const avail = el.clientWidth;
+  if (!avail) return;
+  let fs = MAX;
+  // Skru ned indtil teksten passer inden for bredden (uden ellipsis)
+  while (fs > MIN && el.scrollWidth > avail) {
+    fs -= 1;
+    el.style.fontSize = fs + 'px';
+  }
+}
+window.addEventListener('resize', () => {
+  const el = document.getElementById('prod-pill');
+  if (el && el.offsetParent) fitProdTitle(el);
+});
+
+// ── HAPTIC FEEDBACK — lille vibration ved interaktion (undtagen tekstfelter) ──
+// iOS Safari understøtter IKKE navigator.vibrate; en skjult <label switch> giver
+// et diskret tik på nyere iOS. Android/PWA bruger navigator.vibrate direkte.
+let _hapSwitch = null;
+(function initHaptics(){
+  try {
+    const w = document.createElement('input');
+    w.type = 'checkbox'; w.setAttribute('switch', '');
+    w.style.cssText = 'position:absolute;opacity:0;pointer-events:none;width:0;height:0';
+    const l = document.createElement('label');
+    l.setAttribute('for', w.id = 'hap-switch');
+    l.style.cssText = 'position:absolute;opacity:0;pointer-events:none;width:0;height:0';
+    document.body.appendChild(w); document.body.appendChild(l);
+    _hapSwitch = l;
+  } catch(e) {}
+})();
+function hap(ms) {
+  ms = ms || 10;
+  try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e) {}
+  try { if (_hapSwitch) _hapSwitch.click(); } catch(e) {} // iOS best-effort
+}
+// Global: tik ved tryk på enhver knap/interaktiv flade — men ALDRIG i tekstfelter
+document.addEventListener('pointerdown', (e) => {
+  const t = e.target;
+  if (t.closest('input:not([type=checkbox]):not([type=radio]), textarea, [contenteditable="true"]')) return;
+  if (t.closest('button, .tab, .res, .tf-inline, .nbtn, .chip, .prod-sw-pill, .s-tog-btn, .tmodal-btn, .send-valg, .gear-btn, .alle-prod-btn, .daymode-btn, .aar-pill, .aar-mnd, .mnd-uge, [onclick]')) {
+    hap(9);
+  }
+}, true);
+
 // ── SWIPE: skift dag ved at stryge til siderne (erstatter ‹ › pilene) ──
+function swArrow(dir) {
+  let a = document.getElementById('sw-arrow');
+  if (!a) {
+    a = document.createElement('div');
+    a.id = 'sw-arrow'; a.className = 'sw-arrow';
+    document.body.appendChild(a);
+  }
+  a.textContent = dir > 0 ? '›' : '‹';
+  a.style.left = dir > 0 ? 'auto' : '14px';
+  a.style.right = dir > 0 ? '14px' : 'auto';
+  a.classList.remove('fire'); void a.offsetWidth; a.classList.add('fire');
+}
 function dagSwipeAnim(dir) {
   const el = document.getElementById('view-dag');
   if (!el) return;
   el.classList.remove('sw-next', 'sw-prev');
   void el.offsetWidth; // reflow, så animationen kan genstarte
   el.classList.add(dir > 0 ? 'sw-next' : 'sw-prev');
+  swArrow(dir);
+  hap(22); // tydeligt tik ved dagskift
 }
 function setupDagSwipe() {
   const el = document.getElementById('view-dag');
