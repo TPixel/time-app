@@ -787,9 +787,18 @@ textarea::placeholder{color:var(--mut)}
     </div>
   </div>
 
-  <div class="slbl">Note</div>
-  <div class="note-wrap">
-    <textarea id="i-note" placeholder="Location, bemærkninger…" rows="2"></textarea>
+  <!-- Foldbar Note-sektion (v2.16) — default lukket -->
+  <div class="ot-fold" id="note-fold">
+    <button class="ot-fold-hd" id="note-fold-hd" type="button" onclick="togNoteFold()">
+      <span class="slbl" style="margin:0">Note</span>
+      <span class="ot-fold-sum" id="note-fold-sum"></span>
+      <span class="ot-fold-chev">▾</span>
+    </button>
+    <div class="ot-fold-body">
+      <div class="note-wrap" style="margin-bottom:0">
+        <textarea id="i-note" placeholder="Location, bemærkninger…" rows="2"></textarea>
+      </div>
+    </div>
   </div>
 
   <button class="gem-btn" id="gem-btn" onclick="gemDag()">GEM DAG →</button>
@@ -3134,6 +3143,7 @@ function rendDag() {
     tidSlut = { h, m };
   }
   document.getElementById('i-note').value = s?.note || '';
+  opdaterNoteResume();
   document.getElementById('dag-actions').style.display = s ? 'grid' : 'none';
   // Vis gem-status
   const gs = document.getElementById('dag-gem-status');
@@ -4644,7 +4654,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.15';
+const APP_VERSION = '2.16';
 
 // ── SPLASH ──
 (function(){
@@ -4688,6 +4698,12 @@ const APP_VERSION = '2.15';
 
 
 const CHANGELOG = {
+  '2.16': {
+    dato: '9. juli 2026',
+    nyt: [
+      '📝 Note-feltet er nu også foldbart (lukket som standard). Er der skrevet en note, vises et kort udpluk i overskriften — fold ud for at skrive eller rette.',
+    ]
+  },
   '2.15': {
     dato: '9. juli 2026',
     nyt: [
@@ -5776,7 +5792,29 @@ function togOtFold() {
   otFoldOpen = !otFoldOpen;
   syncOtFold();
 }
-window.addEventListener('load', syncOtFold);
+// Foldbar Note-sektion
+let noteFoldOpen = false;
+function syncNoteFold() {
+  const f = document.getElementById('note-fold');
+  if (f) f.classList.toggle('open', noteFoldOpen);
+}
+function togNoteFold() {
+  noteFoldOpen = !noteFoldOpen;
+  syncNoteFold();
+  // Fokusér automatisk i notefeltet når man folder ud
+  if (noteFoldOpen) setTimeout(() => { try { document.getElementById('i-note').focus(); } catch(e){} }, 80);
+}
+function opdaterNoteResume() {
+  const el = document.getElementById('note-fold-sum');
+  if (!el) return;
+  const v = (document.getElementById('i-note')?.value || '').trim().replace(/\s+/g, ' ');
+  el.textContent = v ? (v.length > 34 ? v.slice(0, 34) + '…' : v) : '';
+}
+window.addEventListener('load', () => {
+  syncOtFold(); syncNoteFold();
+  const ni = document.getElementById('i-note');
+  if (ni) ni.addEventListener('input', opdaterNoteResume);
+});
 
 // ── SWIPE: skift dag ved at stryge til siderne (erstatter ‹ › pilene) ──
 function swArrow(dir) {
