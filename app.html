@@ -183,6 +183,19 @@ to{transform:scale(1);opacity:1}}
 .slbl{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:2.2px;color:var(--mut);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .oe{font-size:11px;font-weight:700;padding:3px 7px;border-radius:4px;background:var(--acc-d);color:var(--acc);text-transform:uppercase;letter-spacing:1px}
 .bgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
+/* ── Foldbar OT-sektion (v2.15) ── */
+.ot-fold{border:1.5px solid rgba(129,140,248,.18);border-radius:var(--r);margin-bottom:10px;background:rgba(129,140,248,.03);transition:border-color .25s,background .25s}
+.ot-fold.har-ot{border-color:#F0A500;border-width:2.5px;background:linear-gradient(135deg,#241500,#2c1a00);animation:advarsel-puls 1.8s ease-in-out infinite}
+.ot-fold-hd{width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;padding:14px 15px;cursor:pointer;text-align:left}
+.ot-fold-hd .slbl{margin:0;flex-shrink:0}
+.ot-fold-sum{font-size:12px;color:var(--acc);font-weight:700;letter-spacing:.2px;margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}
+.ot-fold.har-ot .ot-fold-sum{color:#FFC44A}
+.ot-fold.open .ot-fold-sum{display:none}
+.ot-fold-chev{font-size:16px;color:var(--mut);flex-shrink:0;margin-left:auto;transition:transform .25s}
+.ot-fold.open .ot-fold-chev{margin-left:10px;transform:rotate(180deg)}
+.ot-fold-body{display:none;padding:0 15px 14px}
+.ot-fold.open .ot-fold-body{display:block;animation:otFoldIn .24s ease}
+@keyframes otFoldIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
 
 .xb{
   padding:16px 6px;
@@ -732,37 +745,46 @@ textarea::placeholder{color:var(--mut)}
   <div class="saertid-badge" id="saertid-badge" style="display:none"></div>
   <div class="wk-auto-badge" id="wk-auto-badge">🔵 Weekend-periode §8 auto-beregnet — fre 20:00 – man 06:00</div>
 
-  <div class="slbl">Overarbejde + Tillæg <span class="oe">§6 §7 §8 §12</span></div>
-  <!-- 3×3 grid v1.78: Kun titler — detaljer via long-press -->
-  <div class="bgrid" style="margin-bottom:7px">
-    <div class="ot-wrap" style="grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:7px;position:relative">
-      <button class="xb" id="bn-v" onclick="tog('v')">Varslet OT</button>
-      <button class="xb" id="bn-u" onclick="tog('u')">Uvarslet OT</button>
-      <div id="mixed-ot-row" class="mixed-ot-overlay" style="display:none">
-        <div class="mixed-ot-q-big">⚡ Hvor mange OT-timer var varslet?</div>
-        <div class="mixed-ot-grid">
-          <button class="xb mxb" id="vt-0" onclick="setVarsletTimer(0)">0</button>
-          <button class="xb mxb" id="vt-0.5" onclick="setVarsletTimer(0.5)">30M</button>
-          <button class="xb mxb" id="vt-1" onclick="setVarsletTimer(1)">1T</button>
-          <button class="xb mxb" id="vt-1.5" onclick="setVarsletTimer(1.5)">1½T</button>
-          <button class="xb mxb" id="vt-2" onclick="setVarsletTimer(2)">2T</button>
+  <!-- Foldbar OT-sektion (v2.15) — default lukket, gul kant når der er overtid -->
+  <div class="ot-fold" id="ot-fold">
+    <button class="ot-fold-hd" id="ot-fold-hd" type="button" onclick="togOtFold()">
+      <span class="slbl" style="margin:0">Overarbejde + Tillæg <span class="oe">§6 §7 §8 §12</span></span>
+      <span class="ot-fold-sum" id="ot-fold-sum"></span>
+      <span class="ot-fold-chev" id="ot-fold-chev">▾</span>
+    </button>
+    <div class="ot-fold-body" id="ot-fold-body">
+      <!-- 3×3 grid v1.78: Kun titler — detaljer via long-press -->
+      <div class="bgrid" style="margin-bottom:7px">
+        <div class="ot-wrap" style="grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:7px;position:relative">
+          <button class="xb" id="bn-v" onclick="tog('v')">Varslet OT</button>
+          <button class="xb" id="bn-u" onclick="tog('u')">Uvarslet OT</button>
+          <div id="mixed-ot-row" class="mixed-ot-overlay" style="display:none">
+            <div class="mixed-ot-q-big">⚡ Hvor mange OT-timer var varslet?</div>
+            <div class="mixed-ot-grid">
+              <button class="xb mxb" id="vt-0" onclick="setVarsletTimer(0)">0</button>
+              <button class="xb mxb" id="vt-0.5" onclick="setVarsletTimer(0.5)">30M</button>
+              <button class="xb mxb" id="vt-1" onclick="setVarsletTimer(1)">1T</button>
+              <button class="xb mxb" id="vt-1.5" onclick="setVarsletTimer(1.5)">1½T</button>
+              <button class="xb mxb" id="vt-2" onclick="setVarsletTimer(2)">2T</button>
+            </div>
+          </div>
         </div>
+        <button class="xb" id="bn-p" onclick="tog('p')">Ingen pause</button>
+      </div>
+      <div id="mixed-ot-summary" class="mixed-ot-summary" style="display:none" onclick="åbnMixedOt()">
+        <span>⚡ <span id="mixed-ot-summary-txt">Mixed OT</span></span>
+        <span class="mhint">▾ Tryk for at ændre</span>
+      </div>
+      <!-- Række 2 + 3: 6 resterende knapper -->
+      <div class="bgrid" style="margin-top:0;margin-bottom:0">
+        <button class="xb" id="bn-f" onclick="tog('f')">Sen frokost</button>
+        <button class="xb" id="bn-d" onclick="tog('d')">Diæt</button>
+        <button class="xb" id="bn-møde" onclick="mødeClick()"><span id="møde-ttl">Møde</span></button>
+        <button class="xb" id="bn-r" onclick="tog('r')">Kørsel</button>
+        <button class="xb" id="bn-h" onclick="tog('h')">Helligdag</button>
+        <button class="xb" id="bn-e" onclick="tog('e')">10% enkeltdag</button>
       </div>
     </div>
-    <button class="xb" id="bn-p" onclick="tog('p')">Ingen pause</button>
-  </div>
-  <div id="mixed-ot-summary" class="mixed-ot-summary" style="display:none" onclick="åbnMixedOt()">
-    <span>⚡ <span id="mixed-ot-summary-txt">Mixed OT</span></span>
-    <span class="mhint">▾ Tryk for at ændre</span>
-  </div>
-  <!-- Række 2 + 3: 6 resterende knapper -->
-  <div class="bgrid" style="margin-top:0">
-    <button class="xb" id="bn-f" onclick="tog('f')">Sen frokost</button>
-    <button class="xb" id="bn-d" onclick="tog('d')">Diæt</button>
-    <button class="xb" id="bn-møde" onclick="mødeClick()"><span id="møde-ttl">Møde</span></button>
-    <button class="xb" id="bn-r" onclick="tog('r')">Kørsel</button>
-    <button class="xb" id="bn-h" onclick="tog('h')">Helligdag</button>
-    <button class="xb" id="bn-e" onclick="tog('e')">10% enkeltdag</button>
   </div>
 
   <div class="slbl">Note</div>
@@ -2360,6 +2382,23 @@ function beregn() {
   // Farv res-boks gul/orange når OT er sket men type ikke valgt
   const resBoks = document.getElementById('res-boks');
   if (resBoks) resBoks.classList.toggle('res-advarsel', ingenType);
+  // Foldbar OT-sektion: gul kant når der er overtid + kort resumé af aktive valg
+  const otFold = document.getElementById('ot-fold');
+  if (otFold) otFold.classList.toggle('har-ot', harOT);
+  const otSum = document.getElementById('ot-fold-sum');
+  if (otSum) {
+    const parts = [];
+    if (knapper.v) parts.push('Varslet OT');
+    if (knapper.u) parts.push('Uvarslet OT');
+    if (knapper.p) parts.push('Ingen pause');
+    if (knapper.f) parts.push('Sen frokost');
+    if (knapper.d) parts.push('Diæt');
+    if (knapper.møde) parts.push('Møde');
+    if (knapper.r) parts.push('Kørsel');
+    if (knapper.h) parts.push('Helligdag');
+    if (knapper.e) parts.push('10%');
+    otSum.textContent = parts.join(' · ');
+  }
   // Opdater pay-label med advarsel tekst
   if (payLbl) payLbl.textContent = ingenType ? '⚠ Vælg Varslet / Uvarslet' : (erManuel ? 'Manuel dagssats ✎' : 'Dagsløn');
   if (payLbl) payLbl.style.color = ingenType ? '#F0A500' : '';
@@ -4605,7 +4644,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.14';
+const APP_VERSION = '2.15';
 
 // ── SPLASH ──
 (function(){
@@ -4649,6 +4688,14 @@ const APP_VERSION = '2.14';
 
 
 const CHANGELOG = {
+  '2.15': {
+    dato: '9. juli 2026',
+    nyt: [
+      '📂 OVERARBEJDE + TILLÆG er nu en foldbar sektion (lukket som standard), så dag-siden er kortere og mere overskuelig — tryk på overskriften for at folde ud.',
+      '🟡 Når der er overtid på dagen får sektionen en gul kant (samme signal som tidsboksen), så du kan se det med det samme — også når den er foldet sammen.',
+      '👀 Når sektionen er foldet sammen, viser overskriften et kort resumé af de valg der er aktive (fx "Varslet OT · Diæt").',
+    ]
+  },
   '2.14': {
     dato: '9. juli 2026',
     nyt: [
@@ -5718,6 +5765,18 @@ document.addEventListener('pointerdown', (e) => {
     hap(9);
   }
 }, true);
+
+// ── FOLDBAR OT-SEKTION (v2.15) — default lukket ──
+let otFoldOpen = false;
+function syncOtFold() {
+  const f = document.getElementById('ot-fold');
+  if (f) f.classList.toggle('open', otFoldOpen);
+}
+function togOtFold() {
+  otFoldOpen = !otFoldOpen;
+  syncOtFold();
+}
+window.addEventListener('load', syncOtFold);
 
 // ── SWIPE: skift dag ved at stryge til siderne (erstatter ‹ › pilene) ──
 function swArrow(dir) {
