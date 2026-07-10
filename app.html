@@ -57,47 +57,30 @@ to{transform:scale(1);opacity:1}}
 .gear-btn:active{transform:scale(.88)}
 .gear-btn.on{border-color:var(--acc);background:var(--acc-d)}
 
-.view{display:none;padding:12px 16px 24px}
+.view{display:none;padding:16px 16px 40px}
 .view.on{display:block}
-/* ── DAG-VISNING LÅST: ingen scroll — alt fylder skærmen, folde åbner ind i den ledige plads (v2.17) ── */
-body.dag-lock{height:100dvh;overflow:hidden;display:flex;flex-direction:column}
-body.dag-lock > .topbar,
-body.dag-lock > .dag-ttl-top,
-body.dag-lock > .prod-sw-bar{flex:0 0 auto}
-body.dag-lock #view-dag{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding-bottom:14px}
-body.dag-lock #view-dag > *{flex:0 0 auto}
-body.dag-lock #view-dag .dag-flex-spacer{flex:1 1 auto;min-height:6px}
-/* En åben fold fylder den ledige plads; kun hvis dagen er helt fuld scroller foldens eget indhold */
-body.dag-lock #view-dag .ot-fold.open{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
-body.dag-lock #view-dag .ot-fold.open .ot-fold-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-/* Når en fold er åben er den flydende spacer overflødig */
-body.dag-lock #view-dag.has-open-fold .dag-flex-spacer{flex:0 0 0;min-height:0}
 
 /* ── DAG ── */
 .dag-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:22px}
 /* Produktionstitel-blok øverst, over chips (kun dag-visning) */
-.dag-ttl-top{padding:8px 16px 4px}
+.dag-ttl-top{padding:14px 16px 8px}
 /* dag-nav: egen række over datoen, små pile */
 .dag-nav{display:flex;gap:8px;flex-shrink:0;margin-bottom:14px}
-/* Swipe-feedback: dag glider tydeligt ind fra siden — større bevægelse, roligere tempo */
-#view-dag.sw-next{animation:dagSwNext .42s cubic-bezier(.22,.61,.36,1)}
-#view-dag.sw-prev{animation:dagSwPrev .42s cubic-bezier(.22,.61,.36,1)}
-@keyframes dagSwNext{from{transform:translateX(85px);opacity:.15}45%{opacity:.6}to{transform:none;opacity:1}}
-@keyframes dagSwPrev{from{transform:translateX(-85px);opacity:.15}45%{opacity:.6}to{transform:none;opacity:1}}
-/* Retnings-pil der blinker kort ved swipe, så gesten er tydelig */
-.sw-arrow{position:fixed;top:50%;transform:translateY(-50%);font-size:64px;font-weight:bold;color:var(--acc);z-index:9000;pointer-events:none;opacity:0;text-shadow:0 2px 18px rgba(0,0,0,.6)}
-.sw-arrow.fire{animation:swArrow .5s ease}
-@keyframes swArrow{0%{opacity:0}25%{opacity:.95}100%{opacity:0}}
+/* Swipe-feedback: dag glider ind fra siden når man stryger */
+#view-dag.sw-next{animation:dagSwNext .22s ease}
+#view-dag.sw-prev{animation:dagSwPrev .22s ease}
+@keyframes dagSwNext{from{transform:translateX(30px);opacity:.35}to{transform:none;opacity:1}}
+@keyframes dagSwPrev{from{transform:translateX(-30px);opacity:.35}to{transform:none;opacity:1}}
 .nbtn-s{width:30px;height:30px;font-size:15px;flex-shrink:0}
 .nbtn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--brd);background:var(--surf);color:var(--txt);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .nbtn:active{transform:scale(.88)}
 .alle-prod-btn{width:auto;border-radius:20px;font-family:'Tahoma',monospace;font-weight:bold;color:var(--mut)}
 .alle-prod-btn.on{background:var(--acc);border-color:var(--acc);color:#000}
 /* Produktionstitel — stor øverst i .dag-hd (v1.78) */
-.dag-prod-ttl{font-family:'Tahoma',sans-serif;font-size:var(--dm-dag-prod,40px);font-weight:bold;letter-spacing:-.6px;color:var(--txt);background:none;border:none;padding:0;margin:0;cursor:default;display:block;flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.02}
+.dag-prod-ttl{font-family:'Tahoma',sans-serif;font-size:var(--dm-dag-prod,64px);font-weight:bold;letter-spacing:-.8px;color:var(--txt);background:none;border:none;padding:0;margin:0;cursor:default;display:block;flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1}
 .dag-prod-ttl.anden-prod{color:var(--yel)}
 /* Dag + UGE-label på samme række (v1.78 — fit på iPhone-bredde uden overlap) */
-.dag-meta{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:nowrap;margin-bottom:12px;position:relative;overflow:hidden}
+.dag-meta{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:nowrap;margin-bottom:18px;position:relative;overflow:hidden}
 .dag-navn{font-family:'Tahoma',sans-serif;font-size:var(--dm-dag-navn,54px);font-weight:bold;letter-spacing:-.5px;line-height:1;flex-shrink:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dag-dato{font-family:'Tahoma',monospace;font-size:var(--dm-dag-dato,42px);color:#FFFFFF;font-weight:bold;letter-spacing:.5px;line-height:1;white-space:nowrap;flex-shrink:0}
 /* UGE 20 — lilla, placeret over dato til højre */
@@ -196,19 +179,6 @@ body.dag-lock #view-dag.has-open-fold .dag-flex-spacer{flex:0 0 0;min-height:0}
 .slbl{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:2.2px;color:var(--mut);margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .oe{font-size:11px;font-weight:700;padding:3px 7px;border-radius:4px;background:var(--acc-d);color:var(--acc);text-transform:uppercase;letter-spacing:1px}
 .bgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
-/* ── Foldbar OT-sektion (v2.15) ── */
-.ot-fold{border:1.5px solid rgba(129,140,248,.18);border-radius:var(--r);margin-bottom:10px;background:rgba(129,140,248,.03);transition:border-color .25s,background .25s}
-.ot-fold.har-ot{border-color:#F0A500;border-width:2.5px;background:linear-gradient(135deg,#241500,#2c1a00);animation:advarsel-puls 1.8s ease-in-out infinite}
-.ot-fold-hd{width:100%;display:flex;align-items:center;gap:10px;background:none;border:none;padding:14px 15px;cursor:pointer;text-align:left}
-.ot-fold-hd .slbl{margin:0;flex-shrink:0}
-.ot-fold-sum{font-size:12px;color:var(--acc);font-weight:700;letter-spacing:.2px;margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:42vw}
-.ot-fold.har-ot .ot-fold-sum{color:#FFC44A}
-.ot-fold.open .ot-fold-sum{display:none}
-.ot-fold-chev{font-size:16px;color:var(--mut);flex-shrink:0;margin-left:auto;transition:transform .25s}
-.ot-fold.open .ot-fold-chev{margin-left:10px;transform:rotate(180deg)}
-.ot-fold-body{display:none;padding:0 15px 14px}
-.ot-fold.open .ot-fold-body{display:block;animation:otFoldIn .24s ease}
-@keyframes otFoldIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
 
 .xb{
   padding:16px 6px;
@@ -758,63 +728,43 @@ textarea::placeholder{color:var(--mut)}
   <div class="saertid-badge" id="saertid-badge" style="display:none"></div>
   <div class="wk-auto-badge" id="wk-auto-badge">🔵 Weekend-periode §8 auto-beregnet — fre 20:00 – man 06:00</div>
 
-  <!-- Foldbar OT-sektion (v2.15) — default lukket, gul kant når der er overtid -->
-  <div class="ot-fold" id="ot-fold">
-    <button class="ot-fold-hd" id="ot-fold-hd" type="button" onclick="togOtFold()">
-      <span class="slbl" style="margin:0">Overarbejde + Tillæg <span class="oe">§6 §7 §8 §12</span></span>
-      <span class="ot-fold-sum" id="ot-fold-sum"></span>
-      <span class="ot-fold-chev" id="ot-fold-chev">▾</span>
-    </button>
-    <div class="ot-fold-body" id="ot-fold-body">
-      <!-- 3×3 grid v1.78: Kun titler — detaljer via long-press -->
-      <div class="bgrid" style="margin-bottom:7px">
-        <div class="ot-wrap" style="grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:7px;position:relative">
-          <button class="xb" id="bn-v" onclick="tog('v')">Varslet OT</button>
-          <button class="xb" id="bn-u" onclick="tog('u')">Uvarslet OT</button>
-          <div id="mixed-ot-row" class="mixed-ot-overlay" style="display:none">
-            <div class="mixed-ot-q-big">⚡ Hvor mange OT-timer var varslet?</div>
-            <div class="mixed-ot-grid">
-              <button class="xb mxb" id="vt-0" onclick="setVarsletTimer(0)">0</button>
-              <button class="xb mxb" id="vt-0.5" onclick="setVarsletTimer(0.5)">30M</button>
-              <button class="xb mxb" id="vt-1" onclick="setVarsletTimer(1)">1T</button>
-              <button class="xb mxb" id="vt-1.5" onclick="setVarsletTimer(1.5)">1½T</button>
-              <button class="xb mxb" id="vt-2" onclick="setVarsletTimer(2)">2T</button>
-            </div>
-          </div>
+  <div class="slbl">Overarbejde + Tillæg <span class="oe">§6 §7 §8 §12</span></div>
+  <!-- 3×3 grid v1.78: Kun titler — detaljer via long-press -->
+  <div class="bgrid" style="margin-bottom:7px">
+    <div class="ot-wrap" style="grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:7px;position:relative">
+      <button class="xb" id="bn-v" onclick="tog('v')">Varslet OT</button>
+      <button class="xb" id="bn-u" onclick="tog('u')">Uvarslet OT</button>
+      <div id="mixed-ot-row" class="mixed-ot-overlay" style="display:none">
+        <div class="mixed-ot-q-big">⚡ Hvor mange OT-timer var varslet?</div>
+        <div class="mixed-ot-grid">
+          <button class="xb mxb" id="vt-0" onclick="setVarsletTimer(0)">0</button>
+          <button class="xb mxb" id="vt-0.5" onclick="setVarsletTimer(0.5)">30M</button>
+          <button class="xb mxb" id="vt-1" onclick="setVarsletTimer(1)">1T</button>
+          <button class="xb mxb" id="vt-1.5" onclick="setVarsletTimer(1.5)">1½T</button>
+          <button class="xb mxb" id="vt-2" onclick="setVarsletTimer(2)">2T</button>
         </div>
-        <button class="xb" id="bn-p" onclick="tog('p')">Ingen pause</button>
-      </div>
-      <div id="mixed-ot-summary" class="mixed-ot-summary" style="display:none" onclick="åbnMixedOt()">
-        <span>⚡ <span id="mixed-ot-summary-txt">Mixed OT</span></span>
-        <span class="mhint">▾ Tryk for at ændre</span>
-      </div>
-      <!-- Række 2 + 3: 6 resterende knapper -->
-      <div class="bgrid" style="margin-top:0;margin-bottom:0">
-        <button class="xb" id="bn-f" onclick="tog('f')">Sen frokost</button>
-        <button class="xb" id="bn-d" onclick="tog('d')">Diæt</button>
-        <button class="xb" id="bn-møde" onclick="mødeClick()"><span id="møde-ttl">Møde</span></button>
-        <button class="xb" id="bn-r" onclick="tog('r')">Kørsel</button>
-        <button class="xb" id="bn-h" onclick="tog('h')">Helligdag</button>
-        <button class="xb" id="bn-e" onclick="tog('e')">10% enkeltdag</button>
       </div>
     </div>
+    <button class="xb" id="bn-p" onclick="tog('p')">Ingen pause</button>
+  </div>
+  <div id="mixed-ot-summary" class="mixed-ot-summary" style="display:none" onclick="åbnMixedOt()">
+    <span>⚡ <span id="mixed-ot-summary-txt">Mixed OT</span></span>
+    <span class="mhint">▾ Tryk for at ændre</span>
+  </div>
+  <!-- Række 2 + 3: 6 resterende knapper -->
+  <div class="bgrid" style="margin-top:0">
+    <button class="xb" id="bn-f" onclick="tog('f')">Sen frokost</button>
+    <button class="xb" id="bn-d" onclick="tog('d')">Diæt</button>
+    <button class="xb" id="bn-møde" onclick="mødeClick()"><span id="møde-ttl">Møde</span></button>
+    <button class="xb" id="bn-r" onclick="tog('r')">Kørsel</button>
+    <button class="xb" id="bn-h" onclick="tog('h')">Helligdag</button>
+    <button class="xb" id="bn-e" onclick="tog('e')">10% enkeltdag</button>
   </div>
 
-  <!-- Foldbar Note-sektion (v2.16) — default lukket -->
-  <div class="ot-fold" id="note-fold">
-    <button class="ot-fold-hd" id="note-fold-hd" type="button" onclick="togNoteFold()">
-      <span class="slbl" style="margin:0">Note</span>
-      <span class="ot-fold-sum" id="note-fold-sum"></span>
-      <span class="ot-fold-chev">▾</span>
-    </button>
-    <div class="ot-fold-body">
-      <div class="note-wrap" style="margin-bottom:0">
-        <textarea id="i-note" placeholder="Location, bemærkninger…" rows="2"></textarea>
-      </div>
-    </div>
+  <div class="slbl">Note</div>
+  <div class="note-wrap">
+    <textarea id="i-note" placeholder="Location, bemærkninger…" rows="2"></textarea>
   </div>
-
-  <div class="dag-flex-spacer" aria-hidden="true"></div>
 
   <button class="gem-btn" id="gem-btn" onclick="gemDag()">GEM DAG →</button>
 
@@ -2406,23 +2356,6 @@ function beregn() {
   // Farv res-boks gul/orange når OT er sket men type ikke valgt
   const resBoks = document.getElementById('res-boks');
   if (resBoks) resBoks.classList.toggle('res-advarsel', ingenType);
-  // Foldbar OT-sektion: gul kant når der er overtid + kort resumé af aktive valg
-  const otFold = document.getElementById('ot-fold');
-  if (otFold) otFold.classList.toggle('har-ot', harOT);
-  const otSum = document.getElementById('ot-fold-sum');
-  if (otSum) {
-    const parts = [];
-    if (knapper.v) parts.push('Varslet OT');
-    if (knapper.u) parts.push('Uvarslet OT');
-    if (knapper.p) parts.push('Ingen pause');
-    if (knapper.f) parts.push('Sen frokost');
-    if (knapper.d) parts.push('Diæt');
-    if (knapper.møde) parts.push('Møde');
-    if (knapper.r) parts.push('Kørsel');
-    if (knapper.h) parts.push('Helligdag');
-    if (knapper.e) parts.push('10%');
-    otSum.textContent = parts.join(' · ');
-  }
   // Opdater pay-label med advarsel tekst
   if (payLbl) payLbl.textContent = ingenType ? '⚠ Vælg Varslet / Uvarslet' : (erManuel ? 'Manuel dagssats ✎' : 'Dagsløn');
   if (payLbl) payLbl.style.color = ingenType ? '#F0A500' : '';
@@ -3142,7 +3075,6 @@ function rendDag() {
     const erAndenProd = s?.prodId && s.prodId !== aktivProdId;
     ttl.classList.toggle('anden-prod', !!erAndenProd);
     ttl.title = '';
-    fitProdTitle(ttl);
   }
   knapper  = s?.knapper ? { v:false,u:false,f:false,p:false,h:false,r:false,e:false,d:false,varsletTimer:0, ...s.knapper } : { v:false, u:false, f:false, p:false, h:false, r:false, e:false, d:false, møde:0, varsletTimer:0 };
   tidStart = s?.tidStart || null;
@@ -3158,7 +3090,6 @@ function rendDag() {
     tidSlut = { h, m };
   }
   document.getElementById('i-note').value = s?.note || '';
-  opdaterNoteResume();
   document.getElementById('dag-actions').style.display = s ? 'grid' : 'none';
   // Vis gem-status
   const gs = document.getElementById('dag-gem-status');
@@ -4559,8 +4490,6 @@ function visView(navn) {
   document.getElementById('gear-btn')?.classList.toggle('on', navn === 'inst');
   // Produktionstitel-blok kun i dag-visning
   document.getElementById('dag-ttl-top')?.style.setProperty('display', navn === 'dag' ? 'block' : 'none');
-  // Lås scroll i dag-visning — alt fylder skærmen, ingen scroll op/ned
-  document.body.classList.toggle('dag-lock', navn === 'dag');
   if (navn === 'uge') rendUge();
   if (navn === 'dag') rendDag();
   if (navn === 'mnd') rendMaaned();
@@ -4671,7 +4600,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.17';
+const APP_VERSION = '2.13';
 
 // ── SPLASH ──
 (function(){
@@ -4715,37 +4644,6 @@ const APP_VERSION = '2.17';
 
 
 const CHANGELOG = {
-  '2.17': {
-    dato: '10. juli 2026',
-    nyt: [
-      '🔒 Dag-siden er nu låst til skærmen — der kan ikke længere scrolles op eller ned. Alt sidder fast på plads.',
-      '📂 Når du folder OVERARBEJDE + TILLÆG eller NOTE ud, åbner de sig ind i den ledige plads på siden i stedet for at gøre siden længere.',
-      '🔁 Der er kun én fold åben ad gangen: åbner du den ene, lukker den anden automatisk — så alt altid kan være på skærmen.',
-    ]
-  },
-  '2.16': {
-    dato: '9. juli 2026',
-    nyt: [
-      '📝 Note-feltet er nu også foldbart (lukket som standard). Er der skrevet en note, vises et kort udpluk i overskriften — fold ud for at skrive eller rette.',
-    ]
-  },
-  '2.15': {
-    dato: '9. juli 2026',
-    nyt: [
-      '📂 OVERARBEJDE + TILLÆG er nu en foldbar sektion (lukket som standard), så dag-siden er kortere og mere overskuelig — tryk på overskriften for at folde ud.',
-      '🟡 Når der er overtid på dagen får sektionen en gul kant (samme signal som tidsboksen), så du kan se det med det samme — også når den er foldet sammen.',
-      '👀 Når sektionen er foldet sammen, viser overskriften et kort resumé af de valg der er aktive (fx "Varslet OT · Diæt").',
-    ]
-  },
-  '2.14': {
-    dato: '9. juli 2026',
-    nyt: [
-      '🔠 Produktionstitlen tilpasser sig nu selv: korte navne vises stort, længere navne skrumper automatisk lige nok til at hele navnet altid kan være på én linje — intet bliver skåret over.',
-      '👆 Dag-swipe er gjort tydeligere og roligere: dagen glider længere og blødere ind fra siden, og en kort pil (‹ / ›) viser hvilken vej du skiftede.',
-      '📳 Haptisk feedback: appen giver nu et lille tik når du trykker på knapper og skifter dag (virker på Android; på iPhone afhænger det af Safari-versionen).',
-      '📏 Toppen af dag-siden er strammet, så flere knapper er synlige uden at scrolle.',
-    ]
-  },
   '2.13': {
     dato: '9. juli 2026',
     nyt: [
@@ -5757,119 +5655,13 @@ function setupLongPress() {
 }
 window.addEventListener('load', setupLongPress);
 
-// ── AUTO-TILPAS PRODUKTIONSTITEL — skalér font så navnet altid passer på én linje ──
-function fitProdTitle(el) {
-  if (!el) return;
-  const MAX = 40, MIN = 20;
-  el.style.fontSize = MAX + 'px';
-  // Bredde til rådighed (elementet er flex:1 i .dag-ttl-top med 16px padding hver side)
-  const avail = el.clientWidth;
-  if (!avail) return;
-  let fs = MAX;
-  // Skru ned indtil teksten passer inden for bredden (uden ellipsis)
-  while (fs > MIN && el.scrollWidth > avail) {
-    fs -= 1;
-    el.style.fontSize = fs + 'px';
-  }
-}
-window.addEventListener('resize', () => {
-  const el = document.getElementById('prod-pill');
-  if (el && el.offsetParent) fitProdTitle(el);
-});
-
-// ── HAPTIC FEEDBACK — lille vibration ved interaktion (undtagen tekstfelter) ──
-// iOS Safari understøtter IKKE navigator.vibrate; en skjult <label switch> giver
-// et diskret tik på nyere iOS. Android/PWA bruger navigator.vibrate direkte.
-let _hapSwitch = null;
-(function initHaptics(){
-  try {
-    const w = document.createElement('input');
-    w.type = 'checkbox'; w.setAttribute('switch', '');
-    w.style.cssText = 'position:absolute;opacity:0;pointer-events:none;width:0;height:0';
-    const l = document.createElement('label');
-    l.setAttribute('for', w.id = 'hap-switch');
-    l.style.cssText = 'position:absolute;opacity:0;pointer-events:none;width:0;height:0';
-    document.body.appendChild(w); document.body.appendChild(l);
-    _hapSwitch = l;
-  } catch(e) {}
-})();
-function hap(ms) {
-  ms = ms || 10;
-  try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e) {}
-  try { if (_hapSwitch) _hapSwitch.click(); } catch(e) {} // iOS best-effort
-}
-// Global: tik ved tryk på enhver knap/interaktiv flade — men ALDRIG i tekstfelter
-document.addEventListener('pointerdown', (e) => {
-  const t = e.target;
-  if (t.closest('input:not([type=checkbox]):not([type=radio]), textarea, [contenteditable="true"]')) return;
-  if (t.closest('button, .tab, .res, .tf-inline, .nbtn, .chip, .prod-sw-pill, .s-tog-btn, .tmodal-btn, .send-valg, .gear-btn, .alle-prod-btn, .daymode-btn, .aar-pill, .aar-mnd, .mnd-uge, [onclick]')) {
-    hap(9);
-  }
-}, true);
-
-// ── FOLDBARE SEKTIONER (v2.15+) — default lukket, kun én åben ad gangen (accordion) ──
-let otFoldOpen = false;
-let noteFoldOpen = false;
-function syncFolds() {
-  const of = document.getElementById('ot-fold');
-  const nf = document.getElementById('note-fold');
-  if (of) of.classList.toggle('open', otFoldOpen);
-  if (nf) nf.classList.toggle('open', noteFoldOpen);
-  // Marker at en fold er åben, så den flydende spacer trækker sig sammen
-  const vd = document.getElementById('view-dag');
-  if (vd) vd.classList.toggle('has-open-fold', otFoldOpen || noteFoldOpen);
-}
-function syncOtFold() { syncFolds(); }
-function syncNoteFold() { syncFolds(); }
-function togOtFold() {
-  otFoldOpen = !otFoldOpen;
-  if (otFoldOpen) noteFoldOpen = false; // accordion: luk note
-  syncFolds();
-}
-function togNoteFold() {
-  noteFoldOpen = !noteFoldOpen;
-  if (noteFoldOpen) otFoldOpen = false; // accordion: luk OT
-  syncFolds();
-  // Fokusér automatisk i notefeltet når man folder ud
-  if (noteFoldOpen) setTimeout(() => { try { document.getElementById('i-note').focus(); } catch(e){} }, 80);
-}
-function opdaterNoteResume() {
-  const el = document.getElementById('note-fold-sum');
-  if (!el) return;
-  const v = (document.getElementById('i-note')?.value || '').trim().replace(/\s+/g, ' ');
-  el.textContent = v ? (v.length > 34 ? v.slice(0, 34) + '…' : v) : '';
-}
-window.addEventListener('load', () => {
-  syncFolds();
-  // Sæt scroll-lås hvis dag-visningen er aktiv ved opstart
-  if (document.getElementById('view-dag')?.classList.contains('on')) {
-    document.body.classList.add('dag-lock');
-  }
-  const ni = document.getElementById('i-note');
-  if (ni) ni.addEventListener('input', opdaterNoteResume);
-});
-
 // ── SWIPE: skift dag ved at stryge til siderne (erstatter ‹ › pilene) ──
-function swArrow(dir) {
-  let a = document.getElementById('sw-arrow');
-  if (!a) {
-    a = document.createElement('div');
-    a.id = 'sw-arrow'; a.className = 'sw-arrow';
-    document.body.appendChild(a);
-  }
-  a.textContent = dir > 0 ? '›' : '‹';
-  a.style.left = dir > 0 ? 'auto' : '14px';
-  a.style.right = dir > 0 ? '14px' : 'auto';
-  a.classList.remove('fire'); void a.offsetWidth; a.classList.add('fire');
-}
 function dagSwipeAnim(dir) {
   const el = document.getElementById('view-dag');
   if (!el) return;
   el.classList.remove('sw-next', 'sw-prev');
   void el.offsetWidth; // reflow, så animationen kan genstarte
   el.classList.add(dir > 0 ? 'sw-next' : 'sw-prev');
-  swArrow(dir);
-  hap(22); // tydeligt tik ved dagskift
 }
 function setupDagSwipe() {
   const el = document.getElementById('view-dag');
