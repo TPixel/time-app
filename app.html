@@ -59,6 +59,19 @@ to{transform:scale(1);opacity:1}}
 
 .view{display:none;padding:12px 16px 24px}
 .view.on{display:block}
+/* ── DAG-VISNING LÅST: ingen scroll — alt fylder skærmen, folde åbner ind i den ledige plads (v2.17) ── */
+body.dag-lock{height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+body.dag-lock > .topbar,
+body.dag-lock > .dag-ttl-top,
+body.dag-lock > .prod-sw-bar{flex:0 0 auto}
+body.dag-lock #view-dag{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding-bottom:14px}
+body.dag-lock #view-dag > *{flex:0 0 auto}
+body.dag-lock #view-dag .dag-flex-spacer{flex:1 1 auto;min-height:6px}
+/* En åben fold fylder den ledige plads; kun hvis dagen er helt fuld scroller foldens eget indhold */
+body.dag-lock #view-dag .ot-fold.open{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+body.dag-lock #view-dag .ot-fold.open .ot-fold-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* Når en fold er åben er den flydende spacer overflødig */
+body.dag-lock #view-dag.has-open-fold .dag-flex-spacer{flex:0 0 0;min-height:0}
 
 /* ── DAG ── */
 .dag-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:22px}
@@ -800,6 +813,8 @@ textarea::placeholder{color:var(--mut)}
       </div>
     </div>
   </div>
+
+  <div class="dag-flex-spacer" aria-hidden="true"></div>
 
   <button class="gem-btn" id="gem-btn" onclick="gemDag()">GEM DAG →</button>
 
@@ -4544,6 +4559,8 @@ function visView(navn) {
   document.getElementById('gear-btn')?.classList.toggle('on', navn === 'inst');
   // Produktionstitel-blok kun i dag-visning
   document.getElementById('dag-ttl-top')?.style.setProperty('display', navn === 'dag' ? 'block' : 'none');
+  // Lås scroll i dag-visning — alt fylder skærmen, ingen scroll op/ned
+  document.body.classList.toggle('dag-lock', navn === 'dag');
   if (navn === 'uge') rendUge();
   if (navn === 'dag') rendDag();
   if (navn === 'mnd') rendMaaned();
@@ -4654,7 +4671,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.16';
+const APP_VERSION = '2.17';
 
 // ── SPLASH ──
 (function(){
@@ -4698,6 +4715,14 @@ const APP_VERSION = '2.16';
 
 
 const CHANGELOG = {
+  '2.17': {
+    dato: '10. juli 2026',
+    nyt: [
+      '🔒 Dag-siden er nu låst til skærmen — der kan ikke længere scrolles op eller ned. Alt sidder fast på plads.',
+      '📂 Når du folder OVERARBEJDE + TILLÆG eller NOTE ud, åbner de sig ind i den ledige plads på siden i stedet for at gøre siden længere.',
+      '🔁 Der er kun én fold åben ad gangen: åbner du den ene, lukker den anden automatisk — så alt altid kan være på skærmen.',
+    ]
+  },
   '2.16': {
     dato: '9. juli 2026',
     nyt: [
@@ -5782,25 +5807,29 @@ document.addEventListener('pointerdown', (e) => {
   }
 }, true);
 
-// ── FOLDBAR OT-SEKTION (v2.15) — default lukket ──
+// ── FOLDBARE SEKTIONER (v2.15+) — default lukket, kun én åben ad gangen (accordion) ──
 let otFoldOpen = false;
-function syncOtFold() {
-  const f = document.getElementById('ot-fold');
-  if (f) f.classList.toggle('open', otFoldOpen);
+let noteFoldOpen = false;
+function syncFolds() {
+  const of = document.getElementById('ot-fold');
+  const nf = document.getElementById('note-fold');
+  if (of) of.classList.toggle('open', otFoldOpen);
+  if (nf) nf.classList.toggle('open', noteFoldOpen);
+  // Marker at en fold er åben, så den flydende spacer trækker sig sammen
+  const vd = document.getElementById('view-dag');
+  if (vd) vd.classList.toggle('has-open-fold', otFoldOpen || noteFoldOpen);
 }
+function syncOtFold() { syncFolds(); }
+function syncNoteFold() { syncFolds(); }
 function togOtFold() {
   otFoldOpen = !otFoldOpen;
-  syncOtFold();
-}
-// Foldbar Note-sektion
-let noteFoldOpen = false;
-function syncNoteFold() {
-  const f = document.getElementById('note-fold');
-  if (f) f.classList.toggle('open', noteFoldOpen);
+  if (otFoldOpen) noteFoldOpen = false; // accordion: luk note
+  syncFolds();
 }
 function togNoteFold() {
   noteFoldOpen = !noteFoldOpen;
-  syncNoteFold();
+  if (noteFoldOpen) otFoldOpen = false; // accordion: luk OT
+  syncFolds();
   // Fokusér automatisk i notefeltet når man folder ud
   if (noteFoldOpen) setTimeout(() => { try { document.getElementById('i-note').focus(); } catch(e){} }, 80);
 }
@@ -5811,7 +5840,11 @@ function opdaterNoteResume() {
   el.textContent = v ? (v.length > 34 ? v.slice(0, 34) + '…' : v) : '';
 }
 window.addEventListener('load', () => {
-  syncOtFold(); syncNoteFold();
+  syncFolds();
+  // Sæt scroll-lås hvis dag-visningen er aktiv ved opstart
+  if (document.getElementById('view-dag')?.classList.contains('on')) {
+    document.body.classList.add('dag-lock');
+  }
   const ni = document.getElementById('i-note');
   if (ni) ni.addEventListener('input', opdaterNoteResume);
 });
