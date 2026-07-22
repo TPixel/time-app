@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bilag">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230C0C12'/><text y='65' x='50' text-anchor='middle' font-size='50'>📸</text></svg>">
+<title>Bilag — Ditzel & Co</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0C0C12;color:#fff;font-family:'Tahoma',sans-serif;font-weight:bold;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.logo{font-size:14px;color:#555;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+h1{font-size:28px;margin-bottom:32px}
+.btn{width:200px;height:200px;border-radius:50%;background:#E8820A;border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.95);background:#d47508}
+.btn-icon{font-size:64px;line-height:1}
+.btn-text{font-size:18px;color:#fff;font-family:'Tahoma',sans-serif;font-weight:bold;margin-top:8px}
+input[type=file]{display:none}
+.status{margin-top:24px;font-size:16px;min-height:24px;text-align:center}
+.status.ok{color:#4ade80}
+.status.err{color:#f87171}
+.status.wait{color:#FBBF24}
+.count{margin-top:16px;font-size:13px;color:#555}
+.hist{width:100%;max-width:340px;margin-top:24px}
+.hist-item{display:flex;align-items:center;gap:10px;padding:8px;background:#1a1a24;border-radius:8px;margin-bottom:6px}
+.hist-thumb{width:44px;height:44px;border-radius:6px;object-fit:cover}
+.hist-info{flex:1;font-size:13px;color:#888}
+.hist-ok{color:#4ade80;font-size:12px}
+</style>
+</head>
+<body>
+
+<div class="logo">Ditzel & Co</div>
+<h1>📸 Bilag</h1>
+
+<button class="btn" onclick="document.getElementById('cam').click()">
+<div class="btn-icon">📷</div>
+<div class="btn-text">Tag foto</div>
+</button>
+
+<input type="file" id="cam" accept="image/*" capture="environment" onchange="upload(this)">
+
+<div class="status" id="status"></div>
+<div class="count" id="count"></div>
+<div class="hist" id="hist"></div>
+
+<script>
+var API = 'https://lightcrew-api.thomas-5c5.workers.dev';
+var hist = JSON.parse(localStorage.getItem('bilag-hist') || '[]');
+
+function upload(input) {
+    if (!input.files[0]) return;
+    var file = input.files[0];
+    var status = document.getElementById('status');
+    status.textContent = 'Sender...';
+    status.className = 'status wait';
+    
+    var reader = new FileReader();
+    reader.onload = function() {
+        var now = new Date();
+        var fname = 'bilag-' + now.getFullYear() + 
+            ('0'+(now.getMonth()+1)).slice(-2) + 
+            ('0'+now.getDate()).slice(-2) + '-' +
+            ('0'+now.getHours()).slice(-2) +
+            ('0'+now.getMinutes()).slice(-2) +
+            ('0'+now.getSeconds()).slice(-2) + '.jpg';
+        
+        // Gem lokalt i historik
+        var entry = {
+            name: fname,
+            date: now.toLocaleString('da-DK'),
+            size: (file.size/1024).toFixed(0) + ' KB',
+            thumb: reader.result.substring(0, 200)
+        };
+        hist.unshift(entry);
+        if (hist.length > 20) hist.pop();
+        localStorage.setItem('bilag-hist', JSON.stringify(hist));
+        
+        // Upload til Cloudflare Worker (bilag endpoint)
+        fetch(API + '/api/note', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                kode: 'DITZEL',
+                type: 'bilag',
+                indhold: fname + ' | ' + entry.size + ' | ' + entry.date,
+                af: 'Thomas'
+            })
+        }).then(function() {
+            status.textContent = '✓ ' + fname + ' gemt';
+            status.className = 'status ok';
+        }).catch(function() {
+            status.textContent = '✓ Gemt lokalt (offline)';
+            status.className = 'status ok';
+        });
+        
+        renderHist();
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+}
+
+function renderHist() {
+    var el = document.getElementById('hist');
+    var c = document.getElementById('count');
+    c.textContent = hist.length + ' bilag i denne session';
+    el.innerHTML = '';
+    hist.slice(0, 5).forEach(function(h) {
+        var div = document.createElement('div');
+        div.className = 'hist-item';
+        div.innerHTML = '<div class="hist-info">' + h.name + '<br>' + h.date + ' · ' + h.size + '</div><div class="hist-ok">✓</div>';
+        el.appendChild(div);
+    });
+}
+renderHist();
+</script>
+</body>
+</html>
