@@ -3,5 +3,6 @@
 .goatcounter-token
 goatcounter-snippet.html
 
-# Claude Code arbejdsmapper (må ikke deployes)
-.claude/
+# Claude Code arbejdsmapper (må ikke deployes) — men skills versioneres
+.claude/*
+!.claude/skills/
