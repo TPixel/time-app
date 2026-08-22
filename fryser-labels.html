@@ -55,18 +55,18 @@ a.back{color:#E8820A;text-decoration:none;font-size:14px}
       </div>
       <div class="field"><label>Tape-bredde</label>
         <select id="tape">
-          <option value="12" selected>12 mm</option>
+          <option value="12">12 mm</option>
           <option value="18">18 mm</option>
-          <option value="24">24 mm</option>
+          <option value="24" selected>24 mm</option>
           <option value="36">36 mm</option>
         </select>
       </div>
-      <div class="field"><label>Papirstørrelse (som i print-dialog)</label>
+      <div class="field"><label>Papirlængde (som i print-dialog)</label>
         <select id="laengde">
-          <option value="70" selected>12 × 70 mm</option>
-          <option value="25">12 × 25 mm</option>
-          <option value="15">12 × 15 mm</option>
-          <option value="100">12 × 100 mm</option>
+          <option value="25" selected>25 mm — autoskær pr. label</option>
+          <option value="42">42 mm</option>
+          <option value="70">70 mm</option>
+          <option value="100">100 mm</option>
         </select>
       </div>
     </div>
@@ -77,8 +77,12 @@ a.back{color:#E8820A;text-decoration:none;font-size:14px}
       Hver kode er unik og engangs — klistr en label på varen, og scan den med <b>“Læg i fryser”</b> i appen.
       Ingen tekst på labelen, kun QR — det sparer tape.<br>
       <b>Print-dialogen (Chrome):</b> Destination “Brother PT-9500PC”, Flere indstillinger →
-      <b>Papirstørrelse: samme som valgt ovenfor</b> (fx “12 x 70 mm”), Margener <b>Ingen</b>,
-      Skaler <b>100</b>. Printeren klipper hver strimmel — de stiplede linjer klipper du med en saks.
+      <b>Papirstørrelse: samme bredde × længde som valgt ovenfor</b> (fx “24 x 25 mm”),
+      Margener <b>Ingen</b>, Skaler <b>100</b>.<br>
+      Findes længden ikke i listen: vælg <b>“Udskriv via systemdialogen”</b> nederst →
+      Papirstørrelse → <b>“Administrer specialstørrelser…”</b> → ny størrelse med bredde 24 mm,
+      højde 25 mm og alle margener 0 — så klipper printeren én label pr. QR, helt uden saks.
+      Ved længere papir pakkes flere QR pr. strimmel med stiplede klippelinjer.
     </div>
   </div>
 </div>
