@@ -25,12 +25,9 @@ h1{font-size:26px;margin:2px 0 4px}
 a.back{color:#E8820A;text-decoration:none;font-size:14px}
 /* skærm-preview af labels */
 .sheet{background:#0C0C12;border-radius:14px;padding:14px;display:flex;flex-wrap:wrap;gap:8px}
-.label{background:#fff;color:#000;border-radius:3px;display:flex;align-items:center;overflow:hidden;flex:0 0 auto}
+.label{background:#fff;border-radius:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 auto}
 .label .qr{flex:0 0 auto;display:flex;align-items:center;justify-content:center}
 .label .qr svg{display:block;width:100%;height:100%}
-.label .txt{font-family:'Tahoma',sans-serif;font-weight:bold;white-space:nowrap;line-height:1.15}
-.label .txt .code{letter-spacing:.5px}
-.label .txt .small{font-weight:normal;color:#333}
 @media print{
   body{background:#fff;padding:0;max-width:none}
   .noprint{display:none !important}
@@ -64,17 +61,18 @@ a.back{color:#E8820A;text-decoration:none;font-size:14px}
       </div>
       <div class="field"><label>Label-længde</label>
         <select id="laengde">
-          <option value="36">36 mm</option>
-          <option value="40" selected>40 mm</option>
-          <option value="50">50 mm</option>
-          <option value="60">60 mm</option>
+          <option value="12">12 mm</option>
+          <option value="15" selected>15 mm</option>
+          <option value="20">20 mm</option>
+          <option value="25">25 mm</option>
         </select>
       </div>
     </div>
     <button class="btn grey" onclick="regen()">🔄 Nye koder</button>
     <button class="btn orange" onclick="window.print()">🖨️ Print på Brother</button>
     <div class="hint">
-      Hver kode er unik — klistr en label på varen, og scan den med <b>“Læg i fryser”</b> i appen.<br>
+      Hver kode er unik og engangs — klistr en label på varen, og scan den med <b>“Læg i fryser”</b> i appen.
+      Ingen tekst på labelen, kun QR — det sparer tape.<br>
       <b>Printer-indstillinger (P-touch driver):</b> vælg samme tape-bredde som ovenfor,
       papirstørrelse/længde svarende til label-længden, margen <b>0</b>, og slå <b>autoafskæring</b> til
       så hver label klippes for sig. Print-dialogen: vælg “Brother PT-9500PC”, skalering 100%.
@@ -2416,23 +2414,19 @@ function render(){
   var tape=parseInt(document.getElementById('tape').value,10);
   var len=parseInt(document.getElementById('laengde').value,10);
   var ph=PRINTABLE[tape]||8;           // printbar højde i mm
-  var qrmm=ph;                          // QR fylder hele den printbare højde
-  var pad=(tape-ph)/2;                  // lodret luft = driverens døde kant
-  var fs=Math.max(3.2,ph*0.42);         // kode-tekst i mm
-  var fss=Math.max(2.2,ph*0.26);        // lille linje i mm
+  // Kun QR — koden er engangs, så ingen tekst. QR fylder den printbare
+  // højde, dog max label-længden minus 2mm quiet zone i hver side.
+  var qrmm=Math.min(ph,len-4);
 
   document.getElementById('dynStyle').textContent=
     '@page{size:'+len+'mm '+tape+'mm;margin:0}'+
-    '.label{width:'+len+'mm;height:'+tape+'mm;padding:'+pad+'mm 1.5mm}'+
-    '.label .qr{width:'+qrmm+'mm;height:'+qrmm+'mm;margin-right:2mm}'+
-    '.label .txt .code{font-size:'+fs+'mm}'+
-    '.label .txt .small{font-size:'+fss+'mm}';
+    '.label{width:'+len+'mm;height:'+tape+'mm}'+
+    '.label .qr{width:'+qrmm+'mm;height:'+qrmm+'mm}';
 
   var sheet=document.getElementById('sheet');sheet.innerHTML='';
   codes.forEach(function(c){
     var el=document.createElement('div');el.className='label';
-    el.innerHTML='<div class="qr">'+qrSvg(c)+'</div>'+
-      '<div class="txt"><div class="code">'+c+'</div><div class="small">🧊 Fryseren</div></div>';
+    el.innerHTML='<div class="qr">'+qrSvg(c)+'</div>';
     sheet.appendChild(el);
   });
 }
