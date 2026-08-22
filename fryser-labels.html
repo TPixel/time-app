@@ -25,8 +25,10 @@ h1{font-size:26px;margin:2px 0 4px}
 a.back{color:#E8820A;text-decoration:none;font-size:14px}
 /* skærm-preview af labels */
 .sheet{background:#0C0C12;border-radius:14px;padding:14px;display:flex;flex-wrap:wrap;gap:8px}
-.label{background:#fff;border-radius:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex:0 0 auto}
-.label .qr{flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.label{background:#fff;border-radius:3px;display:flex;align-items:stretch;overflow:hidden;flex:0 0 auto}
+.label .cell{flex:1;display:flex;align-items:center;justify-content:center;border-right:1px dashed #aaa}
+.label .cell:last-child{border-right:none}
+.label .qr{flex:0 0 auto}
 .label .qr svg{display:block;width:100%;height:100%}
 @media print{
   body{background:#fff;padding:0;max-width:none}
@@ -59,23 +61,24 @@ a.back{color:#E8820A;text-decoration:none;font-size:14px}
           <option value="36">36 mm</option>
         </select>
       </div>
-      <div class="field"><label>Label-længde</label>
+      <div class="field"><label>Papirstørrelse (som i print-dialog)</label>
         <select id="laengde">
-          <option value="12">12 mm</option>
-          <option value="15" selected>15 mm</option>
-          <option value="20">20 mm</option>
-          <option value="25">25 mm</option>
+          <option value="70" selected>12 × 70 mm</option>
+          <option value="25">12 × 25 mm</option>
+          <option value="15">12 × 15 mm</option>
+          <option value="100">12 × 100 mm</option>
         </select>
       </div>
     </div>
+    <div class="hint" id="stripInfo" style="margin:0 0 4px;color:#E8820A"></div>
     <button class="btn grey" onclick="regen()">🔄 Nye koder</button>
     <button class="btn orange" onclick="window.print()">🖨️ Print på Brother</button>
     <div class="hint">
       Hver kode er unik og engangs — klistr en label på varen, og scan den med <b>“Læg i fryser”</b> i appen.
       Ingen tekst på labelen, kun QR — det sparer tape.<br>
-      <b>Printer-indstillinger (P-touch driver):</b> vælg samme tape-bredde som ovenfor,
-      papirstørrelse/længde svarende til label-længden, margen <b>0</b>, og slå <b>autoafskæring</b> til
-      så hver label klippes for sig. Print-dialogen: vælg “Brother PT-9500PC”, skalering 100%.
+      <b>Print-dialogen (Chrome):</b> Destination “Brother PT-9500PC”, Flere indstillinger →
+      <b>Papirstørrelse: samme som valgt ovenfor</b> (fx “12 x 70 mm”), Margener <b>Ingen</b>,
+      Skaler <b>100</b>. Printeren klipper hver strimmel — de stiplede linjer klipper du med en saks.
     </div>
   </div>
 </div>
@@ -2414,21 +2417,30 @@ function render(){
   var tape=parseInt(document.getElementById('tape').value,10);
   var len=parseInt(document.getElementById('laengde').value,10);
   var ph=PRINTABLE[tape]||8;           // printbar højde i mm
-  // Kun QR — koden er engangs, så ingen tekst. QR fylder den printbare
-  // højde, dog max label-længden minus 2mm quiet zone i hver side.
+  // Driveren tilbyder kun faste papirlængder (fx 12×70), så vi pakker
+  // så mange QR'er som muligt på hver strimmel med klippelinjer imellem.
+  // Hver QR skal have sin printbare højde + 4mm quiet zone omkring sig.
   var qrmm=Math.min(ph,len-4);
+  var perStrip=Math.max(1,Math.floor((len-2)/(qrmm+4)));
 
   document.getElementById('dynStyle').textContent=
     '@page{size:'+len+'mm '+tape+'mm;margin:0}'+
     '.label{width:'+len+'mm;height:'+tape+'mm}'+
     '.label .qr{width:'+qrmm+'mm;height:'+qrmm+'mm}';
 
+  var info=document.getElementById('stripInfo');
+  if(info)info.textContent=perStrip>1?perStrip+' QR pr. strimmel — klip mellem de stiplede linjer':'1 QR pr. strimmel';
+
   var sheet=document.getElementById('sheet');sheet.innerHTML='';
-  codes.forEach(function(c){
+  for(var i=0;i<codes.length;i+=perStrip){
     var el=document.createElement('div');el.className='label';
-    el.innerHTML='<div class="qr">'+qrSvg(c)+'</div>';
+    var html='';
+    codes.slice(i,i+perStrip).forEach(function(c){
+      html+='<div class="cell"><div class="qr">'+qrSvg(c)+'</div></div>';
+    });
+    el.innerHTML=html;
     sheet.appendChild(el);
-  });
+  }
 }
 
 ['tape','laengde'].forEach(function(id){document.getElementById(id).addEventListener('change',render);});
