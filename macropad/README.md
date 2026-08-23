@@ -1,7 +1,7 @@
-# MacroPad RP2040 — MIDI-controller (Lys Afd.)
+# MacroPad RP2040 — Mac Shortcut Keyboard
 
-CircuitPython-kode til Adafruit MacroPad RP2040 med ekstern Stemma QT rotary encoder (Seesaw, 0x36).
-5 sider: KEYPAD, CCT, COLOR, MOVING, TEST. Knapper sender MIDI CC, encoderen styrer intensitet/CCT/tint/hue/sat.
+CircuitPython-kode til Adafruit MacroPad RP2040. Boardet fungerer som USB-tastatur
+med 6 sider af genveje til Mac'en. Displayet viser alle 12 knappers funktion i et grid.
 
 ## Installér på boardet (én kommando)
 
@@ -12,21 +12,51 @@ curl -fsSL https://raw.githubusercontent.com/TPixel/time-app/claude/rp2040-usb-c
 ```
 
 Scriptet henter nyeste `code.py` og lægger den på CIRCUITPY-drevet. Boardet genstarter selv.
+Samme kommando bruges hver gang koden er blevet opdateret.
 
-## Rettelser i forhold til den gamle version
+## Betjening
 
-- **`NameError` på linje 60** (den fejl displayet viste): `usb_midi` blev brugt uden at være importeret. Der er nu `import usb_midi` øverst.
-- **Sideskift med MacroPad-encoderen virkede ikke**: `macropad.encoder` er en kumulativ, skrivebeskyttet position — koden prøvede at nulstille den (`macropad.encoder = 0`), hvilket ville crashe med `AttributeError` ved første drej. Nu sammenlignes med sidste aflæste position i stedet.
+- **Indbygget encoder (øverst):** drej = skift side, tryk = tilbage til APPS-siden
+- **Stemma QT encoder:** drej = lydstyrke op/ned, tryk = mute
+- **Displayet** viser sidens navn øverst og alle 12 knappers funktion i 3×4-grid (samme layout som tasterne)
+
+## Siderne
+
+| Side | Indhold |
+|---|---|
+| APPS | Åbner programmer via Spotlight: Safari, Chrome, Mail, Noter, Finder, Terminal, Musik, Kalender, Beskeder, Fotos, Systemindstillinger, P-touch Editor |
+| MACOS | Spotlight, emoji-vælger, lås skærm, skærmbilleder, Mission Control, skjul/luk app, tving luk, kopiér/sæt ind/fortryd |
+| BROWSER | Ny/luk/genåbn tab, skift tab, reload, adressefelt, privat vindue, frem/tilbage, zoom |
+| FINDER | Nyt vindue/mappe, info, quick look, slet, duplikér, genveje til Hentninger/Dokumenter/Skrivebord/Hjem, vis skjulte filer, AirDrop |
+| MAIL | Ny mail, svar/svar alle/videresend, send, arkivér, slet, ulæst, flag, søg |
+| MEDIE | Play/pause, næste/forrige, lydstyrke, mute, skærmlysstyrke, åbn Musik/Podcasts/Tidal |
+
+## Tilpasning
+
+Alle sider ligger i `PAGES`-listen i `code.py` — navn, farve og 12 taster pr. side.
+En genvej er en liste af trin: Keycodes holdes nede sammen, tekst-strenge skrives,
+tal (float) er pauser, `("CC", kode)` er medietaster. `app("navn")` åbner et program
+via Spotlight.
+
+Nemmest: sig til Claude hvad der skal ændres ("byt Fotos ud med Billy", "tilføj en
+side til Photoshop") — koden opdateres i repoet, og du kører install-kommandoen igen.
+
+## Andre filer
+
+- `code-midi.py` — den tidligere MIDI-controller-version (5 sider, CC-beskeder til lysstyring).
+  Skift tilbage ved at lægge den på boardet som `code.py`.
+- `install.sh` — install-scriptet bag én-kommando-installationen.
 
 ## Krævede biblioteker på boardet
 
-Disse skal ligge i `lib/` på CIRCUITPY-drevet (de gjorde de allerede, da fejlen var en NameError og ikke en ImportError):
-
-- `adafruit_macropad`
-- `adafruit_display_text`
-- `adafruit_midi`
-- `adafruit_seesaw` (kun hvis Stemma-encoderen er tilsluttet — koden kører også uden)
+Skal ligge i `lib/` på CIRCUITPY-drevet (er der allerede):
+`adafruit_macropad`, `adafruit_display_text`, `adafruit_hid`,
+`adafruit_seesaw` (kun for Stemma-encoderen — koden kører også uden).
 
 ## Fejlsøgning
 
-Fuld fejlbesked fra boardet fås med: `screen /dev/tty.usbmodem*01 115200` → tryk en tast → Ctrl-D genstarter og printer traceback. Afslut screen med Ctrl-A, K, Y.
+Fuld fejlbesked fra boardet: `screen /dev/tty.usbmodem*01 115200` → tryk en tast →
+Ctrl-D genstarter og printer traceback. Afslut screen med Ctrl-A, K, Y.
+
+Bemærk: `app("...")`-genvejene skriver programnavnet i Spotlight med US-tastaturlayout,
+så brug kun a-z, 0-9, mellemrum og bindestreg i navnene.
