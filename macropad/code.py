@@ -20,8 +20,12 @@
 # Globale holds:
 #   Knap 12 hold = MUTE
 #   Knap 10 hold = åbn Lommeregner + NUMPAD til/fra
-# Encoder: drej = skift side manuelt, tryk = tilbage til SYSTEM
+# Encoder: drej = ZOOM ind/ud (Cmd+= / Cmd+-) i den aktive app
+#          hold encoderen NEDE + drej = skift side manuelt
+#          klik (uden at dreje) = tilbage til SYSTEM
 # Stemma QT encoder (valgfri): drej = lydstyrke, tryk = mute
+#
+# REGEL: knap-labels er altid max 7 tegn naar alle knapper er i brug.
 #
 # Thomas / Lys Afd.
 
@@ -338,9 +342,12 @@ holdes = {}
 
 rx = b""  # seriel modtage-buffer
 
+enc_sw_prev = False   # encoder-knappens forrige tilstand
+enc_rotated = False   # blev der drejet mens knappen var nede?
+enc_sw_tid = 0.0
+
 while True:
     nu = time.monotonic()
-    macropad.encoder_switch_debounced.update()
     key_event = macropad.keys.events.get()
 
     # --- Beskeder fra Mac'ens follow-tjeneste ---
@@ -360,19 +367,35 @@ while True:
         if len(rx) > 256:
             rx = b""
 
-    # --- Encoder: drej = skift side manuelt ---
+    # --- Encoder ---
+    enc_sw = macropad.encoder_switch  # True = holdt nede
+    if enc_sw and not enc_sw_prev:
+        enc_rotated = False
+        enc_sw_tid = nu
+
     enc_pos = macropad.encoder
     if enc_pos != last_encoder_pos:
-        numpad_active = False
-        page = (page + (1 if enc_pos > last_encoder_pos else -1)) % len(PAGES)
+        retning = 1 if enc_pos > last_encoder_pos else -1
+        antal = min(abs(enc_pos - last_encoder_pos), 5)
         last_encoder_pos = enc_pos
-        show_page()
+        if enc_sw:
+            # Holdt nede + drej = skift side
+            enc_rotated = True
+            numpad_active = False
+            page = (page + retning) % len(PAGES)
+            show_page()
+        else:
+            # Drej alene = zoom i den aktive app
+            for _ in range(antal):
+                run_sequence([CMD, K.EQUALS] if retning > 0 else [CMD, K.MINUS])
 
-    # --- Encoder-tryk: tilbage til SYSTEM ---
-    if macropad.encoder_switch_debounced.fell:
-        numpad_active = False
-        page = 0
-        show_page()
+    if not enc_sw and enc_sw_prev:
+        # Sluppet: rent klik (uden drej) = tilbage til SYSTEM
+        if not enc_rotated and (nu - enc_sw_tid) >= 0.05:
+            numpad_active = False
+            page = 0
+            show_page()
+    enc_sw_prev = enc_sw
 
     # --- Tastetryk / -slip ---
     if key_event:

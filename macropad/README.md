@@ -32,7 +32,8 @@ Samme kommando bruges hver gang koden er blevet opdateret.
 
 ## Betjening
 
-- **Indbygget encoder (øverst):** drej = skift side manuelt, tryk = tilbage til SYSTEM (siderne følger ellers selv den aktive app)
+- **Indbygget encoder (øverst):** drej = **zoom** ind/ud (⌘+ / ⌘−) i den aktive app · **hold nede + drej** = skift side manuelt · klik = tilbage til SYSTEM (siderne følger ellers selv den aktive app)
+- **Regel:** knap-labels er altid max 7 tegn, når alle knapper er i brug
 - **Stemma QT encoder:** drej = lydstyrke op/ned, tryk = mute
 - **Displayet** viser sidens navn øverst og alle 12 knappers funktion i 3×4-grid (samme layout som tasterne)
 
