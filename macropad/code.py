@@ -227,21 +227,21 @@ PAGES = [
         "color": (15, 0, 25),
         "keys": [
             # Raekke 1
-            ("Gem", [CMD, K.S], ("GemSom", [CMD, SHIFT, K.S])),
+            ("Save", [CMD, K.S], ("SaveAs", [CMD, SHIFT, K.S])),
             ("Paint", [K.B], None),
-            ("FarvVlg", [K.W], None),            # Color Selection
+            ("ColSel", [K.W], None),             # Color Selection
             # Raekke 2
-            ("Fortryd", [CMD, K.Z], ("Gentag", [CMD, SHIFT, K.Z])),
+            ("Undo", [CMD, K.Z], ("Redo", [CMD, SHIFT, K.Z])),
             ("Select", [K.M], None),             # Selection
             ("Erase", [K.E], None),
             # Raekke 3
-            ("Gruppe", [CMD, K.G], None),
-            ("UGruppe", [CMD, SHIFT, K.G], None),
-            ("FarvFyl", [K.N], None),            # Color Fill
+            ("Group", [CMD, K.G], None),
+            ("Ungroup", [CMD, SHIFT, K.G], None),
+            ("Fill", [K.N], None),               # Color Fill
             # Raekke 4
             ("Export", [CMD, SHIFT, K.E], None),  # hold = NUMPAD (global)
-            ("Tekst", [K.T], None),               # Type
-            ("Arrang", [K.V], None),              # Arrange — hold = MUTE (global)
+            ("Type", [K.T], None),
+            ("Arrange", [K.V], None),             # hold = MUTE (global)
         ],
     },
 ]
