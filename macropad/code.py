@@ -1,20 +1,26 @@
-# code.py — MacroPad RP2040 — Mac Shortcut Keyboard v5.0
+# code.py — MacroPad RP2040 — Mac Shortcut Keyboard v6.0
 #
-# Siderne ER apps: drej encoderen for at skifte side, og boardet aabner
-# selv den app siden hoerer til (efter et kort oejeblik, saa man kan
-# dreje forbi uden at aabne alt undervejs).
+# Boardet FOELGER den aktive app paa Mac'en: en lille follow-tjeneste
+# (macropad-follow.sh, installeres automatisk) sender "app:Navn" over
+# USB-seriel, og boardet skifter selv til den rigtige side. Ingen apps
+# startes ved sideskift.
 #
-#   Side 1: SYSTEM     (ingen app)
-#   Side 2: SAFARI     -> aabner Safari
-#   Side 3: CHROME     -> aabner Chrome
-#   Side 4: PIXELM     -> aabner Pixelmator Pro
+#   SYSTEM  = standard-side (alle andre apps)
+#   SAFARI  = naar Safari er forrest
+#   CHROME  = naar Chrome er forrest
+#   PIXELM  = naar Pixelmator Pro er forrest
+#
+# Boardet kan ogsaa bede Mac'en om noget (elegant, uden Spotlight):
+#   open:AppNavn    -> Mac'en koerer 'open -a AppNavn'
+#   run:GenvejsNavn -> Mac'en koerer Apple Genvejen med det navn
+# (Fallback: uden follow-tjenesten bruges Spotlight som foer.)
 #
 # Knap-nummerering: 1 = øverste venstre hjørne ... 12 = nederste højre hjørne
 # Alle knapper: TRYK (kort) og HOLD (>0.4 sek)
 # Globale holds:
 #   Knap 12 hold = MUTE
 #   Knap 10 hold = åbn Lommeregner + NUMPAD til/fra
-# Encoder-tryk = tilbage til SYSTEM
+# Encoder: drej = skift side manuelt, tryk = tilbage til SYSTEM
 # Stemma QT encoder (valgfri): drej = lydstyrke, tryk = mute
 #
 # Thomas / Lys Afd.
@@ -28,6 +34,21 @@ from adafruit_display_text import label
 from adafruit_macropad import MacroPad
 from adafruit_hid.keycode import Keycode
 from adafruit_hid.consumer_control_code import ConsumerControlCode
+
+# --- Seriel dataport til Mac'ens follow-tjeneste (kraever boot.py) ---
+ser = None
+try:
+    import usb_cdc
+    ser = usb_cdc.data  # None hvis boot.py ikke er aktiv endnu
+except Exception:
+    ser = None
+
+def ser_send(tekst):
+    if ser is not None:
+        try:
+            ser.write((tekst + "\n").encode())
+        except Exception:
+            pass
 
 # --- Seesaw / Stemma QT encoder (valgfri — koden kører fint uden) ---
 STEMMA_I2C_ADDR = 0x36
@@ -73,26 +94,32 @@ ALT = K.OPTION
 CTRL = K.CONTROL
 CC = ConsumerControlCode
 
-HOLD_TID = 0.4        # sekunder før et tryk tæller som HOLD
-APP_AABN_VENT = 0.8   # sekunder efter sidste drej før sidens app aabnes
+HOLD_TID = 0.4  # sekunder før et tryk tæller som HOLD
 
 # -------------------------
 # Genvejs-sekvenser
 # -------------------------
 # En sekvens er en liste af trin:
-#   int (Keycode)  -> tasten holdes nede, alle slippes til sidst
-#   str            -> teksten skrives (kun a-z/0-9 — US-layout)
-#   float          -> pause i sekunder (slipper først holdte taster)
-#   ("CC", code)   -> medietast (ConsumerControl)
+#   int (Keycode)     -> tasten holdes nede, alle slippes til sidst
+#   str               -> teksten skrives (kun a-z/0-9 — US-layout)
+#   float             -> pause i sekunder (slipper først holdte taster)
+#   ("CC", code)      -> medietast (ConsumerControl)
+#   ("OPEN", "App Navn", "spotlight navn")
+#                     -> aabn app: via follow-tjenesten hvis muligt,
+#                        ellers Spotlight-fallback
+#   ("RUN", "Navn")   -> koer Apple Genvej med det navn (via follow-tjenesten)
 
 def app(navn):
-    # Åbn program via Spotlight: Cmd+Space, skriv navn, Enter
+    # Spotlight-fallback: Cmd+Space, skriv navn, Enter
     return [CMD, K.SPACE, 0.30, navn, 0.45, K.ENTER]
 
+def aabn(mac_navn, spotlight_navn):
+    return [("OPEN", mac_navn, spotlight_navn)]
+
 def genvej(tast):
-    # "Hyper-tast" (Cmd+Alt+Ctrl+Shift + tast) til Apple Genveje:
-    # I Genveje-appen: åbn genvejen -> (i) -> "Tilføj tastaturgenvej"
-    # -> tryk på MacroPad-knappen. Så kører genvejen ved tryk.
+    # "Hyper-tast" (Cmd+Alt+Ctrl+Shift + tast) til Apple Genveje via
+    # tastaturgenvej. Alternativ: ("RUN", "Genvejens navn") koerer den
+    # direkte ved navn via follow-tjenesten.
     return [CMD, ALT, CTRL, SHIFT, tast]
 
 def run_sequence(seq):
@@ -111,6 +138,13 @@ def run_sequence(seq):
         elif isinstance(item, tuple) and item[0] == "CC":
             if item[1] is not None:
                 macropad.consumer_control.send(item[1])
+        elif isinstance(item, tuple) and item[0] == "OPEN":
+            if ser is not None:
+                ser_send("open:" + item[1])
+            else:
+                run_sequence(app(item[2]))
+        elif isinstance(item, tuple) and item[0] == "RUN":
+            ser_send("run:" + item[1])
         elif isinstance(item, int):
             macropad.keyboard.press(item)
             pressed.append(item)
@@ -118,7 +152,7 @@ def run_sequence(seq):
         macropad.keyboard.release(kc)
 
 # -------------------------
-# Sider — hver side har evt. en "app" som aabnes naar man skifter til den
+# Sider — "match" er tekst der genkendes i den aktive apps navn
 # Hver knap: (label, TRYK-sekvens, HOLD-sekvens eller None)
 # Knap 1 = øverst venstre ... knap 12 = nederst højre
 # Label max 7 tegn, kun ASCII (æøå kan ikke vises på displayet)
@@ -126,7 +160,7 @@ def run_sequence(seq):
 PAGES = [
     {
         "name": "SYSTEM",
-        "app": None,
+        "match": None,  # standard-siden
         "color": (0, 0, 25),
         "keys": [
             # Raekke 1 (knap 1-3)
@@ -142,14 +176,14 @@ PAGES = [
             ("LukVind", [CMD, K.W], ("LukApp", [CMD, K.Q])),
             ("Genvej1", genvej(K.ONE), ("Genvej2", genvej(K.TWO))),
             # Raekke 4 (knap 10-12)
-            ("Lommer", app("calculator"), None),   # hold = NUMPAD (global)
+            ("Lommer", aabn("Calculator", "calculator"), None),  # hold = NUMPAD (global)
             ("Vol-", [("CC", CC.VOLUME_DECREMENT)], ("Play", [("CC", CC.PLAY_PAUSE)])),
             ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None),  # hold = MUTE (global)
         ],
     },
     {
         "name": "SAFARI",
-        "app": "safari",
+        "match": "safari",
         "color": (0, 12, 30),
         "keys": [
             ("NyTab", [CMD, K.T], ("NytVind", [CMD, K.N])),
@@ -168,7 +202,7 @@ PAGES = [
     },
     {
         "name": "CHROME",
-        "app": "chrome",
+        "match": "chrome",
         "color": (25, 10, 0),
         "keys": [
             ("NyTab", [CMD, K.T], ("NytVind", [CMD, K.N])),
@@ -187,7 +221,7 @@ PAGES = [
     },
     {
         "name": "PIXELM",
-        "app": "pixelmator pro",
+        "match": "pixelmator",
         "color": (15, 0, 25),
         "keys": [
             ("Ny", [CMD, K.N], ("Aabn", [CMD, K.O])),
@@ -264,9 +298,24 @@ def toggle_numpad():
     if numpad_active:
         numpad_active = False
     else:
-        run_sequence(app("calculator"))
+        run_sequence(aabn("Calculator", "calculator"))
         numpad_active = True
     show_page()
+
+def foelg_app(app_navn):
+    # Kaldes naar Mac'en melder ny forrest-app: find matchende side
+    global page
+    if numpad_active:
+        return  # forstyr ikke en igangvaerende udregning
+    navn = app_navn.lower()
+    ny = 0  # SYSTEM som standard
+    for i, pg in enumerate(PAGES):
+        if pg["match"] is not None and pg["match"] in navn:
+            ny = i
+            break
+    if ny != page:
+        page = ny
+        show_page()
 
 show_page()
 
@@ -281,40 +330,42 @@ if st_present:
 # key_number -> [starttid, hold_er_fyret]
 holdes = {}
 
-# Sidens app aabnes foerst naar man er landet paa siden (debounce)
-app_aabn_tid = None
-app_aabn_navn = None
+rx = b""  # seriel modtage-buffer
 
 while True:
     nu = time.monotonic()
     macropad.encoder_switch_debounced.update()
     key_event = macropad.keys.events.get()
 
-    # --- Encoder: drej = skift side (og aabn sidens app naar man lander) ---
+    # --- Beskeder fra Mac'ens follow-tjeneste ---
+    if ser is not None and ser.in_waiting:
+        try:
+            rx += ser.read(ser.in_waiting)
+        except Exception:
+            rx = b""
+        while b"\n" in rx:
+            linje, rx = rx.split(b"\n", 1)
+            try:
+                tekst = linje.decode().strip()
+            except Exception:
+                continue
+            if tekst.startswith("app:"):
+                foelg_app(tekst[4:])
+        if len(rx) > 256:
+            rx = b""
+
+    # --- Encoder: drej = skift side manuelt ---
     enc_pos = macropad.encoder
     if enc_pos != last_encoder_pos:
         numpad_active = False
         page = (page + (1 if enc_pos > last_encoder_pos else -1)) % len(PAGES)
         last_encoder_pos = enc_pos
         show_page()
-        if PAGES[page]["app"] is not None:
-            app_aabn_tid = nu + APP_AABN_VENT
-            app_aabn_navn = PAGES[page]["app"]
-        else:
-            app_aabn_tid = None
-
-    # --- Aabn sidens app naar drejet er faldet til ro ---
-    if app_aabn_tid is not None and nu >= app_aabn_tid:
-        app_aabn_tid = None
-        title.text = ">> " + current_page()["name"]
-        run_sequence(app(app_aabn_navn))
-        show_page()
 
     # --- Encoder-tryk: tilbage til SYSTEM ---
     if macropad.encoder_switch_debounced.fell:
         numpad_active = False
         page = 0
-        app_aabn_tid = None
         show_page()
 
     # --- Tastetryk / -slip ---

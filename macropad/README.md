@@ -3,15 +3,21 @@
 CircuitPython-kode til Adafruit MacroPad RP2040. Boardet fungerer som USB-tastatur
 med 6 sider af genveje til Mac'en. Displayet viser alle 12 knappers funktion i et grid.
 
-## v5.0: Siderne ER apps
+## v6.0: Boardet følger den aktive app
 
-- Encoderen skifter side, og boardet åbner selv den app, siden styrer (0,8 sek efter man er landet, så man kan dreje forbi):
-  **1 SYSTEM** (ingen app) · **2 SAFARI** · **3 CHROME** · **4 PIXELM** (Pixelmator Pro)
-- Encoder-tryk = tilbage til SYSTEM
+- En lille **follow-tjeneste** på Mac'en (installeres automatisk af install.sh som launchd-baggrundsproces) fortæller boardet over USB-seriel, hvilken app der er forrest — og boardet skifter selv side: **SAFARI**, **CHROME**, **PIXELM** (Pixelmator Pro), alt andet → **SYSTEM**. Ingen apps startes ved sideskift.
+- Boardet kan bede Mac'en om ting via samme kanal — elegant, uden Spotlight: `open:App` åbner en app med `open -a`, `run:Navn` kører en Apple Genvej ved navn (`shortcuts run`). Uden tjenesten falder app-åbning tilbage til Spotlight.
+- Encoder: drej = skift side manuelt, tryk = tilbage til SYSTEM
 - Knap 1 = øverste venstre hjørne … knap 12 = nederste højre hjørne (samme plads i displayets grid)
 - Alle knapper har to funktioner: **tryk** (kort) og **hold** (over 0,4 sek)
 - **Globale holds:** knap 12 hold = MUTE · knap 10 hold = åbn Lommeregner + NUMPAD til/fra
-- Apple Genveje kan kobles på via `genvej(...)`-knapper (hyper-tast-kombination): åbn genvejen i Genveje-appen → (i) → "Tilføj tastaturgenvej" → tryk på MacroPad-knappen
+- Apple Genveje: enten `genvej(...)` (hyper-tastaturgenvej: åbn genvejen i Genveje-appen → (i) → "Tilføj tastaturgenvej" → tryk på MacroPad-knappen) eller `("RUN", "Genvejens navn")` direkte ved navn
+- **Efter første installation:** tag USB-stikket ud og ind én gang (boot.py aktiverer den serielle dataport), og godkend macOS-prompten om at styre "System Events"
+
+### Filer på Mac'en
+
+- `~/.macropad/macropad-follow.sh` — follow-tjenesten (log: `~/.macropad/follow.log`)
+- `~/Library/LaunchAgents/dk.ditzel.macropad.follow.plist` — starter tjenesten automatisk ved login
 
 ## Installér på boardet (én kommando)
 
@@ -26,7 +32,7 @@ Samme kommando bruges hver gang koden er blevet opdateret.
 
 ## Betjening
 
-- **Indbygget encoder (øverst):** drej = skift side (åbner sidens app), tryk = tilbage til SYSTEM
+- **Indbygget encoder (øverst):** drej = skift side manuelt, tryk = tilbage til SYSTEM (siderne følger ellers selv den aktive app)
 - **Stemma QT encoder:** drej = lydstyrke op/ned, tryk = mute
 - **Displayet** viser sidens navn øverst og alle 12 knappers funktion i 3×4-grid (samme layout som tasterne)
 
