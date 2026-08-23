@@ -220,22 +220,28 @@ PAGES = [
         ],
     },
     {
+        # Layout efter Thomas' skitse (to tomme felter udfyldt med
+        # Gem og Fortryd — ret frit)
         "name": "PIXELM",
         "match": "pixelmator",
         "color": (15, 0, 25),
         "keys": [
-            ("Ny", [CMD, K.N], ("Aabn", [CMD, K.O])),
+            # Raekke 1
             ("Gem", [CMD, K.S], ("GemSom", [CMD, SHIFT, K.S])),
-            ("Export", [CMD, SHIFT, K.E], None),
-            ("Zoom-", [CMD, K.MINUS], ("ZoomFit", [CMD, K.ZERO])),
-            ("Zoom+", [CMD, K.EQUALS], None),
-            ("Crop", [K.C], None),
-            ("Vaelg", [K.V], None),
-            ("Tekst", [K.T], None),
+            ("Paint", [K.B], None),
+            ("FarvVlg", [K.W], None),            # Color Selection
+            # Raekke 2
             ("Fortryd", [CMD, K.Z], ("Gentag", [CMD, SHIFT, K.Z])),
-            ("Kopier", [CMD, K.C], None),        # hold = NUMPAD (global)
-            ("Saet", [CMD, K.V], None),
-            ("Slet", [K.BACKSPACE], None),       # hold = MUTE (global)
+            ("Select", [K.M], None),             # Selection
+            ("Erase", [K.E], None),
+            # Raekke 3
+            ("Gruppe", [CMD, K.G], None),
+            ("UGruppe", [CMD, SHIFT, K.G], None),
+            ("FarvFyl", [K.N], None),            # Color Fill
+            # Raekke 4
+            ("Export", [CMD, SHIFT, K.E], None),  # hold = NUMPAD (global)
+            ("Tekst", [K.T], None),               # Type
+            ("Arrang", [K.V], None),              # Arrange — hold = MUTE (global)
         ],
     },
 ]
