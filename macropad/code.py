@@ -235,9 +235,7 @@ PAGES = [
         "color": (15, 0, 25),
         "keys": [
             # Raekke 1
-            # hold paa Save = makro: skaler til 300px + eksporter til
-            # "Grafik upload" (AppleScript paa Mac'en)
-            ("Save", [CMD, K.S], ("Exp300", [("SCRIPT", "pixelmator-300px")])),
+            ("Save", [CMD, K.S], ("SaveAs", [CMD, SHIFT, K.S])),
             ("Paint", [K.B], None),
             ("ColSel", [K.W], None),             # Color Selection
             # Raekke 2
@@ -249,7 +247,8 @@ PAGES = [
             ("Ungroup", [CMD, SHIFT, K.G], None),
             ("Fill", [K.N], None),               # Color Fill
             # Raekke 4
-            ("Export", [CMD, SHIFT, K.E], None),  # hold = NUMPAD (global)
+            # Exp300-makro: resolution 300 + eksporter PNG til "Grafik upload"
+            ("Exp300", [("SCRIPT", "pixelmator-300px")], None),  # hold = NUMPAD (global)
             ("Type", [K.T], None),
             ("Arrange", [K.V], None),             # hold = MUTE (global)
         ],

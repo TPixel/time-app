@@ -1,4 +1,4 @@
--- Pixelmator Pro-makro: skaler billedet til 300 px bredde og eksporter
+-- Pixelmator Pro-makro: saet billedets resolution til 300 og eksporter
 -- som PNG til mappen "Grafik upload" paa Skrivebordet (oprettes automatisk).
 -- Koeres af MacroPad'en via follow-tjenesten ("script:pixelmator-300px").
 
@@ -14,7 +14,7 @@ tell application "Pixelmator Pro"
 		set AppleScript's text item delimiters to ""
 	end if
 	tell front document
-		resize image width 300
+		resize image resolution 300
 		export to POSIX file (outFolder & docName & ".png") as PNG
 	end tell
 end tell
