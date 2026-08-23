@@ -385,9 +385,12 @@ while True:
             page = (page + retning) % len(PAGES)
             show_page()
         else:
-            # Drej alene = zoom i den aktive app
+            # Drej alene = zoom i den aktive app.
+            # Boardet sender fysiske tastepositioner og Mac'en bruger DANSK
+            # layout: dansk "+" sidder paa US MINUS-tasten og dansk "-" paa
+            # US FORWARD_SLASH-tasten.
             for _ in range(antal):
-                run_sequence([CMD, K.EQUALS] if retning > 0 else [CMD, K.MINUS])
+                run_sequence([CMD, K.MINUS] if retning > 0 else [CMD, K.FORWARD_SLASH])
 
     if not enc_sw and enc_sw_prev:
         # Sluppet: rent klik (uden drej) = tilbage til SYSTEM
