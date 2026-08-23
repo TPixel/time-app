@@ -169,18 +169,18 @@ PAGES = [
         "keys": [
             # Raekke 1 (knap 1-3)
             ("Spotlgt", [CMD, K.SPACE], ("Emoji", [CTRL, CMD, K.SPACE])),
-            ("Shot", [CMD, SHIFT, K.FOUR], ("ShotUI", [CMD, SHIFT, K.FIVE])),
-            ("Mission", [CTRL, K.UP_ARROW], ("Laas", [CTRL, CMD, K.Q])),
+            ("Shot", [CMD, SHIFT, K.FOUR], ("Capture", [CMD, SHIFT, K.FIVE])),
+            ("Mission", [CTRL, K.UP_ARROW], ("Lock", [CTRL, CMD, K.Q])),
             # Raekke 2 (knap 4-6)
-            ("Kopier", [CMD, K.C], ("Klip", [CMD, K.X])),
-            ("Saet", [CMD, K.V], ("SaetRen", [CMD, SHIFT, ALT, K.V])),
-            ("Fortryd", [CMD, K.Z], ("Gentag", [CMD, SHIFT, K.Z])),
+            ("Copy", [CMD, K.C], ("Cut", [CMD, K.X])),
+            ("Paste", [CMD, K.V], ("Plain", [CMD, SHIFT, ALT, K.V])),
+            ("Undo", [CMD, K.Z], ("Redo", [CMD, SHIFT, K.Z])),
             # Raekke 3 (knap 7-9)
-            ("Skjul", [CMD, K.H], ("TvingLk", [CMD, ALT, K.ESCAPE])),
-            ("LukVind", [CMD, K.W], ("LukApp", [CMD, K.Q])),
-            ("Genvej1", genvej(K.ONE), ("Genvej2", genvej(K.TWO))),
+            ("Hide", [CMD, K.H], ("ForceQ", [CMD, ALT, K.ESCAPE])),
+            ("CloseW", [CMD, K.W], ("QuitApp", [CMD, K.Q])),
+            ("Shrtct1", genvej(K.ONE), ("Shrtct2", genvej(K.TWO))),
             # Raekke 4 (knap 10-12)
-            ("Lommer", aabn("Calculator", "calculator"), None),  # hold = NUMPAD (global)
+            ("Calc", aabn("Calculator", "calculator"), None),  # hold = NUMPAD (global)
             ("Vol-", [("CC", CC.VOLUME_DECREMENT)], ("Play", [("CC", CC.PLAY_PAUSE)])),
             ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None),  # hold = MUTE (global)
         ],
@@ -190,18 +190,18 @@ PAGES = [
         "match": "safari",
         "color": (0, 12, 30),
         "keys": [
-            ("NyTab", [CMD, K.T], ("NytVind", [CMD, K.N])),
-            ("LukTab", [CMD, K.W], ("Genabn", [CMD, SHIFT, K.T])),
-            ("Privat", [CMD, SHIFT, K.N], None),
-            ("ForrTab", [CTRL, SHIFT, K.TAB], None),
-            ("NsteTab", [CTRL, K.TAB], None),
+            ("NewTab", [CMD, K.T], ("NewWin", [CMD, K.N])),
+            ("ClosTab", [CMD, K.W], ("Reopen", [CMD, SHIFT, K.T])),
+            ("Private", [CMD, SHIFT, K.N], None),
+            ("PrevTab", [CTRL, SHIFT, K.TAB], None),
+            ("NextTab", [CTRL, K.TAB], None),
             ("Reload", [CMD, K.R], None),
-            ("Tilbage", [CMD, K.LEFT_BRACKET], None),
-            ("Frem", [CMD, K.RIGHT_BRACKET], None),
-            ("Adresse", [CMD, K.L], ("Soeg", [CMD, K.F])),
-            ("Bogmrk", [CMD, K.D], None),        # hold = NUMPAD (global)
-            ("Laeslis", [CMD, SHIFT, K.D], ("VisLaes", [CMD, CTRL, K.TWO])),
-            ("Hentn", [CMD, ALT, K.L], None),    # hold = MUTE (global)
+            ("Back", [CMD, K.LEFT_BRACKET], None),
+            ("Forward", [CMD, K.RIGHT_BRACKET], None),
+            ("Address", [CMD, K.L], ("Find", [CMD, K.F])),
+            ("Bookmrk", [CMD, K.D], None),       # hold = NUMPAD (global)
+            ("ReadLst", [CMD, SHIFT, K.D], ("ShowLst", [CMD, CTRL, K.TWO])),
+            ("Downlds", [CMD, ALT, K.L], None),  # hold = MUTE (global)
         ],
     },
     {
@@ -209,18 +209,18 @@ PAGES = [
         "match": "chrome",
         "color": (25, 10, 0),
         "keys": [
-            ("NyTab", [CMD, K.T], ("NytVind", [CMD, K.N])),
-            ("LukTab", [CMD, K.W], ("Genabn", [CMD, SHIFT, K.T])),
-            ("Inkogn", [CMD, SHIFT, K.N], None),
-            ("ForrTab", [CTRL, SHIFT, K.TAB], None),
-            ("NsteTab", [CTRL, K.TAB], None),
-            ("Reload", [CMD, K.R], ("HardRel", [CMD, SHIFT, K.R])),
-            ("Tilbage", [CMD, K.LEFT_BRACKET], None),
-            ("Frem", [CMD, K.RIGHT_BRACKET], None),
-            ("Adresse", [CMD, K.L], ("Soeg", [CMD, K.F])),
-            ("Bogmrk", [CMD, K.D], None),        # hold = NUMPAD (global)
-            ("DevTool", [CMD, ALT, K.I], ("Inspekt", [CMD, SHIFT, K.C])),
-            ("Hentn", [CMD, SHIFT, K.J], None),  # hold = MUTE (global)
+            ("NewTab", [CMD, K.T], ("NewWin", [CMD, K.N])),
+            ("ClosTab", [CMD, K.W], ("Reopen", [CMD, SHIFT, K.T])),
+            ("Incogn", [CMD, SHIFT, K.N], None),
+            ("PrevTab", [CTRL, SHIFT, K.TAB], None),
+            ("NextTab", [CTRL, K.TAB], None),
+            ("Reload", [CMD, K.R], ("HardRld", [CMD, SHIFT, K.R])),
+            ("Back", [CMD, K.LEFT_BRACKET], None),
+            ("Forward", [CMD, K.RIGHT_BRACKET], None),
+            ("Address", [CMD, K.L], ("Find", [CMD, K.F])),
+            ("Bookmrk", [CMD, K.D], None),       # hold = NUMPAD (global)
+            ("DevTool", [CMD, ALT, K.I], ("Inspect", [CMD, SHIFT, K.C])),
+            ("Downlds", [CMD, SHIFT, K.J], None),  # hold = MUTE (global)
         ],
     },
     {
