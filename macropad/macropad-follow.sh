@@ -6,6 +6,8 @@
 # 2) Udfoerer kommandoer boardet sender:
 #      open:AppNavn     -> open -a "AppNavn"       (elegant app-start)
 #      run:GenvejsNavn  -> shortcuts run "Navn"    (Apple Genveje)
+#      script:navn      -> osascript ~/.macropad/scripts/navn.applescript
+#                          (AppleScript-makroer, fx Pixelmator-workflows)
 
 while true; do
   PORT=$(ls /dev/cu.usbmodem* 2>/dev/null | sort | tail -n 1)
@@ -26,7 +28,11 @@ while true; do
       line=${line%$'\r'}
       case "$line" in
         open:*) open -a "${line#open:}" ;;
-        run:*)  shortcuts run "${line#run:}" ;;
+        run:*)  shortcuts run "${line#run:}" >/dev/null 2>&1 & ;;
+        script:*)
+          navn=$(basename "${line#script:}")
+          osascript "$HOME/.macropad/scripts/$navn.applescript" >/dev/null 2>&1 &
+          ;;
       esac
     done
   ) &

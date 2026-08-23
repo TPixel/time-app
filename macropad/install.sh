@@ -35,6 +35,12 @@ mkdir -p "$MP_DIR"
 cp /tmp/macropad-follow.sh "$MP_DIR/macropad-follow.sh"
 chmod +x "$MP_DIR/macropad-follow.sh"
 
+echo "📜 Installerer AppleScript-makroer ..."
+mkdir -p "$MP_DIR/scripts"
+for script in pixelmator-300px; do
+  curl -fsSL "$BASE_URL/scripts/$script.applescript" -o "$MP_DIR/scripts/$script.applescript"
+done
+
 cat > "$PLIST" <<PLIST_EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">

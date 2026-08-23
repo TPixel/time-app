@@ -112,6 +112,8 @@ HOLD_TID = 0.4  # sekunder før et tryk tæller som HOLD
 #                     -> aabn app: via follow-tjenesten hvis muligt,
 #                        ellers Spotlight-fallback
 #   ("RUN", "Navn")   -> koer Apple Genvej med det navn (via follow-tjenesten)
+#   ("SCRIPT", "navn") -> koer AppleScript-makroen
+#                         ~/.macropad/scripts/navn.applescript paa Mac'en
 
 def app(navn):
     # Spotlight-fallback: Cmd+Space, skriv navn, Enter
@@ -149,6 +151,8 @@ def run_sequence(seq):
                 run_sequence(app(item[2]))
         elif isinstance(item, tuple) and item[0] == "RUN":
             ser_send("run:" + item[1])
+        elif isinstance(item, tuple) and item[0] == "SCRIPT":
+            ser_send("script:" + item[1])
         elif isinstance(item, int):
             macropad.keyboard.press(item)
             pressed.append(item)
@@ -231,7 +235,9 @@ PAGES = [
         "color": (15, 0, 25),
         "keys": [
             # Raekke 1
-            ("Save", [CMD, K.S], ("SaveAs", [CMD, SHIFT, K.S])),
+            # hold paa Save = makro: skaler til 300px + eksporter til
+            # "Grafik upload" (AppleScript paa Mac'en)
+            ("Save", [CMD, K.S], ("Exp300", [("SCRIPT", "pixelmator-300px")])),
             ("Paint", [K.B], None),
             ("ColSel", [K.W], None),             # Color Selection
             # Raekke 2
