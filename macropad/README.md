@@ -3,6 +3,14 @@
 CircuitPython-kode til Adafruit MacroPad RP2040. Boardet fungerer som USB-tastatur
 med 6 sider af genveje til Mac'en. Displayet viser alle 12 knappers funktion i et grid.
 
+## v3.0: Tryk + Hold
+
+- Knap 1 = øverste venstre hjørne … knap 12 = nederste højre hjørne (samme plads i displayets grid)
+- Alle knapper har to funktioner: **tryk** (kort) og **hold** (over 0,4 sek)
+- **Globalt på alle sider:** knap 12 hold = MUTE · knap 10 hold = åbn Lommeregner + boardet bliver numerisk tastatur (hold knap 10 igen = tilbage)
+- Startsiden er **SYSTEM**
+- Apple Genveje kan kobles på via `genvej(...)`-knapper (hyper-tast-kombination): åbn genvejen i Genveje-appen → (i) → "Tilføj tastaturgenvej" → tryk på MacroPad-knappen
+
 ## Installér på boardet (én kommando)
 
 Sæt MacroPad'en i USB på din Mac og kør i Terminal:
