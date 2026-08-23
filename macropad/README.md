@@ -3,12 +3,13 @@
 CircuitPython-kode til Adafruit MacroPad RP2040. Boardet fungerer som USB-tastatur
 med 6 sider af genveje til Mac'en. Displayet viser alle 12 knappers funktion i et grid.
 
-## v3.0: Tryk + Hold
+## v4.0: SYSTEM + NUMPAD + app-vælger på encoderen
 
+- Kun to sider: **SYSTEM** (startside) og **NUMPAD** (via hold på knap 10)
 - Knap 1 = øverste venstre hjørne … knap 12 = nederste højre hjørne (samme plads i displayets grid)
 - Alle knapper har to funktioner: **tryk** (kort) og **hold** (over 0,4 sek)
-- **Globalt på alle sider:** knap 12 hold = MUTE · knap 10 hold = åbn Lommeregner + boardet bliver numerisk tastatur (hold knap 10 igen = tilbage)
-- Startsiden er **SYSTEM**
+- **Globale holds:** knap 12 hold = MUTE · knap 10 hold = åbn Lommeregner + boardet bliver numerisk tastatur (hold knap 10 igen = tilbage)
+- **Encoderen er app-vælger:** drej = bladr gennem apps (vises øverst på displayet), tryk = start den valgte app. Listen ligger i `APP_LIST` i `code.py`.
 - Apple Genveje kan kobles på via `genvej(...)`-knapper (hyper-tast-kombination): åbn genvejen i Genveje-appen → (i) → "Tilføj tastaturgenvej" → tryk på MacroPad-knappen
 
 ## Installér på boardet (én kommando)
@@ -24,24 +25,27 @@ Samme kommando bruges hver gang koden er blevet opdateret.
 
 ## Betjening
 
-- **Indbygget encoder (øverst):** drej = skift side, tryk = tilbage til APPS-siden
+- **Indbygget encoder (øverst):** drej = bladr i app-listen, tryk = start den valgte app
 - **Stemma QT encoder:** drej = lydstyrke op/ned, tryk = mute
 - **Displayet** viser sidens navn øverst og alle 12 knappers funktion i 3×4-grid (samme layout som tasterne)
 
-## Siderne
+## SYSTEM-siden (tryk / hold)
 
-| Side | Indhold |
-|---|---|
-| APPS | Åbner programmer via Spotlight: Safari, Chrome, Mail, Noter, Finder, Terminal, Musik, Kalender, Beskeder, Fotos, Systemindstillinger, P-touch Editor |
-| MACOS | Spotlight, emoji-vælger, lås skærm, skærmbilleder, Mission Control, skjul/luk app, tving luk, kopiér/sæt ind/fortryd |
-| BROWSER | Ny/luk/genåbn tab, skift tab, reload, adressefelt, privat vindue, frem/tilbage, zoom |
-| FINDER | Nyt vindue/mappe, info, quick look, slet, duplikér, genveje til Hentninger/Dokumenter/Skrivebord/Hjem, vis skjulte filer, AirDrop |
-| MAIL | Ny mail, svar/svar alle/videresend, send, arkivér, slet, ulæst, flag, søg |
-| MEDIE | Play/pause, næste/forrige, lydstyrke, mute, skærmlysstyrke, åbn Musik/Podcasts/Tidal |
+| | | |
+|---|---|---|
+| 1 Spotlight / Emoji | 2 Skærmbillede / Skærmoptag | 3 Mission Control / Lås skærm |
+| 4 Kopiér / Klip | 5 Sæt ind / Sæt ind uden format | 6 Fortryd / Gentag |
+| 7 Skjul app / Tving luk | 8 Luk vindue / Luk app | 9 Genvej1 / Genvej2 |
+| 10 Lommeregner / **NUMPAD** | 11 Vol− / Play-pause | 12 Vol+ / **MUTE** |
+
+## NUMPAD (hold knap 10)
+
+7-8-9 / 4-5-6 / 1-2-3 øverst; nederst 0, komma og = (enter).
+Hold: 9 = plus, 6 = minus, 3 = gange, komma = division, 7 = C (ryd). Hold knap 10 = tilbage.
 
 ## Tilpasning
 
-Alle sider ligger i `PAGES`-listen i `code.py` — navn, farve og 12 taster pr. side.
+Siderne `SYSTEM` og `NUMPAD` samt `APP_LIST` ligger øverst i `code.py`.
 En genvej er en liste af trin: Keycodes holdes nede sammen, tekst-strenge skrives,
 tal (float) er pauser, `("CC", kode)` er medietaster. `app("navn")` åbner et program
 via Spotlight.

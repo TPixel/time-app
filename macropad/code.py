@@ -1,15 +1,18 @@
-# code.py — MacroPad RP2040 — Mac Shortcut Keyboard v3.0
+# code.py — MacroPad RP2040 — Mac Shortcut Keyboard v4.0
 #
 # Knap-nummerering: 1 = øverste venstre hjørne ... 12 = nederste højre hjørne
 # (samme placering i displayets 3x4-grid som på selve tasterne)
 #
 # Alle knapper har TO funktioner: TRYK (kort) og HOLD (>0.4 sek)
-# Globale holds (gælder på ALLE sider):
+# Globale holds:
 #   Knap 12 hold = MUTE
 #   Knap 10 hold = åbn Lommeregner + boardet bliver numerisk tastatur
 #                  (hold knap 10 igen for at gå tilbage)
 #
-# Indbygget encoder: drej = skift side, tryk = tilbage til SYSTEM
+# Indbygget encoder = APP-VAELGER:
+#   drej  = bladr gennem apps (vises paa displayet)
+#   tryk  = start den valgte app
+#
 # Stemma QT encoder (valgfri): drej = lydstyrke, tryk = mute
 #
 # Thomas / Lys Afd.
@@ -68,7 +71,8 @@ ALT = K.OPTION
 CTRL = K.CONTROL
 CC = ConsumerControlCode
 
-HOLD_TID = 0.4  # sekunder før et tryk tæller som HOLD
+HOLD_TID = 0.4       # sekunder før et tryk tæller som HOLD
+APP_VISNING = 4.0    # sekunder app-vælgeren vises efter sidste drej
 
 # -------------------------
 # Genvejs-sekvenser
@@ -112,128 +116,57 @@ def run_sequence(seq):
         macropad.keyboard.release(kc)
 
 # -------------------------
+# APP-liste til encoderen (drej = bladr, tryk = start)
+# (visningsnavn, navn der skrives i Spotlight — kun a-z/0-9/mellemrum/bindestreg)
+# -------------------------
+APP_LIST = [
+    ("Safari", "safari"),
+    ("Chrome", "chrome"),
+    ("Mail", "mail"),
+    ("Noter", "notes"),
+    ("Finder", "finder"),
+    ("Terminal", "terminal"),
+    ("Musik", "music"),
+    ("Kalender", "calendar"),
+    ("Beskeder", "messages"),
+    ("Fotos", "photos"),
+    ("Indstillinger", "system settings"),
+    ("P-touch", "p-touch editor"),
+    ("Lommeregner", "calculator"),
+    ("Tidal", "tidal"),
+]
+
+# -------------------------
 # Sider
 # Hver knap: (label, TRYK-sekvens, HOLD-sekvens eller None)
 # Knap 1 = øverst venstre ... knap 12 = nederst højre
 # Label max 7 tegn, kun ASCII (æøå kan ikke vises på displayet)
 # -------------------------
-PAGES = [
-    {
-        "name": "SYSTEM",
-        "color": (0, 0, 25),
-        "keys": [
-            # Raekke 1 (knap 1-3)
-            ("Spotlgt", [CMD, K.SPACE], ("Emoji", [CTRL, CMD, K.SPACE])),
-            ("Shot", [CMD, SHIFT, K.FOUR], ("ShotUI", [CMD, SHIFT, K.FIVE])),
-            ("Mission", [CTRL, K.UP_ARROW], ("Laas", [CTRL, CMD, K.Q])),
-            # Raekke 2 (knap 4-6)
-            ("Kopier", [CMD, K.C], ("Klip", [CMD, K.X])),
-            ("Saet", [CMD, K.V], ("SaetRen", [CMD, SHIFT, ALT, K.V])),
-            ("Fortryd", [CMD, K.Z], ("Gentag", [CMD, SHIFT, K.Z])),
-            # Raekke 3 (knap 7-9)
-            ("Skjul", [CMD, K.H], ("TvingLk", [CMD, ALT, K.ESCAPE])),
-            ("LukVind", [CMD, K.W], ("LukApp", [CMD, K.Q])),
-            ("Genvej1", genvej(K.ONE), ("Genvej2", genvej(K.TWO))),
-            # Raekke 4 (knap 10-12)
-            ("Lommer", app("calculator"), None),   # hold = NUMPAD (global)
-            ("Vol-", [("CC", CC.VOLUME_DECREMENT)], ("Play", [("CC", CC.PLAY_PAUSE)])),
-            ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None),  # hold = MUTE (global)
-        ],
-    },
-    {
-        "name": "APPS",
-        "color": (20, 0, 20),
-        "keys": [
-            ("Safari", app("safari"), None),
-            ("Chrome", app("chrome"), None),
-            ("Mail", app("mail"), None),
-            ("Noter", app("notes"), None),
-            ("Finder", app("finder"), None),
-            ("Term", app("terminal"), None),
-            ("Musik", app("music"), None),
-            ("Kalend", app("calendar"), None),
-            ("Besked", app("messages"), None),
-            ("Fotos", app("photos"), None),
-            ("Indst", app("system settings"), None),
-            ("Ptouch", app("p-touch editor"), None),
-        ],
-    },
-    {
-        "name": "BROWSER",
-        "color": (0, 25, 25),
-        "keys": [
-            ("NyTab", [CMD, K.T], ("NytVind", [CMD, K.N])),
-            ("LukTab", [CMD, K.W], ("Genabn", [CMD, SHIFT, K.T])),
-            ("Reload", [CMD, K.R], ("HardRel", [CMD, SHIFT, K.R])),
-            ("NsteTab", [CTRL, K.TAB], None),
-            ("ForrTab", [CTRL, SHIFT, K.TAB], None),
-            ("Adresse", [CMD, K.L], ("Privat", [CMD, SHIFT, K.N])),
-            ("Tilbage", [CMD, K.LEFT_BRACKET], None),
-            ("Frem", [CMD, K.RIGHT_BRACKET], None),
-            ("Bogmrk", [CMD, K.D], ("VisBogm", [CMD, ALT, K.B])),
-            ("Zoom-", [CMD, K.MINUS], ("Zoom0", [CMD, K.ZERO])),
-            ("Zoom+", [CMD, K.EQUALS], None),
-            ("Soeg", [CMD, K.F], None),
-        ],
-    },
-    {
-        "name": "FINDER",
-        "color": (0, 25, 0),
-        "keys": [
-            ("NytVind", [CMD, K.N], ("NyMappe", [CMD, SHIFT, K.N])),
-            ("Info", [CMD, K.I], None),
-            ("Kig", [K.SPACE], None),
-            ("Slet", [CMD, K.BACKSPACE], ("TomSkrl", [CMD, SHIFT, K.BACKSPACE])),
-            ("Duplik", [CMD, K.D], None),
-            ("Omdoeb", [K.ENTER], None),
-            ("Hentn", [CMD, ALT, K.L], None),
-            ("Dokum", [CMD, SHIFT, K.O], None),
-            ("Skrbord", [CMD, SHIFT, K.D], ("Hjem", [CMD, SHIFT, K.H])),
-            ("Skjulte", [CMD, SHIFT, K.PERIOD], None),
-            ("AirDrop", [CMD, SHIFT, K.R], None),
-            ("SoegFil", [CMD, K.F], None),
-        ],
-    },
-    {
-        "name": "MAIL",
-        "color": (25, 12, 0),
-        "keys": [
-            ("NyMail", [CMD, K.N], None),
-            ("Svar", [CMD, K.R], ("SvarAll", [CMD, SHIFT, K.R])),
-            ("Videre", [CMD, SHIFT, K.F], None),
-            ("Send", [CMD, SHIFT, K.D], None),
-            ("Arkiver", [CTRL, CMD, K.A], None),
-            ("Slet", [CMD, K.BACKSPACE], None),
-            ("Ulaest", [CMD, SHIFT, K.U], None),
-            ("Flag", [CMD, SHIFT, K.L], None),
-            ("Soeg", [CMD, ALT, K.F], None),
-            ("Gem", [CMD, K.S], None),
-            ("Hent", [CMD, SHIFT, K.N], None),
-            ("LukVind", [CMD, K.W], None),
-        ],
-    },
-    {
-        "name": "MEDIE",
-        "color": (25, 25, 0),
-        "keys": [
-            ("Play", [("CC", CC.PLAY_PAUSE)], None),
-            ("Forrige", [("CC", CC.SCAN_PREVIOUS_TRACK)], None),
-            ("Naeste", [("CC", CC.SCAN_NEXT_TRACK)], None),
-            ("Vol-", [("CC", CC.VOLUME_DECREMENT)], None),
-            ("Mute", [("CC", CC.MUTE)], None),
-            ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None),
-            ("Lys-", [("CC", getattr(CC, "BRIGHTNESS_DECREMENT", None))], None),
-            ("Stop", [("CC", CC.STOP)], None),
-            ("Lys+", [("CC", getattr(CC, "BRIGHTNESS_INCREMENT", None))], None),
-            ("Musik", app("music"), None),
-            ("Podcast", app("podcasts"), None),
-            ("Tidal", app("tidal"), None),
-        ],
-    },
-]
+SYSTEM = {
+    "name": "SYSTEM",
+    "color": (0, 0, 25),
+    "keys": [
+        # Raekke 1 (knap 1-3)
+        ("Spotlgt", [CMD, K.SPACE], ("Emoji", [CTRL, CMD, K.SPACE])),
+        ("Shot", [CMD, SHIFT, K.FOUR], ("ShotUI", [CMD, SHIFT, K.FIVE])),
+        ("Mission", [CTRL, K.UP_ARROW], ("Laas", [CTRL, CMD, K.Q])),
+        # Raekke 2 (knap 4-6)
+        ("Kopier", [CMD, K.C], ("Klip", [CMD, K.X])),
+        ("Saet", [CMD, K.V], ("SaetRen", [CMD, SHIFT, ALT, K.V])),
+        ("Fortryd", [CMD, K.Z], ("Gentag", [CMD, SHIFT, K.Z])),
+        # Raekke 3 (knap 7-9)
+        ("Skjul", [CMD, K.H], ("TvingLk", [CMD, ALT, K.ESCAPE])),
+        ("LukVind", [CMD, K.W], ("LukApp", [CMD, K.Q])),
+        ("Genvej1", genvej(K.ONE), ("Genvej2", genvej(K.TWO))),
+        # Raekke 4 (knap 10-12)
+        ("Lommer", app("calculator"), None),   # hold = NUMPAD (global)
+        ("Vol-", [("CC", CC.VOLUME_DECREMENT)], ("Play", [("CC", CC.PLAY_PAUSE)])),
+        ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None),  # hold = MUTE (global)
+    ],
+}
 
-# NUMPAD — speciel side (aktiveres med hold paa knap 10)
-# Tal taster som rigtigt numerisk tastatur; hold giver regne-tegn
+# NUMPAD — aktiveres med hold paa knap 10
+# Tal som rigtigt numerisk tastatur; hold giver regnetegn
 NUMPAD = {
     "name": "NUMPAD",
     "color": (25, 25, 25),
@@ -270,11 +203,10 @@ for row in range(4):
         group.append(cell)
         cells.append(cell)
 
-page = 0
 numpad_active = False
 
 def current_page():
-    return NUMPAD if numpad_active else PAGES[page]
+    return NUMPAD if numpad_active else SYSTEM
 
 def show_page():
     pg = current_page()
@@ -285,12 +217,6 @@ def show_page():
     if st_present:
         st_np.fill(pg["color"])
 
-def load_page(p):
-    global page, numpad_active
-    numpad_active = False
-    page = p % len(PAGES)
-    show_page()
-
 def toggle_numpad():
     global numpad_active
     if numpad_active:
@@ -300,7 +226,7 @@ def toggle_numpad():
         numpad_active = True
     show_page()
 
-load_page(0)
+show_page()
 
 # -------------------------
 # Main loop
@@ -313,20 +239,35 @@ if st_present:
 # key_number -> [starttid, hold_er_fyret]
 holdes = {}
 
+# App-vaelger
+app_index = 0
+app_browse_slut = None  # tidspunkt hvor visningen skal tilbage til normal
+
 while True:
     nu = time.monotonic()
     macropad.encoder_switch_debounced.update()
     key_event = macropad.keys.events.get()
 
-    # --- Indbygget encoder: skift side (forlader ogsaa NUMPAD) ---
+    # --- Indbygget encoder: drej = bladr i apps ---
     enc_pos = macropad.encoder
     if enc_pos != last_encoder_pos:
-        load_page(page + (1 if enc_pos > last_encoder_pos else -1))
+        app_index = (app_index + (1 if enc_pos > last_encoder_pos else -1)) % len(APP_LIST)
         last_encoder_pos = enc_pos
+        title.text = ("APP> " + APP_LIST[app_index][0])[:21]
+        app_browse_slut = nu + APP_VISNING
 
-    # --- Encoder-tryk: tilbage til SYSTEM ---
+    # --- Encoder-tryk: start den valgte app ---
     if macropad.encoder_switch_debounced.fell:
-        load_page(0)
+        navn, spotlight = APP_LIST[app_index]
+        title.text = (">> " + navn)[:21]
+        run_sequence(app(spotlight))
+        app_browse_slut = None
+        show_page()
+
+    # --- App-visning tilbage til normal efter timeout ---
+    if app_browse_slut is not None and nu >= app_browse_slut:
+        app_browse_slut = None
+        show_page()
 
     # --- Tastetryk / -slip ---
     if key_event:
@@ -351,11 +292,11 @@ while True:
             holdes[k][1] = True
             macropad.pixels[k] = (255, 60, 0)
             if k == 11:
-                # Knap 12: hold = MUTE, altid, paa alle sider
+                # Knap 12: hold = MUTE, altid
                 title.text = ">> MUTE"
                 macropad.consumer_control.send(CC.MUTE)
             elif k == 9:
-                # Knap 10: hold = Lommeregner + NUMPAD til/fra, alle sider
+                # Knap 10: hold = Lommeregner + NUMPAD til/fra
                 toggle_numpad()
             else:
                 _name, _tap, hold = current_page()["keys"][k]
