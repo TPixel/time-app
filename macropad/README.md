@@ -3,13 +3,14 @@
 CircuitPython-kode til Adafruit MacroPad RP2040. Boardet fungerer som USB-tastatur
 med 6 sider af genveje til Mac'en. Displayet viser alle 12 knappers funktion i et grid.
 
-## v4.0: SYSTEM + NUMPAD + app-vælger på encoderen
+## v5.0: Siderne ER apps
 
-- Kun to sider: **SYSTEM** (startside) og **NUMPAD** (via hold på knap 10)
+- Encoderen skifter side, og boardet åbner selv den app, siden styrer (0,8 sek efter man er landet, så man kan dreje forbi):
+  **1 SYSTEM** (ingen app) · **2 SAFARI** · **3 CHROME** · **4 PIXELM** (Pixelmator Pro)
+- Encoder-tryk = tilbage til SYSTEM
 - Knap 1 = øverste venstre hjørne … knap 12 = nederste højre hjørne (samme plads i displayets grid)
 - Alle knapper har to funktioner: **tryk** (kort) og **hold** (over 0,4 sek)
-- **Globale holds:** knap 12 hold = MUTE · knap 10 hold = åbn Lommeregner + boardet bliver numerisk tastatur (hold knap 10 igen = tilbage)
-- **Encoderen er app-vælger:** drej = bladr gennem apps (vises øverst på displayet), tryk = start den valgte app. Listen ligger i `APP_LIST` i `code.py`.
+- **Globale holds:** knap 12 hold = MUTE · knap 10 hold = åbn Lommeregner + NUMPAD til/fra
 - Apple Genveje kan kobles på via `genvej(...)`-knapper (hyper-tast-kombination): åbn genvejen i Genveje-appen → (i) → "Tilføj tastaturgenvej" → tryk på MacroPad-knappen
 
 ## Installér på boardet (én kommando)
@@ -25,7 +26,7 @@ Samme kommando bruges hver gang koden er blevet opdateret.
 
 ## Betjening
 
-- **Indbygget encoder (øverst):** drej = bladr i app-listen, tryk = start den valgte app
+- **Indbygget encoder (øverst):** drej = skift side (åbner sidens app), tryk = tilbage til SYSTEM
 - **Stemma QT encoder:** drej = lydstyrke op/ned, tryk = mute
 - **Displayet** viser sidens navn øverst og alle 12 knappers funktion i 3×4-grid (samme layout som tasterne)
 
@@ -43,9 +44,14 @@ Samme kommando bruges hver gang koden er blevet opdateret.
 7-8-9 / 4-5-6 / 1-2-3 øverst; nederst 0, komma og = (enter).
 Hold: 9 = plus, 6 = minus, 3 = gange, komma = division, 7 = C (ryd). Hold knap 10 = tilbage.
 
+## App-siderne (tryk / hold)
+
+- **SAFARI / CHROME:** ny/luk/genåbn tab, privat/inkognito, skift tab, reload (Chrome: hard reload på hold), frem/tilbage, adressefelt (hold: søg på siden), bogmærke, hentninger — Chrome har desuden DevTools på knap 11 (hold: Inspektør-vælger)
+- **PIXELM:** Ny/Åbn, Gem/Gem som, Eksportér, zoom ind/ud/tilpas, værktøjerne Crop (C), Vælg (V) og Tekst (T), fortryd/gentag, kopiér/sæt ind, slet
+
 ## Tilpasning
 
-Siderne `SYSTEM` og `NUMPAD` samt `APP_LIST` ligger øverst i `code.py`.
+Siderne ligger i `PAGES`-listen i `code.py` — hver side har navn, `app` (åbnes ved sideskift), farve og 12 taster.
 En genvej er en liste af trin: Keycodes holdes nede sammen, tekst-strenge skrives,
 tal (float) er pauser, `("CC", kode)` er medietaster. `app("navn")` åbner et program
 via Spotlight.
