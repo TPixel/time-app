@@ -97,6 +97,9 @@ SHIFT = K.SHIFT
 ALT = K.OPTION
 CTRL = K.CONTROL
 CC = ConsumerControlCode
+# Skaerm-lysstyrke findes ikke i alle udgaver af adafruit_hid — None springes over
+BRIGHT_UP = getattr(CC, "BRIGHTNESS_INCREMENT", None)
+BRIGHT_DOWN = getattr(CC, "BRIGHTNESS_DECREMENT", None)
 
 HOLD_TID = 0.4  # sekunder før et tryk tæller som HOLD
 
@@ -182,7 +185,10 @@ PAGES = [
             # Raekke 3 (knap 7-9)
             ("Hide", [CMD, K.H], ("ForceQ", [CMD, ALT, K.ESCAPE])),
             ("CloseW", [CMD, K.W], ("QuitApp", [CMD, K.Q])),
-            ("Shrtct1", genvej(K.ONE), ("Shrtct2", genvej(K.TWO))),
+            # Scene1: koerer Apple Genvejen "MacroPad Scene 1" (Hue-lamper
+            # + lydstyrke 0) og skruer selv skaermen 8 trin ned
+            ("Scene1", [("RUN", "MacroPad Scene 1")] + [("CC", BRIGHT_DOWN)] * 8,
+             ("Shrtct2", genvej(K.TWO))),
             # Raekke 4 (knap 10-12)
             ("Calc", aabn("Calculator", "calculator"), None),  # hold = NUMPAD (global)
             ("Vol-", [("CC", CC.VOLUME_DECREMENT)], ("Play", [("CC", CC.PLAY_PAUSE)])),
