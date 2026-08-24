@@ -181,7 +181,8 @@ PAGES = [
             # Raekke 1 (knap 1-3)
             ("Spotlgt", [CMD, K.SPACE], ("Emoji", [CTRL, CMD, K.SPACE])),
             ("Shot", [CMD, SHIFT, K.FOUR], ("Capture", [CMD, SHIFT, K.FIVE])),
-            ("Mission", [CTRL, K.UP_ARROW], ("Lock", [CTRL, CMD, K.Q])),
+            ("Mission", [CTRL, K.UP_ARROW], ("Lock", [CTRL, CMD, K.Q]),
+             ("1.short", [("RUN", "1.shortcut")])),  # combo 11+3
             # Raekke 2 (knap 4-6)
             ("Copy", [CMD, K.C], ("Cut", [CMD, K.X])),
             ("Paste", [CMD, K.V], ("Plain", [CMD, SHIFT, ALT, K.V])),
@@ -429,16 +430,31 @@ while True:
                 holdes[k] = [nu, True]    # markeret fyret — slip goer intet
                 kd = current_page()["keys"][k]
                 combo = kd[3] if len(kd) > 3 else None
-                macropad.pixels[k] = (0, 255, 255)
                 if combo is not None:
+                    macropad.pixels[k] = (255, 255, 255)
                     title.text = ">> " + combo[0]
                     run_sequence(combo[1])
+                    macropad.pixels[k] = (255, 120, 0)
+            elif k == LAYER:
+                holdes[k] = [nu, False]
+                # Vis combo-laget: knapper MED combo lyser orange
+                for i in range(12):
+                    kd = current_page()["keys"][i]
+                    har_combo = len(kd) > 3 and kd[3] is not None
+                    macropad.pixels[i] = (255, 120, 0) if har_combo else (2, 2, 2)
+                macropad.pixels[LAYER] = (255, 255, 255)
             else:
                 holdes[k] = [nu, False]
                 macropad.pixels[k] = (255, 255, 255)
         elif key_event.released and k in holdes:
             start, fyret = holdes.pop(k)
-            macropad.pixels[k] = current_page()["color"]
+            if LAYER in holdes and k != LAYER:
+                # combo-laget er stadig aktivt — behold orange visning
+                kd = current_page()["keys"][k]
+                har_combo = len(kd) > 3 and kd[3] is not None
+                macropad.pixels[k] = (255, 120, 0) if har_combo else (2, 2, 2)
+            else:
+                macropad.pixels[k] = current_page()["color"]
             if not fyret:
                 # Kort tryk -> TRYK-funktion
                 kd = current_page()["keys"][k]
@@ -454,8 +470,7 @@ while True:
         if not fyret and (nu - start) >= HOLD_TID:
             holdes[k][1] = True
             if k == LAYER:
-                # Combo-tasten: intet eget hold — lys turkis = combo-lag aktivt
-                macropad.pixels[k] = (0, 255, 255)
+                # Combo-tasten: intet eget hold — laget er allerede vist
                 title.text = "COMBO: tryk en knap"
                 continue
             macropad.pixels[k] = (255, 60, 0)
