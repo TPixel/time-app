@@ -182,7 +182,7 @@ PAGES = [
             ("Spotlgt", [CMD, K.SPACE], ("Emoji", [CTRL, CMD, K.SPACE])),
             ("Shot", [CMD, SHIFT, K.FOUR], ("Capture", [CMD, SHIFT, K.FIVE])),
             ("Mission", [CTRL, K.UP_ARROW], ("Lock", [CTRL, CMD, K.Q]),
-             ("1.short", [("RUN", "1.shortcut")])),  # combo 11+3
+             ("Scene1", [("RUN", "MacroPad Scene 1")])),  # combo 11+3
             # Raekke 2 (knap 4-6)
             ("Copy", [CMD, K.C], ("Cut", [CMD, K.X])),
             ("Paste", [CMD, K.V], ("Plain", [CMD, SHIFT, ALT, K.V])),
