@@ -17,8 +17,9 @@
 #
 # Knap-nummerering: 1 = øverste venstre hjørne ... 12 = nederste højre hjørne
 # Alle knapper: TRYK (kort) og HOLD (>0.4 sek)
-# COMBO: knap 11 er combo-tast — hold knap 11 nede (lyser turkis) og tryk
-# en anden knap for dens TREDJE funktion (4. felt i knap-definitionen).
+# COMBO: knap 11 er combo-tast — hold den nede, saa viser displayet det
+# GLOBALE combo-lag (COMBOS-listen, samme paa alle sider), og knapper med
+# funktion lyser orange. Tryk en orange knap for at koere dens funktion.
 # Knap 11 har derfor ingen egen hold-funktion; dens tryk virker som normalt.
 # Globale holds:
 #   Knap 12 hold = MUTE
@@ -168,7 +169,7 @@ def run_sequence(seq):
 # -------------------------
 # Sider — "match" er tekst der genkendes i den aktive apps navn
 # Hver knap: (label, TRYK-sekvens, HOLD-sekvens eller None)
-#            + valgfrit 4. felt: ("navn", sekvens) = COMBO (knap 11 + denne)
+# (Combo-funktioner ligger globalt i COMBOS-listen laengere nede)
 # Knap 1 = øverst venstre ... knap 12 = nederst højre
 # Label max 7 tegn, kun ASCII (æøå kan ikke vises på displayet)
 # -------------------------
@@ -181,8 +182,7 @@ PAGES = [
             # Raekke 1 (knap 1-3)
             ("Spotlgt", [CMD, K.SPACE], ("Emoji", [CTRL, CMD, K.SPACE])),
             ("Shot", [CMD, SHIFT, K.FOUR], ("Capture", [CMD, SHIFT, K.FIVE])),
-            ("Mission", [CTRL, K.UP_ARROW], ("Lock", [CTRL, CMD, K.Q]),
-             ("Scene1", [("RUN", "MacroPad Scene 1")])),  # combo 11+3
+            ("Mission", [CTRL, K.UP_ARROW], ("Lock", [CTRL, CMD, K.Q])),
             # Raekke 2 (knap 4-6)
             ("Copy", [CMD, K.C], ("Cut", [CMD, K.X])),
             ("Paste", [CMD, K.V], ("Plain", [CMD, SHIFT, ALT, K.V])),
@@ -197,8 +197,7 @@ PAGES = [
             # Raekke 4 (knap 10-12)
             ("Calc", aabn("Calculator", "calculator"), None),  # hold = NUMPAD (global)
             ("Vol-", [("CC", CC.VOLUME_DECREMENT)], None),  # combo-tast
-            ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None,   # hold = MUTE (global)
-             ("Play", [("CC", CC.PLAY_PAUSE)])),            # combo 11+12
+            ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None),  # hold = MUTE (global)
         ],
     },
     {
@@ -217,8 +216,7 @@ PAGES = [
             ("Address", [CMD, K.L], ("Find", [CMD, K.F])),
             ("Bookmrk", [CMD, K.D], None),       # hold = NUMPAD (global)
             ("ReadLst", [CMD, SHIFT, K.D], None),  # combo-tast
-            ("Downlds", [CMD, ALT, K.L], None,     # hold = MUTE (global)
-             ("ShowLst", [CMD, CTRL, K.TWO])),     # combo 11+12
+            ("Downlds", [CMD, ALT, K.L], None),    # hold = MUTE (global)
         ],
     },
     {
@@ -237,8 +235,7 @@ PAGES = [
             ("Address", [CMD, K.L], ("Find", [CMD, K.F])),
             ("Bookmrk", [CMD, K.D], None),       # hold = NUMPAD (global)
             ("DevTool", [CMD, ALT, K.I], None),    # combo-tast
-            ("Downlds", [CMD, SHIFT, K.J], None,   # hold = MUTE (global)
-             ("Inspect", [CMD, SHIFT, K.C])),      # combo 11+12
+            ("Downlds", [CMD, SHIFT, K.J], None),  # hold = MUTE (global)
         ],
     },
     {
@@ -291,6 +288,29 @@ NUMPAD = {
 }
 
 # -------------------------
+# COMBO-lag — GLOBALT (samme paa alle sider). Hold knap 11 nede:
+# displayet viser kun combo-navnene, og knapper MED funktion lyser orange.
+# En plads er None (ingen funktion) eller ("navn", sekvens). Max 7 tegn.
+# Plads 11 er selve combo-tasten.
+# -------------------------
+COMBOS = [
+    None,                                    # 1
+    None,                                    # 2
+    ("Morgen", [("RUN", "Morgen")]),         # 3
+    None,                                    # 4
+    None,                                    # 5
+    None,                                    # 6
+    None,                                    # 7
+    None,                                    # 8
+    None,                                    # 9
+    None,                                    # 10
+    None,                                    # 11 = combo-tasten
+    ("Play", [("CC", CC.PLAY_PAUSE)]),       # 12
+]
+
+LAYER = 10  # knap 11 = combo-tast (index 10)
+
+# -------------------------
 # Display: titel + 3x4 grid med alle knap-labels
 # -------------------------
 display = macropad.display
@@ -321,6 +341,16 @@ def show_page():
     macropad.pixels.fill(pg["color"])
     if st_present:
         st_np.fill(pg["color"])
+
+def show_combo():
+    # Combo-visning: kun combo-navne paa displayet, orange lys paa funktioner
+    title.text = "< COMBO >"
+    for i in range(12):
+        c = COMBOS[i]
+        cells[i].text = c[0][:7] if c else ""
+        macropad.pixels[i] = (255, 120, 0) if c else (2, 2, 2)
+    cells[LAYER].text = "COMBO"
+    macropad.pixels[LAYER] = (255, 255, 255)
 
 def toggle_numpad():
     global numpad_active
@@ -420,16 +450,14 @@ while True:
     enc_sw_prev = enc_sw
 
     # --- Tastetryk / -slip ---
-    LAYER = 10  # knap 11 = combo-tast
     if key_event:
         k = key_event.key_number
         if key_event.pressed:
             if k != LAYER and LAYER in holdes:
-                # COMBO: knap 11 holdt nede + denne knap
+                # COMBO: knap 11 holdt nede + denne knap (globalt lag)
                 holdes[LAYER][1] = True   # brugt som combo — intet tryk ved slip
                 holdes[k] = [nu, True]    # markeret fyret — slip goer intet
-                kd = current_page()["keys"][k]
-                combo = kd[3] if len(kd) > 3 else None
+                combo = COMBOS[k]
                 if combo is not None:
                     macropad.pixels[k] = (255, 255, 255)
                     title.text = ">> " + combo[0]
@@ -437,22 +465,15 @@ while True:
                     macropad.pixels[k] = (255, 120, 0)
             elif k == LAYER:
                 holdes[k] = [nu, False]
-                # Vis combo-laget: knapper MED combo lyser orange
-                for i in range(12):
-                    kd = current_page()["keys"][i]
-                    har_combo = len(kd) > 3 and kd[3] is not None
-                    macropad.pixels[i] = (255, 120, 0) if har_combo else (2, 2, 2)
-                macropad.pixels[LAYER] = (255, 255, 255)
+                show_combo()
             else:
                 holdes[k] = [nu, False]
                 macropad.pixels[k] = (255, 255, 255)
         elif key_event.released and k in holdes:
             start, fyret = holdes.pop(k)
             if LAYER in holdes and k != LAYER:
-                # combo-laget er stadig aktivt — behold orange visning
-                kd = current_page()["keys"][k]
-                har_combo = len(kd) > 3 and kd[3] is not None
-                macropad.pixels[k] = (255, 120, 0) if har_combo else (2, 2, 2)
+                # combo-laget er stadig aktivt — behold combo-visningen
+                macropad.pixels[k] = (255, 120, 0) if COMBOS[k] else (2, 2, 2)
             else:
                 macropad.pixels[k] = current_page()["color"]
             if not fyret:
@@ -462,7 +483,7 @@ while True:
                 run_sequence(kd[1])
                 show_page()
             elif k == LAYER:
-                show_page()  # ryd combo-visning
+                show_page()  # tilbage fra combo-visning
 
     # --- HOLD-detektering ---
     for k in list(holdes):
@@ -470,8 +491,7 @@ while True:
         if not fyret and (nu - start) >= HOLD_TID:
             holdes[k][1] = True
             if k == LAYER:
-                # Combo-tasten: intet eget hold — laget er allerede vist
-                title.text = "COMBO: tryk en knap"
+                # Combo-tasten: intet eget hold — combo-visningen er aktiv
                 continue
             macropad.pixels[k] = (255, 60, 0)
             if k == 11:
