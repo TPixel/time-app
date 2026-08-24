@@ -17,6 +17,9 @@
 #
 # Knap-nummerering: 1 = øverste venstre hjørne ... 12 = nederste højre hjørne
 # Alle knapper: TRYK (kort) og HOLD (>0.4 sek)
+# COMBO: knap 11 er combo-tast — hold knap 11 nede (lyser turkis) og tryk
+# en anden knap for dens TREDJE funktion (4. felt i knap-definitionen).
+# Knap 11 har derfor ingen egen hold-funktion; dens tryk virker som normalt.
 # Globale holds:
 #   Knap 12 hold = MUTE
 #   Knap 10 hold = åbn Lommeregner + NUMPAD til/fra
@@ -165,6 +168,7 @@ def run_sequence(seq):
 # -------------------------
 # Sider — "match" er tekst der genkendes i den aktive apps navn
 # Hver knap: (label, TRYK-sekvens, HOLD-sekvens eller None)
+#            + valgfrit 4. felt: ("navn", sekvens) = COMBO (knap 11 + denne)
 # Knap 1 = øverst venstre ... knap 12 = nederst højre
 # Label max 7 tegn, kun ASCII (æøå kan ikke vises på displayet)
 # -------------------------
@@ -191,8 +195,9 @@ PAGES = [
              ("Shrtct2", genvej(K.TWO))),
             # Raekke 4 (knap 10-12)
             ("Calc", aabn("Calculator", "calculator"), None),  # hold = NUMPAD (global)
-            ("Vol-", [("CC", CC.VOLUME_DECREMENT)], ("Play", [("CC", CC.PLAY_PAUSE)])),
-            ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None),  # hold = MUTE (global)
+            ("Vol-", [("CC", CC.VOLUME_DECREMENT)], None),  # combo-tast
+            ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None,   # hold = MUTE (global)
+             ("Play", [("CC", CC.PLAY_PAUSE)])),            # combo 11+12
         ],
     },
     {
@@ -210,8 +215,9 @@ PAGES = [
             ("Forward", [CMD, K.RIGHT_BRACKET], None),
             ("Address", [CMD, K.L], ("Find", [CMD, K.F])),
             ("Bookmrk", [CMD, K.D], None),       # hold = NUMPAD (global)
-            ("ReadLst", [CMD, SHIFT, K.D], ("ShowLst", [CMD, CTRL, K.TWO])),
-            ("Downlds", [CMD, ALT, K.L], None),  # hold = MUTE (global)
+            ("ReadLst", [CMD, SHIFT, K.D], None),  # combo-tast
+            ("Downlds", [CMD, ALT, K.L], None,     # hold = MUTE (global)
+             ("ShowLst", [CMD, CTRL, K.TWO])),     # combo 11+12
         ],
     },
     {
@@ -229,8 +235,9 @@ PAGES = [
             ("Forward", [CMD, K.RIGHT_BRACKET], None),
             ("Address", [CMD, K.L], ("Find", [CMD, K.F])),
             ("Bookmrk", [CMD, K.D], None),       # hold = NUMPAD (global)
-            ("DevTool", [CMD, ALT, K.I], ("Inspect", [CMD, SHIFT, K.C])),
-            ("Downlds", [CMD, SHIFT, K.J], None),  # hold = MUTE (global)
+            ("DevTool", [CMD, ALT, K.I], None),    # combo-tast
+            ("Downlds", [CMD, SHIFT, K.J], None,   # hold = MUTE (global)
+             ("Inspect", [CMD, SHIFT, K.C])),      # combo 11+12
         ],
     },
     {
@@ -268,7 +275,7 @@ NUMPAD = {
     "color": (25, 25, 25),
     "keys": [
         ("7", [K.KEYPAD_SEVEN], ("C", [K.ESCAPE])),
-        ("8", [K.KEYPAD_EIGHT], None),
+        ("8", [K.KEYPAD_EIGHT], ("/", [K.KEYPAD_FORWARD_SLASH])),
         ("9", [K.KEYPAD_NINE], ("+", [K.KEYPAD_PLUS])),
         ("4", [K.KEYPAD_FOUR], None),
         ("5", [K.KEYPAD_FIVE], None),
@@ -277,7 +284,7 @@ NUMPAD = {
         ("2", [K.KEYPAD_TWO], None),
         ("3", [K.KEYPAD_THREE], ("x", [K.KEYPAD_ASTERISK])),
         ("0", [K.KEYPAD_ZERO], None),          # hold = tilbage (global)
-        (",", [K.KEYPAD_PERIOD], ("/", [K.KEYPAD_FORWARD_SLASH])),
+        (",", [K.KEYPAD_PERIOD], None),        # combo-tast ("/" = hold paa 8)
         ("=", [K.KEYPAD_ENTER], None),         # hold = MUTE (global)
     ],
 }
@@ -412,26 +419,45 @@ while True:
     enc_sw_prev = enc_sw
 
     # --- Tastetryk / -slip ---
+    LAYER = 10  # knap 11 = combo-tast
     if key_event:
         k = key_event.key_number
         if key_event.pressed:
-            holdes[k] = [nu, False]
-            macropad.pixels[k] = (255, 255, 255)
+            if k != LAYER and LAYER in holdes:
+                # COMBO: knap 11 holdt nede + denne knap
+                holdes[LAYER][1] = True   # brugt som combo — intet tryk ved slip
+                holdes[k] = [nu, True]    # markeret fyret — slip goer intet
+                kd = current_page()["keys"][k]
+                combo = kd[3] if len(kd) > 3 else None
+                macropad.pixels[k] = (0, 255, 255)
+                if combo is not None:
+                    title.text = ">> " + combo[0]
+                    run_sequence(combo[1])
+            else:
+                holdes[k] = [nu, False]
+                macropad.pixels[k] = (255, 255, 255)
         elif key_event.released and k in holdes:
             start, fyret = holdes.pop(k)
             macropad.pixels[k] = current_page()["color"]
             if not fyret:
                 # Kort tryk -> TRYK-funktion
-                name, tap, _hold = current_page()["keys"][k]
-                title.text = ">> " + name
-                run_sequence(tap)
+                kd = current_page()["keys"][k]
+                title.text = ">> " + kd[0]
+                run_sequence(kd[1])
                 show_page()
+            elif k == LAYER:
+                show_page()  # ryd combo-visning
 
     # --- HOLD-detektering ---
     for k in list(holdes):
         start, fyret = holdes[k]
         if not fyret and (nu - start) >= HOLD_TID:
             holdes[k][1] = True
+            if k == LAYER:
+                # Combo-tasten: intet eget hold — lys turkis = combo-lag aktivt
+                macropad.pixels[k] = (0, 255, 255)
+                title.text = "COMBO: tryk en knap"
+                continue
             macropad.pixels[k] = (255, 60, 0)
             if k == 11:
                 # Knap 12: hold = MUTE, altid
@@ -441,11 +467,10 @@ while True:
                 # Knap 10: hold = Lommeregner + NUMPAD til/fra
                 toggle_numpad()
             else:
-                _name, _tap, hold = current_page()["keys"][k]
+                hold = current_page()["keys"][k][2]
                 if hold is not None:
-                    hold_name, hold_seq = hold
-                    title.text = ">> " + hold_name
-                    run_sequence(hold_seq)
+                    title.text = ">> " + hold[0]
+                    run_sequence(hold[1])
 
     # --- Stemma QT encoder: lydstyrke, tryk = mute ---
     if st_present:
