@@ -462,6 +462,9 @@ textarea::placeholder{color:var(--mut)}
 .prod-del:active{background:var(--red-d)}
 .prod-skjul{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--brd);background:transparent;color:var(--mut);font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
 .prod-skjul.er-skjult{border-color:var(--acc);color:var(--acc);opacity:.6}
+.prod-omdob{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--brd);background:transparent;color:var(--mut);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s}
+.prod-omdob:active{opacity:.5}
+.prod-navn-inp{width:100%;box-sizing:border-box;font-family:'Tahoma',sans-serif;font-weight:600;font-size:14px;color:var(--txt);background:var(--bg);border:1.5px solid var(--acc);border-radius:6px;padding:4px 7px;outline:none;-webkit-user-select:text;user-select:text}
 .prod-skjul:active{opacity:.5}
 .ny-prod-btn{width:100%;padding:13px;border-radius:var(--rs);border:1.5px dashed var(--brd);background:transparent;color:var(--mut);font-family:'Tahoma',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px}
 .ny-prod-btn:active{border-color:var(--acc);color:var(--acc)}
@@ -901,34 +904,46 @@ textarea::placeholder{color:var(--mut)}
         Detaljer · <span id="aktiv-prod-navn" style="color:var(--acc)">(ingen valgt)</span>
       </div>
 
-      <!-- PERSONLIGT (per-produktion) — foldbar v1.91 -->
-      <div class="s-hd s-hd-click" onclick="togCardX('pers-body','pers-ch','lon-body','lon-ch')">
-        <span>Personligt</span>
+      <!-- PRODUKTION (per-produktion) — v2.14: udskilt fra "Personligt", som blandede
+           mig-oplysninger og produktions-oplysninger. Beholder id'et pers-body, så
+           eksisterende brugeres gemte fold-tilstand (faf-card-pers-body) følger med. -->
+      <div class="s-hd s-hd-click" onclick="togSub('pers-body','pers-ch')">
+        <span>Produktion</span>
         <span id="pers-ch" class="s-hd-ch">▾ Vis</span>
       </div>
       <div id="pers-body" data-display="block" style="display:none">
         <div class="s-stack">
-          <label class="s-stack-lbl" for="s-navn">Navn</label>
-          <input class="s-stack-inp" type="text" id="s-navn" placeholder="Dit navn" oninput="autoGemProd()">
-        </div>
-        <div class="s-stack">
-          <label class="s-stack-lbl" for="s-email">Email produktion</label>
-          <div class="s-stack-desc">Modtager ugeseddel automatisk</div>
-          <input class="s-stack-inp" type="email" id="s-email" placeholder="prod@film.dk" oninput="autoGemProd()">
-        </div>
-        <div class="s-stack">
           <label class="s-stack-lbl" for="s-prod">Produktionstitel</label>
-          <input class="s-stack-inp" type="text" id="s-prod" placeholder="Filmens titel" oninput="autoGemProd()">
+          <div class="s-stack-desc">Vises øverst på dagen, i produktionsskifteren og på ugesedlen</div>
+          <input class="s-stack-inp" type="text" id="s-prod" placeholder="Filmens titel" oninput="autoGemProd()" onchange="autoGemProd();setTimeout(synkDagnavne,600)">
         </div>
         <div class="s-stack">
           <label class="s-stack-lbl" for="s-selskab">Produktionsselskab</label>
           <div class="s-stack-desc">Vises på ugesedler og udskrifter</div>
           <input class="s-stack-inp" type="text" id="s-selskab" placeholder="Selskab Aps." oninput="autoGemProd()">
         </div>
+        <div class="s-stack">
+          <label class="s-stack-lbl" for="s-email">Email til produktionen</label>
+          <div class="s-stack-desc">Modtager ugeseddel automatisk</div>
+          <input class="s-stack-inp" type="email" id="s-email" placeholder="prod@film.dk" oninput="autoGemProd()">
+        </div>
+      </div>
+
+      <!-- MIT NAVN (per-produktion) — v2.14 -->
+      <div class="s-hd s-hd-click" onclick="togSub('mig-body','mig-ch')">
+        <span>Mit navn</span>
+        <span id="mig-ch" class="s-hd-ch">▾ Vis</span>
+      </div>
+      <div id="mig-body" data-display="block" style="display:none">
+        <div class="s-stack">
+          <label class="s-stack-lbl" for="s-navn">Navn</label>
+          <div class="s-stack-desc">Dit navn på ugesedler og udskrifter</div>
+          <input class="s-stack-inp" type="text" id="s-navn" placeholder="Dit navn" oninput="autoGemProd()">
+        </div>
       </div>
 
       <!-- LØN (per-produktion) — foldbar v1.91 -->
-      <div class="s-hd s-hd-click" onclick="togCardX('lon-body','lon-ch','pers-body','pers-ch')">
+      <div class="s-hd s-hd-click" onclick="togSub('lon-body','lon-ch')">
         <span>Løn</span>
         <span id="lon-ch" class="s-hd-ch">▾ Vis</span>
       </div>
@@ -1541,11 +1556,31 @@ function gemProduktionerStore() {
   idbMirrorAll();
 }
 
+// v2.14: fallback-navnet gøres unikt, så to nye produktioner aldrig bliver
+// to identiske piller i skifteren. Rører ALDRIG eksisterende produktioner.
+function nytProdNavn() {
+  const base = 'Ny produktion';
+  const taget = n => produktioner.some(p => (p.prod || '').trim().toLowerCase() === n.toLowerCase());
+  if (!taget(base)) return base;
+  let n = 2;
+  while (taget(`${base} ${n}`) && n < 999) n++;
+  return `${base} ${n}`;
+}
 function nyProduktion() {
-  const nyt = { id: genId(), navn: cfg.navn || '', email: cfg.email || '', prod: 'Ny produktion', selskab: '', ugelon: 10380, pers: 0, tillæg: false, model: '5dag', fridag: 'fre' };
+  const nyt = { id: genId(), navn: cfg.navn || '', email: cfg.email || '', prod: nytProdNavn(), selskab: '', ugelon: 10380, pers: 0, tillæg: false, model: '5dag', fridag: 'fre' };
   produktioner.push(nyt);
   gemProduktionerStore();
   skiftProduktion(nyt.id);
+  // Navngivning som en del af flowet — ingen blokerende prompt(), der er grim i en iOS-PWA.
+  // Detaljer foldes ud og markøren står i titlen med teksten markeret, så man enten
+  // skriver over den eller bare trykker videre.
+  aabnSub('pers-body', 'pers-ch');
+  const t = document.getElementById('s-prod');
+  if (t) {
+    t.focus();
+    t.select();
+    t.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
 }
 
 function skiftProduktion(id) {
@@ -1593,6 +1628,15 @@ function toggleSkjulProduktion(id) {
   rendProdListe();
 }
 
+// v2.14: brugerindtastet tekst (produktionsnavn, selskab, dit navn, noter) sættes ind
+// i HTML flere steder. Uden escaping bliver en titel som "A <b> B" til markup, og en
+// ondsindet backup-fil kunne køre kode i appens eget domæne. esc() bruges ALLE de
+// steder hvor brugertekst havner i innerHTML. Mail-tekster er ren tekst og escapes IKKE.
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+}
+
 function rendProdListe() {
   const liste = document.getElementById('prod-liste');
   if (!liste) return;
@@ -1604,17 +1648,102 @@ function rendProdListe() {
     const dagLon = Math.round((p.ugelon + (p.pers||0)) * (p.tillæg?1.1:1) / dage);
     const div = document.createElement('div');
     div.className = 'prod-item' + (erAktiv ? ' aktiv' : '') + (p.skjult ? ' skjult-prod' : '');
+    div.dataset.id = p.id;
     div.style.opacity = p.skjult ? '0.55' : '';
     div.innerHTML = `
       <div class="prod-item-info" onclick="skiftProduktion('${p.id}')">
-        <div class="prod-item-navn">${p.prod || '(ingen titel)'}</div>
+        <div class="prod-item-navn">${esc(p.prod) || '(ingen titel)'}</div>
         <div class="prod-item-sub">${dagLon.toLocaleString('da-DK')} kr/dag · ${dTimer}t · ${p.model === 'saertid' ? 'Særtid §5' : 'Normal §4'}${p.skjult ? ' · <em style="color:var(--acc);font-style:normal">skjult</em>' : ''}</div>
       </div>
+      <button class="prod-omdob" onclick="event.stopPropagation();omdøbProduktion('${p.id}')" title="Omdøb">✎</button>
       <button class="prod-skjul${p.skjult ? ' er-skjult' : ''}" onclick="event.stopPropagation();toggleSkjulProduktion('${p.id}')" title="${p.skjult ? 'Vis knap i bar' : 'Skjul knap fra bar'}">👁</button>
       ${erAktiv ? '<span class="prod-item-badge">Aktiv</span>' : `<button class="prod-del" onclick="event.stopPropagation();sletProduktion('${p.id}')" title="Slet">×</button>`}
     `;
     liste.appendChild(div);
   });
+}
+
+// v2.14: hver dagspost gemmer produktionsnavnet som ren tekst. Årsoversigtens
+// produktions-piller bygges på DE strenge — så omdøber man uden at rette dem,
+// splittes én produktion i to piller i årsoversigten, én pr. navn den har haft.
+// Derfor rettes navnet i produktionens gemte dage, når navnet ændres.
+function opdaterDagnavne(prodId, nytNavn) {
+  const præfiks = 'faf-' + prodId + '-';
+  const nøgler = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(præfiks)) nøgler.push(k);
+  }
+  let rettet = 0;
+  nøgler.forEach(k => {
+    try {
+      const d = JSON.parse(localStorage.getItem(k));
+      if (!d || typeof d !== 'object' || d.prod === nytNavn) return;
+      d.prod = nytNavn;
+      localStorage.setItem(k, JSON.stringify(d));
+      rettet++;
+    } catch {}
+  });
+  return rettet;
+}
+// Kaldes ved de punkter hvor et navn er FÆRDIGREDIGERET (ikke per tastetryk,
+// så vi ikke skriver alle dage om for hvert bogstav man taster).
+function synkDagnavne() {
+  if (!aktivProdId) return;
+  const p = produktioner.find(x => x.id === aktivProdId);
+  if (p) opdaterDagnavne(aktivProdId, p.prod || '');
+}
+
+// v2.14: omdøb direkte i listen — man skal ikke ind i Detaljer for at rette et navn.
+function omdøbProduktion(id) {
+  const p = produktioner.find(x => x.id === id);
+  if (!p) return;
+  const navnEl = document.querySelector('.prod-item[data-id="' + id + '"] .prod-item-navn');
+  if (!navnEl || navnEl.querySelector('input')) return;
+  const gammelt = p.prod || '';
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.className = 'prod-navn-inp';
+  inp.value = gammelt;
+  inp.placeholder = 'Filmens titel';
+  navnEl.textContent = '';
+  navnEl.appendChild(inp);
+  inp.focus();
+  inp.select();
+  // Klik i feltet må ikke boble op til prod-item-info og skifte produktion
+  inp.onclick = e => e.stopPropagation();
+  inp.onmousedown = e => e.stopPropagation();
+  let færdig = false;
+  inp.onblur = () => {
+    if (færdig) return;
+    færdig = true;
+    sætProdNavn(id, inp.value.trim() || gammelt);
+  };
+  inp.onkeydown = e => {
+    if (e.key === 'Enter')  { e.preventDefault(); inp.blur(); }
+    if (e.key === 'Escape') { færdig = true; sætProdNavn(id, gammelt); }
+  };
+}
+
+// Skriver navnet ALLE de steder der ejer det. Vigtigt: hvis det er den aktive
+// produktion, skal cfg.prod og #s-prod med — ellers skriver autoGemProd() det
+// gamle navn tilbage fra formularfeltet 500 ms efter næste tastetryk.
+function sætProdNavn(id, navn) {
+  const p = produktioner.find(x => x.id === id);
+  if (!p) return;
+  const gammelt = p.prod;
+  p.prod = navn;
+  gemProduktionerStore();
+  if (gammelt !== navn) opdaterDagnavne(id, navn);
+  if (id === aktivProdId) {
+    cfg.prod = navn;
+    const f = document.getElementById('s-prod');
+    if (f) f.value = navn;
+    localStorage.setItem('faf-cfg', JSON.stringify(cfg)); // baglæns kompatibilitet
+  }
+  rendProdListe();
+  rendProdSwitcher();
+  opdaterProdLabel();
 }
 
 function indlæsCfgIForm() {
@@ -1835,6 +1964,7 @@ function gemInst() {
     localStorage.setItem('faf-cfg', JSON.stringify(cfg));
   }
   opdaterLonTotal();
+  synkDagnavne();
   rendProdListe();
   opdaterProdLabel();
   toast('Produktion gemt ✓');
@@ -1886,6 +2016,14 @@ function opdaterProdLabel() {
   const navn = cfg.prod || '';
   const dp = document.getElementById('dag-prod');
   if (dp) dp.textContent = navn;
+  // v2.14: den store titel øverst på dag-siden er #prod-pill og skal med, når
+  // et navn ændres uden at dagen gentegnes (fx inline omdøbning i listen).
+  const ttl = document.getElementById('prod-pill');
+  if (ttl && typeof aktivDag !== 'undefined' && aktivDag) {
+    const s = hentDag(aktivDag);
+    const ejer = produktioner.find(p => p.id === (s?.prodId || aktivProdId));
+    ttl.textContent = ejer?.prod || s?.prod || navn || '—';
+  }
   // Vis aktuel produktion i foldet Produktioner-header
   const cl = document.getElementById('prod-collapsed-lbl');
   if (cl) cl.textContent = navn ? '· ' + navn : '';
@@ -1905,16 +2043,27 @@ function togCard(bodyId, chId) {
   if (ch) ch.textContent = lukker ? '▾ Vis' : '▴ Luk';
   localStorage.setItem('faf-card-' + bodyId, lukker ? '0' : '1');
 }
-// Accordion v1.92: åbner bodyId, lukker samtidig closeId (hvis åben)
-function togCardX(openId, openCh, closeId, closeCh) {
-  const closeBody = document.getElementById(closeId);
-  if (closeBody && closeBody.style.display !== 'none') {
-    closeBody.style.display = 'none';
-    const cch = document.getElementById(closeCh);
-    if (cch) cch.textContent = '▾ Vis';
-    localStorage.setItem('faf-card-' + closeId, '0');
-  }
+// Accordion v2.14: én under-sektion ad gangen i Produktioner.
+// Afløser togCardX, der kun kunne parre to sektioner hardcodet — med tre
+// sektioner (Produktion / Mit navn / Løn) skal alle de øvrige lukkes.
+const PROD_SUBS = [['pers-body','pers-ch'], ['mig-body','mig-ch'], ['lon-body','lon-ch']];
+function togSub(openId, openCh) {
+  PROD_SUBS.forEach(([bodyId, chId]) => {
+    if (bodyId === openId) return;
+    const body = document.getElementById(bodyId);
+    if (body && body.style.display !== 'none') {
+      body.style.display = 'none';
+      const ch = document.getElementById(chId);
+      if (ch) ch.textContent = '▾ Vis';
+      localStorage.setItem('faf-card-' + bodyId, '0');
+    }
+  });
   togCard(openId, openCh);
+}
+// Sikrer at en sektion er åben (togSub ville lukke den hvis den allerede var åben)
+function aabnSub(openId, openCh) {
+  const body = document.getElementById(openId);
+  if (body && body.style.display === 'none') togSub(openId, openCh);
 }
 function initCard(bodyId, chId, defaultOpen = true) {
   const gemt = localStorage.getItem('faf-card-' + bodyId);
@@ -2889,7 +3038,7 @@ function _pdfDag() {
       ${pension > 0 ? `<div class="pdf-lon-row muted"><span>Pension 9,5% §3.4</span><span class="amt">${krFmt(pension)}</span></div>` : ''}
       ${(tillidDag > 0 || pension > 0) ? `<div class="pdf-lon-row bold"><span>Samlet${pension > 0 ? ' inkl. pension' : ''}${tillidDag > 0 ? ' + tillidshverv' : ''}</span><span class="amt">${krFmt(d.lon + tillidDag + pension)}</span></div>` : ''}
     </div>
-    ${d.note ? `<div class="pdf-sect">Note</div><div style="font-size:13px;padding:8px 0;color:#111;font-weight:500">${d.note}</div>` : ''}
+    ${d.note ? `<div class="pdf-sect">Note</div><div style="font-size:13px;padding:8px 0;color:#111;font-weight:500">${esc(d.note)}</div>` : ''}
     <div class="pdf-footer"><span>time-app.dk</span><span>Udskrevet ${new Date().toLocaleDateString('da-DK')}</span></div>
   </div>`;
   return { html, dagStr, dagISO };
@@ -3067,9 +3216,14 @@ function rendDag() {
   const ttl = document.getElementById('prod-pill');
   if (ttl) {
     // Vis altid produktionsnavn — også på usavede dage
-    const prodFraProdId = s?.prodId ? (produktioner.find(p => p.id === s.prodId)?.prod || '') : '';
+    // v2.14: navnet slås op på produktionens ID, ikke på den navnestreng dagen blev
+    // gemt med. Ellers viste allerede gemte dage stadig det gamle navn efter en
+    // omdøbning. En dag uden prodId tilhører pr. definition den aktive produktion,
+    // da dagnøglen i forvejen er faf-<aktivProdId>-dato. Den gemte streng bruges
+    // kun som sidste udvej, hvis produktionen er slettet.
+    const ejerProd = produktioner.find(p => p.id === (s?.prodId || aktivProdId));
     const aktivProd = produktioner.find(p => p.id === aktivProdId);
-    const dagProd = s?.prod || prodFraProdId || aktivProd?.prod || cfg.prod || '';
+    const dagProd = ejerProd?.prod || s?.prod || aktivProd?.prod || cfg.prod || '';
     ttl.textContent = dagProd || cfg.prod || '—';
     // §FIX: check by prodId (identity), not prod name — renaming a production must not cause yellow display
     const erAndenProd = s?.prodId && s.prodId !== aktivProdId;
@@ -3356,10 +3510,10 @@ function rendUge() {
         <div class="dk-dato">${d.getDate()}/${d.getMonth()+1}</div>
       </div>
       <div class="dk-info">
-        ${s?.prod ? `<div class="dk-prod-ttl">${s.prod}</div>` : `<div class="dk-prod-ttl dk-prod-ttl-tom">${s?.start ? '·' : '— fri —'}</div>`}
+        ${s?.prod ? `<div class="dk-prod-ttl">${esc(s.prod)}</div>` : `<div class="dk-prod-ttl dk-prod-ttl-tom">${s?.start ? '·' : '— fri —'}</div>`}
         ${lon ? `<div class="dk-lon">${lon.toLocaleString('da-DK')} kr.${s?.manuelLon ? ' ✎' : ''}</div>` : ''}
         ${badges ? `<div class="dk-badges">${badges}</div>` : ''}
-        ${s?.note ? `<div class="dk-note">${s.note}</div>` : ''}
+        ${s?.note ? `<div class="dk-note">${esc(s.note)}</div>` : ''}
       </div>
       <div class="dk-timer">
         ${s?.start ? `<div class="dk-tider-stor">${s.start}<span class="dk-pil">→</span>${s.slut || '?'}</div>` : ''}
@@ -3639,8 +3793,8 @@ function pdfTop(docType, prodName, prodCo) {
   return `<div class="pdf-top">
     <div class="pdf-top-left">
       <div class="pdf-doc-type" style="font-size:${fs}px">${linesHtml(docType)}</div>
-      <div class="pdf-prod-name" style="font-size:${fs}px">${prodName}</div>
-      <div class="pdf-prod-co">${prodCo}</div>
+      <div class="pdf-prod-name" style="font-size:${fs}px">${esc(prodName)}</div>
+      <div class="pdf-prod-co">${esc(prodCo)}</div>
     </div>
     <div class="pdf-top-right">
       <img src="logo_transparent.png" alt="">
@@ -3654,7 +3808,7 @@ function arbtidLabel(model) {
 }
 function pdfEmpRow(navn, ugelon, pers, otsats, arbtid) {
   return `<div class="pdf-emp-row">
-    <div class="pdf-emp-col"><div class="pdf-lbl">Navn</div><div class="pdf-val">${navn}</div></div>
+    <div class="pdf-emp-col"><div class="pdf-lbl">Navn</div><div class="pdf-val">${esc(navn)}</div></div>
     <div class="pdf-emp-col"><div class="pdf-lbl">Ugeløn</div><div class="pdf-val">${ugelon}</div></div>
     ${pers ? `<div class="pdf-emp-col"><div class="pdf-lbl">Pers. tillæg</div><div class="pdf-val">${pers}</div></div>` : ''}
     <div class="pdf-emp-col"><div class="pdf-lbl">OT-sats</div><div class="pdf-val">${otsats}</div></div>
@@ -4529,11 +4683,13 @@ function lukToastAction() {
 idbCheckRestore().then(() => {
   hentCfg();
   rendDag();
+  opdaterProdLabel(); // v2.14: ellers stod "Detaljer · (ingen valgt)" indtil man gemte eller skiftede
   opdaterBackupIkon(); // farvelæg sky-ikon efter backup-alder
   initTillæg();
   // Alle s-cards starter lukket — folder ud ved klik. Tilstand huskes via localStorage.
   initCard('prod-body',  'prod-ch',  false);
   initCard('pers-body',  'pers-ch',  false);
+  initCard('mig-body',   'mig-ch',   false);
   initCard('lon-body',   'lon-ch',   false);
   initCard('sik-body',   'sik-ch',   false);
   initCard('omsup-body', 'omsup-ch', false);
@@ -4600,7 +4756,7 @@ idbCheckRestore().then(() => {
 
 <script>
 // ── VERSION & CHANGELOG ──
-const APP_VERSION = '2.13';
+const APP_VERSION = '2.14';
 
 // ── SPLASH ──
 (function(){
@@ -4644,6 +4800,17 @@ const APP_VERSION = '2.13';
 
 
 const CHANGELOG = {
+  '2.14': {
+    dato: '25. august 2026',
+    nyt: [
+      '✎ Omdøb en produktion direkte i listen — tryk på blyanten ved siden af navnet. Man skal ikke længere ind i Detaljer for at rette en titel.',
+      '📁 "Personligt" er delt i to: "Produktion" (titel, selskab, email) og "Mit navn". Produktionstitlen lå før gemt under et afsnit der lød som om det handlede om dig — nu står den øverst under Produktion.',
+      '➕ Når du opretter en ny produktion, folder Detaljer sig ud med markøren i titlen, så du kan navngive den med det samme. Og hedder en allerede "Ny produktion", får den næste nummer, så to aldrig ser ens ud i produktionsskifteren.',
+      '🔧 Omdøber du en produktion, følger navnet nu med på de dage du allerede har gemt. Før beholdt gamle dage det gamle navn, så én produktion kunne optræde som to i årsoversigten — én for hvert navn den havde haft.',
+      '🔧 Den store titel øverst på dagen opdateres nu med det samme, når du ændrer et produktionsnavn.',
+      '🔧 Noter og navne med tegnene < > & vises nu korrekt på udskrifter. Før forsvandt fx en note skrevet som "<hele dagen>" helt fra den printede dagseddel.',
+    ]
+  },
   '2.13': {
     dato: '9. juli 2026',
     nyt: [
