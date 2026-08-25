@@ -37,7 +37,7 @@ chmod +x "$MP_DIR/macropad-follow.sh"
 
 echo "📜 Installerer AppleScript-makroer ..."
 mkdir -p "$MP_DIR/scripts"
-for script in pixelmator-300px; do
+for script in pixelmator-300px workspace-1; do
   curl -fsSL "$BASE_URL/scripts/$script.applescript" -o "$MP_DIR/scripts/$script.applescript"
 done
 

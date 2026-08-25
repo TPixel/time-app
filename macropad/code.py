@@ -297,7 +297,7 @@ COMBOS = [
     None,                                    # 1
     None,                                    # 2
     ("Morgen", [("RUN", "MacroPad Scene 1")]),  # 3
-    None,                                    # 4
+    ("Desk1", [("SCRIPT", "workspace-1")]),  # 4
     None,                                    # 5
     None,                                    # 6
     None,                                    # 7
