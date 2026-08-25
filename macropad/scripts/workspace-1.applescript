@@ -26,11 +26,11 @@ end tell
 
 -- Venstre halvdel: Pixelmator Pro (fast sti: Thomas' version 3.8 —
 -- IKKE den nye "Creator Studio", som ogsaa kalder sig "Pixelmator Pro")
-tell application "/Apps/Pixelmator Pro.app"
+tell application "/Applications/Pixelmator Pro.app"
 	activate
 end tell
 delay 0.6
-tell application "/Apps/Pixelmator Pro.app"
+tell application "/Applications/Pixelmator Pro.app"
 	try
 		set bounds of front window to {0, 25, halv, h}
 	end try
