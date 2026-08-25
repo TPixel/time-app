@@ -5,7 +5,9 @@
 set outFolder to (POSIX path of (path to desktop folder)) & "Grafik upload/"
 do shell script "mkdir -p " & quoted form of outFolder
 
-tell application "Pixelmator Pro"
+-- Fast sti: Thomas' version 3.8 — IKKE den nye "Creator Studio" (4.3),
+-- som ogsaa kalder sig "Pixelmator Pro"
+tell application "/Apps/Pixelmator Pro.app"
 	if not (exists front document) then return
 	set docName to name of front document
 	if docName contains "." then
