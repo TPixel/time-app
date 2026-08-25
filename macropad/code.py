@@ -352,6 +352,38 @@ def show_combo():
     cells[LAYER].text = "COMBO"
     macropad.pixels[LAYER] = (255, 255, 255)
 
+# --- Animationer (ikke-blokerende — renderes som frames i hovedloekken) ---
+SIDE_ANIM_TID = 0.35   # sideskift-sweep, sekunder
+IDLE_EFTER = 5.0       # sekunder uden input foer idle-animation
+
+side_anim_start = None
+idle_active = False
+
+def wheel(pos):
+    pos = pos % 256
+    if pos < 85:
+        return (255 - pos * 3, pos * 3, 0)
+    if pos < 170:
+        pos -= 85
+        return (0, 255 - pos * 3, pos * 3)
+    pos -= 170
+    return (pos * 3, 0, 255 - pos * 3)
+
+def daemp(rgb, f):
+    return (int(rgb[0] * f), int(rgb[1] * f), int(rgb[2] * f))
+
+def start_side_anim():
+    global side_anim_start
+    side_anim_start = time.monotonic()
+
+def afbryd_animation():
+    # Kaldes ved input: stop animationer og gendan sidens farver
+    global side_anim_start, idle_active
+    if side_anim_start is not None or idle_active:
+        side_anim_start = None
+        idle_active = False
+        macropad.pixels.fill(current_page()["color"])
+
 def toggle_numpad():
     global numpad_active
     if numpad_active:
@@ -360,6 +392,7 @@ def toggle_numpad():
         run_sequence(aabn("Calculator", "calculator"))
         numpad_active = True
     show_page()
+    start_side_anim()
 
 def foelg_app(app_navn):
     # Kaldes naar Mac'en melder ny forrest-app: find matchende side
@@ -375,8 +408,11 @@ def foelg_app(app_navn):
     if ny != page:
         page = ny
         show_page()
+        start_side_anim()
 
 show_page()
+
+start_side_anim()  # lille velkomst-sweep ved opstart
 
 # -------------------------
 # Main loop
@@ -394,6 +430,9 @@ rx = b""  # seriel modtage-buffer
 enc_sw_prev = False   # encoder-knappens forrige tilstand
 enc_rotated = False   # blev der drejet mens knappen var nede?
 enc_sw_tid = 0.0
+
+sidst_aktiv = time.monotonic()  # sidste input (til idle-animation)
+idle_naeste = 0.0               # naeste idle-frame
 
 while True:
     nu = time.monotonic()
@@ -421,18 +460,23 @@ while True:
     if enc_sw and not enc_sw_prev:
         enc_rotated = False
         enc_sw_tid = nu
+        sidst_aktiv = nu
+        afbryd_animation()
 
     enc_pos = macropad.encoder
     if enc_pos != last_encoder_pos:
         retning = 1 if enc_pos > last_encoder_pos else -1
         antal = min(abs(enc_pos - last_encoder_pos), 5)
         last_encoder_pos = enc_pos
+        sidst_aktiv = nu
+        afbryd_animation()
         if enc_sw:
             # Holdt nede + drej = skift side
             enc_rotated = True
             numpad_active = False
             page = (page + retning) % len(PAGES)
             show_page()
+            start_side_anim()
         else:
             # Drej alene = zoom i den aktive app.
             # Boardet sender fysiske tastepositioner og Mac'en bruger DANSK
@@ -447,12 +491,15 @@ while True:
             numpad_active = False
             page = 0
             show_page()
+            start_side_anim()
     enc_sw_prev = enc_sw
 
     # --- Tastetryk / -slip ---
     if key_event:
         k = key_event.key_number
+        sidst_aktiv = nu
         if key_event.pressed:
+            afbryd_animation()
             if k != LAYER and LAYER in holdes:
                 # COMBO: knap 11 holdt nede + denne knap (globalt lag)
                 holdes[LAYER][1] = True   # brugt som combo — intet tryk ved slip
@@ -513,6 +560,7 @@ while True:
         delta = pos - st_last_pos
         if delta != 0:
             st_last_pos = pos
+            sidst_aktiv = nu
             code = CC.VOLUME_INCREMENT if delta > 0 else CC.VOLUME_DECREMENT
             for _ in range(min(abs(delta), 4)):
                 macropad.consumer_control.send(code)
@@ -524,5 +572,35 @@ while True:
                 st_last_sw = sw_now
                 if sw_now is False:
                     macropad.consumer_control.send(CC.MUTE)
+
+    # --- Animationer ---
+    if side_anim_start is not None:
+        # Sideskift-sweep: lyset loeber hen over knapperne med et lyst hoved
+        t = (nu - side_anim_start) / SIDE_ANIM_TID
+        if t >= 1.0:
+            side_anim_start = None
+            macropad.pixels.fill(current_page()["color"])
+        else:
+            n = int(t * 12)
+            c = current_page()["color"]
+            for i in range(12):
+                if i == n:
+                    macropad.pixels[i] = (min(c[0] * 8 + 40, 255),
+                                          min(c[1] * 8 + 40, 255),
+                                          min(c[2] * 8 + 40, 255))
+                elif i < n:
+                    macropad.pixels[i] = c
+                else:
+                    macropad.pixels[i] = (0, 0, 0)
+    elif not holdes and not enc_sw and (nu - sidst_aktiv) >= IDLE_EFTER:
+        # Idle: stille regnbue-boelge hen over tasterne
+        idle_active = True
+        if nu >= idle_naeste:
+            idle_naeste = nu + 0.06
+            for i in range(12):
+                raekke = i // 3
+                kol = i % 3
+                macropad.pixels[i] = daemp(
+                    wheel(int(nu * 50) + raekke * 24 + kol * 12), 0.22)
 
     time.sleep(0.01)
