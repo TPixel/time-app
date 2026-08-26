@@ -34,6 +34,7 @@
 # Thomas / Lys Afd.
 
 import time
+import random
 import board
 import displayio
 import terminalio
@@ -357,9 +358,14 @@ def show_combo():
 # --- Animationer (ikke-blokerende — renderes som frames i hovedloekken) ---
 SIDE_ANIM_TID = 0.35   # sideskift-sweep, sekunder
 IDLE_EFTER = 5.0       # sekunder uden input foer idle-animation
+IDLE_SKIFT = 20.0      # sekunder pr. sleep-moenster foer der skiftes
+
+# Slangebane rundt paa 3x4-grid'et (frem og tilbage raekke for raekke)
+SLANGE_BANE = [0, 1, 2, 5, 4, 3, 6, 7, 8, 11, 10, 9]
 
 side_anim_start = None
 idle_active = False
+idle_start = 0.0
 
 # Flag-visning (DK/ENG) paa tasterne — 3x4 grid, Dannebrog paa hoejkant:
 # lodret bane i midterkolonnen + vandret bane i anden raekke
@@ -622,14 +628,66 @@ while True:
                 else:
                     macropad.pixels[i] = (0, 0, 0)
     elif not holdes and not enc_sw and (nu - sidst_aktiv) >= IDLE_EFTER:
-        # Idle: stille regnbue-boelge hen over tasterne
-        idle_active = True
+        # Sleep-mode: 5 moenstre der skifter hvert IDLE_SKIFT sekund
+        if not idle_active:
+            idle_active = True
+            idle_start = nu
         if nu >= idle_naeste:
             idle_naeste = nu + 0.06
-            for i in range(12):
-                raekke = i // 3
-                kol = i % 3
-                macropad.pixels[i] = daemp(
-                    wheel(int(nu * 50) + raekke * 24 + kol * 12), 0.22)
+            moenster = int((nu - idle_start) / IDLE_SKIFT) % 5
+
+            if moenster == 0:
+                # 1) Regnbue-boelge
+                for i in range(12):
+                    macropad.pixels[i] = daemp(
+                        wheel(int(nu * 50) + (i // 3) * 24 + (i % 3) * 12), 0.22)
+
+            elif moenster == 1:
+                # 2) Pac-chase: gul prik jages af to spoegelser i slangebane
+                skridt = int(nu * 4)
+                pac = SLANGE_BANE[skridt % 12]
+                sp1 = SLANGE_BANE[(skridt - 3) % 12]
+                sp2 = SLANGE_BANE[(skridt - 6) % 12]
+                for i in range(12):
+                    macropad.pixels[i] = (0, 0, 0)
+                macropad.pixels[sp2] = daemp((0, 200, 220), 0.35)
+                macropad.pixels[sp1] = daemp((255, 0, 30), 0.35)
+                macropad.pixels[pac] = daemp((255, 190, 0), 0.55)
+
+            elif moenster == 2:
+                # 3) Matrix-regn: groenne draaber med hale ned ad kolonnerne
+                for kol in range(3):
+                    fart = 2.0 + kol * 0.8
+                    drop = int(nu * fart + kol * 2.6) % 7
+                    for raekke in range(4):
+                        d = drop - raekke
+                        i = raekke * 3 + kol
+                        if d == 0:
+                            macropad.pixels[i] = (60, 255, 80)
+                        elif d == 1:
+                            macropad.pixels[i] = (0, 90, 20)
+                        elif d == 2:
+                            macropad.pixels[i] = (0, 25, 5)
+                        else:
+                            macropad.pixels[i] = (0, 0, 0)
+
+            elif moenster == 3:
+                # 4) Aandedraet: hele feltet pulserer i langsomt skiftende farve
+                ph = (nu * 0.5) % 2.0
+                b = ph if ph < 1.0 else 2.0 - ph
+                farve = wheel(int(nu * 6))
+                for i in range(12):
+                    macropad.pixels[i] = daemp(farve, 0.04 + 0.30 * b)
+
+            else:
+                # 5) Glimmer: tilfaeldige taster glimter og toner ud
+                for i in range(12):
+                    p = macropad.pixels[i]
+                    macropad.pixels[i] = (int(p[0] * 0.75),
+                                          int(p[1] * 0.75),
+                                          int(p[2] * 0.75))
+                if random.random() < 0.35:
+                    macropad.pixels[random.randrange(12)] = daemp(
+                        wheel(random.randrange(256)), 0.4)
 
     time.sleep(0.01)
