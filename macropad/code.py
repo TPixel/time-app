@@ -121,6 +121,7 @@ HOLD_TID = 0.4  # sekunder før et tryk tæller som HOLD
 #   ("RUN", "Navn")   -> koer Apple Genvej med det navn (via follow-tjenesten)
 #   ("SCRIPT", "navn") -> koer AppleScript-makroen
 #                         ~/.macropad/scripts/navn.applescript paa Mac'en
+#   ("FLAG", "DK"/"ENG") -> vis flag paa tasterne i 2 sekunder
 
 def app(navn):
     # Spotlight-fallback: Cmd+Space, skriv navn, Enter
@@ -160,6 +161,8 @@ def run_sequence(seq):
             ser_send("run:" + item[1])
         elif isinstance(item, tuple) and item[0] == "SCRIPT":
             ser_send("script:" + item[1])
+        elif isinstance(item, tuple) and item[0] == "FLAG":
+            vis_flag(item[1])
         elif isinstance(item, int):
             macropad.keyboard.press(item)
             pressed.append(item)
@@ -183,9 +186,9 @@ PAGES = [
             ("Emoji", [CTRL, CMD, K.SPACE], None),
             ("Shot", [CMD, SHIFT, K.FOUR], ("Capture", [CMD, SHIFT, K.FIVE])),
             ("Mission", [CTRL, K.UP_ARROW], ("Lock", [CTRL, CMD, K.Q])),
-            # Raekke 2 (knap 4-6) — ledige
-            ("", [], None),
-            ("", [], None),
+            # Raekke 2 (knap 4-6)
+            ("DK", [("SCRIPT", "keyboard-dk"), ("FLAG", "DK")], None),
+            ("ENG", [("SCRIPT", "keyboard-eng"), ("FLAG", "ENG")], None),
             ("", [], None),
             # Raekke 3 (knap 7-9)
             ("Hide", [CMD, K.H], ("ForceQ", [CMD, ALT, K.ESCAPE])),
@@ -357,6 +360,16 @@ IDLE_EFTER = 5.0       # sekunder uden input foer idle-animation
 side_anim_start = None
 idle_active = False
 
+# Flag-visning (DK/ENG) paa tasterne — 3x4 grid, Dannebrog paa hoejkant:
+# lodret bane i midterkolonnen + vandret bane i anden raekke
+flag_type = None
+flag_indtil = 0.0
+
+def vis_flag(t):
+    global flag_type, flag_indtil
+    flag_type = t
+    flag_indtil = time.monotonic() + 2.0
+
 def wheel(pos):
     pos = pos % 256
     if pos < 85:
@@ -376,10 +389,11 @@ def start_side_anim():
 
 def afbryd_animation():
     # Kaldes ved input: stop animationer og gendan sidens farver
-    global side_anim_start, idle_active
-    if side_anim_start is not None or idle_active:
+    global side_anim_start, idle_active, flag_type
+    if side_anim_start is not None or idle_active or flag_type is not None:
         side_anim_start = None
         idle_active = False
+        flag_type = None
         macropad.pixels.fill(current_page()["color"])
 
 def toggle_numpad():
@@ -572,7 +586,23 @@ while True:
                     macropad.consumer_control.send(CC.MUTE)
 
     # --- Animationer ---
-    if side_anim_start is not None:
+    if flag_type is not None:
+        # Flag paa hoejkant: kryds = midterkolonne + anden raekke
+        if nu >= flag_indtil:
+            flag_type = None
+            macropad.pixels.fill(current_page()["color"])
+        else:
+            if flag_type == "DK":
+                felt = (255, 0, 0)
+                kryds = (255, 255, 255)
+            else:
+                felt = (255, 255, 255)
+                kryds = (200, 0, 0)
+            for i in range(12):
+                raekke = i // 3
+                kol = i % 3
+                macropad.pixels[i] = kryds if (kol == 1 or raekke == 1) else felt
+    elif side_anim_start is not None:
         # Sideskift-sweep: lyset loeber hen over knapperne med et lyst hoved
         t = (nu - side_anim_start) / SIDE_ANIM_TID
         if t >= 1.0:
