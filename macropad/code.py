@@ -180,20 +180,17 @@ PAGES = [
         "color": (0, 0, 25),
         "keys": [
             # Raekke 1 (knap 1-3)
-            ("Spotlgt", [CMD, K.SPACE], ("Emoji", [CTRL, CMD, K.SPACE])),
+            ("Emoji", [CTRL, CMD, K.SPACE], None),
             ("Shot", [CMD, SHIFT, K.FOUR], ("Capture", [CMD, SHIFT, K.FIVE])),
             ("Mission", [CTRL, K.UP_ARROW], ("Lock", [CTRL, CMD, K.Q])),
-            # Raekke 2 (knap 4-6)
-            ("Copy", [CMD, K.C], ("Cut", [CMD, K.X])),
-            ("Paste", [CMD, K.V], ("Plain", [CMD, SHIFT, ALT, K.V])),
-            ("Undo", [CMD, K.Z], ("Redo", [CMD, SHIFT, K.Z])),
+            # Raekke 2 (knap 4-6) — ledige
+            ("", [], None),
+            ("", [], None),
+            ("", [], None),
             # Raekke 3 (knap 7-9)
             ("Hide", [CMD, K.H], ("ForceQ", [CMD, ALT, K.ESCAPE])),
             ("CloseW", [CMD, K.W], ("QuitApp", [CMD, K.Q])),
-            # Scene1: koerer Apple Genvejen "MacroPad Scene 1" (Hue-lamper
-            # + lydstyrke 0) og skruer selv skaermen 8 trin ned
-            ("Scene1", [("RUN", "MacroPad Scene 1")] + [("CC", BRIGHT_DOWN)] * 8,
-             ("Shrtct2", genvej(K.TWO))),
+            ("", [], None),  # ledig
             # Raekke 4 (knap 10-12)
             ("Calc", aabn("Calculator", "calculator"), None),  # hold = NUMPAD (global)
             ("Vol-", [("CC", CC.VOLUME_DECREMENT)], None),  # combo-tast
