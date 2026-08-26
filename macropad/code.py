@@ -184,7 +184,8 @@ PAGES = [
         "keys": [
             # Raekke 1 (knap 1-3)
             ("Emoji", [CTRL, CMD, K.SPACE], None),
-            ("Shot", [CMD, SHIFT, K.FOUR], ("Capture", [CMD, SHIFT, K.FIVE])),
+            # Shot: Ctrl med i genvejen = gemmer i udklipsholderen, ikke som fil
+            ("Shot", [CTRL, CMD, SHIFT, K.FOUR], ("Capture", [CMD, SHIFT, K.FIVE])),
             ("Mission", [CTRL, K.UP_ARROW], ("Lock", [CTRL, CMD, K.Q])),
             # Raekke 2 (knap 4-6)
             ("DK", [("SCRIPT", "keyboard-dk"), ("FLAG", "DK")], None),
