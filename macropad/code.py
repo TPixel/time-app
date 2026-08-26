@@ -289,23 +289,24 @@ NUMPAD = {
 
 # -------------------------
 # COMBO-lag — GLOBALT (samme paa alle sider). Hold knap 11 nede:
-# displayet viser kun combo-navnene, og knapper MED funktion lyser orange.
-# En plads er None (ingen funktion) eller ("navn", sekvens). Max 7 tegn.
-# Plads 11 er selve combo-tasten.
+# displayet viser kun combo-navnene, og hver knap lyser i SIN EGEN farve.
+# En plads er None (ingen funktion) eller ("navn", sekvens, (r, g, b)).
+# Max 7 tegn i navnet. Plads 11 er selve combo-tasten.
 # -------------------------
 COMBOS = [
     None,                                    # 1
     None,                                    # 2
-    ("Morgen", [("RUN", "MacroPad Scene 1")]),  # 3
-    ("Desk1", [("SCRIPT", "workspace-1")]),  # 4
-    None,                                    # 5
+    ("Morgen", [("RUN", "MacroPad Scene 1")], (255, 200, 0)),   # 3 gul
+    ("Desk1", [("SCRIPT", "workspace-1")], (170, 0, 255)),      # 4 lilla
+    # Desk2: skift til skrivebord 2 (Ctrl+2) og byg saa layoutet dér
+    ("Desk2", [CTRL, K.TWO, 0.8, ("SCRIPT", "workspace-2")], (0, 220, 70)),  # 5 groen
     None,                                    # 6
     None,                                    # 7
     None,                                    # 8
     None,                                    # 9
     None,                                    # 10
     None,                                    # 11 = combo-tasten
-    ("Play", [("CC", CC.PLAY_PAUSE)]),       # 12
+    ("Play", [("CC", CC.PLAY_PAUSE)], (0, 120, 255)),           # 12 blaa
 ]
 
 LAYER = 10  # knap 11 = combo-tast (index 10)
@@ -343,12 +344,12 @@ def show_page():
         st_np.fill(pg["color"])
 
 def show_combo():
-    # Combo-visning: kun combo-navne paa displayet, orange lys paa funktioner
+    # Combo-visning: kun combo-navne paa displayet, hver knap i sin egen farve
     title.text = "< COMBO >"
     for i in range(12):
         c = COMBOS[i]
         cells[i].text = c[0][:7] if c else ""
-        macropad.pixels[i] = (255, 120, 0) if c else (2, 2, 2)
+        macropad.pixels[i] = c[2] if c else (2, 2, 2)
     cells[LAYER].text = "COMBO"
     macropad.pixels[LAYER] = (255, 255, 255)
 
@@ -509,7 +510,7 @@ while True:
                     macropad.pixels[k] = (255, 255, 255)
                     title.text = ">> " + combo[0]
                     run_sequence(combo[1])
-                    macropad.pixels[k] = (255, 120, 0)
+                    macropad.pixels[k] = combo[2]
             elif k == LAYER:
                 holdes[k] = [nu, False]
                 show_combo()
@@ -520,7 +521,7 @@ while True:
             start, fyret = holdes.pop(k)
             if LAYER in holdes and k != LAYER:
                 # combo-laget er stadig aktivt — behold combo-visningen
-                macropad.pixels[k] = (255, 120, 0) if COMBOS[k] else (2, 2, 2)
+                macropad.pixels[k] = COMBOS[k][2] if COMBOS[k] else (2, 2, 2)
             else:
                 macropad.pixels[k] = current_page()["color"]
             if not fyret:
