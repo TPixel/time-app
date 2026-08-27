@@ -1,13 +1,26 @@
 #!/bin/bash
 # Installerer alt til MacroPad'en: code.py + boot.py paa boardet og
-# follow-tjenesten paa Mac'en (launchd). Koer paa Mac'en hvor boardet sidder i.
+# follow-tjenesten + makroer paa Mac'en.
+#
+# Koeres normalt via codeload-pakken (altid friske filer, ingen CDN-cache):
+#   cd "$(mktemp -d)" && curl -fsSL https://codeload.github.com/TPixel/time-app/tar.gz/refs/heads/claude/rp2040-usb-connection-1ivgl9 | tar -xz && bash */macropad/install.sh
 set -e
 
 BASE_URL="https://raw.githubusercontent.com/TPixel/time-app/claude/rp2040-usb-connection-1ivgl9/macropad"
-STAMP=$(date +%s)  # cache-buster: tvinger GitHubs CDN til at give nyeste version
 BOARD="/Volumes/CIRCUITPY"
 MP_DIR="$HOME/.macropad"
 PLIST="$HOME/Library/LaunchAgents/dk.ditzel.macropad.follow.plist"
+
+# Lokal tilstand: ligger filerne ved siden af scriptet (codeload-pakke /
+# git-checkout), bruges de direkte — ellers hentes fra GitHub raw (fallback).
+SCRIPT_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)"
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/code.py" ]; then
+  echo "📦 Installerer fra lokal pakke ($SCRIPT_DIR)"
+  hent() { cp "$SCRIPT_DIR/$1" "$2"; }
+else
+  echo "🌐 Henter fra GitHub (raw)"
+  hent() { curl -fsSL "$BASE_URL/$1" -o "$2"; }
+fi
 
 if [ ! -d "$BOARD" ]; then
   echo "❌ Kan ikke finde CIRCUITPY-drevet ($BOARD)."
@@ -15,10 +28,10 @@ if [ ! -d "$BOARD" ]; then
   exit 1
 fi
 
-echo "⬇️  Henter nyeste filer ..."
-curl -fsSL "$BASE_URL/code.py?v=$STAMP" -o /tmp/macropad-code.py
-curl -fsSL "$BASE_URL/boot.py?v=$STAMP" -o /tmp/macropad-boot.py
-curl -fsSL "$BASE_URL/macropad-follow.sh?v=$STAMP" -o /tmp/macropad-follow.sh
+echo "⬇️  Skaffer nyeste filer ..."
+hent code.py /tmp/macropad-code.py
+hent boot.py /tmp/macropad-boot.py
+hent macropad-follow.sh /tmp/macropad-follow.sh
 
 echo "📋 Kopierer code.py til boardet ..."
 cp /tmp/macropad-code.py "$BOARD/code.py"
@@ -39,7 +52,7 @@ chmod +x "$MP_DIR/macropad-follow.sh"
 echo "📜 Installerer AppleScript-makroer ..."
 mkdir -p "$MP_DIR/scripts"
 for script in pixelmator-300px workspace-1 workspace-2 keyboard-dk keyboard-eng; do
-  curl -fsSL "$BASE_URL/scripts/$script.applescript?v=$STAMP" -o "$MP_DIR/scripts/$script.applescript"
+  hent "scripts/$script.applescript" "$MP_DIR/scripts/$script.applescript"
 done
 
 cat > "$PLIST" <<PLIST_EOF
@@ -76,6 +89,3 @@ if [ "$RESET_NEEDED" = "1" ]; then
   echo "⚠️  VIGTIGT: boot.py er ny — tag USB-stikket ud og ind ÉN gang"
   echo "   (eller tryk RESET på boardet), før app-følgning virker."
 fi
-echo ""
-echo "ℹ️  Første gang kan macOS spørge om lov til at styre 'System Events'"
-echo "   — klik OK/Tillad, ellers kan tjenesten ikke se den aktive app."
