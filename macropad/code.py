@@ -124,6 +124,7 @@ HOLD_TID = 0.4  # sekunder før et tryk tæller som HOLD
 #                         ~/.macropad/scripts/navn.applescript paa Mac'en
 #   ("FLAG", "DK"/"ENG") -> vis flag paa tasterne i 2 sekunder
 #   ("RO",)           -> toggle Calm-mode (stille staaende sleep-moenster)
+#   ("ST", "scene-id") -> koer SmartThings-scene via CLI paa Mac'en
 
 def app(navn):
     # Spotlight-fallback: Cmd+Space, skriv navn, Enter
@@ -167,6 +168,8 @@ def run_sequence(seq):
             vis_flag(item[1])
         elif isinstance(item, tuple) and item[0] == "RO":
             toggle_ro()
+        elif isinstance(item, tuple) and item[0] == "ST":
+            ser_send("st:" + item[1])
         elif isinstance(item, int):
             macropad.keyboard.press(item)
             pressed.append(item)

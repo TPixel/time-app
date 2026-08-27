@@ -8,6 +8,7 @@
 #      run:GenvejsNavn  -> shortcuts run "Navn"    (Apple Genveje)
 #      script:navn      -> osascript ~/.macropad/scripts/navn.applescript
 #                          (AppleScript-makroer, fx Pixelmator-workflows)
+#      st:scene-id      -> smartthings scenes:execute <id>  (SmartThings CLI)
 
 while true; do
   PORT=$(ls /dev/cu.usbmodem* 2>/dev/null | sort | tail -n 1)
@@ -33,6 +34,7 @@ while true; do
           navn=$(basename "${line#script:}")
           osascript "$HOME/.macropad/scripts/$navn.applescript" >/dev/null 2>&1 &
           ;;
+        st:*) smartthings scenes:execute "${line#st:}" >/dev/null 2>&1 & ;;
       esac
     done
   ) &
