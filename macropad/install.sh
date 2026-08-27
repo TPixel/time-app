@@ -4,6 +4,7 @@
 set -e
 
 BASE_URL="https://raw.githubusercontent.com/TPixel/time-app/claude/rp2040-usb-connection-1ivgl9/macropad"
+STAMP=$(date +%s)  # cache-buster: tvinger GitHubs CDN til at give nyeste version
 BOARD="/Volumes/CIRCUITPY"
 MP_DIR="$HOME/.macropad"
 PLIST="$HOME/Library/LaunchAgents/dk.ditzel.macropad.follow.plist"
@@ -15,9 +16,9 @@ if [ ! -d "$BOARD" ]; then
 fi
 
 echo "⬇️  Henter nyeste filer ..."
-curl -fsSL "$BASE_URL/code.py" -o /tmp/macropad-code.py
-curl -fsSL "$BASE_URL/boot.py" -o /tmp/macropad-boot.py
-curl -fsSL "$BASE_URL/macropad-follow.sh" -o /tmp/macropad-follow.sh
+curl -fsSL "$BASE_URL/code.py?v=$STAMP" -o /tmp/macropad-code.py
+curl -fsSL "$BASE_URL/boot.py?v=$STAMP" -o /tmp/macropad-boot.py
+curl -fsSL "$BASE_URL/macropad-follow.sh?v=$STAMP" -o /tmp/macropad-follow.sh
 
 echo "📋 Kopierer code.py til boardet ..."
 cp /tmp/macropad-code.py "$BOARD/code.py"
@@ -38,7 +39,7 @@ chmod +x "$MP_DIR/macropad-follow.sh"
 echo "📜 Installerer AppleScript-makroer ..."
 mkdir -p "$MP_DIR/scripts"
 for script in pixelmator-300px workspace-1 workspace-2 keyboard-dk keyboard-eng; do
-  curl -fsSL "$BASE_URL/scripts/$script.applescript" -o "$MP_DIR/scripts/$script.applescript"
+  curl -fsSL "$BASE_URL/scripts/$script.applescript?v=$STAMP" -o "$MP_DIR/scripts/$script.applescript"
 done
 
 cat > "$PLIST" <<PLIST_EOF

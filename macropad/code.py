@@ -653,7 +653,7 @@ while True:
                 idle_naeste = nu + 1.0
                 for i in range(12):
                     t = ((i // 3) + (i % 3)) / 5.0
-                    macropad.pixels[i] = (int(25 * (1.0 - t)), 4, int(6 + 19 * t))
+                    macropad.pixels[i] = (int(35 * (1.0 - t)), 6, int(8 + 27 * t))
         elif nu >= idle_naeste:
             idle_naeste = nu + 0.06
             moenster = int((nu - idle_start) / IDLE_SKIFT) % 5
