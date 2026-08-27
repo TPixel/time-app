@@ -123,6 +123,7 @@ HOLD_TID = 0.4  # sekunder før et tryk tæller som HOLD
 #   ("SCRIPT", "navn") -> koer AppleScript-makroen
 #                         ~/.macropad/scripts/navn.applescript paa Mac'en
 #   ("FLAG", "DK"/"ENG") -> vis flag paa tasterne i 2 sekunder
+#   ("RO",)           -> toggle Calm-mode (stille staaende sleep-moenster)
 
 def app(navn):
     # Spotlight-fallback: Cmd+Space, skriv navn, Enter
@@ -164,6 +165,8 @@ def run_sequence(seq):
             ser_send("script:" + item[1])
         elif isinstance(item, tuple) and item[0] == "FLAG":
             vis_flag(item[1])
+        elif isinstance(item, tuple) and item[0] == "RO":
+            toggle_ro()
         elif isinstance(item, int):
             macropad.keyboard.press(item)
             pressed.append(item)
@@ -191,7 +194,7 @@ PAGES = [
             # Raekke 2 (knap 4-6)
             ("DK", [("SCRIPT", "keyboard-dk"), ("FLAG", "DK")], None),
             ("ENG", [("SCRIPT", "keyboard-eng"), ("FLAG", "ENG")], None),
-            ("", [], None),
+            ("Calm", [("RO",)], None),  # toggle stille sleep-moenster
             # Raekke 3 (knap 7-9)
             ("Hide", [CMD, K.H], ("ForceQ", [CMD, ALT, K.ESCAPE])),
             ("CloseW", [CMD, K.W], ("QuitApp", [CMD, K.Q])),
@@ -366,6 +369,15 @@ SLANGE_BANE = [0, 1, 2, 5, 4, 3, 6, 7, 8, 11, 10, 9]
 side_anim_start = None
 idle_active = False
 idle_start = 0.0
+
+# Calm-mode: stille staaende moenster paa laveste lysstyrke i stedet for
+# de animerede sleep-moenstre. Toggles med Calm-knappen paa SYSTEM.
+ro_mode = False
+
+def toggle_ro():
+    global ro_mode
+    ro_mode = not ro_mode
+    title.text = ">> Calm " + ("ON" if ro_mode else "OFF")
 
 # Flag-visning (DK/ENG) paa tasterne — 3x4 grid, Dannebrog paa hoejkant:
 # lodret bane i midterkolonnen + vandret bane i anden raekke
@@ -632,7 +644,15 @@ while True:
         if not idle_active:
             idle_active = True
             idle_start = nu
-        if nu >= idle_naeste:
+        if ro_mode:
+            # Calm: stillestaaende moenster, laveste lysstyrke —
+            # svag rav-gloed oeverst venstre mod dyb blaa nederst hoejre
+            if nu >= idle_naeste:
+                idle_naeste = nu + 1.0
+                for i in range(12):
+                    t = ((i // 3) + (i % 3)) / 5.0
+                    macropad.pixels[i] = (int(5 * (1.0 - t)), 1, int(1 + 4 * t))
+        elif nu >= idle_naeste:
             idle_naeste = nu + 0.06
             moenster = int((nu - idle_start) / IDLE_SKIFT) % 5
 
