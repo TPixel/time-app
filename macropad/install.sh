@@ -51,7 +51,7 @@ chmod +x "$MP_DIR/macropad-follow.sh"
 
 echo "📜 Installerer AppleScript-makroer ..."
 mkdir -p "$MP_DIR/scripts"
-for script in pixelmator-300px workspace-1 workspace-2 keyboard-dk keyboard-eng; do
+for script in pixelmator-300px workspace-1 workspace-2 keyboard-dk keyboard-eng claude-start; do
   hent "scripts/$script.applescript" "$MP_DIR/scripts/$script.applescript"
 done
 

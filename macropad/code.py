@@ -305,7 +305,7 @@ COMBOS = [
     ("Desk1", [("SCRIPT", "workspace-1")], (170, 0, 255)),      # 4 lilla
     # Desk2: skift til skrivebord 2 (Ctrl+2) og byg saa layoutet dér
     ("Desk2", [CTRL, K.TWO, 0.8, ("SCRIPT", "workspace-2")], (0, 220, 70)),  # 5 groen
-    None,                                    # 6
+    ("Claude", [("SCRIPT", "claude-start")], (255, 120, 40)),  # 6 orange
     None,                                    # 7
     None,                                    # 8
     None,                                    # 9
