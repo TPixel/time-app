@@ -24,11 +24,13 @@ med 6 sider af genveje til Mac'en. Displayet viser alle 12 knappers funktion i e
 Sæt MacroPad'en i USB på din Mac og kør i Terminal:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/TPixel/time-app/claude/rp2040-usb-connection-1ivgl9/macropad/install.sh | bash
+cd "$(mktemp -d)" && curl -fsSL https://codeload.github.com/TPixel/time-app/tar.gz/refs/heads/claude/rp2040-usb-connection-1ivgl9 | tar -xz && bash */macropad/install.sh
 ```
 
-Scriptet henter nyeste `code.py` og lægger den på CIRCUITPY-drevet. Boardet genstarter selv.
-Samme kommando bruges hver gang koden er blevet opdateret.
+Kommandoen henter hele pakken som et frisk øjebliksbillede af nyeste commit
+(codeload cacher aldrig — GitHubs raw-CDN kunne finde på at servere 5 min gamle
+filer) og installerer board-kode, follow-tjeneste og makroer. Boardet genstarter
+selv. Samme kommando bruges hver gang koden er blevet opdateret.
 
 ## Betjening
 
