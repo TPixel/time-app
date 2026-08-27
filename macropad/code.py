@@ -645,13 +645,15 @@ while True:
             idle_active = True
             idle_start = nu
         if ro_mode:
-            # Calm: stillestaaende moenster, laveste lysstyrke —
-            # svag rav-gloed oeverst venstre mod dyb blaa nederst hoejre
+            # Calm: stillestaaende moenster, laveste SYNLIGE lysstyrke —
+            # svag rav-gloed oeverst venstre mod dyb blaa nederst hoejre.
+            # (Den globale brightness paa 0.20 ganges paa, saa raavaerdier
+            # under ~5 rundes ned til 0 = slukket — derfor 25 som max her.)
             if nu >= idle_naeste:
                 idle_naeste = nu + 1.0
                 for i in range(12):
                     t = ((i // 3) + (i % 3)) / 5.0
-                    macropad.pixels[i] = (int(5 * (1.0 - t)), 1, int(1 + 4 * t))
+                    macropad.pixels[i] = (int(25 * (1.0 - t)), 4, int(6 + 19 * t))
         elif nu >= idle_naeste:
             idle_naeste = nu + 0.06
             moenster = int((nu - idle_start) / IDLE_SKIFT) % 5
