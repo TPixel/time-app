@@ -201,9 +201,10 @@ PAGES = [
             # Raekke 3 (knap 7-9)
             ("Hide", [CMD, K.H], ("ForceQ", [CMD, ALT, K.ESCAPE])),
             ("CloseW", [CMD, K.W], ("QuitApp", [CMD, K.Q])),
-            ("", [], None),  # ledig
+            ("Calc", aabn("Calculator", "calculator"), None),
             # Raekke 4 (knap 10-12)
-            ("Calc", aabn("Calculator", "calculator"), None),  # hold = NUMPAD (global)
+            # LastApp: Cmd+Tab-tryk = skift til sidst brugte app (frem/tilbage)
+            ("LastApp", [CMD, K.TAB], None),  # hold = NUMPAD (global)
             ("Vol-", [("CC", CC.VOLUME_DECREMENT)], None),  # combo-tast
             ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None),  # hold = MUTE (global)
         ],
