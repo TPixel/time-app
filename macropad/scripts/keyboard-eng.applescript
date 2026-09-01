@@ -8,7 +8,7 @@ tell application "System Events"
 		delay 0.2
 		set m to menu 1 of menu bar item 1 of menu bar 2
 		set valgt to false
-		repeat with navn in {"ABC", "British", "U.S.", "English", "Engelsk"}
+		repeat with navn in {"Britisk", "ABC", "British", "U.S.", "English", "Engelsk"}
 			if not valgt then
 				set n to contents of navn -- vigtig: referencen skal pakkes ud
 				try
