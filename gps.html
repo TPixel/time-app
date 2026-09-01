@@ -13,18 +13,23 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden}
-body{background:#0C0C12;color:#fff;font-family:'Tahoma',sans-serif;font-weight:bold}
-#map{position:fixed;inset:0;background:#0C0C12}
+body{background:#0C0C12;color:#fff;font-family:'Tahoma',sans-serif;font-weight:bold;display:flex;flex-direction:column;height:100dvh}
+
+/* ── Delt skærm: kort-pane + POI-pane ── */
+#mappane{position:relative;flex:1;min-height:0}
+#map{position:absolute;inset:0;background:#0C0C12}
 .leaflet-container{font-family:inherit}
+#poipane{flex:0 0 0;background:#12121c;border-top:2px solid #E8820A;display:none;flex-direction:column;min-height:0}
+body.split #poipane{display:flex;flex:0 0 45%}
 
 /* ── Top: søgning ── */
-.top{position:fixed;top:0;left:0;right:0;z-index:1000;padding:calc(10px + env(safe-area-inset-top)) 12px 0;max-width:520px;margin:0 auto}
+.top{position:absolute;top:0;left:0;right:0;z-index:1000;padding:calc(10px + env(safe-area-inset-top)) 12px 0;max-width:520px;margin:0 auto}
 .searchrow{display:flex;gap:8px}
-.search{flex:1;padding:13px 14px;border-radius:14px;border:none;background:rgba(20,20,30,.94);color:#fff;font-size:16px;font-family:inherit;font-weight:bold;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.search{flex:1;min-width:0;padding:13px 14px;border-radius:14px;border:none;background:rgba(20,20,30,.94);color:#fff;font-size:16px;font-family:inherit;font-weight:bold;box-shadow:0 4px 20px rgba(0,0,0,.5)}
 .search::placeholder{color:#666}
-.iconbtn{flex:0 0 48px;height:48px;border-radius:14px;border:none;background:rgba(20,20,30,.94);color:#fff;font-size:20px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.iconbtn{flex:0 0 46px;height:46px;border-radius:14px;border:none;background:rgba(20,20,30,.94);color:#fff;font-size:19px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.5)}
 .iconbtn.on{background:#E8820A}
-.results{margin-top:8px;background:rgba(20,20,30,.97);border-radius:14px;overflow:hidden;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);max-height:45dvh;overflow-y:auto}
+.results{margin-top:8px;background:rgba(20,20,30,.97);border-radius:14px;overflow:hidden;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);max-height:40dvh;overflow-y:auto}
 .results.show{display:block}
 .result{padding:12px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid #22222e;display:flex;align-items:center;gap:10px}
 .result:last-child{border-bottom:none}
@@ -32,22 +37,34 @@ body{background:#0C0C12;color:#fff;font-family:'Tahoma',sans-serif;font-weight:b
 .result .ricon{font-size:18px}
 .result .rname{flex:1;min-width:0}
 .result .rsub{display:block;font-size:11px;color:#888;font-weight:normal;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.result .rstar{font-size:16px;opacity:.5;padding:6px}
-.result .rstar.on{opacity:1}
 .chips{display:flex;gap:8px;overflow-x:auto;margin-top:8px;padding-bottom:4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:0 0 auto;padding:8px 13px;border-radius:20px;background:rgba(20,20,30,.94);color:#ddd;font-size:13px;border:none;font-family:inherit;font-weight:bold;cursor:pointer;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,.4)}
 .chip:active{background:#2a2a38}
+.chip.on{background:#E8820A;color:#fff}
 
-/* ── Kort-knapper ── */
-.mapbtns{position:fixed;right:12px;bottom:calc(150px + env(safe-area-inset-bottom));z-index:1000;display:flex;flex-direction:column;gap:10px}
-.mapbtn{width:48px;height:48px;border-radius:50%;border:none;background:rgba(20,20,30,.94);color:#fff;font-size:20px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+/* ── Kort-knapper (højre side) ── */
+.mapbtns{position:absolute;right:10px;bottom:160px;z-index:1000;display:flex;flex-direction:column;gap:9px}
+.mapbtn{width:46px;height:46px;border-radius:50%;border:none;background:rgba(20,20,30,.94);color:#fff;font-size:19px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,.5)}
 .mapbtn.on{background:#E8820A}
 
-/* ── Bund-panel ── */
-.panel{position:fixed;left:0;right:0;bottom:0;z-index:1000;max-width:520px;margin:0 auto;padding:0 12px calc(12px + env(safe-area-inset-bottom))}
+/* ── Lodret rute-linje (venstre side) ── */
+.strip{position:absolute;left:8px;top:calc(120px + env(safe-area-inset-top));bottom:170px;width:46px;z-index:999;display:none}
+.strip.show{display:block}
+.stripbg{position:absolute;left:0;top:0;bottom:0;width:46px;background:rgba(16,16,26,.88);border-radius:23px;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.stripline{position:absolute;left:22px;top:52px;bottom:34px;width:3px;background:#E8820A;border-radius:2px;opacity:.85}
+.stripcat{position:absolute;left:3px;top:6px;width:40px;height:40px;border-radius:50%;border:none;background:#E8820A;color:#fff;font-size:18px;cursor:pointer;z-index:3}
+.stripme{position:absolute;left:15px;bottom:8px;width:17px;height:17px;border-radius:50%;background:#3B82F6;border:3px solid #fff;z-index:2}
+.stripdest{position:absolute;left:12px;top:50px;font-size:17px;z-index:2;transform:translateY(-50%)}
+.strippoi{position:absolute;left:12px;font-size:16px;line-height:1;transform:translateY(50%);cursor:pointer;z-index:2;text-shadow:0 1px 4px #000}
+.strippoi.next{font-size:19px}
+.striplabel{position:absolute;left:50px;transform:translateY(50%);background:#173017;color:#4ade80;font-size:12px;padding:4px 9px;border-radius:9px;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.5);z-index:2}
+.striplabel .nm{display:block;color:#cfe8cf;font-size:10px;font-weight:normal;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+
+/* ── Bund-panel på kortet ── */
+.panel{position:absolute;left:0;right:0;bottom:0;z-index:1000;max-width:520px;margin:0 auto;padding:0 12px calc(12px + env(safe-area-inset-bottom))}
+body.split .panel{padding-bottom:10px}
 .card{background:rgba(20,20,30,.97);border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.6);overflow:hidden}
-/* destination valgt (rutevalg) */
 .destbox{padding:14px;display:none}
 .destbox.show{display:block}
 .destname{font-size:17px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -62,84 +79,157 @@ body{background:#0C0C12;color:#fff;font-family:'Tahoma',sans-serif;font-weight:b
 .btn:active{transform:scale(.98)}
 .btn.go{background:#E8820A}
 .btn.grey{background:#2a2a38;flex:0 0 auto;padding:15px 18px}
-/* aktiv navigation */
 .navbox{display:none}
 .navbox.show{display:block}
-.turn{display:flex;align-items:center;gap:14px;padding:14px;background:#173017}
-.turn .arrow{font-size:34px;line-height:1;min-width:40px;text-align:center}
+.turn{display:flex;align-items:center;gap:14px;padding:13px 14px;background:#173017}
+.turn .arrow{font-size:32px;line-height:1;min-width:38px;text-align:center}
 .turn .tinfo{flex:1;min-width:0}
-.turn .tdist{font-size:22px;color:#4ade80}
+.turn .tdist{font-size:21px;color:#4ade80}
 .turn .ttext{font-size:14px;color:#cfe8cf;font-weight:normal;margin-top:2px}
 .then{padding:6px 14px;font-size:12px;color:#888;font-weight:normal;background:#122412;border-top:1px solid #1d3a1d}
-.stats{display:flex;align-items:center;padding:12px 14px;gap:8px}
+.stats{display:flex;align-items:center;padding:10px 14px;gap:8px}
 .stat{flex:1;text-align:center}
-.stat .v{font-size:17px}
+.stat .v{font-size:16px}
 .stat .l{font-size:10px;color:#777;text-transform:uppercase;letter-spacing:1px;margin-top:1px}
 .stat .v.eta{color:#4ade80}
-.stopbtn{flex:0 0 auto;background:#7f1d1d;border:none;color:#fff;font-family:inherit;font-weight:bold;font-size:14px;padding:12px 18px;border-radius:12px;cursor:pointer}
+.stopbtn{flex:0 0 auto;background:#7f1d1d;border:none;color:#fff;font-family:inherit;font-weight:bold;font-size:14px;padding:11px 16px;border-radius:12px;cursor:pointer}
 .status{padding:9px 14px;font-size:12px;color:#FBBF24;font-weight:normal;border-top:1px solid #22222e;display:none}
 .status.show{display:block}
 
-/* ── Position-markør ── */
+/* ── POI-pane (nederste halvdel) ── */
+.poihead{display:flex;align-items:center;gap:8px;padding:10px 12px 6px}
+.poihead .title{font-size:15px;flex:1}
+.poiclose{width:34px;height:34px;border-radius:10px;border:none;background:#2a2a38;color:#fff;font-size:15px;cursor:pointer}
+.poicats{display:flex;gap:8px;overflow-x:auto;padding:4px 12px 8px;scrollbar-width:none;flex:0 0 auto}
+.poicats::-webkit-scrollbar{display:none}
+.poilist{flex:1;overflow-y:auto;padding:0 12px 12px;-webkit-overflow-scrolling:touch}
+.poi{display:flex;align-items:center;gap:11px;background:#1a1a24;border-radius:13px;padding:11px 13px;margin-bottom:8px;cursor:pointer}
+.poi:active{background:#242432}
+.poi .pemoji{font-size:22px}
+.poi .pinfo{flex:1;min-width:0}
+.poi .pname{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.poi .psub{font-size:11px;color:#888;font-weight:normal;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.poi .pdist{font-size:12px;color:#4ade80;text-align:right;white-space:nowrap}
+.poi .pdist .onroute{display:block;font-size:9px;color:#E8820A;text-transform:uppercase;letter-spacing:.5px}
+.poiempty{text-align:center;color:#555;font-size:14px;padding:30px 0;font-weight:normal}
+
+/* ── Markører ── */
 .me{width:22px;height:22px}
 .me .dot{width:22px;height:22px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 0 12px rgba(59,130,246,.9)}
 .me .beam{position:absolute;left:50%;top:50%;width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:16px solid rgba(59,130,246,.85);transform-origin:50% 100%;margin:-24px 0 0 -9px;display:none}
 .me.hasheading .beam{display:block}
 .destpin{font-size:30px;line-height:1;text-shadow:0 2px 6px rgba(0,0,0,.6)}
+.poimark{font-size:20px;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.7)}
+.wxmark{background:rgba(16,16,26,.85);border-radius:10px;padding:3px 6px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.5);color:#fff}
+.trafmark{font-size:19px;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.8)}
+.leaflet-popup-content-wrapper{background:#1a1a24;color:#fff;font-family:'Tahoma',sans-serif;font-weight:bold;border-radius:12px}
+.leaflet-popup-tip{background:#1a1a24}
+.leaflet-popup-content{margin:12px 14px;font-size:13px}
+.popbtn{display:block;width:100%;margin-top:8px;padding:9px;border-radius:9px;border:none;background:#E8820A;color:#fff;font-family:inherit;font-weight:bold;font-size:13px;cursor:pointer}
+.popsub{font-size:11px;color:#999;font-weight:normal;margin-top:3px}
+
+/* ── Indstillinger (trafik-nøgle) ── */
+.modal{position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.show{display:flex}
+.modalbox{background:#1a1a24;border-radius:16px;padding:20px;max-width:400px;width:100%}
+.modalbox h2{font-size:17px;margin-bottom:10px}
+.modalbox p{font-size:13px;color:#aaa;font-weight:normal;margin-bottom:12px;line-height:1.5}
+.modalbox p a{color:#E8820A}
+.modalbox input{width:100%;padding:12px;border-radius:10px;border:none;background:#0C0C12;color:#fff;font-family:inherit;font-size:14px;margin-bottom:12px}
 </style>
 </head>
 <body>
 
-<div id="map"></div>
+<div id="mappane">
+  <div id="map"></div>
 
-<div class="top">
-  <div class="searchrow">
-    <input id="q" class="search" type="search" placeholder="Søg adresse eller sted…" autocomplete="off">
-    <button id="voicebtn" class="iconbtn on" title="Stemmeguide til/fra">🔊</button>
-  </div>
-  <div id="results" class="results"></div>
-  <div id="chips" class="chips"></div>
-</div>
-
-<div class="mapbtns">
-  <button id="followbtn" class="mapbtn on" title="Følg min position">🧭</button>
-  <button id="locbtn" class="mapbtn" title="Centrér på mig">📍</button>
-</div>
-
-<div class="panel">
-  <div class="card">
-    <div id="destbox" class="destbox">
-      <div id="destname" class="destname"></div>
-      <div id="destsub" class="destsub"></div>
-      <div class="modes">
-        <button class="mode on" data-mode="car">🚗 Bil</button>
-        <button class="mode" data-mode="bike">🚲 Cykel</button>
-        <button class="mode" data-mode="foot">🚶 Gå</button>
-      </div>
-      <div id="routeinfo" class="routeinfo"></div>
-      <div class="destbtns">
-        <button id="gobtn" class="btn go">Start navigation</button>
-        <button id="favbtn" class="btn grey">☆</button>
-        <button id="closebtn" class="btn grey">✕</button>
-      </div>
+  <div class="top">
+    <div class="searchrow">
+      <input id="q" class="search" type="search" placeholder="Søg destination…" autocomplete="off">
+      <button id="voicebtn" class="iconbtn on" title="Stemmeguide">🔊</button>
     </div>
-    <div id="navbox" class="navbox">
-      <div class="turn">
-        <div id="turnarrow" class="arrow">⬆️</div>
-        <div class="tinfo">
-          <div id="turndist" class="tdist">–</div>
-          <div id="turntext" class="ttext">Beregner rute…</div>
+    <div id="results" class="results"></div>
+    <div id="chips" class="chips"></div>
+  </div>
+
+  <div class="mapbtns">
+    <button id="splitbtn" class="mapbtn" title="Delt skærm: søg undervejs">🔎</button>
+    <button id="trafbtn" class="mapbtn" title="Trafik: kø, vejarbejde, lukkede veje">🚦</button>
+    <button id="wxbtn" class="mapbtn" title="Vejr-overlay">🌧️</button>
+    <button id="followbtn" class="mapbtn on" title="Følg min position">🧭</button>
+    <button id="locbtn" class="mapbtn" title="Centrér på mig">📍</button>
+  </div>
+
+  <!-- Lodret rute-linje: næste POI på ruten -->
+  <div id="strip" class="strip">
+    <div class="stripbg"></div>
+    <button id="stripcat" class="stripcat" title="Skift kategori">⛽</button>
+    <div class="stripdest">🏁</div>
+    <div class="stripline"></div>
+    <div id="strippois"></div>
+    <div class="stripme"></div>
+  </div>
+
+  <div class="panel">
+    <div class="card">
+      <div id="destbox" class="destbox">
+        <div id="destname" class="destname"></div>
+        <div id="destsub" class="destsub"></div>
+        <div class="modes">
+          <button class="mode on" data-mode="car">🚗 Bil</button>
+          <button class="mode" data-mode="bike">🚲 Cykel</button>
+          <button class="mode" data-mode="foot">🚶 Gå</button>
+        </div>
+        <div id="routeinfo" class="routeinfo"></div>
+        <div class="destbtns">
+          <button id="gobtn" class="btn go">Start navigation</button>
+          <button id="favbtn" class="btn grey">☆</button>
+          <button id="closebtn" class="btn grey">✕</button>
         </div>
       </div>
-      <div id="then" class="then" style="display:none"></div>
-      <div class="stats">
-        <div class="stat"><div id="speed" class="v">0</div><div class="l">km/t</div></div>
-        <div class="stat"><div id="remdist" class="v">–</div><div class="l">tilbage</div></div>
-        <div class="stat"><div id="eta" class="v eta">–</div><div class="l">fremme</div></div>
-        <button id="stopbtn" class="stopbtn">Afslut</button>
+      <div id="navbox" class="navbox">
+        <div class="turn">
+          <div id="turnarrow" class="arrow">⬆️</div>
+          <div class="tinfo">
+            <div id="turndist" class="tdist">–</div>
+            <div id="turntext" class="ttext">Beregner rute…</div>
+          </div>
+        </div>
+        <div id="then" class="then" style="display:none"></div>
+        <div class="stats">
+          <div class="stat"><div id="speed" class="v">0</div><div class="l">km/t</div></div>
+          <div class="stat"><div id="remdist" class="v">–</div><div class="l">tilbage</div></div>
+          <div class="stat"><div id="eta" class="v eta">–</div><div class="l">fremme</div></div>
+          <button id="stopbtn" class="stopbtn">Afslut</button>
+        </div>
       </div>
+      <div id="status" class="status"></div>
     </div>
-    <div id="status" class="status"></div>
+  </div>
+</div>
+
+<!-- Nederste halvdel: søg mad, tank, hotel m.m. mens navigationen kører -->
+<div id="poipane">
+  <div class="poihead">
+    <div class="title">Søg undervejs</div>
+    <button id="poiclose" class="poiclose">✕</button>
+  </div>
+  <div id="poicats" class="poicats"></div>
+  <div id="poilist" class="poilist"><div class="poiempty">Vælg en kategori for at søge 👆</div></div>
+</div>
+
+<!-- Trafik-nøgle indstilling -->
+<div id="trafmodal" class="modal">
+  <div class="modalbox">
+    <h2>🚦 Trafik-data</h2>
+    <p>Live trafik (kø, vejarbejde, lukkede veje, uheld) kræver en <b>gratis</b> nøgle fra
+    <a href="https://developer.tomtom.com" target="_blank" rel="noopener">developer.tomtom.com</a>
+    (2.500 opslag/dag gratis). Opret en konto, kopiér din API-nøgle og sæt den ind her — den gemmes kun lokalt på din telefon.</p>
+    <input id="trafkey" type="text" placeholder="TomTom API-nøgle" autocomplete="off">
+    <div class="destbtns">
+      <button id="trafsave" class="btn go">Gem og slå til</button>
+      <button id="trafcancel" class="btn grey">Luk</button>
+    </div>
   </div>
 </div>
 
@@ -148,36 +238,50 @@ body{background:#0C0C12;color:#fff;font-family:'Tahoma',sans-serif;font-weight:b
 
 // ── Konstanter ──
 const HOME = {name:'🏠 Hjem', query:'Tisvilde Lundevej 1, 3220 Tisvildeleje, Danmark'};
-const OSRM = { // FOSSGIS-routere (samme som openstreetmap.org bruger), gratis uden nøgle
+const OSRM = { // FOSSGIS-routere (samme som openstreetmap.org), gratis uden nøgle
   car:  'https://routing.openstreetmap.de/routed-car',
   bike: 'https://routing.openstreetmap.de/routed-bike',
   foot: 'https://routing.openstreetmap.de/routed-foot'
 };
 const OSRM_FALLBACK = 'https://router.project-osrm.org'; // kun bil-profil
 const NOMINATIM = 'https://nominatim.openstreetmap.org/search';
-const OFFROUTE_M = 60;      // meter fra ruten før genberegning
-const ADVANCE_M = 28;       // meter til manøvre før vi skifter til næste trin
-const LS_FAVS = 'gps-favs';
-const LS_VOICE = 'gps-voice';
+const OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
+const RAINVIEWER = 'https://api.rainviewer.com/public/weather-maps.json';
+const OPENMETEO = 'https://api.open-meteo.com/v1/forecast';
+const OFFROUTE_M = 60;
+const ADVANCE_M = 28;
+const LS_FAVS = 'gps-favs', LS_VOICE = 'gps-voice', LS_TOMTOM = 'gps-tomtom', LS_STRIPCAT = 'gps-stripcat';
+
+// POI-kategorier: [id, emoji, navn, overpass-filter, radius km ved nær-søgning]
+const CATS = [
+  ['fuel',  '⛽', 'Tank',       'nwr[amenity=fuel]', 15],
+  ['food',  '🍔', 'Mad',        'nwr[amenity~"^(restaurant|fast_food)$"]', 8],
+  ['cafe',  '☕', 'Café',       'nwr[amenity=cafe]', 8],
+  ['hotel', '🏨', 'Hotel',      'nwr[tourism~"^(hotel|motel|guest_house)$"]', 20],
+  ['wc',    '🚻', 'WC',         'nwr[amenity=toilets]', 10],
+  ['shop',  '🛒', 'Indkøb',     'nwr[shop~"^(supermarket|convenience)$"]', 8],
+  ['ev',    '⚡', 'Ladestander','nwr[amenity=charging_station]', 20],
+  ['park',  '🅿️', 'Parkering',  'nwr[amenity=parking][access!=private]', 4],
+  ['pharm', '🏥', 'Apotek',     'nwr[amenity=pharmacy]', 20]
+];
+const STRIP_CATS = ['fuel','wc','food','ev','shop']; // kategorier stripcat-knappen skifter imellem
 
 // ── State ──
-let map, tiles, meMarker, meEl, accCircle, destMarker, routeLine;
-let myPos = null;          // {lat, lon, heading, speed, acc}
-let dest = null;           // {name, sub, lat, lon}
-let mode = 'car';
-let route = null;          // OSRM route-objekt
-let navigating = false;
-let follow = true;
-let stepIdx = 0;
-let offRouteCount = 0;
-let rerouting = false;
-let spokenFar = -1, spokenNear = -1; // stepIdx der er annonceret
+let map, meMarker, meEl, accCircle, destMarker, routeLine;
+let myPos = null, dest = null, mode = 'car', route = null;
+let navigating = false, follow = true, stepIdx = 0, offRouteCount = 0, rerouting = false;
+let spokenFar = -1, spokenNear = -1;
 let voiceOn = localStorage.getItem(LS_VOICE) !== '0';
-let watchId = null;
+let poiMarkers = [], poiData = [], activeCat = null, poiSeq = 0;
+let stripCat = localStorage.getItem(LS_STRIPCAT) || 'fuel';
+let stripPois = [], stripSeq = 0;
+let wxOn = false, wxRadarLayer = null, wxRouteMarkers = [], wxTimer = null;
+let trafOn = false, trafFlowLayer = null, trafItems = [], trafTimer = null;
+let routeCumDist = []; // kumuleret meter pr. koordinat på ruten
 
 // ── Kort ──
-map = L.map('map', {zoomControl:false, attributionControl:true}).setView([56.045, 12.06], 11);
-tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+map = L.map('map', {zoomControl:false}).setView([56.045, 12.06], 11);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
@@ -201,20 +305,16 @@ function setStatus(msg) {
   statusEl.textContent = msg || '';
   statusEl.classList.toggle('show', !!msg);
 }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 // ── Geolocation ──
+let firstFix = true;
 function startWatch() {
   if (!('geolocation' in navigator)) { setStatus('Din enhed understøtter ikke GPS.'); return; }
-  watchId = navigator.geolocation.watchPosition(onPos, onPosErr, {
-    enableHighAccuracy: true, maximumAge: 1000, timeout: 20000
-  });
+  navigator.geolocation.watchPosition(onPos, onPosErr, {enableHighAccuracy:true, maximumAge:1000, timeout:20000});
 }
-let firstFix = true;
 function onPos(p) {
-  myPos = {
-    lat: p.coords.latitude, lon: p.coords.longitude,
-    heading: p.coords.heading, speed: p.coords.speed, acc: p.coords.accuracy
-  };
+  myPos = {lat:p.coords.latitude, lon:p.coords.longitude, heading:p.coords.heading, speed:p.coords.speed, acc:p.coords.accuracy};
   if (firstFix) {
     firstFix = false;
     meMarker.setIcon(L.divIcon({className:'', html:meEl.outerHTML, iconSize:[22,22], iconAnchor:[11,11]}));
@@ -236,11 +336,11 @@ function onPos(p) {
 }
 function onPosErr(e) {
   if (e.code === 1) setStatus('GPS-adgang afvist — tillad placering i browserens indstillinger.');
-  else setStatus('Kunne ikke finde din position endnu…');
+  else if (firstFix) setStatus('Kunne ikke finde din position endnu…');
 }
 startWatch();
 
-// ── Følg-mig / centrér ──
+// ── Følg-mig ──
 function setFollow(v) {
   follow = v;
   $('followbtn').classList.toggle('on', v);
@@ -269,14 +369,13 @@ function speak(text) {
   } catch (e) {}
 }
 
-// ── Geometri-hjælpere ──
-function hav(lat1, lon1, lat2, lon2) { // meter
+// ── Geometri ──
+function hav(lat1, lon1, lat2, lon2) {
   const R = 6371000, toR = Math.PI/180;
   const dLat = (lat2-lat1)*toR, dLon = (lon2-lon1)*toR;
   const a = Math.sin(dLat/2)**2 + Math.cos(lat1*toR)*Math.cos(lat2*toR)*Math.sin(dLon/2)**2;
   return 2*R*Math.asin(Math.sqrt(a));
 }
-// Nærmeste punkt på ruten (index i coords + afstand i meter)
 function nearestOnRoute(lat, lon, coords) {
   let best = Infinity, bi = 0;
   for (let i = 0; i < coords.length; i++) {
@@ -285,12 +384,22 @@ function nearestOnRoute(lat, lon, coords) {
   }
   return {dist: best, idx: bi};
 }
+// Udtynd rutens punkter til brug i Overpass-polyline (min. afstand mellem punkter)
+function thinRoute(coords, minGap) {
+  const out = [coords[0]];
+  let last = coords[0];
+  for (const c of coords) {
+    if (hav(last[1], last[0], c[1], c[0]) >= minGap) { out.push(c); last = c; }
+  }
+  if (out[out.length-1] !== coords[coords.length-1]) out.push(coords[coords.length-1]);
+  return out;
+}
 
 // ── Formatering ──
 function fmtDist(m) {
   if (m >= 10000) return Math.round(m/1000) + ' km';
   if (m >= 1000) return (m/1000).toFixed(1).replace('.', ',') + ' km';
-  return Math.round(m/10)*10 + ' m';
+  return Math.max(0, Math.round(m/10)*10) + ' m';
 }
 function fmtDur(s) {
   const min = Math.round(s/60);
@@ -304,38 +413,29 @@ function fmtEta(s) {
 
 // ── Danske anvisninger ──
 const MOD_DA = {
-  'left':'til venstre', 'right':'til højre',
-  'slight left':'let til venstre', 'slight right':'let til højre',
-  'sharp left':'skarpt til venstre', 'sharp right':'skarpt til højre',
-  'straight':'ligeud', 'uturn':'U-vending'
+  'left':'til venstre','right':'til højre','slight left':'let til venstre','slight right':'let til højre',
+  'sharp left':'skarpt til venstre','sharp right':'skarpt til højre','straight':'ligeud','uturn':'U-vending'
 };
-const ARROWS = {
-  'left':'⬅️','right':'➡️','slight left':'↖️','slight right':'↗️',
-  'sharp left':'⬅️','sharp right':'➡️','straight':'⬆️','uturn':'↩️'
-};
+const ARROWS = {'left':'⬅️','right':'➡️','slight left':'↖️','slight right':'↗️','sharp left':'⬅️','sharp right':'➡️','straight':'⬆️','uturn':'↩️'};
 function stepText(step) {
   const t = step.maneuver.type, m = step.maneuver.modifier || 'straight';
   const road = step.name ? ' ad ' + step.name : '';
   const onto = step.name ? ' ind på ' + step.name : '';
   switch (t) {
     case 'depart': return 'Kør' + (step.name ? ' ad ' + step.name : ' fremad');
-    case 'arrive': return m && MOD_DA[m] && m !== 'straight'
+    case 'arrive': return m && m !== 'straight'
       ? 'Du er fremme — destinationen er ' + (m.includes('left') ? 'på venstre side' : 'på højre side')
       : 'Du er fremme ved destinationen';
-    case 'roundabout': case 'rotary': {
-      const exit = step.maneuver.exit || 1;
-      return 'I rundkørslen: tag ' + exit + '. afkørsel' + onto;
-    }
+    case 'roundabout': case 'rotary': return 'I rundkørslen: tag ' + (step.maneuver.exit || 1) + '. afkørsel' + onto;
     case 'exit roundabout': case 'exit rotary': return 'Forlad rundkørslen' + onto;
     case 'merge': return 'Flet ' + (MOD_DA[m] || 'ind') + onto;
-    case 'on ramp': return 'Tag tilkørslen ' + (MOD_DA[m] || '') ;
+    case 'on ramp': return 'Tag tilkørslen ' + (MOD_DA[m] || '');
     case 'off ramp': return 'Tag frakørslen ' + (MOD_DA[m] || '');
     case 'fork': return 'Hold ' + (m.includes('left') ? 'til venstre' : m.includes('right') ? 'til højre' : 'ligeud') + ' i vejgaflen' + onto;
     case 'end of road': return 'For enden af vejen: drej ' + (MOD_DA[m] || '') + onto;
     case 'continue': return m === 'uturn' ? 'Foretag en U-vending' : 'Fortsæt ' + (MOD_DA[m] || 'ligeud') + road;
     case 'new name': return 'Fortsæt' + road;
-    case 'turn': default:
-      return m === 'uturn' ? 'Foretag en U-vending' : 'Drej ' + (MOD_DA[m] || '') + onto;
+    default: return m === 'uturn' ? 'Foretag en U-vending' : 'Drej ' + (MOD_DA[m] || '') + onto;
   }
 }
 function stepArrow(step) {
@@ -346,7 +446,7 @@ function stepArrow(step) {
   return ARROWS[m] || '⬆️';
 }
 
-// ── Søgning (Nominatim) ──
+// ── Destinationssøgning (Nominatim) ──
 let searchTimer = null, searchSeq = 0;
 qEl.addEventListener('input', () => {
   clearTimeout(searchTimer);
@@ -370,9 +470,7 @@ async function doSearch(q) {
     const hits = await geocode(q);
     if (seq !== searchSeq) return;
     resultsEl.innerHTML = '';
-    if (!hits.length) {
-      resultsEl.innerHTML = '<div class="result"><span class="rname">Intet fundet 🤷</span></div>';
-    }
+    if (!hits.length) resultsEl.innerHTML = '<div class="result"><span class="rname">Intet fundet 🤷</span></div>';
     for (const h of hits) {
       const name = h.name || h.display_name.split(',')[0];
       addResult('📍', name, h.display_name, parseFloat(h.lat), parseFloat(h.lon));
@@ -391,7 +489,13 @@ function addResult(icon, name, sub, lat, lon) {
   div.onclick = () => { resultsEl.classList.remove('show'); qEl.blur(); selectDest({name, sub, lat, lon}); };
   resultsEl.appendChild(div);
 }
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+qEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const first = resultsEl.querySelector('.result');
+    if (first) first.click();
+    qEl.blur();
+  }
+});
 
 // ── Favoritter ──
 function getFavs() { try { return JSON.parse(localStorage.getItem(LS_FAVS)) || []; } catch { return []; } }
@@ -419,7 +523,6 @@ function renderIdleResults() {
   resultsEl.classList.add('show');
 }
 async function goHome() {
-  // Geokod hjemmeadressen første gang, cache derefter koordinaterne
   let h = null;
   try { h = JSON.parse(localStorage.getItem('gps-home')); } catch {}
   if (!h) {
@@ -436,14 +539,11 @@ async function goHome() {
 }
 renderChips();
 
-// ── Destination & rutevalg ──
+// ── Destination & rute ──
 function selectDest(d) {
   dest = d;
   stopNav(true);
-  if (destMarker) destMarker.remove();
-  destMarker = L.marker([d.lat, d.lon], {
-    icon: L.divIcon({className:'', html:'<div class="destpin">📍</div>', iconSize:[30,30], iconAnchor:[15,28]})
-  }).addTo(map);
+  placeDestMarker();
   $('destname').textContent = d.name;
   $('destsub').textContent = d.sub || '';
   $('favbtn').textContent = isFav(d) ? '⭐' : '☆';
@@ -451,6 +551,12 @@ function selectDest(d) {
   navboxEl.classList.remove('show');
   setFollow(false);
   fetchRouteAndPreview();
+}
+function placeDestMarker() {
+  if (destMarker) destMarker.remove();
+  destMarker = L.marker([dest.lat, dest.lon], {
+    icon: L.divIcon({className:'', html:'<div class="destpin">📍</div>', iconSize:[30,30], iconAnchor:[15,28]})
+  }).addTo(map);
 }
 $('closebtn').onclick = () => {
   destboxEl.classList.remove('show');
@@ -470,10 +576,9 @@ document.querySelectorAll('.mode').forEach(b => b.onclick = () => {
   document.querySelectorAll('.mode').forEach(x => x.classList.remove('on'));
   b.classList.add('on');
   mode = b.dataset.mode;
-  if (dest) fetchRouteAndPreview();
+  if (dest) { if (navigating) restartNavTo(dest); else fetchRouteAndPreview(); }
 });
 
-// ── OSRM rute ──
 async function fetchRoute(fromLat, fromLon) {
   const path = `/route/v1/driving/${fromLon},${fromLat};${dest.lon},${dest.lat}?overview=full&geometries=geojson&steps=true&alternatives=false`;
   let r;
@@ -481,7 +586,7 @@ async function fetchRoute(fromLat, fromLon) {
     r = await fetch(OSRM[mode] + path);
     if (!r.ok) throw new Error('osrm ' + r.status);
   } catch (e) {
-    if (mode !== 'car') throw e; // fallback-serveren har kun bil-profil
+    if (mode !== 'car') throw e;
     r = await fetch(OSRM_FALLBACK + path);
     if (!r.ok) throw new Error('osrm fallback ' + r.status);
   }
@@ -489,17 +594,24 @@ async function fetchRoute(fromLat, fromLon) {
   if (data.code !== 'Ok' || !data.routes?.length) throw new Error('ingen rute');
   return data.routes[0];
 }
+function setRoute(rt) {
+  route = rt;
+  routeCumDist = [0];
+  const c = rt.geometry.coordinates;
+  for (let i = 1; i < c.length; i++) routeCumDist[i] = routeCumDist[i-1] + hav(c[i-1][1], c[i-1][0], c[i][1], c[i][0]);
+  drawRoute();
+  refreshStripPois();
+  if (wxOn) fetchRouteWeather();
+}
 async function fetchRouteAndPreview() {
   if (!dest) return;
-  const from = myPos || null;
   $('routeinfo').innerHTML = '<span class="dim">Beregner rute…</span>';
-  if (!from) { $('routeinfo').innerHTML = '<span class="dim">Venter på GPS-position…</span>'; return; }
+  if (!myPos) { $('routeinfo').innerHTML = '<span class="dim">Venter på GPS-position…</span>'; return; }
   try {
-    route = await fetchRoute(from.lat, from.lon);
-    drawRoute();
+    setRoute(await fetchRoute(myPos.lat, myPos.lon));
     $('routeinfo').innerHTML = `${fmtDist(route.distance)} · ${fmtDur(route.duration)} <span class="dim">· fremme ca. ${fmtEta(route.duration)}</span>`;
     const b = L.latLngBounds(route.geometry.coordinates.map(c => [c[1], c[0]]));
-    map.fitBounds(b, {padding:[60,60], paddingBottomRight:[60,220]});
+    map.fitBounds(b, {padding:[70,70]});
   } catch (e) {
     route = null;
     $('routeinfo').innerHTML = '<span class="dim">Kunne ikke beregne rute 😕 — prøv igen</span>';
@@ -514,6 +626,9 @@ function drawRoute() {
 function clearRoute() {
   if (routeLine) { routeLine.remove(); routeLine = null; }
   route = null;
+  routeCumDist = [];
+  $('strip').classList.remove('show');
+  clearWxRoute();
 }
 
 // ── Navigation ──
@@ -526,6 +641,7 @@ function startNav() {
   stepIdx = 0; offRouteCount = 0; spokenFar = -1; spokenNear = -1;
   destboxEl.classList.remove('show');
   navboxEl.classList.add('show');
+  $('strip').classList.add('show');
   setFollow(true);
   map.setView([myPos.lat, myPos.lon], 17);
   const first = flatSteps()[0];
@@ -534,16 +650,30 @@ function startNav() {
   if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(() => {});
 }
 function stopNav(silent) {
-  if (!navigating && !silent) return;
   const was = navigating;
   navigating = false;
   navboxEl.classList.remove('show');
+  $('strip').classList.remove('show');
   if (was && !silent) {
     speak('Navigation afsluttet');
     clearRoute();
     if (destMarker) { destMarker.remove(); destMarker = null; }
     dest = null;
   }
+}
+// Skift destination MENS navigationen kører (fra POI-søgning)
+async function restartNavTo(d) {
+  dest = d;
+  placeDestMarker();
+  setStatus('Beregner rute til ' + d.name + '…');
+  try {
+    setRoute(await fetchRoute(myPos.lat, myPos.lon));
+    stepIdx = 0; offRouteCount = 0; spokenFar = -1; spokenNear = -1;
+    setStatus('');
+    if (!navigating) { navigating = true; navboxEl.classList.add('show'); destboxEl.classList.remove('show'); $('strip').classList.add('show'); setFollow(true); }
+    speak('Ny rute til ' + d.name.replace(/[^\wæøåÆØÅ ]/g, ''));
+    navTick();
+  } catch (e) { setStatus('Kunne ikke beregne rute dertil 😕'); }
 }
 function flatSteps() { return route ? route.legs.flatMap(l => l.steps) : []; }
 
@@ -552,14 +682,12 @@ function navTick() {
   const steps = flatSteps();
   const coords = route.geometry.coordinates;
 
-  // Er vi kørt af ruten?
   const near = nearestOnRoute(myPos.lat, myPos.lon, coords);
   if (near.dist > Math.max(OFFROUTE_M, (myPos.acc||0) + 20)) {
     offRouteCount++;
     if (offRouteCount >= 3 && !rerouting) reroute();
   } else offRouteCount = 0;
 
-  // Fremryk trin: nærmeste manøvrepunkt forude
   while (stepIdx < steps.length - 1) {
     const loc = steps[stepIdx + 1].maneuver.location;
     if (hav(myPos.lat, myPos.lon, loc[1], loc[0]) < ADVANCE_M) stepIdx++;
@@ -569,25 +697,23 @@ function navTick() {
   const nloc = nextStep.maneuver.location;
   const dToNext = hav(myPos.lat, myPos.lon, nloc[1], nloc[0]);
 
-  // UI
   $('turnarrow').textContent = stepArrow(nextStep);
   $('turndist').textContent = fmtDist(dToNext);
   $('turntext').textContent = stepText(nextStep);
-  const after = flatSteps()[Math.min(stepIdx + 2, steps.length - 1)];
+  const after = steps[Math.min(stepIdx + 2, steps.length - 1)];
   if (after && after !== nextStep && nextStep.maneuver.type !== 'arrive') {
     $('then').style.display = 'block';
     $('then').textContent = 'Derefter: ' + stepText(after);
   } else $('then').style.display = 'none';
 
-  // Distance/ETA tilbage (approks. via nærmeste punkt på ruten)
-  let travelled = 0;
-  for (let i = 1; i <= near.idx; i++) travelled += hav(coords[i-1][1], coords[i-1][0], coords[i][1], coords[i][0]);
+  const travelled = routeCumDist[near.idx] || 0;
   const remDist = Math.max(0, route.distance - travelled);
   const remDur = route.distance > 0 ? route.duration * (remDist / route.distance) : 0;
   $('remdist').textContent = fmtDist(remDist);
   $('eta').textContent = fmtEta(remDur);
 
-  // Stemme: langt varsel (~250 m) og tæt varsel (~40 m)
+  renderStrip(travelled, remDist, remDur);
+
   if (dToNext < 260 && dToNext > 120 && spokenFar < stepIdx + 1) {
     spokenFar = stepIdx + 1;
     speak('Om ' + Math.round(dToNext/10)*10 + ' meter: ' + stepText(nextStep));
@@ -597,41 +723,364 @@ function navTick() {
     speak(stepText(nextStep));
   }
 
-  // Fremme?
   if (nextStep.maneuver.type === 'arrive' && dToNext < 25) {
     speak('Du er fremme ved destinationen');
     $('turnarrow').textContent = '🏁';
     $('turndist').textContent = 'Fremme!';
     $('turntext').textContent = dest ? dest.name : '';
     navigating = false;
-    setTimeout(() => { stopNav(true); clearRoute(); if (destMarker){destMarker.remove();destMarker=null;} dest=null; }, 6000);
+    setTimeout(() => {
+      stopNav(true); clearRoute();
+      if (destMarker) { destMarker.remove(); destMarker = null; }
+      dest = null;
+    }, 6000);
   }
 }
 async function reroute() {
   rerouting = true;
   setStatus('Du er kørt af ruten — beregner ny rute…');
   try {
-    route = await fetchRoute(myPos.lat, myPos.lon);
-    drawRoute();
+    setRoute(await fetchRoute(myPos.lat, myPos.lon));
     stepIdx = 0; offRouteCount = 0; spokenFar = -1; spokenNear = -1;
     speak('Ny rute beregnet');
     setStatus('');
-  } catch (e) {
-    setStatus('Kunne ikke genberegne rute — tjek forbindelsen.');
-  }
+  } catch (e) { setStatus('Kunne ikke genberegne rute — tjek forbindelsen.'); }
   rerouting = false;
 }
 
-// ── Enter i søgefeltet = tag første resultat ──
-qEl.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const first = resultsEl.querySelector('.result');
-    if (first) first.click();
-    qEl.blur();
-  }
-});
+// ══════════════ LODRET RUTE-LINJE ══════════════
+// Viser valgt kategori (tank/wc/mad/…) langs den resterende rute med km og tid til næste.
+function catById(id) { return CATS.find(c => c[0] === id) || CATS[0]; }
+$('stripcat').textContent = catById(stripCat)[1];
+$('stripcat').onclick = () => {
+  const i = STRIP_CATS.indexOf(stripCat);
+  stripCat = STRIP_CATS[(i + 1) % STRIP_CATS.length];
+  localStorage.setItem(LS_STRIPCAT, stripCat);
+  $('stripcat').textContent = catById(stripCat)[1];
+  refreshStripPois();
+};
 
-// ── Service worker (samme som resten af appsene) ──
+async function overpassQuery(q) {
+  for (const url of OVERPASS) {
+    try {
+      const r = await fetch(url, {method:'POST', body:'data=' + encodeURIComponent(q), headers:{'Content-Type':'application/x-www-form-urlencoded'}});
+      if (r.ok) return r.json();
+    } catch (e) {}
+  }
+  throw new Error('overpass nede');
+}
+function overpassPolyFilter(filter, radius) {
+  // "around" langs rutens (udtyndede) polyline
+  const pts = thinRoute(route.geometry.coordinates, 400).map(c => c[1].toFixed(4) + ',' + c[0].toFixed(4)).join(',');
+  return `[out:json][timeout:25];(${filter}(around:${radius},${pts}););out center 60;`;
+}
+function elemLatLon(e) { return e.center ? [e.center.lat, e.center.lon] : [e.lat, e.lon]; }
+function elemName(e, fallback) { return e.tags?.name || e.tags?.brand || e.tags?.operator || fallback; }
+
+async function refreshStripPois() {
+  if (!route) return;
+  const seq = ++stripSeq;
+  const cat = catById(stripCat);
+  try {
+    const data = await overpassQuery(overpassPolyFilter(cat[3], 600));
+    if (seq !== stripSeq || !route) return;
+    stripPois = (data.elements || []).map(e => {
+      const [lat, lon] = elemLatLon(e);
+      const near = nearestOnRoute(lat, lon, route.geometry.coordinates);
+      return {lat, lon, name: elemName(e, cat[2]), along: routeCumDist[near.idx] || 0, offRoute: near.dist};
+    }).filter(p => p.offRoute < 800).sort((a, b) => a.along - b.along);
+    // dedup: samme navn inden for 300 m
+    stripPois = stripPois.filter((p, i) => i === 0 || p.name !== stripPois[i-1].name || p.along - stripPois[i-1].along > 300);
+    renderStrip();
+  } catch (e) { /* strip forbliver tom — prøver igen ved næste rute */ }
+}
+
+function renderStrip(travelledIn, remDistIn, remDurIn) {
+  const stripEl = $('strip'), box = $('strippois');
+  if (!route || !stripEl.classList.contains('show')) return;
+  let travelled = travelledIn, remDist = remDistIn, remDur = remDurIn;
+  if (travelled == null) {
+    const near = myPos ? nearestOnRoute(myPos.lat, myPos.lon, route.geometry.coordinates) : {idx:0};
+    travelled = routeCumDist[near.idx] || 0;
+    remDist = Math.max(1, route.distance - travelled);
+    remDur = route.duration * (remDist / route.distance);
+  }
+  remDist = Math.max(1, remDist);
+  const h = stripEl.clientHeight, top = 52, bottom = 34; // px-margener (kategori-knap / mig-prik)
+  const span = Math.max(20, h - top - bottom);
+  box.innerHTML = '';
+  let nextDone = false;
+  for (const p of stripPois) {
+    const ahead = p.along - travelled;
+    if (ahead < -100) continue; // passeret
+    const frac = Math.min(1, Math.max(0, ahead / remDist));
+    const y = h - bottom - frac * span; // bund = mig, top = destination
+    const isNext = !nextDone && ahead > 0;
+    const el = document.createElement('div');
+    el.className = 'strippoi' + (isNext ? ' next' : '');
+    el.style.bottom = (h - y) + 'px';
+    el.textContent = catById(stripCat)[1];
+    el.onclick = () => showPoiPopup(p);
+    box.appendChild(el);
+    if (isNext) {
+      nextDone = true;
+      const lbl = document.createElement('div');
+      lbl.className = 'striplabel';
+      lbl.style.bottom = (h - y) + 'px';
+      const mins = remDur && remDist ? Math.round(remDur * (ahead / remDist) / 60) : null;
+      lbl.innerHTML = `${fmtDist(ahead)}${mins != null ? ' · ' + mins + ' min' : ''}<span class="nm">${esc(p.name)}</span>`;
+      lbl.onclick = () => showPoiPopup(p);
+      box.appendChild(lbl);
+    }
+  }
+}
+window.addEventListener('resize', () => { renderStrip(); map.invalidateSize(); });
+
+function showPoiPopup(p) {
+  const id = 'pp' + Math.random().toString(36).slice(2, 8);
+  L.popup({closeButton:true})
+    .setLatLng([p.lat, p.lon])
+    .setContent(`${esc(p.name)}<div class="popsub">${p.sub ? esc(p.sub) : ''}</div><button class="popbtn" id="${id}">Kør hertil ➜</button>`)
+    .openOn(map);
+  setTimeout(() => {
+    const b = document.getElementById(id);
+    if (b) b.onclick = () => { map.closePopup(); poiGo(p); };
+  }, 0);
+}
+function poiGo(p) {
+  const d = {name: p.name, sub: p.sub || '', lat: p.lat, lon: p.lon};
+  if (navigating && myPos) restartNavTo(d);
+  else selectDest(d);
+}
+
+// ══════════════ DELT SKÆRM: POI-SØGNING ══════════════
+$('splitbtn').onclick = () => setSplit(!document.body.classList.contains('split'));
+$('poiclose').onclick = () => setSplit(false);
+function setSplit(v) {
+  document.body.classList.toggle('split', v);
+  $('splitbtn').classList.toggle('on', v);
+  setTimeout(() => map.invalidateSize(), 250);
+  if (v && !activeCat) buildPoiCats();
+}
+function buildPoiCats() {
+  const box = $('poicats');
+  if (box.childElementCount) return;
+  for (const c of CATS) {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.textContent = c[1] + ' ' + c[2];
+    b.dataset.cat = c[0];
+    b.onclick = () => { activeCat = c[0]; box.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b)); poiSearch(c); };
+    box.appendChild(b);
+  }
+}
+buildPoiCats();
+
+async function poiSearch(cat) {
+  const seq = ++poiSeq;
+  const list = $('poilist');
+  list.innerHTML = '<div class="poiempty">Søger ' + esc(cat[2].toLowerCase()) + '… ⏳</div>';
+  clearPoiMarkers();
+  if (!myPos && !route) { list.innerHTML = '<div class="poiempty">Venter på GPS-position…</div>'; return; }
+  try {
+    let q;
+    if (route && navigating) q = overpassPolyFilter(cat[3], 1500); // langs ruten under navigation
+    else {
+      const c = myPos || {lat: map.getCenter().lat, lon: map.getCenter().lng};
+      q = `[out:json][timeout:25];(${cat[3]}(around:${cat[4]*1000},${c.lat.toFixed(4)},${c.lon.toFixed(4)}););out center 60;`;
+    }
+    const data = await overpassQuery(q);
+    if (seq !== poiSeq) return;
+    const origin = myPos || {lat: map.getCenter().lat, lon: map.getCenter().lng};
+    poiData = (data.elements || []).map(e => {
+      const [lat, lon] = elemLatLon(e);
+      const t = e.tags || {};
+      const sub = [t['addr:street'] ? (t['addr:street'] + ' ' + (t['addr:housenumber'] || '')).trim() : null,
+                   t['addr:city'], t.opening_hours ? '🕐 ' + t.opening_hours : null, t.cuisine]
+                  .filter(Boolean).join(' · ');
+      const p = {lat, lon, name: elemName(e, cat[2]), sub, dist: hav(origin.lat, origin.lon, lat, lon), onRoute: false, along: null};
+      if (route) {
+        const near = nearestOnRoute(lat, lon, route.geometry.coordinates);
+        if (near.dist < 800) { p.onRoute = true; p.along = routeCumDist[near.idx] || 0; }
+      }
+      return p;
+    }).sort((a, b) => (a.onRoute && b.onRoute) ? a.along - b.along : a.dist - b.dist).slice(0, 40);
+    renderPoiList(cat);
+  } catch (e) {
+    if (seq !== poiSeq) return;
+    list.innerHTML = '<div class="poiempty">Søgning fejlede — prøv igen om lidt 😕</div>';
+  }
+}
+function renderPoiList(cat) {
+  const list = $('poilist');
+  list.innerHTML = '';
+  if (!poiData.length) { list.innerHTML = '<div class="poiempty">Intet fundet i nærheden 🤷</div>'; return; }
+  for (const p of poiData) {
+    const div = document.createElement('div');
+    div.className = 'poi';
+    div.innerHTML = `<span class="pemoji">${cat[1]}</span>
+      <span class="pinfo"><span class="pname">${esc(p.name)}</span><span class="psub">${esc(p.sub || '')}</span></span>
+      <span class="pdist">${fmtDist(p.dist)}${p.onRoute ? '<span class="onroute">på ruten</span>' : ''}</span>`;
+    div.onclick = () => {
+      setFollow(false);
+      map.flyTo([p.lat, p.lon], Math.max(map.getZoom(), 14));
+      showPoiPopup(p);
+    };
+    list.appendChild(div);
+    const m = L.marker([p.lat, p.lon], {icon: L.divIcon({className:'', html:`<div class="poimark">${cat[1]}</div>`, iconSize:[20,20], iconAnchor:[10,10]})});
+    m.on('click', () => showPoiPopup(p));
+    m.addTo(map);
+    poiMarkers.push(m);
+  }
+}
+function clearPoiMarkers() { poiMarkers.forEach(m => m.remove()); poiMarkers = []; }
+
+// ══════════════ VEJR: radar-overlay + vejret på ruten ══════════════
+$('wxbtn').onclick = () => setWx(!wxOn);
+function setWx(v) {
+  wxOn = v;
+  $('wxbtn').classList.toggle('on', v);
+  if (v) {
+    loadRadar();
+    wxTimer = setInterval(loadRadar, 5*60*1000);
+    if (route) fetchRouteWeather();
+  } else {
+    clearInterval(wxTimer);
+    if (wxRadarLayer) { wxRadarLayer.remove(); wxRadarLayer = null; }
+    clearWxRoute();
+  }
+}
+async function loadRadar() {
+  try {
+    const r = await fetch(RAINVIEWER);
+    const d = await r.json();
+    const frames = d?.radar?.past;
+    if (!frames?.length) return;
+    const path = frames[frames.length - 1].path;
+    const url = (d.host || 'https://tilecache.rainviewer.com') + path + '/256/{z}/{x}/{y}/2/1_1.png';
+    if (wxRadarLayer) wxRadarLayer.remove();
+    if (!wxOn) return;
+    wxRadarLayer = L.tileLayer(url, {opacity:.55, maxZoom:19, attribution:'<a href="https://www.rainviewer.com">RainViewer</a>'}).addTo(map);
+  } catch (e) { if (wxOn) setStatus('Kunne ikke hente regn-radar lige nu.'); }
+}
+const WMO_EMOJI = c =>
+  c === 0 ? '☀️' : c <= 2 ? '🌤️' : c === 3 ? '☁️' : c <= 48 ? '🌫️' : c <= 57 ? '🌦️' :
+  c <= 67 ? '🌧️' : c <= 77 ? '🌨️' : c <= 82 ? '🌧️' : c <= 86 ? '🌨️' : '⛈️';
+function clearWxRoute() { wxRouteMarkers.forEach(m => m.remove()); wxRouteMarkers = []; }
+async function fetchRouteWeather() {
+  if (!route || !wxOn) return;
+  clearWxRoute();
+  try {
+    const coords = route.geometry.coordinates;
+    const n = Math.min(6, Math.max(2, Math.round(route.distance / 25000) + 2)); // 2–6 punkter
+    const pts = [];
+    for (let i = 0; i < n; i++) {
+      const target = route.distance * i / (n - 1);
+      let idx = routeCumDist.findIndex(d => d >= target);
+      if (idx < 0) idx = coords.length - 1;
+      pts.push({lat: coords[idx][1], lon: coords[idx][0], etaS: route.duration * i / (n - 1)});
+    }
+    const url = OPENMETEO + '?latitude=' + pts.map(p => p.lat.toFixed(3)).join(',') +
+      '&longitude=' + pts.map(p => p.lon.toFixed(3)).join(',') +
+      '&hourly=temperature_2m,precipitation,weather_code,wind_speed_10m&forecast_days=2&timezone=auto';
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('meteo ' + r.status);
+    let d = await r.json();
+    if (!Array.isArray(d)) d = [d];
+    pts.forEach((p, i) => {
+      const h = d[i]?.hourly;
+      if (!h) return;
+      const eta = new Date(Date.now() + p.etaS * 1000);
+      let hi = h.time.findIndex(t => new Date(t) >= eta);
+      if (hi < 0) hi = h.time.length - 1;
+      const emoji = WMO_EMOJI(h.weather_code[hi]);
+      const tmp = Math.round(h.temperature_2m[hi]);
+      const wind = Math.round(h.wind_speed_10m[hi] / 3.6); // km/t → m/s
+      const rain = h.precipitation[hi];
+      const m = L.marker([p.lat, p.lon], {
+        icon: L.divIcon({className:'', html:`<div class="wxmark">${emoji} ${tmp}°</div>`, iconSize:[54,22], iconAnchor:[27,11]}),
+        zIndexOffset: 500
+      });
+      m.bindPopup(`${emoji} ${tmp}° · vind ${wind} m/s${rain > 0 ? ' · nedbør ' + rain + ' mm' : ''}<div class="popsub">Vejret når du er her (ca. ${eta.getHours().toString().padStart(2,'0')}:${eta.getMinutes().toString().padStart(2,'0')})</div>`);
+      m.addTo(map);
+      wxRouteMarkers.push(m);
+    });
+  } catch (e) { /* vejr på ruten er best effort */ }
+}
+
+// ══════════════ TRAFIK: kø, vejarbejde, lukkede veje (TomTom, gratis nøgle) ══════════════
+const TRAF_CAT = {1:['🚗💥','Uheld'],2:['🌫️','Tåge'],3:['⚠️','Farlige forhold'],4:['🌧️','Kraftig regn'],5:['🧊','Is/glat'],6:['🐌','Kø'],7:['🚧','Spærret spor'],8:['⛔','Lukket vej'],9:['🚧','Vejarbejde'],10:['💨','Kraftig vind'],11:['🌊','Oversvømmelse'],14:['🚙','Havareret køretøj']};
+$('trafbtn').onclick = () => {
+  const key = localStorage.getItem(LS_TOMTOM);
+  if (!key) { $('trafmodal').classList.add('show'); return; }
+  setTraf(!trafOn);
+};
+$('trafsave').onclick = () => {
+  const k = $('trafkey').value.trim();
+  if (k) { localStorage.setItem(LS_TOMTOM, k); $('trafmodal').classList.remove('show'); setTraf(true); }
+};
+$('trafcancel').onclick = () => $('trafmodal').classList.remove('show');
+function setTraf(v) {
+  trafOn = v;
+  $('trafbtn').classList.toggle('on', v);
+  const key = localStorage.getItem(LS_TOMTOM);
+  if (v && key) {
+    if (!trafFlowLayer) trafFlowLayer = L.tileLayer(
+      'https://api.tomtom.com/traffic/map/4/tile/flow/relative0/{z}/{x}/{y}.png?key=' + encodeURIComponent(key),
+      {opacity:.75, maxZoom:19, attribution:'<a href="https://www.tomtom.com">TomTom</a>'});
+    trafFlowLayer.addTo(map);
+    fetchIncidents();
+    trafTimer = setInterval(fetchIncidents, 2*60*1000);
+  } else {
+    clearInterval(trafTimer);
+    if (trafFlowLayer) trafFlowLayer.remove();
+    clearIncidents();
+  }
+}
+function clearIncidents() { trafItems.forEach(x => x.remove()); trafItems = []; }
+let trafMoveTimer = null;
+map.on('moveend', () => {
+  if (!trafOn) return;
+  clearTimeout(trafMoveTimer);
+  trafMoveTimer = setTimeout(fetchIncidents, 1500);
+});
+async function fetchIncidents() {
+  const key = localStorage.getItem(LS_TOMTOM);
+  if (!key || !trafOn || map.getZoom() < 8) return;
+  const b = map.getBounds();
+  const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()].map(x => x.toFixed(4)).join(',');
+  const fields = '{incidents{type,geometry{type,coordinates},properties{iconCategory,magnitudeOfDelay,events{description},from,to,delay}}}';
+  try {
+    const r = await fetch(`https://api.tomtom.com/traffic/services/5/incidentDetails?key=${encodeURIComponent(key)}&bbox=${bbox}&fields=${encodeURIComponent(fields)}&language=en-GB`);
+    if (r.status === 403) { setStatus('Trafik-nøglen blev afvist — tjek den under 🚦.'); localStorage.removeItem(LS_TOMTOM); setTraf(false); return; }
+    if (!r.ok) throw new Error('tomtom ' + r.status);
+    const d = await r.json();
+    if (!trafOn) return;
+    clearIncidents();
+    for (const inc of (d.incidents || []).slice(0, 120)) {
+      const pr = inc.properties || {};
+      const [emoji, label] = TRAF_CAT[pr.iconCategory] || ['⚠️', 'Hændelse'];
+      const g = inc.geometry || {};
+      let latlng, line = null;
+      if (g.type === 'LineString' && g.coordinates?.length) {
+        const pts = g.coordinates.map(c => [c[1], c[0]]);
+        latlng = pts[Math.floor(pts.length/2)];
+        const closed = pr.iconCategory === 8;
+        line = L.polyline(pts, {color: closed ? '#f87171' : '#FBBF24', weight:5, opacity:.85, dashArray: closed ? '8 7' : null});
+        line.addTo(map); trafItems.push(line);
+      } else if (g.type === 'Point' && g.coordinates) latlng = [g.coordinates[1], g.coordinates[0]];
+      if (!latlng) continue;
+      const desc = pr.events?.map(e => e.description).filter(Boolean).join(' · ') || '';
+      const delay = pr.delay ? `<div class="popsub">Forsinkelse ca. ${Math.round(pr.delay/60)} min</div>` : '';
+      const stretch = (pr.from || pr.to) ? `<div class="popsub">${esc(pr.from || '')} → ${esc(pr.to || '')}</div>` : '';
+      const m = L.marker(latlng, {icon: L.divIcon({className:'', html:`<div class="trafmark">${emoji}</div>`, iconSize:[20,20], iconAnchor:[10,10]}), zIndexOffset:600});
+      m.bindPopup(`${emoji} ${label}${stretch}${desc ? '<div class="popsub">' + esc(desc) + '</div>' : ''}${delay}`);
+      m.addTo(map); trafItems.push(m);
+    }
+  } catch (e) { /* beholder gamle markører til næste forsøg */ }
+}
+
+// ── Service worker ──
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
