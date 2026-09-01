@@ -10,8 +10,9 @@ tell application "System Events"
 		set valgt to false
 		repeat with navn in {"ABC", "British", "U.S.", "English", "Engelsk"}
 			if not valgt then
+				set n to contents of navn -- vigtig: referencen skal pakkes ud
 				try
-					click (first menu item of m whose title contains navn)
+					click (first menu item of m whose title contains n)
 					set valgt to true
 				end try
 			end if
