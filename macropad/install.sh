@@ -22,27 +22,25 @@ else
   hent() { curl -fsSL "$BASE_URL/$1" -o "$2"; }
 fi
 
-if [ ! -d "$BOARD" ]; then
-  echo "❌ Kan ikke finde CIRCUITPY-drevet ($BOARD)."
-  echo "   Sæt MacroPad'en i USB og prøv igen."
-  exit 1
-fi
-
 echo "⬇️  Skaffer nyeste filer ..."
 hent code.py /tmp/macropad-code.py
 hent boot.py /tmp/macropad-boot.py
 hent macropad-follow.sh /tmp/macropad-follow.sh
 
-echo "📋 Kopierer code.py til boardet ..."
-cp /tmp/macropad-code.py "$BOARD/code.py"
-
 RESET_NEEDED=0
-if ! cmp -s /tmp/macropad-boot.py "$BOARD/boot.py" 2>/dev/null; then
-  echo "📋 Kopierer boot.py til boardet (ny/ændret) ..."
-  cp /tmp/macropad-boot.py "$BOARD/boot.py"
-  RESET_NEEDED=1
+if [ -d "$BOARD" ]; then
+  echo "📋 Kopierer code.py til boardet ..."
+  cp /tmp/macropad-code.py "$BOARD/code.py"
+  if ! cmp -s /tmp/macropad-boot.py "$BOARD/boot.py" 2>/dev/null; then
+    echo "📋 Kopierer boot.py til boardet (ny/ændret) ..."
+    cp /tmp/macropad-boot.py "$BOARD/boot.py"
+    RESET_NEEDED=1
+  fi
+  sync
+else
+  echo "ℹ️  Intet CIRCUITPY-drev fundet — springer board-delen over"
+  echo "   (fint på en Mac uden MacroPad: panel og makroer installeres stadig)."
 fi
-sync
 
 echo "🛠  Installerer follow-tjenesten ..."
 mkdir -p "$MP_DIR"
@@ -82,8 +80,41 @@ PLIST_EOF
 launchctl unload "$PLIST" 2>/dev/null || true
 launchctl load "$PLIST"
 
+echo "🖥  Installerer skærm-panelet ..."
+hent macropad-panel.py "$MP_DIR/macropad-panel.py"
+hent panel.json "$MP_DIR/panel.json"
+PANEL_PLIST="$HOME/Library/LaunchAgents/dk.ditzel.macropad.panel.plist"
+cat > "$PANEL_PLIST" <<PANEL_EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>dk.ditzel.macropad.panel</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>$MP_DIR/macropad-panel.py</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>$MP_DIR/panel.log</string>
+    <key>StandardErrorPath</key>
+    <string>$MP_DIR/panel.log</string>
+</dict>
+</plist>
+PANEL_EOF
+launchctl unload "$PANEL_PLIST" 2>/dev/null || true
+launchctl load "$PANEL_PLIST"
+
 echo ""
-echo "✅ Færdig! Boardet genstarter selv med den nye kode."
+echo "✅ Færdig!"
+echo "🖥  Panelet kører på:  http://localhost:8787"
+echo "   Tip: Chrome-kommandoen herunder giver det som et rent lille vindue:"
+echo "   open -na 'Google Chrome' --args --app=http://localhost:8787"
 if [ "$RESET_NEEDED" = "1" ]; then
   echo ""
   echo "⚠️  VIGTIGT: boot.py er ny — tag USB-stikket ud og ind ÉN gang"

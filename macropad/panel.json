@@ -1,0 +1,28 @@
+{
+  "titel": "MacroPad Panel",
+  "grupper": [
+    {
+      "navn": "Makroer",
+      "knapper": [
+        {"navn": "Morgen", "farve": "#ffc800", "type": "run", "vaerdi": "MacroPad Scene 1"},
+        {"navn": "Desk 1", "farve": "#aa00ff", "type": "script", "vaerdi": "workspace-1"},
+        {"navn": "Desk 2", "farve": "#00dc46", "type": "script", "vaerdi": "workspace-2"},
+        {"navn": "Exp 300", "farve": "#b464ff", "type": "script", "vaerdi": "pixelmator-300px"},
+        {"navn": "DK", "farve": "#ff3232", "type": "script", "vaerdi": "keyboard-dk"},
+        {"navn": "ENG", "farve": "#e8e8e8", "type": "script", "vaerdi": "keyboard-eng"},
+        {"navn": "Claude", "farve": "#ff7828", "type": "script", "vaerdi": "claude-start"}
+      ]
+    },
+    {
+      "navn": "Apps",
+      "knapper": [
+        {"navn": "Safari", "farve": "#0a84ff", "type": "open", "vaerdi": "Safari"},
+        {"navn": "Chrome", "farve": "#ff9500", "type": "open", "vaerdi": "Google Chrome"},
+        {"navn": "Pixelmator", "farve": "#bf5af2", "type": "open", "vaerdi": "/Applications/Pixelmator Pro.app"},
+        {"navn": "Mail", "farve": "#32ade6", "type": "open", "vaerdi": "Mail"},
+        {"navn": "Fotos", "farve": "#ff375f", "type": "open", "vaerdi": "Photos"},
+        {"navn": "Lommeregner", "farve": "#8e8e93", "type": "open", "vaerdi": "Calculator"}
+      ]
+    }
+  ]
+}
