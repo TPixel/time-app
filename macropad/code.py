@@ -307,7 +307,7 @@ COMBOS = [
     None,                                    # 1
     # Scrn80: koerer Apple Genvejen "Screen 80" (handlingen "Indstil
     # lysstyrke" = 80%) — samme vej som Morgen-genvejen daemper skaermen
-    ("Scrn80", [("RUN", "Screen 80")], (255, 235, 120)),  # 2 lys gul
+    ("80%", [("RUN", "Screen 80")], (255, 235, 120)),  # 2 lys gul
     ("Morgen", [("RUN", "MacroPad Scene 1")], (255, 200, 0)),   # 3 gul
     ("Desk1", [("SCRIPT", "workspace-1")], (170, 0, 255)),      # 4 lilla
     # Desk2: skift til skrivebord 2 (Ctrl+2) og byg saa layoutet dér
