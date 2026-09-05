@@ -102,9 +102,10 @@ SHIFT = K.SHIFT
 ALT = K.OPTION
 CTRL = K.CONTROL
 CC = ConsumerControlCode
-# Skaerm-lysstyrke findes ikke i alle udgaver af adafruit_hid — None springes over
-BRIGHT_UP = getattr(CC, "BRIGHTNESS_INCREMENT", None)
-BRIGHT_DOWN = getattr(CC, "BRIGHTNESS_DECREMENT", None)
+# Skaerm-lysstyrke som raa USB HID-koder (Consumer page 0x6F/0x70) —
+# uafhaengigt af om adafruit_hid-versionen kender navnene
+BRIGHT_UP = 0x6F   # Display Brightness Increment
+BRIGHT_DOWN = 0x70  # Display Brightness Decrement
 
 HOLD_TID = 0.4  # sekunder før et tryk tæller som HOLD
 
