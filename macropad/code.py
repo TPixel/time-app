@@ -191,23 +191,22 @@ PAGES = [
         "color": (0, 0, 25),
         "keys": [
             # Raekke 1 (knap 1-3)
-            ("Emoji", [CTRL, CMD, K.SPACE], None),
-            # Shot: Ctrl med i genvejen = gemmer i udklipsholderen, ikke som fil
-            ("Shot", [CTRL, CMD, SHIFT, K.FOUR], ("Capture", [CMD, SHIFT, K.FIVE])),
+            ("", [], None),
+            ("", [], None),
             ("Mission", [CTRL, K.UP_ARROW], ("Lock", [CTRL, CMD, K.Q])),
             # Raekke 2 (knap 4-6)
             ("DK", [("SCRIPT", "keyboard-dk"), ("FLAG", "DK")], None),
             ("ENG", [("SCRIPT", "keyboard-eng"), ("FLAG", "ENG")], None),
             ("Calm", [("RO",)], None),  # toggle stille sleep-moenster
             # Raekke 3 (knap 7-9)
-            ("Hide", [CMD, K.H], ("ForceQ", [CMD, ALT, K.ESCAPE])),
-            ("CloseW", [CMD, K.W], ("QuitApp", [CMD, K.Q])),
+            ("", [], None),
+            ("", [], None),
             ("Calc", aabn("Calculator", "calculator"), None),
             # Raekke 4 (knap 10-12)
             # LastApp: Cmd+Tab-tryk = skift til sidst brugte app (frem/tilbage)
             ("LastApp", [CMD, K.TAB], None),  # hold = NUMPAD (global)
-            ("Vol-", [("CC", CC.VOLUME_DECREMENT)], None),  # combo-tast
-            ("Vol+", [("CC", CC.VOLUME_INCREMENT)], None),  # hold = MUTE (global)
+            ("", [], None),                   # combo-tast
+            ("", [], None),                   # hold = MUTE (global)
         ],
     },
     {
