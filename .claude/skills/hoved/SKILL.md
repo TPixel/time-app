@@ -84,9 +84,11 @@ I skyen: lad noten stå åben og sig det til Thomas.
 KUN på Mac: gem via braindump-systemet (Apple Notes, rigtig kategori).
 `{"resultat":"📝 Gemt i Noter → <kategori>","behandlet":1}`
 
-### 🤷 Resten
-Finsortér og lad stå åben — nævn den for Thomas så han kan tage stilling
-på dashboardet.
+### 🤷 Resten (ingen udførbar handling — en beslutning eller tanke til Thomas selv)
+Finsortér og markér færdigbehandlet:
+`{"behandlet":1,"resultat":"📌 Sorteret — kræver din stillingtagen"}`
+— så viser dashboardets "venter på Claude"-tal kun reelt ventende arbejde.
+Nævn den i opsummeringen så Thomas kan tage stilling.
 
 ## Regler
 
