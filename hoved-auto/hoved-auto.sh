@@ -7,9 +7,19 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 LOG="$HOME/Library/Logs/hoved-auto.log"
 LOCK="/tmp/hoved-auto.lock"
 
-# launchd har minimal PATH — find claude-CLI'en
-export PATH="$HOME/.local/bin:$HOME/.claude/local:/opt/homebrew/bin:/usr/local/bin:$PATH"
-command -v claude >/dev/null 2>&1 || { echo "$(date '+%F %T') claude CLI ikke fundet i PATH" >> "$LOG"; exit 1; }
+# launchd har minimal PATH — spørg en login-shell (samme PATH som Terminal)
+CLAUDE_BIN="$(/bin/zsh -lc 'command -v claude' 2>/dev/null | tail -1)"
+if [ -z "$CLAUDE_BIN" ]; then
+  for c in "$HOME/.claude/local/claude" "$HOME/.local/bin/claude" \
+           /opt/homebrew/bin/claude /usr/local/bin/claude \
+           "$HOME/.npm-global/bin/claude" "$HOME/Library/Application Support/Claude/claude"; do
+    [ -x "$c" ] && CLAUDE_BIN="$c" && break
+  done
+fi
+if [ -z "$CLAUDE_BIN" ]; then
+  echo "$(date '+%F %T') claude CLI ikke fundet — kør 'which claude' i Terminal; er den tom, installér CLI'en (npm install -g @anthropic-ai/claude-code)" >> "$LOG"
+  exit 1
+fi
 
 # undgå overlappende kørsler
 if ! mkdir "$LOCK" 2>/dev/null; then
