@@ -29,7 +29,7 @@ trap 'rmdir "$LOCK"' EXIT
 
 {
   echo "=== $(date '+%F %T') kør hoved ==="
-  cd "$REPO" && claude -p "kør hoved" \
+  cd "$REPO" && "$CLAUDE_BIN" -p "kør hoved" \
     --allowedTools "Skill" "Read" "WebSearch" "WebFetch" \
       "Bash(curl:*)" "Bash(osascript:*)" "Bash(gh:*)" \
     --max-turns 60
