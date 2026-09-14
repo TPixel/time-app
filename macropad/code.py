@@ -293,10 +293,10 @@ PAGES = [
             ("", [], None),
             ("", [], None),
             # Allow: Enter godkender tilladelses-prompten (CLI og app-dialog)
-            ("Allow", [K.ENTER], None),           # hold = NUMPAD (global)
-            ("", [], None),                       # combo-tast
+            ("Allow", [K.ENTER], None, (0, 25, 5)),      # groen — hold = NUMPAD
+            ("", [], None),                              # combo-tast
             # CowCode: skift mellem Claude-appen (Cowork) og Terminal (Code)
-            ("CowCode", [("CTOG",)], None),       # hold = MUTE (global)
+            ("CowCode", [("CTOG",)], None, (18, 0, 25)),  # lilla — hold = MUTE
         ],
     },
 ]
@@ -372,12 +372,21 @@ numpad_active = False
 def current_page():
     return NUMPAD if numpad_active else PAGES[page]
 
+def key_farve(i):
+    # En knap kan have sin egen farve som 4. felt — ellers sidens farve
+    kd = current_page()["keys"][i]
+    return kd[3] if len(kd) > 3 else current_page()["color"]
+
+def restore_pixels():
+    for i in range(12):
+        macropad.pixels[i] = key_farve(i)
+
 def show_page():
     pg = current_page()
     title.text = ("< " + pg["name"] + " >")[:21]
     for i in range(12):
         cells[i].text = pg["keys"][i][0][:7]
-    macropad.pixels.fill(pg["color"])
+    restore_pixels()
     if st_present:
         st_np.fill(pg["color"])
 
@@ -449,7 +458,7 @@ def afbryd_animation():
         side_anim_start = None
         idle_active = False
         flag_type = None
-        macropad.pixels.fill(current_page()["color"])
+        restore_pixels()
 
 def naeste_side():
     # Bladr én side frem (bruges af combo 11+12)
@@ -614,7 +623,7 @@ while True:
                 macropad.pixels[k] = (daemp(COMBOS[k][2], COMBO_LYS)
                                       if COMBOS[k] else (2, 2, 2))
             else:
-                macropad.pixels[k] = current_page()["color"]
+                macropad.pixels[k] = key_farve(k)
             if not fyret:
                 # Kort tryk -> TRYK-funktion
                 kd = current_page()["keys"][k]
@@ -670,7 +679,7 @@ while True:
         # Flag paa hoejkant: kryds = midterkolonne + anden raekke
         if nu >= flag_indtil:
             flag_type = None
-            macropad.pixels.fill(current_page()["color"])
+            restore_pixels()
         else:
             if flag_type == "DK":
                 felt = (255, 0, 0)
@@ -687,11 +696,11 @@ while True:
         t = (nu - side_anim_start) / SIDE_ANIM_TID
         if t >= 1.0:
             side_anim_start = None
-            macropad.pixels.fill(current_page()["color"])
+            restore_pixels()
         else:
             n = int(t * 12)
-            c = current_page()["color"]
             for i in range(12):
+                c = key_farve(i)
                 if i == n:
                     macropad.pixels[i] = (min(c[0] * 8 + 40, 255),
                                           min(c[1] * 8 + 40, 255),
