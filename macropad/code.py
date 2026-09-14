@@ -354,15 +354,18 @@ def show_page():
     if st_present:
         st_np.fill(pg["color"])
 
+COMBO_LYS = 0.3  # daempning af combo-lagets farver (1.0 = fuld styrke)
+
 def show_combo():
-    # Combo-visning: kun combo-navne paa displayet, hver knap i sin egen farve
+    # Combo-visning: kun combo-navne paa displayet, hver knap i sin egen
+    # farve — daempet, saa laget ikke blaender
     title.text = "< COMBO >"
     for i in range(12):
         c = COMBOS[i]
         cells[i].text = c[0][:7] if c else ""
-        macropad.pixels[i] = c[2] if c else (2, 2, 2)
+        macropad.pixels[i] = daemp(c[2], COMBO_LYS) if c else (2, 2, 2)
     cells[LAYER].text = "COMBO"
-    macropad.pixels[LAYER] = (255, 255, 255)
+    macropad.pixels[LAYER] = (70, 70, 70)
 
 # --- Animationer (ikke-blokerende — renderes som frames i hovedloekken) ---
 SIDE_ANIM_TID = 0.35   # sideskift-sweep, sekunder
@@ -543,10 +546,10 @@ while True:
                 holdes[k] = [nu, True]    # markeret fyret — slip goer intet
                 combo = COMBOS[k]
                 if combo is not None:
-                    macropad.pixels[k] = (255, 255, 255)
+                    macropad.pixels[k] = (120, 120, 120)
                     title.text = ">> " + combo[0]
                     run_sequence(combo[1])
-                    macropad.pixels[k] = combo[2]
+                    macropad.pixels[k] = daemp(combo[2], COMBO_LYS)
             elif k == LAYER:
                 holdes[k] = [nu, False]
                 show_combo()
@@ -557,7 +560,8 @@ while True:
             start, fyret = holdes.pop(k)
             if LAYER in holdes and k != LAYER:
                 # combo-laget er stadig aktivt — behold combo-visningen
-                macropad.pixels[k] = COMBOS[k][2] if COMBOS[k] else (2, 2, 2)
+                macropad.pixels[k] = (daemp(COMBOS[k][2], COMBO_LYS)
+                                      if COMBOS[k] else (2, 2, 2))
             else:
                 macropad.pixels[k] = current_page()["color"]
             if not fyret:
