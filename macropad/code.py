@@ -169,6 +169,8 @@ def run_sequence(seq):
             vis_flag(item[1])
         elif isinstance(item, tuple) and item[0] == "RO":
             toggle_ro()
+        elif isinstance(item, tuple) and item[0] == "PAGE":
+            naeste_side()
         elif isinstance(item, tuple) and item[0] == "ST":
             ser_send("st:" + item[1])
         elif isinstance(item, int):
@@ -317,7 +319,8 @@ COMBOS = [
     None,                                    # 9
     None,                                    # 10
     None,                                    # 11 = combo-tasten
-    ("Play", [("CC", CC.PLAY_PAUSE)], (0, 120, 255)),           # 12 blaa
+    # 11+12 = GLOBALT sideskift: bladrer én side frem (SYSTEM -> SAFARI -> ...)
+    ("Side", [("PAGE",)], (0, 120, 255)),    # 12 blaa
 ]
 
 LAYER = 10  # knap 11 = combo-tast (index 10)
@@ -423,6 +426,14 @@ def afbryd_animation():
         idle_active = False
         flag_type = None
         macropad.pixels.fill(current_page()["color"])
+
+def naeste_side():
+    # Bladr én side frem (bruges af combo 11+12)
+    global page, numpad_active
+    numpad_active = False
+    page = (page + 1) % len(PAGES)
+    show_page()
+    start_side_anim()
 
 def toggle_numpad():
     global numpad_active
