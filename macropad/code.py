@@ -279,7 +279,8 @@ PAGES = [
     },
     {
         "name": "CLAUDE",
-        "match": "claude",
+        # Daekker baade Claude-appen (Cowork) og Terminal (Code via claude)
+        "match": ("claude", "terminal"),
         "color": (25, 8, 0),
         "keys": [
             ("", [], None),
@@ -487,7 +488,12 @@ def foelg_app(app_navn):
     navn = app_navn.lower()
     ny = 0  # SYSTEM som standard
     for i, pg in enumerate(PAGES):
-        if pg["match"] is not None and pg["match"] in navn:
+        m = pg["match"]
+        if m is None:
+            continue
+        if isinstance(m, str):
+            m = (m,)
+        if any(x in navn for x in m):
             ny = i
             break
     if ny != page:
