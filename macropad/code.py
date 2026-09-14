@@ -171,6 +171,8 @@ def run_sequence(seq):
             toggle_ro()
         elif isinstance(item, tuple) and item[0] == "PAGE":
             naeste_side()
+        elif isinstance(item, tuple) and item[0] == "CTOG":
+            claude_toggle()
         elif isinstance(item, tuple) and item[0] == "ST":
             ser_send("st:" + item[1])
         elif isinstance(item, int):
@@ -273,6 +275,27 @@ PAGES = [
             ("Exp300", [("SCRIPT", "pixelmator-300px")], None),  # hold = NUMPAD (global)
             ("Type", [K.T], None),
             ("Arrange", [K.V], None),             # hold = MUTE (global)
+        ],
+    },
+    {
+        "name": "CLAUDE",
+        "match": "claude",
+        "color": (25, 8, 0),
+        "keys": [
+            ("", [], None),
+            ("", [], None),
+            ("", [], None),
+            ("", [], None),
+            ("", [], None),
+            ("", [], None),
+            ("", [], None),
+            ("", [], None),
+            ("", [], None),
+            # Allow: Enter godkender tilladelses-prompten (CLI og app-dialog)
+            ("Allow", [K.ENTER], None),           # hold = NUMPAD (global)
+            ("", [], None),                       # combo-tast
+            # CowCode: skift mellem Claude-appen (Cowork) og Terminal (Code)
+            ("CowCode", [("CTOG",)], None),       # hold = MUTE (global)
         ],
     },
 ]
@@ -445,9 +468,20 @@ def toggle_numpad():
     show_page()
     start_side_anim()
 
+aktiv_app = ""  # navnet paa den app der er forrest paa Mac'en
+
+def claude_toggle():
+    # Skift mellem Cowork (Claude-appen) og Code (Terminal med claude):
+    # er Claude forrest -> aabn Terminal, ellers -> aabn Claude
+    if "claude" in aktiv_app.lower():
+        ser_send("open:Terminal")
+    else:
+        ser_send("open:Claude")
+
 def foelg_app(app_navn):
     # Kaldes naar Mac'en melder ny forrest-app: find matchende side
-    global page
+    global page, aktiv_app
+    aktiv_app = app_navn
     if numpad_active:
         return  # forstyr ikke en igangvaerende udregning
     navn = app_navn.lower()
