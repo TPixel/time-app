@@ -5,3 +5,6 @@ goatcounter-snippet.html
 
 # Claude Code arbejdsmapper (må ikke deployes)
 .claude/
+
+# daemper_rdm host-test binary
+daemper_rdm/test/test_rdm
