@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Libelle">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0C0C12">
+<title>Libelle — Ditzel & Co</title>
+<style>
+:root{
+  --bg:#0C0C12; --card:#1a1a24; --card2:#222232; --brd:#2E2E42;
+  --txt:#EEEEF5; --mut:#8a8a9e; --acc:#E8820A;
+  --grn:#22e36a; --red:#f87171;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--txt);font-family:'Tahoma',sans-serif;font-weight:bold;
+  display:flex;flex-direction:column;align-items:center;
+  padding:calc(12px + env(safe-area-inset-top)) 16px calc(14px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto;height:100dvh}
+.top{width:100%;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:12px;color:#555;letter-spacing:1px;text-transform:uppercase}
+h1{font-size:22px;margin-top:2px}
+.modebtn{background:var(--card);color:var(--mut);border:1.5px solid var(--brd);border-radius:20px;padding:7px 12px;font:inherit;font-size:12px;cursor:pointer}
+.modebtn.on{color:#fff;border-color:var(--acc)}
+
+/* LED */
+.ledwrap{display:flex;flex-direction:column;align-items:center;gap:6px;margin:14px 0 6px}
+.led{width:64px;height:64px;border-radius:50%;background:#2a1414;border:3px solid #3a1c1c;
+  box-shadow:inset 0 -6px 12px rgba(0,0,0,.6),0 0 0 rgba(0,0,0,0);transition:background .12s,box-shadow .12s,border-color .12s;position:relative}
+.led::after{content:"";position:absolute;left:14px;top:9px;width:22px;height:12px;border-radius:50%;background:rgba(255,255,255,.18);transform:rotate(-20deg)}
+.led.on{background:var(--grn);border-color:#7cffae;
+  box-shadow:inset 0 -6px 12px rgba(0,0,0,.25),0 0 22px 6px rgba(34,227,106,.75),0 0 70px 20px rgba(34,227,106,.35)}
+.led.off{background:#3b1a1a;border-color:#5a2626;box-shadow:inset 0 -6px 12px rgba(0,0,0,.6),0 0 10px 2px rgba(248,113,113,.25)}
+.ledtxt{font-size:13px;letter-spacing:2px;color:var(--mut)}
+.led.on + .ledtxt{color:var(--grn)}
+
+/* readout */
+.read{font-size:52px;line-height:1;margin:6px 0 2px;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.read.ok{color:var(--grn)}
+.sub{font-size:13px;color:var(--mut);min-height:18px;font-variant-numeric:tabular-nums}
+
+/* vials */
+.stage{flex:1;width:100%;display:flex;align-items:center;justify-content:center;min-height:0;position:relative}
+.bull{width:min(78vw,300px);height:min(78vw,300px);border-radius:50%;position:relative;
+  background:radial-gradient(circle at 50% 45%,#1f2a24 0%,#141a17 70%,#0f1412 100%);
+  border:3px solid var(--brd);box-shadow:inset 0 0 40px rgba(0,0,0,.7),0 10px 30px rgba(0,0,0,.5);overflow:hidden}
+.bull.ok{border-color:rgba(34,227,106,.6)}
+.ring{position:absolute;border-radius:50%;border:1.5px solid rgba(255,255,255,.14);left:50%;top:50%;transform:translate(-50%,-50%)}
+.ring.c{border:2px solid rgba(34,227,106,.55)}
+.cross{position:absolute;background:rgba(255,255,255,.10)}
+.cross.h{left:0;right:0;top:50%;height:1px}
+.cross.v{top:0;bottom:0;left:50%;width:1px}
+.bubble{position:absolute;left:50%;top:50%;width:21%;height:21%;border-radius:50%;
+  background:radial-gradient(circle at 38% 35%,#ffffff 0%,#c8ffdf 25%,#5eea93 60%,rgba(60,200,120,.55) 100%);
+  box-shadow:0 0 14px rgba(120,255,170,.5),inset -4px -6px 10px rgba(0,80,40,.35);
+  transform:translate(-50%,-50%);will-change:transform}
+
+.tube{width:min(86vw,340px);height:72px;border-radius:40px;position:relative;
+  background:linear-gradient(#1f2a24,#141a17 60%,#0f1412);border:3px solid var(--brd);
+  box-shadow:inset 0 0 30px rgba(0,0,0,.7),0 10px 30px rgba(0,0,0,.5);overflow:hidden;display:none}
+.tube.ok{border-color:rgba(34,227,106,.6)}
+.mark{position:absolute;top:8px;bottom:8px;width:2px;background:rgba(34,227,106,.6)}
+.tick{position:absolute;top:22px;bottom:22px;width:1px;background:rgba(255,255,255,.14)}
+.tbub{position:absolute;left:50%;top:50%;width:76px;height:52px;border-radius:50%;
+  background:radial-gradient(ellipse at 40% 35%,#ffffff 0%,#c8ffdf 22%,#5eea93 60%,rgba(60,200,120,.55) 100%);
+  box-shadow:0 0 14px rgba(120,255,170,.5),inset -4px -6px 10px rgba(0,80,40,.35);transform:translate(-50%,-50%);will-change:transform}
+.horizon{position:absolute;left:-40%;right:-40%;top:50%;height:2px;background:rgba(255,255,255,.12);transform-origin:center;pointer-events:none;display:none}
+
+/* controls */
+.chips{display:flex;gap:8px;margin:10px 0 10px;align-items:center}
+.chiplbl{font-size:12px;color:var(--mut);margin-right:2px}
+.chip{padding:7px 12px;border-radius:20px;background:var(--card);color:#aaa;font-size:13px;border:1.5px solid transparent;cursor:pointer;font:inherit}
+.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.bar{width:100%;display:flex;gap:10px}
+.btn{flex:1;padding:15px 10px;border-radius:14px;border:none;font:inherit;font-size:15px;color:#fff;cursor:pointer;background:var(--card2)}
+.btn:active{transform:scale(.97)}
+.btn.acc{background:var(--acc)}
+.btn.hold.on{background:#3b4bd8}
+.btn.ghost{background:transparent;border:1.5px solid var(--brd);color:var(--mut);flex:0 0 auto}
+
+/* start overlay */
+.ov{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:30px;text-align:center;z-index:10}
+.ov .big{font-size:26px}
+.ov p{font-size:14px;color:var(--mut);line-height:1.5;max-width:320px}
+.ov .btn{flex:none;padding:18px 40px;font-size:18px}
+.ov .err{color:var(--red);font-size:14px}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div><div class="logo">Ditzel & Co</div><h1>Libelle</h1></div>
+  <button class="modebtn" id="mode">AUTO</button>
+</div>
+
+<div class="ledwrap">
+  <div class="led off" id="led"></div>
+  <div class="ledtxt" id="ledtxt">SKÆV</div>
+</div>
+
+<div class="read" id="read">–</div>
+<div class="sub" id="sub"></div>
+
+<div class="stage">
+  <div class="bull" id="bull">
+    <div class="ring" style="width:85%;height:85%"></div>
+    <div class="ring" style="width:60%;height:60%"></div>
+    <div class="ring" style="width:38%;height:38%"></div>
+    <div class="ring c" id="ringc"></div>
+    <div class="cross h"></div><div class="cross v"></div>
+    <div class="bubble" id="bubble"></div>
+  </div>
+  <div class="tube" id="tube">
+    <div class="tick" style="left:15%"></div><div class="tick" style="left:30%"></div>
+    <div class="tick" style="left:70%"></div><div class="tick" style="left:85%"></div>
+    <div class="mark" id="markL"></div><div class="mark" id="markR"></div>
+    <div class="tbub" id="tbub"></div>
+  </div>
+  <div class="horizon" id="horizon"></div>
+</div>
+
+<div class="chips">
+  <span class="chiplbl">Tolerance</span>
+  <button class="chip" data-tol="0.2">0,2°</button>
+  <button class="chip on" data-tol="0.5">0,5°</button>
+  <button class="chip" data-tol="1">1°</button>
+  <button class="chip" data-tol="2">2°</button>
+</div>
+
+<div class="bar">
+  <button class="btn hold" id="hold">HOLD</button>
+  <button class="btn acc" id="cal">KALIBRÉR</button>
+  <button class="btn ghost" id="reset" title="Nulstil kalibrering">↺</button>
+</div>
+
+<div class="ov" id="ov">
+  <div class="big">📐 Libelle</div>
+  <p>Digitalt vaterpas med boble og grøn LED.<br>Læg telefonen fladt på emnet – eller stil den på kant – og LED'en lyser grønt, når det er i vater.</p>
+  <button class="btn acc" id="start">START</button>
+  <div class="err hidden" id="err"></div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const led=$('led'), ledtxt=$('ledtxt'), read=$('read'), sub=$('sub');
+  const bull=$('bull'), bubble=$('bubble'), ringc=$('ringc');
+  const tube=$('tube'), tbub=$('tbub'), markL=$('markL'), markR=$('markR'), horizon=$('horizon');
+  const modeBtn=$('mode'), holdBtn=$('hold');
+
+  const LS='libelle-v1';
+  let cfg = Object.assign({tol:0.5, mode:'auto', calFlat:{x:0,y:0}, calRoll:0}, load());
+  function load(){ try{ return JSON.parse(localStorage.getItem(LS))||{}; }catch(e){ return {}; } }
+  function save(){ try{ localStorage.setItem(LS, JSON.stringify(cfg)); }catch(e){} }
+
+  // Rå målinger (filtreret): tyngdens retning i telefonens koordinater
+  let up = {x:0,y:0,z:1};      // enhedsvektor "op" i device-frame
+  let hold=false, wasLevel=false, haveData=false;
+  const SMOOTH=0.18;           // lavpas-filter (0..1), lavere = roligere boble
+
+  // ── Sensor ────────────────────────────────────────────────────────────────
+  // Beregner "op"-vektoren fra beta/gamma (W3C deviceorientation). Uafhængig af
+  // alpha, så kompas-jitter og gimbal lock ved 90° giver ingen problemer.
+  function onOrient(e){
+    if (e.beta==null || e.gamma==null) return;
+    const b=e.beta*Math.PI/180, g=e.gamma*Math.PI/180;
+    const u = { x:-Math.cos(b)*Math.sin(g), y:Math.sin(b), z:Math.cos(b)*Math.cos(g) };
+    if (!haveData){ up=u; haveData=true; }
+    else {
+      up.x += (u.x-up.x)*SMOOTH; up.y += (u.y-up.y)*SMOOTH; up.z += (u.z-up.z)*SMOOTH;
+    }
+  }
+
+  async function start(){
+    const err=$('err'); err.classList.add('hidden');
+    try{
+      if (typeof DeviceOrientationEvent!=='undefined' && typeof DeviceOrientationEvent.requestPermission==='function'){
+        const r = await DeviceOrientationEvent.requestPermission();
+        if (r!=='granted') throw new Error('Adgang til bevægelsessensor blev afvist. Tillad under Indstillinger → Safari → Bevægelse & retning.');
+      }
+      window.addEventListener('deviceorientation', onOrient, true);
+      $('ov').classList.add('hidden');
+      requestWakeLock();
+      // Ingen sensor (fx desktop)? Vis besked efter lidt tid, og lad musen styre.
+      setTimeout(()=>{ if(!haveData){ sub.textContent='Ingen sensor fundet – flyt musen for at prøve'; mouseSim(); } }, 1500);
+      loop();
+    }catch(ex){
+      err.textContent = ex.message || String(ex); err.classList.remove('hidden');
+    }
+  }
+  $('start').onclick=start;
+
+  // Desktop-simulering
+  function mouseSim(){
+    window.addEventListener('pointermove', e=>{
+      const nx=(e.clientX/innerWidth-0.5)*2, ny=(e.clientY/innerHeight-0.5)*2;
+      const g=nx*0.5, b=-ny*0.5; // radianer
+      onOrient({beta:b*180/Math.PI, gamma:g*180/Math.PI}); haveData=true;
+    });
+  }
+
+  // Hold skærmen tændt
+  let wl=null;
+  async function requestWakeLock(){
+    try{ if('wakeLock' in navigator){ wl=await navigator.wakeLock.request('screen'); } }catch(e){}
+  }
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible' && !wl) requestWakeLock(); });
+
+  // ── Geometri ──────────────────────────────────────────────────────────────
+  const D=180/Math.PI;
+  function screenAngle(){
+    const a=(screen.orientation && typeof screen.orientation.angle==='number') ? screen.orientation.angle
+          : (typeof window.orientation==='number' ? window.orientation : 0);
+    return ((a%360)+360)%360;
+  }
+  // Roter device-vektor til skærm-frame (hvis siden selv er roteret til landskab)
+  function toScreen(x,y){
+    const a=screenAngle()*Math.PI/180, c=Math.cos(a), s=Math.sin(a);
+    return { x: x*c + y*s, y: -x*s + y*c };
+  }
+
+  function compute(){
+    const uz=Math.abs(up.z);
+    const flatRaw = uz>0.72;                               // < ~44° fra vandret
+    const mode = cfg.mode==='auto' ? (flatRaw?'flat':'roll') : cfg.mode;
+    if (mode==='flat'){
+      const s=toScreen(up.x, up.y);
+      // vinkel langs skærm-x (højre side løftet = +) og skærm-y (top løftet = +)
+      let ax = Math.atan2(-s.x, uz)*D - cfg.calFlat.x;
+      let ay = Math.atan2( s.y, uz)*D - cfg.calFlat.y;
+      const tot = Math.hypot(ax,ay);
+      return {mode, ax, ay, tot};
+    } else {
+      // Rotation om skærm-normalen: vinkel mellem device-y og lod, normaliseret til nærmeste 90°
+      let a = Math.atan2(up.x, up.y)*D;
+      let r = a - Math.round(a/90)*90;                      // [-45,45], r = -θ (θ = urets retning)
+      r -= cfg.calRoll;
+      return {mode, roll:r, tot:Math.abs(r)};
+    }
+  }
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  let last=null;
+  function loop(){
+    requestAnimationFrame(loop);
+    if (!haveData) return;
+    if (hold && last){ render(last); return; }
+    last=compute(); render(last);
+  }
+
+  function fmt(v){ return (Math.round(Math.abs(v)*10)/10).toFixed(1).replace('.',','); }
+
+  function render(m){
+    const level = m.tot <= cfg.tol;
+    const isFlat = m.mode==='flat';
+    bull.style.display = isFlat?'block':'none';
+    tube.style.display = isFlat?'none':'block';
+    horizon.style.display = isFlat?'none':'block';
+    modeBtn.textContent = cfg.mode==='auto' ? ('AUTO · '+(isFlat?'FLAD':'KANT')) : (isFlat?'FLAD':'KANT');
+
+    if (isFlat){
+      // Boblen søger opad: top løftet (ay>0) → boble op (negativ skærm-y)
+      const R=bull.clientWidth/2, maxDeg=12, k=(R*0.80)/maxDeg;
+      let bx=m.ax*k, by=-m.ay*k;
+      const d=Math.hypot(bx,by), lim=R*0.80;
+      if (d>lim){ bx*=lim/d; by*=lim/d; }
+      bubble.style.transform=`translate(calc(-50% + ${bx.toFixed(1)}px), calc(-50% + ${by.toFixed(1)}px))`;
+      const rc=Math.max(28, (cfg.tol*k*2 + bubble.clientWidth));   // tolerance-ring omkring boblens plads
+      ringc.style.width=ringc.style.height=rc+'px';
+      bull.classList.toggle('ok', level);
+      read.textContent=fmt(m.tot)+'°';
+      sub.textContent = `↔ ${m.ax>=0?'→':'←'} ${fmt(m.ax)}°   ↕ ${m.ay>=0?'↑':'↓'} ${fmt(m.ay)}°`;
+    } else {
+      // Boble i vandret rør: højre side højere (θ>0 ⇔ roll<0) → boble mod højre
+      const W=tube.clientWidth, maxDeg=8, k=(W*0.40)/maxDeg;
+      let bx=-m.roll*k; const lim=W*0.40; if(Math.abs(bx)>lim) bx=Math.sign(bx)*lim;
+      tbub.style.transform=`translate(calc(-50% + ${bx.toFixed(1)}px), -50%)`;
+      const half=Math.max(44, cfg.tol*k + tbub.clientWidth/2);
+      markL.style.left=`calc(50% - ${half}px)`; markR.style.left=`calc(50% + ${half}px)`;
+      horizon.style.transform=`rotate(${m.roll.toFixed(2)}deg)`;
+      tube.classList.toggle('ok', level);
+      read.textContent=fmt(m.roll)+'°';
+      sub.textContent = level ? 'I vater' : (m.roll<0 ? 'Højre side er højest  ↗' : 'Venstre side er højest  ↖');
+    }
+
+    read.classList.toggle('ok', level);
+    led.classList.toggle('on', level); led.classList.toggle('off', !level);
+    ledtxt.textContent = hold ? 'HOLD' : (level ? 'I VATER' : 'SKÆV');
+    if (level && !wasLevel && navigator.vibrate) { try{ navigator.vibrate(30); }catch(e){} }
+    wasLevel=level;
+  }
+
+  // ── Knapper ───────────────────────────────────────────────────────────────
+  document.querySelectorAll('.chip').forEach(c=>{
+    c.classList.toggle('on', parseFloat(c.dataset.tol)===cfg.tol);
+    c.onclick=()=>{ cfg.tol=parseFloat(c.dataset.tol); save();
+      document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on', x===c)); };
+  });
+  modeBtn.onclick=()=>{ cfg.mode = cfg.mode==='auto'?'flat':cfg.mode==='flat'?'roll':'auto'; save(); modeBtn.classList.toggle('on', cfg.mode!=='auto'); };
+  modeBtn.classList.toggle('on', cfg.mode!=='auto');
+  holdBtn.onclick=()=>{ hold=!hold; holdBtn.classList.toggle('on',hold); holdBtn.textContent=hold?'FRIGIV':'HOLD'; };
+  $('cal').onclick=()=>{
+    if(!last) return;
+    // Nulstil nuværende aflæsning i den aktive tilstand (læg telefonen på en kendt vandret flade)
+    if(last.mode==='flat'){ cfg.calFlat={ x:cfg.calFlat.x+last.ax, y:cfg.calFlat.y+last.ay }; }
+    else { cfg.calRoll += last.roll; }
+    save(); flash('Kalibreret – denne stilling er nu 0°');
+  };
+  $('reset').onclick=()=>{ cfg.calFlat={x:0,y:0}; cfg.calRoll=0; save(); flash('Kalibrering nulstillet'); };
+  function flash(t){ const o=sub.textContent; sub.textContent=t; sub.style.color='var(--acc)'; setTimeout(()=>{ sub.style.color=''; }, 1500); }
+})();
+</script>
+</body>
+</html>
