@@ -329,7 +329,8 @@ NUMPAD = {
 # Max 7 tegn i navnet. Plads 11 er selve combo-tasten.
 # -------------------------
 COMBOS = [
-    None,                                    # 1
+    # Brife: opdater morning brief og aabn det (Claude-session i Terminal)
+    ("Brife", [("SCRIPT", "morning-brief")], (255, 100, 120)),  # 1 rosa
     # Scrn80: koerer Apple Genvejen "Screen 80" (handlingen "Indstil
     # lysstyrke" = 80%) — samme vej som Morgen-genvejen daemper skaermen
     ("80%", [("RUN", "Screen 80")], (255, 235, 120)),  # 2 lys gul
