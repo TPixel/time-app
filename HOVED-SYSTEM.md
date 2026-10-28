@@ -36,6 +36,17 @@ og logger, så dashboardet altid viser det fulde billede.
 | **Hjernen** | denne repo → `.claude/skills/hoved/` | Ruterne + udførelsen (MODE A og B) |
 | **Automatik** | denne repo → `hoved-auto/` | launchd kører "kør hoved" hver 2. time på Mac'en |
 
+## De fem funktioner (v3 — oplæg i HOVED-OPLAEG.md)
+
+Hver note får et `funktion`-felt (regel + AI): **send** (📤 levér til delt
+Påmindelses-liste via #indkøb/#tvl/#master — ingen research), **slaaop**
+(🔎 hurtigt opslag, kort svar), **koeb** (🛒 produkt + forhandler + pris, også
+på Indkøb-listen), **undersoeg** (🔬 grundig research → lille HTML-rapport i
+`apps/rapporter/`, link i `rapport`-feltet, 📄-knap på dashboardet), **projekt**
+(🛠 GitHub-issue, kører sin egen gang i Claude). #morgen → morgen-checklisten.
+Princip: INGEN lange udskrifter — resultater dukker op de rigtige steder
+(lister, morgenbrief, rapporter, issues).
+
 ## Ruterne (kontrakten)
 
 1. **"undersøg …"** → Claude undersøger straks (websøgning, skills) og skriver
