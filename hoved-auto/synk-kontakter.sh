@@ -8,6 +8,7 @@ NOEGLE_FIL="$HOME/.config/hoved/noegle"
 NOEGLE=$(cat "$NOEGLE_FIL")
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 echo "📇 Læser Kontakter-appen (kan tage et minut)…"
+open -gja Contacts; sleep 3   # skal være startet, ellers fejler AppleScript med -600
 osascript "$(cd "$(dirname "$0")" && pwd)/synk-kontakter.applescript" > "$TMP/raa.txt" || { echo "❌ AppleScript fejlede"; exit 1; }
 
 # 1) Parse + regel-sortering. Uafklarede kontakter skrives til uafklaret.txt (nr<TAB>navn | firma | stilling).
