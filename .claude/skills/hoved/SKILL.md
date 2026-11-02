@@ -63,6 +63,8 @@ Hurtig, simpel søgning — ÉN søgning, kort svar (2-4 linjer, evt. 1 link).
 Find det konkrete produkt: 2-3 forhandlere (helst DK), pris, link — og en anbefaling.
 → `{"behandlet":1,"resultat":"🛒 <produkt>: <forhandler> <pris> <link> · alt: …"}`.
 Læg den OGSÅ på Påmindelses-listen "Indkøb" (titel + bedste link i body), så købet dukker op dér.
+Har noten allerede et 🛒-`resultat` (cloud-kørslen har researchet): spring research over —
+levér kun til Indkøb-listen og sæt `behandlet:1`.
 Status forbliver `aaben` (Thomas lukker når købt). Stort/dyrt valg (>~1.000 kr, mange varianter) → opgradér til UNDERSØG-rapport.
 
 ### 🔬 UNDERSØG (`undersoeg` — grundig undersøgelse)
