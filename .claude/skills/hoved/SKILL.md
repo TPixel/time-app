@@ -21,15 +21,19 @@ Spørg kun hvis noget er umuligt at afgøre; gæt hellere fornuftigt og sig hvad
 
 `API = https://lightcrew-api.thomas-5c5.workers.dev`
 
+**API'et er privat.** Sæt `NOEGLE=$(cat ~/.config/hoved/noegle)` og send
+`-H "Authorization: Bearer $NOEGLE"` på ALLE kald til `$API` (GET som POST) —
+ellers svarer worker'en 401. Skriv ALDRIG nøglens værdi i chat, filer eller commits.
+
 ## MODE A — Direkte input
 
-1. **Log straks:** `curl -s -X POST "$API/api/hoved" -d '{"tekst":"<ordret>","kilde":"claude"}'`
+1. **Log straks:** `curl -s -X POST "$API/api/hoved" -H "Authorization: Bearer $NOEGLE" -d '{"tekst":"<ordret>","kilde":"claude"}'`
    → svaret indeholder `entry` med `funktion`, `liste`, `projekt`, `kode` (regel+AI-sorteret).
 2. **Udfør** efter funktionen nedenfor (stol på `funktion`-feltet, men brug din dømmekraft — ret det hvis det er forkert).
 3. **Skriv facit:** `POST /api/hoved/{id}` med finsortering + `resultat` + `behandlet:1` (+ evt. `rapport`, `status`).
 4. Svar Thomas i 1-3 linjer.
 
-Uden API-adgang (cloud uden whitelist): udfør alligevel, sig at det ikke er logget.
+Uden API-adgang (cloud uden whitelist, eller nøglefilen mangler): udfør alligevel, sig at det ikke er logget.
 
 ## MODE B — Behandler ("kør hoved")
 

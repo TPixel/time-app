@@ -5,10 +5,14 @@
 # til /api/events — workeren dedupper på titel+dato+sted, så scriptet kan køres igen og igen.
 # Kør manuelt: ./soeg-events.sh   (endnu ikke koblet på launchd)
 API="https://lightcrew-api.thomas-5c5.workers.dev"
+# API'et er privat — nøglefil som synk-kontakter.sh (samme nøgle som worker-secret KONTAKT_NOEGLE)
+NOEGLE_FIL="$HOME/.config/hoved/noegle"
+[ -f "$NOEGLE_FIL" ] || { echo "❌ Mangler $NOEGLE_FIL"; exit 1; }
+NOEGLE=$(cat "$NOEGLE_FIL")
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 IDAG=$(date +%F)
 
-curl -s "$API/api/foelger" > "$TMP/foelger.json" || { echo "❌ Kunne ikke hente de fulgte"; exit 1; }
+curl -s "$API/api/foelger" -H "Authorization: Bearer $NOEGLE" > "$TMP/foelger.json" || { echo "❌ Kunne ikke hente de fulgte"; exit 1; }
 ANTAL=$(/usr/bin/python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))))' "$TMP/foelger.json" 2>/dev/null)
 [ -z "$ANTAL" ] && { echo "❌ Uventet svar fra /api/foelger"; cat "$TMP/foelger.json"; exit 1; }
 [ "$ANTAL" = "0" ] && { echo "Følger ingen endnu — tilføj på Event-siden i bogen"; exit 0; }
@@ -63,7 +67,7 @@ json.dump({'events':ud},sys.stdout)
 print('\n  fundet: '+str(len(ud)),file=sys.stderr)
 PY
 
-  SVAR=$(curl -s -X POST "$API/api/events" -H 'Content-Type: application/json' --data-binary @"$TMP/post.json")
+  SVAR=$(curl -s -X POST "$API/api/events" -H "Authorization: Bearer $NOEGLE" -H 'Content-Type: application/json' --data-binary @"$TMP/post.json")
   echo "  → $SVAR"
 done < "$TMP/liste.tsv"
 echo "✅ Færdig — se fanen 🎭 Events i bogen"
