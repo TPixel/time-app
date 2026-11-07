@@ -756,7 +756,7 @@ while True:
                     b = 1.0 - (t - 0.28) / 0.18
                 else:
                     b = 0.0
-                macropad.pixels[11] = (6 + int(24 * b), 0, 0)
+                macropad.pixels[11] = (8 + int(72 * b), 0, 0)
         elif ro_mode:
             # Calm: stillestaaende moenster, laveste SYNLIGE lysstyrke —
             # groen oeverst venstre mod dyb blaa nederst hoejre.
