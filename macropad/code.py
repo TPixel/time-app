@@ -408,6 +408,8 @@ def show_combo():
 SIDE_ANIM_TID = 0.35   # sideskift-sweep, sekunder
 IDLE_EFTER = 5.0       # sekunder uden input foer idle-animation
 IDLE_SKIFT = 20.0      # sekunder pr. sleep-moenster foer der skiftes
+DYB_EFTER = 600.0      # 10 min uden aktivitet (tast ELLER input fra Mac'en)
+                       # -> dyb soevn: alt slukket, kun K12 banker roedt
 
 # Slangebane rundt paa 3x4-grid'et (frem og tilbage raekke for raekke)
 SLANGE_BANE = [0, 1, 2, 5, 4, 3, 6, 7, 8, 11, 10, 9]
@@ -552,6 +554,9 @@ while True:
             except Exception:
                 continue
             if tekst.startswith("app:"):
+                # Input fra computeren taeller som aktivitet
+                sidst_aktiv = nu
+                afbryd_animation()
                 foelg_app(tekst[4:])
         if len(rx) > 256:
             rx = b""
@@ -715,7 +720,23 @@ while True:
         if not idle_active:
             idle_active = True
             idle_start = nu
-        if ro_mode:
+        if (nu - sidst_aktiv) >= DYB_EFTER:
+            # Dyb soevn: alle LED'er slukket, K12 banker som et hjerte i
+            # meget svagt roedt. (Brightness 0.20 ganges paa, saa 6-30 raa
+            # er reelt 1-6 paa dioden — lige akkurat synligt i moerke.)
+            if nu >= idle_naeste:
+                idle_naeste = nu + 0.05
+                for i in range(11):
+                    macropad.pixels[i] = (0, 0, 0)
+                t = nu % 2.0  # dobbelt-slag ("dunk-dunk ... pause") hvert 2. sek
+                if t < 0.18:
+                    b = 1.0 - t / 0.18
+                elif 0.28 <= t < 0.46:
+                    b = 1.0 - (t - 0.28) / 0.18
+                else:
+                    b = 0.0
+                macropad.pixels[11] = (6 + int(24 * b), 0, 0)
+        elif ro_mode:
             # Calm: stillestaaende moenster, laveste SYNLIGE lysstyrke —
             # groen oeverst venstre mod dyb blaa nederst hoejre.
             # (Den globale brightness paa 0.20 ganges paa, saa raavaerdier
