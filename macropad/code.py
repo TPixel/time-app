@@ -212,7 +212,8 @@ PAGES = [
             # Raekke 4 (knap 10-12)
             # LastApp: Cmd+Tab-tryk = skift til sidst brugte app (frem/tilbage)
             ("LastApp", [CMD, K.TAB], None),  # hold = NUMPAD (global)
-            ("", [], None),                   # combo-tast
+            # Brife: morgen briefing (kort tryk — hold = combo-laget)
+            ("Brife", [("SCRIPT", "morning-brief")], None),
             ("", [], None),                   # hold = MUTE (global)
         ],
     },
@@ -433,6 +434,7 @@ def toggle_ro():
 # Tvungen dyb soevn (hold paa Calm-knappen): gaar direkte i dyb soevn
 # uden at vente paa timerne. Ryddes af afbryd_animation ved input.
 dyb_tving = False
+dyb_vist = False  # displayet er slukket (dyb soevn-visning er aktiv)
 
 def dyb_nu():
     global dyb_tving
@@ -467,14 +469,18 @@ def start_side_anim():
 
 def afbryd_animation():
     # Kaldes ved input: stop animationer og gendan sidens farver
-    global side_anim_start, idle_active, flag_type, dyb_tving
+    global side_anim_start, idle_active, flag_type, dyb_tving, dyb_vist
     if (side_anim_start is not None or idle_active or flag_type is not None
-            or dyb_tving):
+            or dyb_tving or dyb_vist):
         side_anim_start = None
         idle_active = False
         flag_type = None
         dyb_tving = False
-        restore_pixels()
+        if dyb_vist:
+            dyb_vist = False
+            show_page()  # taend displayet igen efter dyb soevn
+        else:
+            restore_pixels()
 
 def naeste_side():
     # Bladr én side frem (bruges af combo 11+12)
@@ -740,11 +746,21 @@ while True:
         if not idle_active:
             idle_active = True
             idle_start = nu
-        if dyb_tving or ((nu - sidst_aktiv) >= DYB_EFTER
-                         and (nu - mac_aktiv) >= DYB_EFTER):
-            # Dyb soevn: alle LED'er slukket, K12 banker som et hjerte i
-            # meget svagt roedt. (Brightness 0.20 ganges paa, saa 6-30 raa
-            # er reelt 1-6 paa dioden — lige akkurat synligt i moerke.)
+        dyb = dyb_tving or ((nu - sidst_aktiv) >= DYB_EFTER
+                            and (nu - mac_aktiv) >= DYB_EFTER)
+        if dyb_vist and not dyb:
+            # Vaagnet af dyb soevn uden tastetryk (fx puls fra Mac'en):
+            # taend displayet og lad sleep-moenstrene koere videre
+            dyb_vist = False
+            show_page()
+        if dyb:
+            # Dyb soevn: display OG alle LED'er slukket, K12 banker som
+            # et hjerte i svagt roedt (raa vaerdier ganges med brightness)
+            if not dyb_vist:
+                dyb_vist = True
+                title.text = ""
+                for c in cells:
+                    c.text = ""
             if nu >= idle_naeste:
                 idle_naeste = nu + 0.05
                 for i in range(11):
