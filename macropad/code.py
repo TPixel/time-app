@@ -169,6 +169,8 @@ def run_sequence(seq):
             vis_flag(item[1])
         elif isinstance(item, tuple) and item[0] == "RO":
             toggle_ro()
+        elif isinstance(item, tuple) and item[0] == "DYB":
+            dyb_nu()
         elif isinstance(item, tuple) and item[0] == "PAGE":
             naeste_side()
         elif isinstance(item, tuple) and item[0] == "CTOG":
@@ -201,7 +203,8 @@ PAGES = [
             # Raekke 2 (knap 4-6)
             ("DK", [("SCRIPT", "keyboard-dk"), ("FLAG", "DK")], None),
             ("ENG", [("SCRIPT", "keyboard-eng"), ("FLAG", "ENG")], None),
-            ("Calm", [("RO",)], None),  # toggle stille sleep-moenster
+            # Calm tap = toggle stille moenster; hold = dyb soevn NU
+            ("Calm", [("RO",)], ("Sleep", [("DYB",)])),
             # Raekke 3 (knap 7-9)
             ("", [], None),
             ("", [], None),
@@ -406,7 +409,7 @@ def show_combo():
 
 # --- Animationer (ikke-blokerende — renderes som frames i hovedloekken) ---
 SIDE_ANIM_TID = 0.35   # sideskift-sweep, sekunder
-IDLE_EFTER = 5.0       # sekunder uden input foer idle-animation
+IDLE_EFTER = 120.0     # 2 min normal belysning foer sleep-moenstrene starter
 IDLE_SKIFT = 20.0      # sekunder pr. sleep-moenster foer der skiftes
 DYB_EFTER = 600.0      # 10 min uden aktivitet (tast ELLER input fra Mac'en)
                        # -> dyb soevn: alt slukket, kun K12 banker roedt
@@ -426,6 +429,14 @@ def toggle_ro():
     global ro_mode
     ro_mode = not ro_mode
     title.text = ">> Calm " + ("ON" if ro_mode else "OFF")
+
+# Tvungen dyb soevn (hold paa Calm-knappen): gaar direkte i dyb soevn
+# uden at vente paa timerne. Ryddes af afbryd_animation ved input.
+dyb_tving = False
+
+def dyb_nu():
+    global dyb_tving
+    dyb_tving = True
 
 # Flag-visning (DK/ENG) paa tasterne — 3x4 grid, Dannebrog paa hoejkant:
 # lodret bane i midterkolonnen + vandret bane i anden raekke
@@ -456,11 +467,13 @@ def start_side_anim():
 
 def afbryd_animation():
     # Kaldes ved input: stop animationer og gendan sidens farver
-    global side_anim_start, idle_active, flag_type
-    if side_anim_start is not None or idle_active or flag_type is not None:
+    global side_anim_start, idle_active, flag_type, dyb_tving
+    if (side_anim_start is not None or idle_active or flag_type is not None
+            or dyb_tving):
         side_anim_start = None
         idle_active = False
         flag_type = None
+        dyb_tving = False
         restore_pixels()
 
 def naeste_side():
@@ -721,12 +734,14 @@ while True:
                     macropad.pixels[i] = c
                 else:
                     macropad.pixels[i] = (0, 0, 0)
-    elif not holdes and not enc_sw and (nu - sidst_aktiv) >= IDLE_EFTER:
+    elif not holdes and not enc_sw and (dyb_tving
+                                        or (nu - sidst_aktiv) >= IDLE_EFTER):
         # Sleep-mode: 5 moenstre der skifter hvert IDLE_SKIFT sekund
         if not idle_active:
             idle_active = True
             idle_start = nu
-        if (nu - sidst_aktiv) >= DYB_EFTER and (nu - mac_aktiv) >= DYB_EFTER:
+        if dyb_tving or ((nu - sidst_aktiv) >= DYB_EFTER
+                         and (nu - mac_aktiv) >= DYB_EFTER):
             # Dyb soevn: alle LED'er slukket, K12 banker som et hjerte i
             # meget svagt roedt. (Brightness 0.20 ganges paa, saa 6-30 raa
             # er reelt 1-6 paa dioden — lige akkurat synligt i moerke.)
