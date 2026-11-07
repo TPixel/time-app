@@ -535,6 +535,7 @@ enc_rotated = False   # blev der drejet mens knappen var nede?
 enc_sw_tid = 0.0
 
 sidst_aktiv = time.monotonic()  # sidste input (til idle-animation)
+mac_aktiv = time.monotonic()    # sidste livstegn fra Mac'en ("puls"/app-skift)
 idle_naeste = 0.0               # naeste idle-frame
 
 while True:
@@ -556,8 +557,13 @@ while True:
             if tekst.startswith("app:"):
                 # Input fra computeren taeller som aktivitet
                 sidst_aktiv = nu
+                mac_aktiv = nu
                 afbryd_animation()
                 foelg_app(tekst[4:])
+            elif tekst == "puls":
+                # Livstegn fra Mac'en: brugeren er aktiv ved computeren.
+                # Holder kun DYB soevn vaek — afbryder ikke sleep-moenstrene.
+                mac_aktiv = nu
         if len(rx) > 256:
             rx = b""
 
@@ -720,7 +726,7 @@ while True:
         if not idle_active:
             idle_active = True
             idle_start = nu
-        if (nu - sidst_aktiv) >= DYB_EFTER:
+        if (nu - sidst_aktiv) >= DYB_EFTER and (nu - mac_aktiv) >= DYB_EFTER:
             # Dyb soevn: alle LED'er slukket, K12 banker som et hjerte i
             # meget svagt roedt. (Brightness 0.20 ganges paa, saa 6-30 raa
             # er reelt 1-6 paa dioden — lige akkurat synligt i moerke.)

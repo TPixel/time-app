@@ -9,6 +9,8 @@
 #      script:navn      -> osascript ~/.macropad/scripts/navn.applescript
 #                          (AppleScript-makroer, fx Pixelmator-workflows)
 #      st:scene-id      -> smartthings scenes:execute <id>  (SmartThings CLI)
+# 3) Sender "puls" hvert 30. sekund naar brugeren er aktiv ved Mac'en
+#    (mus/tastatur), saa boardet ikke gaar i dyb soevn mens der arbejdes.
 
 while true; do
   PORT=$(ls /dev/cu.usbmodem* 2>/dev/null | sort | tail -n 1)
@@ -41,6 +43,7 @@ while true; do
   READER=$!
 
   LAST=""
+  PULS_T=0
   while [ -e "$PORT" ]; do
     APP=$(osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true' 2>/dev/null)
     if [ -n "$APP" ] && [ "$APP" != "$LAST" ]; then
@@ -48,6 +51,16 @@ while true; do
         LAST="$APP"
       else
         break
+      fi
+    fi
+    # Puls: har brugeren roert mus/tastatur inden for 30 sek, faar boardet
+    # et livstegn, saa det ikke gaar i dyb soevn mens Mac'en er i brug.
+    NU=$(date +%s)
+    if [ $((NU - PULS_T)) -ge 30 ]; then
+      IDLE=$(ioreg -c IOHIDSystem 2>/dev/null | awk '/HIDIdleTime/ {print int($NF/1000000000); exit}')
+      if [ -n "$IDLE" ] && [ "$IDLE" -lt 30 ]; then
+        printf 'puls\n' >&3 2>/dev/null || break
+        PULS_T=$NU
       fi
     fi
     sleep 1
